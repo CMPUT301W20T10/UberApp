@@ -1,2 +1,3 @@
-CCID:		Github username
-alaevens	alaevens@ualberta.ca
+CCID:       Github username
+alaevens    alaevens@ualberta.ca
+mayer       SoraCasus
