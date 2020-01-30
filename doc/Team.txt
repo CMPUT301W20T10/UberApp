@@ -2,3 +2,4 @@ CCID:       Github username
 alaevens    ALaevens
 mayer       SoraCasus
 bowler      Bowler1
+manuba      TurnipXenon
