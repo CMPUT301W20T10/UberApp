@@ -6,4 +6,7 @@
     <string name="radio_button_driver">Driver</string>
     <string name="login_button">Log In</string>
     <string name="register_button">Register</string>
+    
+    <string name="app_name">UberApp</string>
+    <string name="title_activity_driver_main_screen">Driver</string>
 </resources>
