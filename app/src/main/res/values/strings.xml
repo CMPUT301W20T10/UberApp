@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">UberApp</string>
+    <string name="title_activity_driver_main_screen">Driver</string>
 </resources>
