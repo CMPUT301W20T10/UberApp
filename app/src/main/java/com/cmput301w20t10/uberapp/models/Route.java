@@ -1,4 +1,4 @@
-package com.cmput301w20t10.uberapp;
+package com.cmput301w20t10.uberapp.models;
 
 import com.google.android.gms.maps.model.Marker;
 

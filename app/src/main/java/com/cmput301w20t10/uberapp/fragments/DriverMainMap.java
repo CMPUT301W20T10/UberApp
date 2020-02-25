@@ -1,9 +1,10 @@
-package com.cmput301w20t10.uberapp;
+package com.cmput301w20t10.uberapp.fragments;
 
 import androidx.fragment.app.FragmentActivity;
 
 import android.os.Bundle;
 
+import com.cmput301w20t10.uberapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;

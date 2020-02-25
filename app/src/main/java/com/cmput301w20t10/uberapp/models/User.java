@@ -1,4 +1,4 @@
-package com.cmput301w20t10.uberapp;
+package com.cmput301w20t10.uberapp.models;
 
 /**
  * This is a data holder class intended to hold the data regarding a user. Drawbacks to this class

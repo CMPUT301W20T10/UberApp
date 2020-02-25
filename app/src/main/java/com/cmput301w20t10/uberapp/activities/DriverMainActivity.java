@@ -1,7 +1,9 @@
-package com.cmput301w20t10.uberapp;
+package com.cmput301w20t10.uberapp.activities;
 
 import android.os.Bundle;
 
+import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.models.Route;
 import com.cmput301w20t10.uberapp.database.viewmodel.DriverMainViewModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;

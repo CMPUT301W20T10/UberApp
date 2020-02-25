@@ -1,10 +1,8 @@
 package com.cmput301w20t10.uberapp.database;
 
 
-import com.cmput301w20t10.uberapp.User;
+import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import org.json.JSONObject;
 
 public class Database {
 

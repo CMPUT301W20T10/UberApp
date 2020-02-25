@@ -38,11 +38,11 @@
         </activity>
 
         <activity
-            android:name=".DriverMainMap"
+            android:name=".fragments.DriverMainMap"
             android:label="@string/title_activity_driver_main_map"></activity>
             
         <activity
-            android:name=".DriverMainActivity"
+            android:name=".activities.DriverMainActivity"
             android:label="@string/title_activity_driver_main"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>
