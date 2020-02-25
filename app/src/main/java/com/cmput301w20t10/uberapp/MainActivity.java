@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
 
         buttonDriverTest = findViewById(R.id.button_test_driver);
         buttonDriverTest.setOnClickListener(view -> {
-            Intent intent = new Intent(MainActivity.this, DriverMainScreenActivity.class);
+            Intent intent = new Intent(MainActivity.this, DriverMainActivity.class);
             startActivity(intent);
         });
     }
