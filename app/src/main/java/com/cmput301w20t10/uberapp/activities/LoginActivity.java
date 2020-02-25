@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
 
@@ -13,7 +12,7 @@ import com.cmput301w20t10.uberapp.R;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private RadioButton radioButtonDriver;
+    private RadioButton radioButtonRider;
     private Button buttonLogIn;
 
     @Override
@@ -21,7 +20,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        radioButtonDriver = findViewById(R.id.driver_radio_button);
+        radioButtonRider = findViewById(R.id.rider_radio_button);
         buttonLogIn = findViewById(R.id.button_log_in);
 
         buttonLogIn.setOnClickListener(view -> onClick_signIn());
@@ -29,11 +28,11 @@ public class LoginActivity extends AppCompatActivity {
 
     private void onClick_signIn() {
         // todo: proper implementation of sign in
-        if (radioButtonDriver.isChecked()) {
-            Intent intent = new Intent(this, DriverMainActivity.class);
+        if (radioButtonRider.isChecked()) {
+            Intent intent = new Intent(this, RiderMainActivity.class);
             startActivity(intent);
         } else {
-            Log.d("Testing", "onClick_signIn: Rider");
+            Log.d("Testing", "onClick_signIn: Driver");
         }
     }
 }

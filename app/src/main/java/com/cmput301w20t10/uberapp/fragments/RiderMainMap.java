@@ -1,9 +1,10 @@
-package com.cmput301w20t10.uberapp;
+package com.cmput301w20t10.uberapp.fragments;
 
 import androidx.fragment.app.FragmentActivity;
 
 import android.os.Bundle;
 
+import com.cmput301w20t10.uberapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -11,7 +12,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class DriverMainMap extends FragmentActivity implements OnMapReadyCallback {
+public class RiderMainMap extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
 

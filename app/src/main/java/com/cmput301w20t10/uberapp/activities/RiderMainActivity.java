@@ -1,8 +1,10 @@
-package com.cmput301w20t10.uberapp;
+package com.cmput301w20t10.uberapp.activities;
 
 import android.os.Bundle;
 
-import com.cmput301w20t10.uberapp.database.viewmodel.DriverMainViewModel;
+import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.models.Route;
+import com.cmput301w20t10.uberapp.database.viewmodel.RiderMainViewModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -29,13 +31,13 @@ import android.widget.Button;
 
 // todo: editable map markers
 
-public class DriverMainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCallback {
     // core objects
     private AppBarConfiguration mAppBarConfiguration;
     private GoogleMap mainMap;
 
     // live data
-    private DriverMainViewModel viewModel;
+    private RiderMainViewModel viewModel;
     private MutableLiveData<Route> routeLiveData;
 
     // local data
@@ -49,7 +51,7 @@ public class DriverMainActivity extends AppCompatActivity implements OnMapReadyC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_driver_main);
+        setContentView(R.layout.activity_rider_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -80,7 +82,7 @@ public class DriverMainActivity extends AppCompatActivity implements OnMapReadyC
 
         // this ensures that the data are saved no matter what
         // shenanigans that the android lifecycle throws at us
-        viewModel = DriverMainViewModel.create(getApplication());
+        viewModel = RiderMainViewModel.create(getApplication());
         routeLiveData = viewModel.getCurrentRoute();
         routeLiveData.observe(this, this::onRouteChanged);
 
@@ -95,7 +97,7 @@ public class DriverMainActivity extends AppCompatActivity implements OnMapReadyC
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.driver_main, menu);
+        getMenuInflater().inflate(R.menu.rider_main, menu);
         return true;
     }
 
@@ -125,7 +127,7 @@ public class DriverMainActivity extends AppCompatActivity implements OnMapReadyC
             Marker marker = mainMap.addMarker(markerOptions);
             mainMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
-            // todo: improve routeLiveData validation in driver main screen
+            // todo: improve routeLiveData validation in rider main screen
             route.addLocation(marker);
             routeLiveData.setValue(route);
         });
@@ -136,7 +138,7 @@ public class DriverMainActivity extends AppCompatActivity implements OnMapReadyC
     }
 
     private void onRouteChanged(Route route) {
-        // todo: improve DriverMainActivity.onRouteChanged
+        // todo: improve RiderMainActivity.onRouteChanged
         editTextStartingPoint.setText(route.getStartingPointString());
         editTextDestination.setText(route.getDestinationString());
     }

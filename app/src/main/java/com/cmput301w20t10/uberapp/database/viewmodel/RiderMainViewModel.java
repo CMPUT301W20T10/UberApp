@@ -9,16 +9,16 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
-public class DriverMainViewModel extends AndroidViewModel {
+public class RiderMainViewModel extends AndroidViewModel {
     private MutableLiveData<Route> currentRoute;
 
-    public DriverMainViewModel(@NonNull Application application) {
+    public RiderMainViewModel(@NonNull Application application) {
         super(application);
     }
 
-    public static DriverMainViewModel create(@NonNull Application application) {
+    public static RiderMainViewModel create(@NonNull Application application) {
         return new ViewModelProvider.AndroidViewModelFactory(
-                application).create(DriverMainViewModel.class);
+                application).create(RiderMainViewModel.class);
     }
 
     public MutableLiveData<Route> getCurrentRoute() {
