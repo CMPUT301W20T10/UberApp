@@ -30,8 +30,12 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".DriverMainScreenActivity"
-            android:label="@string/title_activity_driver_main_screen"></activity>
+            android:name=".DriverMainMap"
+            android:label="@string/title_activity_driver_main_map"></activity>
+        <activity
+            android:name=".DriverMainActivity"
+            android:label="@string/title_activity_driver_main"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
