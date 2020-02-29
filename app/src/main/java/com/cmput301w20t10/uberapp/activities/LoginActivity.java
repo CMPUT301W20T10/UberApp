@@ -32,13 +32,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginPressed(View view) {
-        Intent intent = new Intent(this, BalanceActivity.class);
-        startActivity(intent);
+
     }
 
     public void onRegisterPressed(View view) {
-        Intent intent = new Intent(this, BalanceActivity.class);
-        startActivity(intent);
+
     }
 
     public void onBalancePressed(View view) {
