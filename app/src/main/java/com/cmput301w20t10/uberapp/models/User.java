@@ -1,21 +1,32 @@
 package com.cmput301w20t10.uberapp.models;
 
+import com.google.firebase.firestore.DocumentReference;
+
 /**
  * This is a data holder class intended to hold the data regarding a user. Drawbacks to this class
  *  involve the security risk of storing the password in a String format
  */
 public class User {
-
-    private String userName;
+    private DocumentReference userReference;
+    private String username;
     private String password;
     private String email;
     private String firstName;
     private String lastName;
     private String phoneNumber;
+
+    // todo: deprecate
     private float rating;
 
-    public User(String userName, String password, String email, String firstName, String lastName, String phoneNumber, float rating) {
-        this.userName = userName;
+    // todo: deprecate
+    public User(String username,
+                String password,
+                String email,
+                String firstName,
+                String lastName,
+                String phoneNumber,
+                float rating) {
+        this.username = username;
         this.password = password;
         this.email = email;
         this.firstName = firstName;
@@ -24,8 +35,38 @@ public class User {
         this.rating = rating;
     }
 
-    public String getUserName() {
-        return userName;
+    public User(String username,
+                String password,
+                String email,
+                String firstName,
+                String lastName,
+                String phoneNumber) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public User(String username,
+                String password,
+                String email,
+                String firstName,
+                String lastName,
+                String phoneNumber,
+                DocumentReference userReference) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.userReference = userReference;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     public String getPassword() {
