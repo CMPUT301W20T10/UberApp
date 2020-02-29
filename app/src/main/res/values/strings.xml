@@ -5,5 +5,7 @@
     <string name="radio_button_rider">Rider</string>
     <string name="radio_button_driver">Driver</string>
     <string name="login_button">Log In</string>
+    <string name="balance_button">Balance</string>
     <string name="register_button">Register</string>
+    <string name="add_funds_button">Add Funds</string>
 </resources>
