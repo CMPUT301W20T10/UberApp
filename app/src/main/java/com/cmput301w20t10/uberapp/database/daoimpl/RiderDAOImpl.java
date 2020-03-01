@@ -44,20 +44,30 @@ public class RiderDAOImpl implements RiderDAO {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection(COLLECTION_RIDERS)
                 .add(riderEntity)
-                .addOnSuccessListener(documentReference -> registerRiderAsUser(
-                        documentReference,
-                        username,
-                        password,
-                        email,
-                        firstName,
-                        lastName,
-                        phoneNumber,
-                        owner))
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        riderEntity.setRiderReference(documentReference);
+                        registerRiderAsUser(
+                                riderLiveData,
+                                riderEntity,
+                                riderLiveData,
+                                username,
+                                password,
+                                email,
+                                firstName,
+                                lastName,
+                                phoneNumber,
+                                owner);
+                    }
+                })
                 .addOnFailureListener(e -> Log.w(TAG, "onFailure: Error adding document", e));
         return riderLiveData;
     }
 
-    private void registerRiderAsUser(DocumentReference riderReference,
+    private void registerRiderAsUser(MutableLiveData<Rider> riderLiveDate,
+                                     RiderEntity riderEntity,
+                                     MutableLiveData<Rider> riderLiveData,
                                      String username,
                                      String password,
                                      String email,
@@ -73,9 +83,11 @@ public class RiderDAOImpl implements RiderDAO {
                 firstName,
                 lastName,
                 phoneNumber)
-                .observe(owner, userReference -> {
-                    if (userReference != null) {
-                        userDAO.registerRider(riderReference, userReference);
+                .observe(owner, userEntity -> {
+                    if (userEntity != null && userEntity.getUserReference() != null) {
+                        userDAO.registerRider(riderEntity.getRiderReference(), userEntity.getUserReference());
+                        Rider rider = new Rider(riderEntity, userEntity);
+                        riderLiveData.setValue(rider);
                     }
                 });
     }

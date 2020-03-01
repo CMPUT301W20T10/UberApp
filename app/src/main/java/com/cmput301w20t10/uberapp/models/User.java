@@ -1,5 +1,6 @@
 package com.cmput301w20t10.uberapp.models;
 
+import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.google.firebase.firestore.DocumentReference;
 
 /**
@@ -63,6 +64,16 @@ public class User {
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.userReference = userReference;
+    }
+
+    public User(UserEntity userEntity) {
+        this.userReference = userEntity.getUserReference();
+        this.username = userEntity.getUsername();
+        this.password = userEntity.getPassword();
+        this.email = userEntity.getEmail();
+        this.firstName = userEntity.getFirstName();
+        this.lastName = userEntity.getLastName();
+        this.phoneNumber = userEntity.getPhoneNumber();
     }
 
     public String getUsername() {

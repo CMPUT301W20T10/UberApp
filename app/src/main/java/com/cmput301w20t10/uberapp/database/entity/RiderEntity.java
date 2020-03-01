@@ -22,4 +22,12 @@ public class RiderEntity {
     public List<DocumentReference> getPaymentReferenceList() {
         return paymentReferenceList;
     }
+
+    public DocumentReference getRiderReference() {
+        return riderReference;
+    }
+
+    public void setRiderReference(DocumentReference documentReference) {
+        this.riderReference = documentReference;
+    }
 }

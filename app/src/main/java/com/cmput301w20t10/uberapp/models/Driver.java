@@ -1,9 +1,11 @@
 package com.cmput301w20t10.uberapp.models;
 
+import com.cmput301w20t10.uberapp.database.entity.DriverEntity;
+import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.google.firebase.firestore.DocumentReference;
 
 public class Driver extends User {
-    private DocumentReference driverId;
+    private DocumentReference driverReference;
     private int rating2;
 
     @Deprecated
@@ -26,6 +28,12 @@ public class Driver extends User {
                   int rating) {
         super(userName, password, email, firstName, lastName, phoneNumber);
         this.rating2 = rating;
+    }
+
+    public Driver(DriverEntity driverEntity, UserEntity userEntity) {
+        super(userEntity);
+        this.driverReference = driverEntity.getDriverReference();
+        this.rating2 = driverEntity.getRating();
     }
 
     public int getRating2() {

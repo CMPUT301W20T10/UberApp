@@ -1,11 +1,12 @@
 package com.cmput301w20t10.uberapp.database.dao;
 
+import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.google.firebase.firestore.DocumentReference;
 
 import androidx.lifecycle.MutableLiveData;
 
 public interface UserDAO {
-    MutableLiveData<DocumentReference> registerUser(String username,
+    MutableLiveData<UserEntity> registerUser(String username,
                                              String password,
                                              String email,
                                              String firstName,

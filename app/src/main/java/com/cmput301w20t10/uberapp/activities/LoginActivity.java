@@ -16,7 +16,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private RadioButton radioButtonRider;
     private Button buttonLogIn;
-    private DriverViewModel viewModel;
+    private DriverViewModel driverViewModel;
+    private RiderViewModel riderViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +28,9 @@ public class LoginActivity extends AppCompatActivity {
         buttonLogIn = findViewById(R.id.button_log_in);
 
         buttonLogIn.setOnClickListener(view -> onClick_signIn());
-        viewModel = DriverViewModel.create(getApplication());
+
+        driverViewModel = DriverViewModel.create(getApplication());
+        riderViewModel = RiderViewModel.create(getApplication());
     }
 
     private void onClick_signIn() {
@@ -37,7 +40,8 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
         } else {
             Log.d("Testing", "onClick_signIn: Driver");
-            viewModel.registerDriver("Snom", "123", "snom@ualberta.ca","Snom","WormOnString","123", this);
+            riderViewModel.registerRider("Cramorant", "123", "cram@ualberta.ca","Cramorant","Birdo","123", this);
+            driverViewModel.registerDriver("Snom", "123", "snom@ualberta.ca","Snom","WormOnString","123", this);
         }
     }
 }

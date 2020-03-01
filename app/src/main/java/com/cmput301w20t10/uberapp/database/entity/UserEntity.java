@@ -12,7 +12,7 @@ public class UserEntity {
     private static final String FIELD_PHONE_NUMBER = "phoneNumber";
 
     public static final String FIELD_DRIVER_REFERENCE = "driverReference";
-    public static final String FIELD_RIDER_REFERENCE = "driverReference";
+    public static final String FIELD_RIDER_REFERENCE = "riderReference";
 
     private static final String EMPTY_STRING_VALUE = "null";
 
@@ -113,5 +113,13 @@ public class UserEntity {
 
     public void setRiderReference(DocumentReference riderReference) {
         this.riderReference = riderReference;
+    }
+
+    public void setUserReference(DocumentReference userReference) {
+        this.userReference = userReference;
+    }
+
+    public DocumentReference getUserReference() {
+        return userReference;
     }
 }

@@ -6,7 +6,6 @@ import com.cmput301w20t10.uberapp.database.dao.DriverDAO;
 import com.cmput301w20t10.uberapp.database.dao.UserDAO;
 import com.cmput301w20t10.uberapp.database.entity.DriverEntity;
 import com.cmput301w20t10.uberapp.models.Driver;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import androidx.annotation.NonNull;
@@ -35,32 +34,37 @@ public class DriverDAOImpl implements DriverDAO {
                                                   LifecycleOwner owner) {
 
         MutableLiveData<Driver> driverLiveData = new MutableLiveData<>();
-        DriverEntity riderEntity = new DriverEntity();
+        DriverEntity driverEntity = new DriverEntity();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection(COLLECTION_DRIVERS)
-                .add(riderEntity)
-                .addOnSuccessListener(documentReference -> registerRiderAsUser(
-                        documentReference,
-                        username,
-                        password,
-                        email,
-                        firstName,
-                        lastName,
-                        phoneNumber,
-                        owner))
+                .add(driverEntity)
+                .addOnSuccessListener(documentReference -> {
+                    driverEntity.setDriverReference(documentReference);
+                    registerDriverAsUser(
+                            driverLiveData,
+                            driverEntity,
+                            username,
+                            password,
+                            email,
+                            firstName,
+                            lastName,
+                            phoneNumber,
+                            owner);
+                })
                 .addOnFailureListener(e -> Log.w(TAG, "onFailure: Error adding document", e));
         return driverLiveData;
     }
 
 
-    private void registerRiderAsUser(DocumentReference driverReference,
-                                     String username,
-                                     String password,
-                                     String email,
-                                     String firstName,
-                                     String lastName,
-                                     String phoneNumber,
-                                     @NonNull LifecycleOwner owner){
+    private void registerDriverAsUser(MutableLiveData<Driver> driverLiveData,
+                                      DriverEntity driverEntity,
+                                      String username,
+                                      String password,
+                                      String email,
+                                      String firstName,
+                                      String lastName,
+                                      String phoneNumber,
+                                      @NonNull LifecycleOwner owner){
         // create user then set driver
         UserDAO userDAO = new UserDAOImpl();
         userDAO.registerUser(username,
@@ -69,9 +73,11 @@ public class DriverDAOImpl implements DriverDAO {
                 firstName,
                 lastName,
                 phoneNumber)
-                .observe(owner, userReference -> {
-                    if (userReference != null) {
-                        userDAO.registerDriver(driverReference, userReference);
+                .observe(owner, userEntity -> {
+                    if (userEntity != null && userEntity.getUserReference() != null) {
+                        userDAO.registerDriver(driverEntity.getDriverReference(), userEntity.getUserReference());
+                        Driver driver = new Driver(driverEntity, userEntity);
+                        driverLiveData.setValue(driver);
                     }
                 });
     }
