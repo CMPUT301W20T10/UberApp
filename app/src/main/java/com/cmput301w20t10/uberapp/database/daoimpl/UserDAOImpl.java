@@ -68,4 +68,11 @@ public class UserDAOImpl implements UserDAO {
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "onSuccess: Registered rider"))
                 .addOnFailureListener(e -> Log.w(TAG, "onFailure: ", e));
     }
+
+    @Override
+    public void registerDriver(DocumentReference driverReference, DocumentReference userReference) {
+        userReference.update(UserEntity.FIELD_DRIVER_REFERENCE, driverReference)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "onSuccess: Registered rider"))
+                .addOnFailureListener(e -> Log.w(TAG, "onFailure: ", e));
+    }
 }

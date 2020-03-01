@@ -13,4 +13,7 @@ public interface UserDAO {
                                              String phoneNumber);
     void registerRider(DocumentReference riderReference,
                        DocumentReference userReference);
+
+    void registerDriver(DocumentReference driverReference,
+                        DocumentReference userReference);
 }

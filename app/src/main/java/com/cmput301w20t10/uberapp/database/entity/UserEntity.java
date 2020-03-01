@@ -11,7 +11,7 @@ public class UserEntity {
     private static final String FIELD_LAST_NAME = "lastName";
     private static final String FIELD_PHONE_NUMBER = "phoneNumber";
 
-    private static final String FIELD_DRIVER_REFERENCE = "driverReference";
+    public static final String FIELD_DRIVER_REFERENCE = "driverReference";
     public static final String FIELD_RIDER_REFERENCE = "driverReference";
 
     private static final String EMPTY_STRING_VALUE = "null";

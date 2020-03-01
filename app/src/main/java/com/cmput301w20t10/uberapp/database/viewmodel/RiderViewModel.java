@@ -3,9 +3,7 @@ package com.cmput301w20t10.uberapp.database.viewmodel;
 import android.app.Application;
 
 import com.cmput301w20t10.uberapp.database.dao.RiderDAO;
-import com.cmput301w20t10.uberapp.database.dao.UserDAO;
 import com.cmput301w20t10.uberapp.database.daoimpl.RiderDAOImpl;
-import com.cmput301w20t10.uberapp.database.daoimpl.UserDAOImpl;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 
@@ -15,17 +13,17 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
-public class RiderMainViewModel extends AndroidViewModel {
+public class RiderViewModel extends AndroidViewModel {
     private MutableLiveData<Route> currentRoute;
     private MutableLiveData<Rider> rider;
 
-    public RiderMainViewModel(@NonNull Application application) {
+    public RiderViewModel(@NonNull Application application) {
         super(application);
     }
 
-    public static RiderMainViewModel create(@NonNull Application application) {
+    public static RiderViewModel create(@NonNull Application application) {
         return new ViewModelProvider.AndroidViewModelFactory(
-                application).create(RiderMainViewModel.class);
+                application).create(RiderViewModel.class);
     }
 
     public MutableLiveData<Route> getCurrentRoute() {
@@ -52,10 +50,6 @@ public class RiderMainViewModel extends AndroidViewModel {
                                                 String lastName,
                                                 String phoneNumber,
                                                 LifecycleOwner owner) {
-        if (rider == null) {
-            rider = new MutableLiveData<>();
-        }
-
         RiderDAO riderDAO = new RiderDAOImpl();
         return riderDAO.registerRider(username, password, email, firstName, lastName, phoneNumber, owner);
     }

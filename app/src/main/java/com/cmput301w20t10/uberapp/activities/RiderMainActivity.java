@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.models.Route;
-import com.cmput301w20t10.uberapp.database.viewmodel.RiderMainViewModel;
+import com.cmput301w20t10.uberapp.database.viewmodel.RiderViewModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -37,7 +37,7 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
     private GoogleMap mainMap;
 
     // live data
-    private RiderMainViewModel viewModel;
+    private RiderViewModel viewModel;
     private MutableLiveData<Route> routeLiveData;
 
     // local data
@@ -82,7 +82,7 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
 
         // this ensures that the data are saved no matter what
         // shenanigans that the android lifecycle throws at us
-        viewModel = RiderMainViewModel.create(getApplication());
+        viewModel = RiderViewModel.create(getApplication());
         routeLiveData = viewModel.getCurrentRoute();
         routeLiveData.observe(this, this::onRouteChanged);
 
