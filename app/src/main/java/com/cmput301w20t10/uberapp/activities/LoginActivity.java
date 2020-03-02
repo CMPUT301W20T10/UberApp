@@ -37,6 +37,8 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onRegisterPressed(View view) {
         Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
+        String email = emailField.getText().toString();
+        intent.putExtra("EMAIL", email);
         startActivity(intent);
     }
 
