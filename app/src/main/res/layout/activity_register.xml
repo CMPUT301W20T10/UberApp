@@ -8,9 +8,10 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:layout_marginTop="24dp"
+        android:contentDescription="@string/profile_picture"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -26,6 +27,7 @@
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        android:autofillHints=""
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
     <EditText
@@ -38,6 +40,7 @@
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        android:autofillHints=""
         app:layout_constraintTop_toBottomOf="@+id/first_name_field" />
 
     <EditText
@@ -50,6 +53,7 @@
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        android:autofillHints=""
         app:layout_constraintTop_toBottomOf="@+id/last_name_field" />
 
     <EditText
@@ -62,6 +66,7 @@
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        android:autofillHints=""
         app:layout_constraintTop_toBottomOf="@+id/email_field" />
 
     <EditText
@@ -69,6 +74,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:autofillHints=""
         android:ems="10"
         android:hint="@string/confirm_password_field_hint"
         android:inputType="textPassword"
@@ -86,7 +92,21 @@
         android:inputType="textEmailAddress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        android:autofillHints=""
         app:layout_constraintTop_toBottomOf="@+id/username_field" />
+
+    <EditText
+        android:id="@+id/phone_field"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:autofillHints=""
+        android:ems="10"
+        android:hint="@string/phone_field_hint"
+        android:inputType="phone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/confirm_password_field" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -97,13 +117,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/confirm_password_field">
+        app:layout_constraintTop_toBottomOf="@+id/phone_field">
 
         <Button
             android:id="@+id/register_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="onRegisterPress"
             android:text="@string/register_button" />
 
         <Button
@@ -111,6 +132,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="onCancelPress"
             android:text="@string/cancel_button" />
     </LinearLayout>
 

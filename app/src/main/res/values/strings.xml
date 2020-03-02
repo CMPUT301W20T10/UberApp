@@ -11,4 +11,5 @@
     <string name="username_field_hint">Username</string>
     <string name="confirm_password_field_hint">Confirm Password</string>
     <string name="cancel_button">Cancel</string>
+    <string name="phone_field_hint">Phone number</string>
 </resources>
