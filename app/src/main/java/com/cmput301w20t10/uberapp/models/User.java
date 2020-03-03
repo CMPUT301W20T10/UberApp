@@ -15,6 +15,7 @@ public class User {
     private String firstName;
     private String lastName;
     private String phoneNumber;
+    private int balance;
 
     // todo: deprecate
     private float rating;
@@ -100,7 +101,15 @@ public class User {
         return phoneNumber;
     }
 
+    public int getBalance() {
+        return balance;
+    }
+
     public float getRating() {
         return rating;
+    }
+
+    public DocumentReference getUserReference() {
+        return userReference;
     }
 }

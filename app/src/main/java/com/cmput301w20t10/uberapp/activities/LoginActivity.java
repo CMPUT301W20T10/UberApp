@@ -1,6 +1,7 @@
 package com.cmput301w20t10.uberapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,15 +10,16 @@ import android.widget.Button;
 import android.widget.RadioButton;
 
 import com.cmput301w20t10.uberapp.R;
-import com.cmput301w20t10.uberapp.database.viewmodel.DriverViewModel;
+import com.cmput301w20t10.uberapp.database.DatabaseManager;
+import com.cmput301w20t10.uberapp.database.viewmodel.DriverRegistrationViewModel;
 import com.cmput301w20t10.uberapp.database.viewmodel.RiderViewModel;
+import com.cmput301w20t10.uberapp.models.Driver;
+import com.cmput301w20t10.uberapp.models.Rider;
 
 public class LoginActivity extends AppCompatActivity {
 
     private RadioButton radioButtonRider;
     private Button buttonLogIn;
-    private DriverViewModel driverViewModel;
-    private RiderViewModel riderViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,9 +30,6 @@ public class LoginActivity extends AppCompatActivity {
         buttonLogIn = findViewById(R.id.button_log_in);
 
         buttonLogIn.setOnClickListener(view -> onClick_signIn());
-
-        driverViewModel = DriverViewModel.create(getApplication());
-        riderViewModel = RiderViewModel.create(getApplication());
     }
 
     private void onClick_signIn() {
@@ -40,8 +39,16 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
         } else {
             Log.d("Testing", "onClick_signIn: Driver");
-            riderViewModel.registerRider("Cramorant", "123", "cram@ualberta.ca","Cramorant","Birdo","123", this);
-            driverViewModel.registerDriver("Snom", "123", "snom@ualberta.ca","Snom","WormOnString","123", this);
+//            DatabaseManager.getInstance().registerRider("Appletun",
+//                    "yum yum jelly jelly",
+//                    "mrmr@gmail.com",
+//                    "Appletun",
+//                    "3.14",
+//                    "123",
+//                    this);
+            DatabaseManager.getInstance().logInAsDriver(
+                    "Thomas", "choo choo", this)
+                    .observe(this, driver -> Log.d("Testing", "onChanged: Success: " + (driver != null)));
         }
     }
 }

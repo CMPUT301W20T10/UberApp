@@ -17,4 +17,6 @@ public interface UserDAO {
 
     void registerDriver(DocumentReference driverReference,
                         DocumentReference userReference);
+
+    MutableLiveData<UserEntity> logIn(String username, String password);
 }

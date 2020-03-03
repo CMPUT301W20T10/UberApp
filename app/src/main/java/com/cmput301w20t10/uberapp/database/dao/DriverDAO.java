@@ -4,10 +4,10 @@ import com.cmput301w20t10.uberapp.models.Driver;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 public interface DriverDAO {
-    public MutableLiveData<Driver> getDriver(String username, String password);
     @Nullable
     MutableLiveData<Driver> registerDriver(String username,
                                           String password,
@@ -16,4 +16,6 @@ public interface DriverDAO {
                                           String lastName,
                                           String phoneNumber,
                                           LifecycleOwner owner);
+
+    LiveData<Driver> logInAsDriver(String username, String password, LifecycleOwner owner);
 }

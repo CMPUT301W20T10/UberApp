@@ -9,8 +9,6 @@ import androidx.lifecycle.MutableLiveData;
 
 public interface RiderDAO {
     @Nullable
-    MutableLiveData<Rider> getRider(String username, String password);
-    @Nullable
     MutableLiveData<Rider> registerRider(String username,
                                         String password,
                                         String email,
@@ -18,4 +16,6 @@ public interface RiderDAO {
                                         String lastName,
                                         String phoneNumber,
                                          LifecycleOwner owner);
+
+    MutableLiveData<Rider> logInAsRider(String username, String password, LifecycleOwner owner);
 }

@@ -2,8 +2,9 @@ package com.cmput301w20t10.uberapp.database.viewmodel;
 
 import android.app.Application;
 
+import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.dao.RiderDAO;
-import com.cmput301w20t10.uberapp.database.daoimpl.RiderDAOImpl;
+import com.cmput301w20t10.uberapp.database.RiderDAOImpl;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 
@@ -50,7 +51,7 @@ public class RiderViewModel extends AndroidViewModel {
                                                 String lastName,
                                                 String phoneNumber,
                                                 LifecycleOwner owner) {
-        RiderDAO riderDAO = new RiderDAOImpl();
-        return riderDAO.registerRider(username, password, email, firstName, lastName, phoneNumber, owner);
+        return DatabaseManager.getInstance().registerRider(
+                username, password, email, firstName, lastName, phoneNumber, owner);
     }
 }

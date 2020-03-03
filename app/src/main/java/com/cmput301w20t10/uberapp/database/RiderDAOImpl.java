@@ -1,34 +1,24 @@
-package com.cmput301w20t10.uberapp.database.daoimpl;
+package com.cmput301w20t10.uberapp.database;
 
 import android.util.Log;
 
-import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.dao.RiderDAO;
 import com.cmput301w20t10.uberapp.database.dao.UserDAO;
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
-import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.models.Rider;
-import com.cmput301w20t10.uberapp.models.User;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 
 import static android.content.ContentValues.TAG;
 
 public class RiderDAOImpl implements RiderDAO {
     public static final String COLLECTION_RIDERS = "riders";
 
-    @Override
-    @Nullable
-    public MutableLiveData<Rider> getRider(String username, String password) {
-        return null;
-    }
+    RiderDAOImpl() {}
 
     @Nullable
     @Override
@@ -42,26 +32,55 @@ public class RiderDAOImpl implements RiderDAO {
         MutableLiveData<Rider> riderLiveData = new MutableLiveData<>();
         RiderEntity riderEntity = new RiderEntity();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // todo: check if rider was already registered
+
         db.collection(COLLECTION_RIDERS)
                 .add(riderEntity)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        riderEntity.setRiderReference(documentReference);
-                        registerRiderAsUser(
-                                riderLiveData,
-                                riderEntity,
-                                riderLiveData,
-                                username,
-                                password,
-                                email,
-                                firstName,
-                                lastName,
-                                phoneNumber,
-                                owner);
-                    }
+                .addOnSuccessListener(riderReference -> {
+                    riderReference.update(RiderEntity.FIELD_RIDER_REFERENCE, riderReference);
+                    riderEntity.setRiderReference(riderReference);
+                    registerRiderAsUser(
+                            riderLiveData,
+                            riderEntity,
+                            riderLiveData,
+                            username,
+                            password,
+                            email,
+                            firstName,
+                            lastName,
+                            phoneNumber,
+                            owner);
                 })
                 .addOnFailureListener(e -> Log.w(TAG, "onFailure: Error adding document", e));
+        return riderLiveData;
+    }
+
+    @Override
+    public MutableLiveData<Rider> logInAsRider(String username, String password, LifecycleOwner owner) {
+        MutableLiveData<Rider> riderLiveData = new MutableLiveData<>();
+
+        UserDAO userDAO = new UserDAOImpl();
+        userDAO.logIn(username, password)
+                .observe(owner, userEntity -> {
+                    if (userEntity == null || userEntity.getRiderReference() == null) {
+                        riderLiveData.setValue(null);
+                    } else {
+                        userEntity.getRiderReference()
+                                .get()
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful() && task.getResult() != null) {
+                                        RiderEntity riderEntity = task.getResult()
+                                                .toObject(RiderEntity.class);
+                                        Rider rider = new Rider(riderEntity, userEntity);
+                                        riderLiveData.setValue(rider);
+                                    } else {
+                                        riderLiveData.setValue(null);
+                                    }
+                                });
+                    }
+                });
+
         return riderLiveData;
     }
 

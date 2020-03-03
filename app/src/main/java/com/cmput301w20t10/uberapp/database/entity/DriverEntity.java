@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DriverEntity {
+    public static final String DRIVER_REFERENCE = "driverReference";
+
     private DocumentReference driverReference;
     public int rating;
     public List<DocumentReference> paymentListReference;
