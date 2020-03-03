@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -32,7 +33,20 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginPressed(View view) {
+        // Check for empty fields
+        if(emailField.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Email Required", Toast.LENGTH_LONG).show();
+            return;
+        }
 
+        if(passwordField.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Password Required", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Todo: Send login details to database for login validation
+        // if the email doesn't exist, should we transition to register screen automatically?
+        // Todo: Transition to appropriate screen (Rider/Driver)
     }
 
     public void onRegisterPressed(View view) {

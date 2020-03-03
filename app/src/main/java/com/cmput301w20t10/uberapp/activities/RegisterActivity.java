@@ -63,12 +63,45 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         // Non-empty fields
+        // Todo (Joshua) : This should be split into another method for cleanliness
 
+        if(firstNameField.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "First name field empty!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if(lastNameField.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Last name field empty!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if(usernameField.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Username field empty!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if(emailField.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Email field empty!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if(phoneField.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Phone number field empty!", Toast.LENGTH_LONG).show();
+            return;
+        }
 
         // Check that the user doesn't already have info in database
         // Submit info to database
     }
 
+    /**
+     * Validates that the password follows the requirements. One upper and lowercase letter,
+     * one number and a minimum of 8 characters.
+     *
+     * @param password - The password to be validated
+     *
+     * @return - True if the validation succeeds, false if there is an error
+     */
     private boolean validatePassword(@NonNull String password) {
         boolean upper = false;
         boolean lower = false;
