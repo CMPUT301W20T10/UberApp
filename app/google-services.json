@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "834578495127",
+    "firebase_url": "https://uberapp-c6c6d.firebaseio.com",
+    "project_id": "uberapp-c6c6d",
+    "storage_bucket": "uberapp-c6c6d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834578495127:android:427054add73e2a30649bd2",
+        "android_client_info": {
+          "package_name": "com.cmput301w20t10.uberapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "834578495127-viepe5o9um75pnc3oi32hmj5hacna6d3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRwFwic3Tn7YIn3ntK2DqAv8A2fy2kH0k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "834578495127-viepe5o9um75pnc3oi32hmj5hacna6d3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
