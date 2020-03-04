@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
     tools:context=".activities.LoginActivity">
 
     <ImageView
@@ -18,13 +17,13 @@
         tools:srcCompat="@mipmap/ic_uberapp" />
 
     <EditText
-        android:id="@+id/email_field"
+        android:id="@+id/username_field"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:ems="10"
-        android:hint="@string/email_field_hint"
-        android:inputType="textEmailAddress"
+        android:hint="@string/username_field_hint"
+        android:inputType="text|textEmailAddress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/app_icon_image" />
@@ -39,7 +38,7 @@
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/email_field" />
+        app:layout_constraintTop_toBottomOf="@+id/username_field" />
 
     <RadioGroup
         android:id="@+id/rider_driver_toggle"
@@ -97,17 +96,19 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:onClick="onLoginPressed"
+            android:paddingRight="8dp"
             android:text="@string/login_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/rider_driver_toggle" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/register_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:onClick="onRegisterPressed"
+            android:paddingLeft="8dp"
             android:text="@string/register_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
