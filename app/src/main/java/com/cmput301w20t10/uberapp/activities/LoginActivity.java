@@ -1,7 +1,7 @@
 package com.cmput301w20t10.uberapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,20 +12,18 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
-import com.cmput301w20t10.uberapp.database.viewmodel.DriverRegistrationViewModel;
-import com.cmput301w20t10.uberapp.database.viewmodel.RiderViewModel;
-import com.cmput301w20t10.uberapp.models.Driver;
-import com.cmput301w20t10.uberapp.models.Rider;
 
+/**
+ * @author Joshua Mayer
+ * @version 1.0.2
+ */
 public class LoginActivity extends AppCompatActivity {
 
     private RadioButton radioButtonRider;
     private Button buttonLogIn;
-    private EditText emailField;
+    private EditText usernameField;
     private EditText passwordField;
     private RadioGroup loginTypeField;
 
@@ -40,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
 
         buttonLogIn.setOnClickListener(view -> onClick_signIn());
         
-        this.emailField = findViewById(R.id.email_field);
+        this.usernameField = findViewById(R.id.username_field);
         this.passwordField = findViewById(R.id.password_field);
         this.loginTypeField = findViewById(R.id.rider_driver_toggle);
 
@@ -71,7 +69,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onLoginPressed(View view) {
         // Check for empty fields
-        if(emailField.getText().toString().isEmpty()) {
+        if(usernameField.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), "Email Required", Toast.LENGTH_LONG).show();
             return;
         }
@@ -88,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onRegisterPressed(View view) {
         Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
-        String email = emailField.getText().toString();
+        String email = usernameField.getText().toString();
         intent.putExtra("EMAIL", email);
         startActivity(intent);
     }

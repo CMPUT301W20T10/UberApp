@@ -10,7 +10,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.database.DatabaseManager;
 
+/**
+ * @author Joshua Mayer
+ * @version 1.0.3
+ */
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText firstNameField;
@@ -29,7 +34,7 @@ public class RegisterActivity extends AppCompatActivity {
         this.firstNameField = findViewById(R.id.first_name_field);
         this.lastNameField = findViewById(R.id.last_name_field);
         this.usernameField = findViewById(R.id.username_field);
-        this.emailField = findViewById(R.id.email_field);
+        this.emailField = findViewById(R.id.username_field);
         this.passwordField = findViewById(R.id.password_field);
         this.confirmPasswordField = findViewById(R.id.confirm_password_field);
         this.phoneField = findViewById(R.id.phone_field);
@@ -63,35 +68,59 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         // Non-empty fields
-        // Todo (Joshua) : This should be split into another method for cleanliness
+        if(!verifyFields()) {
+            return;
+        }
 
+
+        // Check that the user doesn't already have info in database
+
+
+        // Submit info to database
+        // Todo(Joshua): Verify this is the proper way to add user to DB
+        DatabaseManager.getInstance().registerRider(
+                usernameField.getText().toString(),
+                    passwordField.getText().toString(),
+                    emailField.getText().toString(),
+                    firstNameField.getText().toString(),
+                    lastNameField.getText().toString(),
+                    phoneField.getText().toString(),
+                    this);
+    }
+
+    /**
+     * Checks the fields in the register activity to ensure that the user has not left
+     * any blank. If any are found blank, the user is notified.
+     *
+     * @return True if the fields are valid, false otherwise
+     */
+    private boolean verifyFields() {
         if(firstNameField.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), "First name field empty!", Toast.LENGTH_LONG).show();
-            return;
+            return false;
         }
 
         if(lastNameField.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), "Last name field empty!", Toast.LENGTH_LONG).show();
-            return;
+            return false;
         }
 
         if(usernameField.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), "Username field empty!", Toast.LENGTH_LONG).show();
-            return;
+            return false;
         }
 
         if(emailField.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), "Email field empty!", Toast.LENGTH_LONG).show();
-            return;
+            return false;
         }
 
         if(phoneField.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), "Phone number field empty!", Toast.LENGTH_LONG).show();
-            return;
+            return false;
         }
 
-        // Check that the user doesn't already have info in database
-        // Submit info to database
+        return true;
     }
 
     /**

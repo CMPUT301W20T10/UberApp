@@ -67,7 +67,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:autofillHints=""
-        app:layout_constraintTop_toBottomOf="@+id/email_field" />
+        app:layout_constraintTop_toBottomOf="@+id/username_field" />
 
     <EditText
         android:id="@+id/confirm_password_field"
@@ -83,7 +83,7 @@
         app:layout_constraintTop_toBottomOf="@+id/password_field" />
 
     <EditText
-        android:id="@+id/email_field"
+        android:id="@+id/username_field"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
