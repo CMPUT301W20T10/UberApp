@@ -18,6 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
@@ -61,12 +62,17 @@ public class DatabaseManager  {
      * @return
      */
     @Nullable
-    public static DatabaseManager getInstance(Context context) {
+    public static MutableLiveData<DatabaseManager> getInstance(Context context) {
+        MutableLiveData<DatabaseManager> databaseLiveData = new MutableLiveData<>();
+
+        // todo: do in the background
         if (INSTANCE.verify(context)) {
-            return INSTANCE;
+            // todo: load live data
         } else {
-            return null;
+            // todo: return null
         }
+
+        return databaseLiveData;
     }
 
     private DatabaseManager() {
@@ -82,7 +88,11 @@ public class DatabaseManager  {
                 .getSharedPreferences(PREF_FILE_KEY, Context.MODE_PRIVATE);
         boolean isLoggedIn = State.LOGGED_OUT.ordinal() !=
                 preferences.getInt(PREF_DB_STATE, State.LOGGED_OUT.ordinal());
-        // todo: verification
+
+        if(isLoggedIn) {
+            // todo: verification
+        }
+
         return isLoggedIn;
     }
 
