@@ -26,6 +26,7 @@ public class DriverDAO {
                                                   String firstName,
                                                   String lastName,
                                                   String phoneNumber,
+                                                  String image,
                                                   LifecycleOwner owner) {
 
         MutableLiveData<Driver> driverLiveData = new MutableLiveData<>();
@@ -48,6 +49,7 @@ public class DriverDAO {
                             firstName,
                             lastName,
                             phoneNumber,
+                            image,
                             owner);
                 })
                 .addOnFailureListener(e -> Log.w(TAG, "onFailure: Error adding document", e));
@@ -90,6 +92,7 @@ public class DriverDAO {
                                       String firstName,
                                       String lastName,
                                       String phoneNumber,
+                                      String image,
                                       @NonNull LifecycleOwner owner){
         // create user then set driver
         UserDAO userDAO = new UserDAO();
@@ -98,7 +101,8 @@ public class DriverDAO {
                 email,
                 firstName,
                 lastName,
-                phoneNumber)
+                phoneNumber,
+                image)
                 .observe(owner, userEntity -> {
                     if (userEntity != null && userEntity.getUserReference() != null) {
                         userDAO.registerDriver(driverEntity.getDriverReference(), userEntity.getUserReference());

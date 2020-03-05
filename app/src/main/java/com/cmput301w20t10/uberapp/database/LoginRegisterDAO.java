@@ -84,6 +84,7 @@ public class LoginRegisterDAO {
                                                 String firstName,
                                                 String lastName,
                                                 String phoneNumber,
+                                                String image,
                                                 LifecycleOwner owner) {
         RiderDAO riderDAO = new RiderDAO();
         return riderDAO.registerRider(username,
@@ -92,6 +93,7 @@ public class LoginRegisterDAO {
                 firstName,
                 lastName,
                 phoneNumber,
+                image,
                 owner);
     }
     //endregion driver related
@@ -166,6 +168,7 @@ public class LoginRegisterDAO {
                                                   String firstName,
                                                   String lastName,
                                                   String phoneNumber,
+                                                  String image,
                                                   LifecycleOwner owner) {
         DriverDAO driverDAO = new DriverDAO();
         return driverDAO.registerDriver(username,
@@ -174,6 +177,7 @@ public class LoginRegisterDAO {
                 firstName,
                 lastName,
                 phoneNumber,
+                image,
                 owner);
     }
     // endregion

@@ -72,7 +72,8 @@ class UserDAO {
                                                     String email,
                                                     String firstName,
                                                     String lastName,
-                                                    String phoneNumber) {
+                                                    String phoneNumber,
+                                                    String image) {
         MutableLiveData<UserEntity> userLiveData = new MutableLiveData<>();
 
         // todo: validate if user was already registered
@@ -83,7 +84,8 @@ class UserDAO {
                 email,
                 firstName,
                 lastName,
-                phoneNumber);
+                phoneNumber,
+                image);
         userLiveData.setValue(userEntity);
         db.collection(COLLECTION_USERS)
                 .add(userEntity)

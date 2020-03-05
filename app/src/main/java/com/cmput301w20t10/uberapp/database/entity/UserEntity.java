@@ -25,6 +25,7 @@ public class UserEntity {
     private String password;
     private String firstName;
     private String lastName;
+    private String image;
 
     private DocumentReference driverReference;
     private DocumentReference riderReference;
@@ -36,13 +37,15 @@ public class UserEntity {
                       String email,
                       String firstName,
                       String lastName,
-                      String phoneNumber) {
+                      String phoneNumber,
+                      String image) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
+        this.image = image;
         this.driverReference = null;
         this.riderReference = null;
     }
@@ -70,6 +73,8 @@ public class UserEntity {
     public String getLastName() {
         return lastName;
     }
+
+    public String getImage() { return image; }
 
     public DocumentReference getDriverReference() {
         return driverReference;

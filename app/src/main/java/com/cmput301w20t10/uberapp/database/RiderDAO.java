@@ -25,6 +25,7 @@ public class RiderDAO {
                                                 String firstName,
                                                 String lastName,
                                                 String phoneNumber,
+                                                String image,
                                                 @NonNull LifecycleOwner owner) {
         MutableLiveData<Rider> riderLiveData = new MutableLiveData<>();
         RiderEntity riderEntity = new RiderEntity();
@@ -47,6 +48,7 @@ public class RiderDAO {
                             firstName,
                             lastName,
                             phoneNumber,
+                            image,
                             owner);
                 })
                 .addOnFailureListener(e -> Log.w(TAG, "onFailure: Error adding document", e));
@@ -89,6 +91,7 @@ public class RiderDAO {
                                      String firstName,
                                      String lastName,
                                      String phoneNumber,
+                                     String image,
                                      @NonNull LifecycleOwner owner){
         // create user then set driver
         UserDAO userDAO = new UserDAO();
@@ -97,7 +100,8 @@ public class RiderDAO {
                 email,
                 firstName,
                 lastName,
-                phoneNumber)
+                phoneNumber,
+                image)
                 .observe(owner, userEntity -> {
                     if (userEntity != null && userEntity.getUserReference() != null) {
                         userDAO.registerRider(riderEntity.getRiderReference(), userEntity.getUserReference());

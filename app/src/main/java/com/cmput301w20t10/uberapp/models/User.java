@@ -16,6 +16,7 @@ public class User {
     private String lastName;
     private String phoneNumber;
     private int balance;
+    private String image;
 
     // todo: deprecate
     private float rating;
@@ -42,7 +43,8 @@ public class User {
                 String email,
                 String firstName,
                 String lastName,
-                String phoneNumber) {
+                String phoneNumber,
+                String image) {
         this.username = username;
         this.password = password;
         this.email = email;
@@ -75,6 +77,7 @@ public class User {
         this.firstName = userEntity.getFirstName();
         this.lastName = userEntity.getLastName();
         this.phoneNumber = userEntity.getPhoneNumber();
+        this.image = userEntity.getImage();
     }
 
     public String getUsername() {

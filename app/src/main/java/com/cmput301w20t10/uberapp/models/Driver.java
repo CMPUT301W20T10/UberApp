@@ -25,8 +25,9 @@ public class Driver extends User {
                   String firstName,
                   String lastName,
                   String phoneNumber,
-                  int rating) {
-        super(userName, password, email, firstName, lastName, phoneNumber);
+                  int rating,
+                  String image) {
+        super(userName, password, email, firstName, lastName, phoneNumber, image);
         this.rating2 = rating;
     }
 

@@ -26,7 +26,8 @@ public class DatabaseManager  {
     private static final String PREF_FILE_KEY =
             "com.cmput201w20t10.uberapp.database.DatabaseManager.DB_PREFERENCE_FILE_KEY";
     private static final String PREF_DB_STATE = "db_state";
-    private static final String PREF_USER_ID = "user_id";
+    private static final String PREF_USERNAME = "username";
+    private static final String PREF_PASSWORD = "password";
 
     //  it's volatile cause we're gonna run this in multiple threads
     // todo (allan): make a better explanation why you put volatile here
@@ -106,8 +107,8 @@ public class DatabaseManager  {
                 .getSharedPreferences(PREF_FILE_KEY, Context.MODE_PRIVATE);
         accessLevel = AccessLevel.values()[preferences.getInt(PREF_DB_STATE, AccessLevel.LOGGED_OUT.ordinal())];
         boolean isLoggedIn = accessLevel != AccessLevel.LOGGED_OUT;
-        String username = isLoggedIn ? preferences.getString(PREF_USER_ID, "") : "";
-        String password = isLoggedIn ? preferences.getString(PREF_USER_ID, "") : "";
+        String username = isLoggedIn ? preferences.getString(PREF_USERNAME, "") : "";
+        String password = isLoggedIn ? preferences.getString(PREF_PASSWORD, "") : "";
 
         switch (accessLevel) {
             case LOGGED_OUT:
@@ -177,6 +178,10 @@ public class DatabaseManager  {
     public RideRequestDAO getRideRequestDAO() {
         // todo {allan}: instantiate driver dao here
         return null;
+    }
+
+    public LoginRegisterDAO getLoginRegisterDAO() {
+        return new LoginRegisterDAO();
     }
 
     /**
@@ -254,7 +259,7 @@ public class DatabaseManager  {
      *      MutableLiveData<Rider> rider = dao.RegisterRider(...);
      *      rider.observe(this, rider -> {...});
      *  </pre>
-     * @see LoginRegisterDAO#registerRider(String, String, String, String, String, String, LifecycleOwner)
+     * @see LoginRegisterDAO#registerRider(String, String, String, String, String, String, String, LifecycleOwner)
      */
     @Deprecated
     public MutableLiveData<Rider> registerRider(String username,
@@ -271,6 +276,7 @@ public class DatabaseManager  {
                  firstName,
                  lastName,
                  phoneNumber,
+                 "",
                  owner);
     }
 
@@ -317,7 +323,7 @@ public class DatabaseManager  {
      *      MutableLiveData<Driver> driver = dao.registerDriver(...);
      *      driver.observe(this, driver -> {...});
      *  </pre>
-     * @see LoginRegisterDAO#registerRider(String, String, String, String, String, String, LifecycleOwner)
+     * @see LoginRegisterDAO#registerRider(String, String, String, String, String, String, String, LifecycleOwner)
      */
     @Deprecated
     public MutableLiveData<Driver> registerDriver(String username,
@@ -334,6 +340,7 @@ public class DatabaseManager  {
                 firstName,
                 lastName,
                 phoneNumber,
+                "",
                 owner);
     }
     // endregion deprecated
