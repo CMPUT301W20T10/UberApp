@@ -60,8 +60,8 @@ public class LoginActivity extends AppCompatActivity {
             Log.d("Testing", "onClick_signIn: Driver");
             LoginRegisterDAO dao = DatabaseManager.getInstance().getLoginRegisterDAO();
             dao.logInAsRider("RyanBowler", "Password1",  this)
-                    .observe(this, driver -> {if (driver != null) {
-                        Toast.makeText(LoginActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                    .observe(this, rider -> {if (rider != null) {
+                        Toast.makeText(LoginActivity.this, "Creating ride request", Toast.LENGTH_SHORT).show();
                     } else{
                         Toast.makeText(LoginActivity.this, "Failure", Toast.LENGTH_SHORT).show();
                     }

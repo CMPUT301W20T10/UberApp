@@ -2,7 +2,9 @@ package com.cmput301w20t10.uberapp.database;
 
 import android.util.Log;
 
+import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
+import com.cmput301w20t10.uberapp.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -18,7 +20,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import static android.content.ContentValues.TAG;
 
-class UserDAO {
+class UserDAO extends DAOBase<UserEntity> {
     private static final String COLLECTION_USERS = "users";
 
     /**
@@ -102,6 +104,7 @@ class UserDAO {
         return userLiveData;
     }
 
+    @Override
     public Task save(final UserEntity userEntity) {
         final DocumentReference reference = userEntity.getUserReference();
         Task task = null;

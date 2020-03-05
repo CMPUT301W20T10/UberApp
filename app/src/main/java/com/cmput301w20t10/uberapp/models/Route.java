@@ -40,13 +40,20 @@ public class Route {
         }
     }
 
-    // todo: put validations here
     public LatLng getStartingPosition() {
-        return markerList.get(0).getPosition();
+        if (markerList.size() > 0) {
+            return markerList.get(0).getPosition();
+        } else {
+            return  null;
+        }
     }
 
     public LatLng getDestination() {
-        return markerList.get(1).getPosition();
+        if (markerList.size() > 1) {
+            return markerList.get(1).getPosition();
+        } else {
+            return null;
+        }
     }
 
     // todo: add function that converts into something that the database understands

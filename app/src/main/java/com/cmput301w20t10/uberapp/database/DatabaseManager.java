@@ -176,8 +176,8 @@ public class DatabaseManager  {
     }
 
     public RideRequestDAO getRideRequestDAO() {
-        // todo {allan}: instantiate driver dao here
-        return null;
+        // todo: do verifications here
+        return new RideRequestDAO();
     }
 
     public LoginRegisterDAO getLoginRegisterDAO() {

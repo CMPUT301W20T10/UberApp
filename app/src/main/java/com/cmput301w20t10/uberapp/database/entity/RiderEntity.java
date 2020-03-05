@@ -1,6 +1,6 @@
 package com.cmput301w20t10.uberapp.database.entity;
 
-import com.cmput301w20t10.uberapp.database.EntityModelBase;
+import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
@@ -27,9 +27,6 @@ public class RiderEntity extends EntityModelBase<RiderEntity.Field> {
             return stringValue;
         }
     }
-
-    public static final String FIELD_PAYMENT_REFERENCE_LIST = "paymentReferenceList";
-    public static final String FIELD_RIDER_REFERENCE = "riderReference";
 
     private DocumentReference riderReference;
     private List<DocumentReference> paymentReferenceList;

@@ -1,4 +1,4 @@
-package com.cmput301w20t10.uberapp.database;
+package com.cmput301w20t10.uberapp.database.base;
 
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.IgnoreExtraProperties;

@@ -1,6 +1,6 @@
 package com.cmput301w20t10.uberapp.database.entity;
 
-import com.cmput301w20t10.uberapp.database.EntityModelBase;
+import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 

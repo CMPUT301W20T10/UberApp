@@ -41,7 +41,6 @@ public class RiderDAO {
         db.collection(COLLECTION_RIDERS)
                 .add(riderEntity)
                 .addOnSuccessListener(riderReference -> {
-                    riderReference.update(RiderEntity.FIELD_RIDER_REFERENCE, riderReference);
                     riderEntity.setRiderReference(riderReference);
                     this.save(riderEntity);
 
