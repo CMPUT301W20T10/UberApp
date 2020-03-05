@@ -184,6 +184,10 @@ public class DatabaseManager  {
         return new LoginRegisterDAO();
     }
 
+    public UnpairedRideListDAO getUnpairedRideListDAO() {
+        return new UnpairedRideListDAO();
+    }
+
     /**
      * Updates the current user.
      * This will control access to DAO's

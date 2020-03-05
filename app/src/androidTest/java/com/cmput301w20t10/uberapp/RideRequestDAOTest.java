@@ -8,6 +8,7 @@ import android.util.Log;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
 import com.cmput301w20t10.uberapp.database.RideRequestDAO;
+import com.cmput301w20t10.uberapp.database.UnpairedRideListDAO;
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.models.RideRequest;
@@ -18,6 +19,9 @@ import com.google.firebase.firestore.GeoPoint;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.lifecycle.Observer;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -59,14 +63,11 @@ public class RideRequestDAOTest {
         handler.post(() -> {
             Log.d(TAG, "run: Testing");
             dao.createRideRequest(rider, route, 10)
-                    .observe(lifecycleOwnerMock, new Observer<RideRequest>() {
-                        @Override
-                        public void onChanged(RideRequest rideRequest) {
-                            assertNotNull(rideRequest);
+                    .observe(lifecycleOwnerMock, rideRequest -> {
+                        assertNotNull(rideRequest);
 
-                            synchronized (syncObject) {
-                                syncObject.notify();
-                            }
+                        synchronized (syncObject) {
+                            syncObject.notify();
                         }
                     });
         });
@@ -85,6 +86,55 @@ public class RideRequestDAOTest {
         // todo: check if references a valid rider
 
         // todo: check if references self
+    }
+
+    /**
+     * Reference: medium.com/android-development-by-danylo/simple-way-to-test-asynchronous-actions-in-android-service-asynctask-thread-rxjava-etc-d43b0402e005
+     */
+    @Test
+    public void getAllUnpairedRideRequestTest() throws InterruptedException {
+        // Context of the app under test.
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+
+        // Create mock lifecycle owner
+        LifecycleOwnerMock lifecycleOwnerMock = new LifecycleOwnerMock();
+
+        // Set up database manager
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
+
+        // Initialize ride request DAO
+        UnpairedRideListDAO dao = databaseManager.getUnpairedRideListDAO();
+
+        // set up input
+        RiderEntity riderEntity = new RiderEntity();
+        UserEntity userEntity = new UserEntity();
+        Rider rider = new Rider(riderEntity, userEntity);
+        Route route = new Route(new GeoPoint(0,0), new GeoPoint(10, 10));
+
+        // get data
+        final Object syncObject = new Object();
+
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(() -> {
+            final int count = 4;
+            dao.getAllUnpairedRideRequest()
+                    .observe(lifecycleOwnerMock, rideRequestList -> {
+                        assertNotNull(rideRequestList);
+
+                        if (rideRequestList.size() == count) {
+                            synchronized (syncObject) {
+                                syncObject.notify();
+                            }
+                        }
+                    });
+        });
+
+
+        // wait
+        synchronized (syncObject) {
+            // todo: add time limit
+            syncObject.wait();
+        }
     }
 
     /**

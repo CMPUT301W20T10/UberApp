@@ -45,6 +45,8 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
         }
     }
 
+    public RideRequestEntity() {}
+
     public RideRequestEntity(Rider rider, Route route, int fareOffer) {
         this.rideRequestReference = rider.getRiderReference();
         LatLng latLngStart = route.getStartingPosition();

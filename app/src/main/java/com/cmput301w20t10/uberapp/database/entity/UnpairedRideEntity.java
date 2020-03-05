@@ -8,6 +8,8 @@ import com.google.firebase.firestore.Exclude;
 public class UnpairedRideEntity extends EntityModelBase<UnpairedRideEntity.Field> {
     private DocumentReference rideRequestReference;
 
+    public UnpairedRideEntity() {}
+
     public UnpairedRideEntity(DocumentReference rideRequestReference) {
         this.rideRequestReference = rideRequestReference;
     }
