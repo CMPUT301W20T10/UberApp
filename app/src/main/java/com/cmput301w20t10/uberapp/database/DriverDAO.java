@@ -2,8 +2,6 @@ package com.cmput301w20t10.uberapp.database;
 
 import android.util.Log;
 
-import com.cmput301w20t10.uberapp.database.dao.DriverDAO;
-import com.cmput301w20t10.uberapp.database.dao.UserDAO;
 import com.cmput301w20t10.uberapp.database.entity.DriverEntity;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -16,13 +14,12 @@ import androidx.lifecycle.MutableLiveData;
 
 import static android.content.ContentValues.TAG;
 
-public class DriverDAOImpl implements DriverDAO {
+public class DriverDAO {
     public static final String COLLECTION_DRIVERS = "drivers";
 
-    DriverDAOImpl() {}
+    DriverDAO() {}
 
     @Nullable
-    @Override
     public MutableLiveData<Driver> registerDriver(String username,
                                                   String password,
                                                   String email,
@@ -57,11 +54,10 @@ public class DriverDAOImpl implements DriverDAO {
         return driverLiveData;
     }
 
-    @Override
     public LiveData<Driver> logInAsDriver(String username, String password, LifecycleOwner owner) {
         MutableLiveData<Driver> driverLiveData = new MutableLiveData<>();
 
-        UserDAO userDAO = new UserDAOImpl();
+        UserDAO userDAO = new UserDAO();
         userDAO.logIn(username, password)
                 .observe(owner, userEntity -> {
                     if (userEntity == null || userEntity.getDriverReference() == null) {
@@ -96,7 +92,7 @@ public class DriverDAOImpl implements DriverDAO {
                                       String phoneNumber,
                                       @NonNull LifecycleOwner owner){
         // create user then set driver
-        UserDAO userDAO = new UserDAOImpl();
+        UserDAO userDAO = new UserDAO();
         userDAO.registerUser(username,
                 password,
                 email,

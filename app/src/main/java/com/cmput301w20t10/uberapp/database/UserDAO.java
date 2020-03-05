@@ -2,15 +2,12 @@ package com.cmput301w20t10.uberapp.database;
 
 import android.util.Log;
 
-import com.cmput301w20t10.uberapp.database.dao.UserDAO;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
-import com.cmput301w20t10.uberapp.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import androidx.annotation.NonNull;
@@ -18,10 +15,16 @@ import androidx.lifecycle.MutableLiveData;
 
 import static android.content.ContentValues.TAG;
 
-class UserDAOImpl implements UserDAO {
+class UserDAO {
     private static final String COLLECTION_USERS = "users";
 
-    public MutableLiveData<UserEntity> logIn(String username, String password) {
+    /**
+     *
+     * @param username
+     * @param password
+     * @return
+     */
+    MutableLiveData<UserEntity> logIn(String username, String password) {
         MutableLiveData<UserEntity> userLiveData = new MutableLiveData<>();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -64,7 +67,6 @@ class UserDAOImpl implements UserDAO {
      * @param phoneNumber
      * @return  null if user already registered
      */
-    @Override
     public MutableLiveData<UserEntity> registerUser(String username,
                                                     String password,
                                                     String email,
@@ -100,7 +102,6 @@ class UserDAOImpl implements UserDAO {
         return userLiveData;
     }
 
-    @Override
     public void registerRider(DocumentReference riderReference,
                               DocumentReference userReference) {
         userReference.update(UserEntity.FIELD_RIDER_REFERENCE, riderReference)
@@ -108,7 +109,6 @@ class UserDAOImpl implements UserDAO {
                 .addOnFailureListener(e -> Log.w(TAG, "onFailure: ", e));
     }
 
-    @Override
     public void registerDriver(DocumentReference driverReference, DocumentReference userReference) {
         userReference.update(UserEntity.FIELD_DRIVER_REFERENCE, driverReference)
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "onSuccess: Registered driver"))
