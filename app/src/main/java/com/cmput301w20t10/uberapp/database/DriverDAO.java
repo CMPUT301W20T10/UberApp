@@ -3,8 +3,14 @@ package com.cmput301w20t10.uberapp.database;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.entity.DriverEntity;
+import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.models.Driver;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,8 +44,8 @@ public class DriverDAO {
         db.collection(COLLECTION_DRIVERS)
                 .add(driverEntity)
                 .addOnSuccessListener(driverReference -> {
-                    driverReference.update(DriverEntity.DRIVER_REFERENCE, driverReference);
                     driverEntity.setDriverReference(driverReference);
+                    save(driverEntity);
                     registerDriverAsUser(
                             driverLiveData,
                             driverEntity,
@@ -105,10 +111,54 @@ public class DriverDAO {
                 image)
                 .observe(owner, userEntity -> {
                     if (userEntity != null && userEntity.getUserReference() != null) {
-                        userDAO.registerDriver(driverEntity.getDriverReference(), userEntity.getUserReference());
+                        userEntity.setDriverReference(driverEntity.getDriverReference());
+                        userDAO.save(userEntity);
                         Driver driver = new Driver(driverEntity, userEntity);
                         driverLiveData.setValue(driver);
                     }
                 });
+    }
+
+    private Task save(DriverEntity driverEntity) {
+        final DocumentReference reference = driverEntity.getDriverReference();
+        Task task = null;
+
+        if (reference != null) {
+            final Map<String, Object> dirtyPairMap = new HashMap<>();
+
+            for (DriverEntity.Field field:
+                    driverEntity.getDirtyFieldList()) {
+                Object value = null;
+
+                switch (field) {
+                    case DRIVER_REFERENCE:
+                        value = driverEntity.getDriverReference();
+                        break;
+                    case RATING:
+                        value = driverEntity.getRating();
+                        break;
+                    case PAYMENT_LIST:
+                        value = driverEntity.getPaymentList();
+                        break;
+                    case FINISHED_RIDE_REQUEST_LIST:
+                        value = driverEntity.getActiveRideRequestList();
+                        break;
+                    case ACTIVE_RIDE_REQUEST_LIST:
+                        break;
+                    default:
+                        break;
+                }
+
+                if (value != null) {
+                    dirtyPairMap.put(field.toString(), value);
+                }
+            }
+
+            if (dirtyPairMap.size() > 0) {
+                task = reference.update(dirtyPairMap);
+            }
+        }
+
+        return task;
     }
 }

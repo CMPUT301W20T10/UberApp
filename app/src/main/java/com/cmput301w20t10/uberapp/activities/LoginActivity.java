@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
+import com.cmput301w20t10.uberapp.database.RiderDAO;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.Rider;
 
@@ -57,14 +58,14 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
         } else {
             Log.d("Testing", "onClick_signIn: Driver");
-//            dao.registerRider("Namename", "Passpass", "email",
-//                    "firstName", "lastName", "123", "asdf", this)
-//                    .observe(this, driver -> {if (driver != null) {
-//                        Toast.makeText(LoginActivity.this, "Success", Toast.LENGTH_SHORT).show();
-//                    } else{
-//                        Toast.makeText(LoginActivity.this, "Failure", Toast.LENGTH_SHORT).show();
-//                    }
-//                    });
+            LoginRegisterDAO dao = DatabaseManager.getInstance().getLoginRegisterDAO();
+            dao.logInAsRider("RyanBowler", "Password1",  this)
+                    .observe(this, driver -> {if (driver != null) {
+                        Toast.makeText(LoginActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                    } else{
+                        Toast.makeText(LoginActivity.this, "Failure", Toast.LENGTH_SHORT).show();
+                    }
+                    });
         }
 
     }

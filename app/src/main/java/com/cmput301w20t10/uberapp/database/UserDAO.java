@@ -10,6 +10,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
@@ -29,27 +32,24 @@ class UserDAO {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection(COLLECTION_USERS)
-                .whereEqualTo(UserEntity.FIELD_USERNAME, username)
-                .whereEqualTo(UserEntity.FIELD_PASSWORD, password)
+                .whereEqualTo(UserEntity.Field.USERNAME.toString(), username)
+                .whereEqualTo(UserEntity.Field.PASSWORD.toString(), password)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            if (task.getResult().isEmpty()) {
-                                userLiveData.setValue(null);
-                            } else {
-                                if (task.getResult().size() > 1) {
-                                    Log.w(TAG, "onComplete: This should not happen\nMore than one account found");
-                                }
-
-                                DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
-                                UserEntity userEntity = snapshot.toObject(UserEntity.class);
-                                userLiveData.setValue(userEntity);
-                            }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().isEmpty()) {
+                            userLiveData.setValue(null);
                         } else {
-                            Log.d(TAG, "onComplete: ", task.getException());
+                            if (task.getResult().size() > 1) {
+                                Log.w(TAG, "onComplete: This should not happen\nMore than one account found");
+                            }
+
+                            DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
+                            UserEntity userEntity = snapshot.toObject(UserEntity.class);
+                            userLiveData.setValue(userEntity);
                         }
+                    } else {
+                        Log.d(TAG, "onComplete: ", task.getException());
                     }
                 });
 
@@ -86,16 +86,14 @@ class UserDAO {
                 lastName,
                 phoneNumber,
                 image);
-        userLiveData.setValue(userEntity);
         db.collection(COLLECTION_USERS)
                 .add(userEntity)
                 .addOnSuccessListener(
                         userReference -> {
                             if (userReference != null) {
-                                userReference.update(UserEntity.FIELD_USER_REFERENCE, userReference);
-                                UserEntity updatedUser = userLiveData.getValue();
-                                updatedUser.setUserReference(userReference);
-                                userLiveData.setValue(updatedUser);
+                                userEntity.setUserReference(userReference);
+                                UserDAO.this.save(userEntity);
+                                userLiveData.setValue(userEntity);
                             }
                         }
                 )
@@ -104,16 +102,62 @@ class UserDAO {
         return userLiveData;
     }
 
-    public void registerRider(DocumentReference riderReference,
-                              DocumentReference userReference) {
-        userReference.update(UserEntity.FIELD_RIDER_REFERENCE, riderReference)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "onSuccess: Registered rider"))
-                .addOnFailureListener(e -> Log.w(TAG, "onFailure: ", e));
-    }
+    public Task save(final UserEntity userEntity) {
+        final DocumentReference reference = userEntity.getUserReference();
+        Task task = null;
 
-    public void registerDriver(DocumentReference driverReference, DocumentReference userReference) {
-        userReference.update(UserEntity.FIELD_DRIVER_REFERENCE, driverReference)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "onSuccess: Registered driver"))
-                .addOnFailureListener(e -> Log.w(TAG, "onFailure: ", e));
+        if (reference != null) {
+            final Map<String, Object> dirtyPairMap = new HashMap<>();
+
+            for (UserEntity.Field field:
+                 userEntity.getDirtyFieldList()) {
+                Object value = null;
+
+                switch (field) {
+                    case USERNAME:
+                        value = userEntity.getUsername();
+                        break;
+                    case PASSWORD:
+                        value = userEntity.getPassword();
+                        break;
+                    case EMAIL:
+                        value = userEntity.getEmail();
+                        break;
+                    case FIRST_NAME:
+                        value = userEntity.getFirstName();
+                        break;
+                    case LAST_NAME:
+                        value = userEntity.getLastName();
+                        break;
+                    case PHONE_NUMBER:
+                        value = userEntity.getPhoneNumber();
+                        break;
+                    case DRIVER_REFERENCE:
+                        value = userEntity.getDriverReference();
+                        break;
+                    case RIDER_REFERENCE:
+                        value = userEntity.getRiderReference();
+                        break;
+                    case USER_REFERENCE:
+                        value = userEntity.getUserReference();
+                        break;
+                    case IMAGE:
+                        value = userEntity.getImage();
+                        break;
+                    default:
+                        break;
+                }
+
+                if (value != null) {
+                    dirtyPairMap.put(field.toString(), value);
+                }
+            }
+
+            if (dirtyPairMap.size() > 0) {
+                task = reference.update(dirtyPairMap);
+            }
+        }
+
+        return task;
     }
 }

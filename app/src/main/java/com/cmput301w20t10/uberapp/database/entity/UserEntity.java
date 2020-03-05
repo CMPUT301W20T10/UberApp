@@ -1,23 +1,37 @@
 package com.cmput301w20t10.uberapp.database.entity;
 
+import com.cmput301w20t10.uberapp.database.EntityModelBase;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Exclude;
 
-public class UserEntity {
-    public static final String FIELD_USERNAME = "username";
-    public static final String FIELD_PASSWORD = "password";
-    private static final String FIELD_EMAIL = "email";
-    private static final String FIELD_FIRST_NAME = "firstName";
-    private static final String FIELD_LAST_NAME = "lastName";
-    private static final String FIELD_PHONE_NUMBER = "phoneNumber";
+public class UserEntity extends EntityModelBase<UserEntity.Field> {
 
-    public static final String FIELD_DRIVER_REFERENCE = "driverReference";
-    public static final String FIELD_RIDER_REFERENCE = "riderReference";
-    public static final String FIELD_USER_REFERENCE = "userReference";
+    public enum Field {
+        USERNAME ("username"),
+        PASSWORD ("password"),
+        EMAIL ("email"),
+        FIRST_NAME ("firstName"),
+        LAST_NAME ("lastName"),
+        PHONE_NUMBER ("phoneNumber"),
+        DRIVER_REFERENCE ("driverReference"),
+        RIDER_REFERENCE ("riderReference"),
+        USER_REFERENCE ("userReference"),
+        IMAGE ("image");
 
-    private static final String EMPTY_STRING_VALUE = "null";
+        private String stringValue;
+
+        Field(String fieldName) {
+            this.stringValue = fieldName;
+        }
+
+        public String toString() {
+            return stringValue;
+        }
+    }
 
     private DocumentReference userReference;
+    private DocumentReference driverReference;
+    private DocumentReference riderReference;
 
     private String username;
     private String email;
@@ -27,8 +41,6 @@ public class UserEntity {
     private String lastName;
     private String image;
 
-    private DocumentReference driverReference;
-    private DocumentReference riderReference;
 
     public UserEntity() {}
 
@@ -50,34 +62,23 @@ public class UserEntity {
         this.riderReference = null;
     }
 
-    public String getUsername() {
-        return username;
+    // region getters and setters
+    public DocumentReference getUserReference() {
+        return userReference;
     }
 
-    public String getEmail() {
-        return email;
+    public void setUserReference(DocumentReference userReference) {
+        dirtyFieldList.add(Field.USER_REFERENCE);
+        this.userReference = userReference;
     }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getImage() { return image; }
 
     public DocumentReference getDriverReference() {
         return driverReference;
+    }
+
+    public void setDriverReference(DocumentReference driverReference) {
+        dirtyFieldList.add(Field.DRIVER_REFERENCE);
+        this.driverReference = driverReference;
     }
 
     public DocumentReference getRiderReference() {
@@ -85,14 +86,77 @@ public class UserEntity {
     }
 
     public void setRiderReference(DocumentReference riderReference) {
+        dirtyFieldList.add(Field.RIDER_REFERENCE);
         this.riderReference = riderReference;
     }
 
-    public void setUserReference(DocumentReference userReference) {
-        this.userReference = userReference;
+    public String getUsername() {
+        return username;
     }
 
-    public DocumentReference getUserReference() {
-        return userReference;
+    public void setUsername(String username) {
+        dirtyFieldList.add(Field.USERNAME);
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        dirtyFieldList.add(Field.EMAIL);
+        this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        dirtyFieldList.add(Field.PHONE_NUMBER);
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        dirtyFieldList.add(Field.PASSWORD);
+        this.password = password;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        dirtyFieldList.add(Field.FIRST_NAME);
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        dirtyFieldList.add(Field.LAST_NAME);
+        this.lastName = lastName;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        dirtyFieldList.add(Field.IMAGE);
+        this.image = image;
+    }
+    // endregion getters and setters
+
+    @Override
+    @Exclude
+    public Field[] getDirtyFieldList() {
+        return dirtyFieldList.toArray(new Field[0]);
     }
 }

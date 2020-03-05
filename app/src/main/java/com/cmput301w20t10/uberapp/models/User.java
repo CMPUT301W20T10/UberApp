@@ -115,4 +115,8 @@ public class User {
     public DocumentReference getUserReference() {
         return userReference;
     }
+
+    protected void commit() {
+        // todo: save new changes to
+    }
 }

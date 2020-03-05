@@ -4,7 +4,12 @@ import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.models.Rider;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,6 +43,8 @@ public class RiderDAO {
                 .addOnSuccessListener(riderReference -> {
                     riderReference.update(RiderEntity.FIELD_RIDER_REFERENCE, riderReference);
                     riderEntity.setRiderReference(riderReference);
+                    this.save(riderEntity);
+
                     registerRiderAsUser(
                             riderLiveData,
                             riderEntity,
@@ -104,10 +111,52 @@ public class RiderDAO {
                 image)
                 .observe(owner, userEntity -> {
                     if (userEntity != null && userEntity.getUserReference() != null) {
-                        userDAO.registerRider(riderEntity.getRiderReference(), userEntity.getUserReference());
+                        userEntity.setRiderReference(riderEntity.getRiderReference());
+                        userDAO.save(userEntity);
                         Rider rider = new Rider(riderEntity, userEntity);
                         riderLiveData.setValue(rider);
                     }
                 });
+    }
+
+    private Task save(final RiderEntity riderEntity) {
+        final DocumentReference reference = riderEntity.getRiderReference();
+        Task task = null;
+
+        if (reference != null) {
+            final Map<String, Object> dirtyPairMap = new HashMap<>();
+
+            for (RiderEntity.Field field:
+                    riderEntity.getDirtyFieldList()) {
+                Object value = null;
+
+                switch (field) {
+                    case RIDER_REFERENCE:
+                        value = riderEntity.getRiderReference();
+                        break;
+                    case PAYMENT_LIST:
+                        value = riderEntity.getPaymentList();
+                        break;
+                    case RIDE_REQUEST_LIST:
+                        value = riderEntity.getRideRequestList();
+                        break;
+                    case ACTIVE_RIDE_REQUEST_LIST:
+                        value = riderEntity.getActiveRideRequestList();
+                        break;
+                    default:
+                        break;
+                }
+
+                if (value != null) {
+                    dirtyPairMap.put(field.toString(), value);
+                }
+            }
+
+            if (dirtyPairMap.size() > 0) {
+                task = reference.update(dirtyPairMap);
+            }
+        }
+
+        return task;
     }
 }

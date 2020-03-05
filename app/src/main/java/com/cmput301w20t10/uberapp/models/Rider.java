@@ -7,7 +7,7 @@ import com.google.firebase.firestore.DocumentReference;
 import java.util.List;
 
 public class Rider extends User {
-    public DocumentReference riderReference;
+    private DocumentReference riderReference;
     private List<DocumentReference> paymentReferenceList;
     private List<DocumentReference> finishedRideRequestList;
     private List<DocumentReference> activeRideRequestList;
@@ -23,8 +23,28 @@ public class Rider extends User {
     public Rider(RiderEntity riderEntity, UserEntity userEntity) {
         super(userEntity);
         this.riderReference = riderEntity.getRiderReference();
-        this.paymentReferenceList = riderEntity.getPaymentReferenceList();
-        this.finishedRideRequestList = riderEntity.getFinishedRideRequestList();
+        this.paymentReferenceList = riderEntity.getPaymentList();
+        this.finishedRideRequestList = riderEntity.getRideRequestList();
         this.activeRideRequestList = riderEntity.getActiveRideRequestList();
+    }
+
+    public List<DocumentReference> getPaymentReferenceList() {
+        return paymentReferenceList;
+    }
+
+    public List<DocumentReference> getFinishedRideRequestList() {
+        return finishedRideRequestList;
+    }
+
+    public List<DocumentReference> getActiveRideRequestList() {
+        return activeRideRequestList;
+    }
+
+    public DocumentReference getRiderReference() {
+        return riderReference;
+    }
+
+    public void addActiveRequest(RideRequest rideRequest) {
+
     }
 }
