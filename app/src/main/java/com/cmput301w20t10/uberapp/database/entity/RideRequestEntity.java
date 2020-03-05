@@ -7,6 +7,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.GeoPoint;
 
 public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> {
     public static final String FIELD_RIDE_REQUEST_REFERENCE = "rideRequestId";
@@ -16,8 +17,8 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     private DocumentReference riderReference;
     private DocumentReference paymentReference;
 
-    private LatLng startingPosition;
-    private LatLng destination;
+    private GeoPoint startingPosition;
+    private GeoPoint destination;
     private int state;
     private int fareOffer;
     private Timestamp timestamp;
@@ -46,8 +47,10 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
 
     public RideRequestEntity(Rider rider, Route route, int fareOffer) {
         this.rideRequestReference = rider.getRiderReference();
-        startingPosition = route.getStartingPosition();
-        destination = route.getDestination();
+        LatLng latLngStart = route.getStartingPosition();
+        LatLng latLngDestination = route.getDestination();
+        startingPosition = new GeoPoint(latLngStart.latitude, latLngStart.longitude);
+        destination = new GeoPoint(latLngDestination.latitude, latLngDestination.longitude);
         this.state = 0;
         this.fareOffer = fareOffer;
     }
@@ -95,20 +98,20 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
         this.paymentReference = paymentReference;
     }
 
-    public LatLng getStartingPosition() {
+    public GeoPoint getStartingPosition() {
         return startingPosition;
     }
 
-    public void setStartingPosition(LatLng startingPosition) {
+    public void setStartingPosition(GeoPoint startingPosition) {
         this.dirtyFieldList.add(Field.STARTING_POSITION);
         this.startingPosition = startingPosition;
     }
 
-    public LatLng getDestination() {
+    public GeoPoint getDestination() {
         return destination;
     }
 
-    public void setDestination(LatLng destination) {
+    public void setDestination(GeoPoint destination) {
         this.dirtyFieldList.add(Field.DESTINATION);
         this.destination = destination;
     }

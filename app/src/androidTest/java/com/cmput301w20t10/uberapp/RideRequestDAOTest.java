@@ -13,18 +13,17 @@ import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(AndroidJUnit4.class)
@@ -51,28 +50,25 @@ public class RideRequestDAOTest {
         RiderEntity riderEntity = new RiderEntity();
         UserEntity userEntity = new UserEntity();
         Rider rider = new Rider(riderEntity, userEntity);
-        Route route = new Route();
+        Route route = new Route(new GeoPoint(0,0), new GeoPoint(10, 10));
 
         // get data
         final Object syncObject = new Object();
 
         Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "run: Testing");
-                dao.createRideRequest(rider, route, 10)
-                        .observe(lifecycleOwnerMock, new Observer<RideRequest>() {
-                            @Override
-                            public void onChanged(RideRequest rideRequest) {
-                                assertNotNull(rideRequest);
+        handler.post(() -> {
+            Log.d(TAG, "run: Testing");
+            dao.createRideRequest(rider, route, 10)
+                    .observe(lifecycleOwnerMock, new Observer<RideRequest>() {
+                        @Override
+                        public void onChanged(RideRequest rideRequest) {
+                            assertNotNull(rideRequest);
 
-                                synchronized (syncObject) {
-                                    syncObject.notify();
-                                }
+                            synchronized (syncObject) {
+                                syncObject.notify();
                             }
-                        });
-            }
+                        }
+                    });
         });
 
 
@@ -80,6 +76,15 @@ public class RideRequestDAOTest {
         synchronized (syncObject) {
             syncObject.wait();
         }
+
+        Thread.sleep(2000);
+
+        // todo: check if in active rides
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // todo: check if references a valid rider
+
+        // todo: check if references self
     }
 
     /**

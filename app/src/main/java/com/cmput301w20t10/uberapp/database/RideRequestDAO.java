@@ -5,6 +5,7 @@ import android.util.Log;
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
+import com.cmput301w20t10.uberapp.database.entity.UnpairedRideEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
@@ -42,6 +43,11 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
                     entity.setRideRequestReference(rideRequestReference);
                     save(entity);
                     RideRequest model = new RideRequest(entity);
+
+                    // add to active rides
+                    UnpairedRideListDAO unpairedRideListDAO = new UnpairedRideListDAO();
+                    unpairedRideListDAO.addRideRequest(entity);
+
                     rideRequestMutableLiveData.setValue(model);
                 })
                 .addOnFailureListener(new OnFailureListener() {
