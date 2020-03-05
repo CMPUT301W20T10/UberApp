@@ -42,10 +42,7 @@ public class LoginRegisterDAO {
         MutableLiveData<Rider> riderLiveData = new MutableLiveData<>();
         new RiderDAO().logInAsRider(username, password, owner)
                 .observe(owner, rider -> {
-                    if (rider != null) {
-                        riderLiveData.setValue(rider);
-                    }
-
+                    riderLiveData.setValue(rider);
                     DatabaseManager.getInstance().updateUser(rider);
                 });
         return riderLiveData;
@@ -127,10 +124,7 @@ public class LoginRegisterDAO {
         MutableLiveData<Driver> driverLiveData = new MutableLiveData<>();
         new DriverDAO().logInAsDriver(username, password, owner)
                 .observe(owner, driver -> {
-                    if (driver != null) {
-                        driverLiveData.setValue(driver);
-                    }
-
+                    driverLiveData.setValue(driver);
                     DatabaseManager.getInstance().updateUser(driver);
                 });
         return driverLiveData;

@@ -4,8 +4,13 @@ import com.cmput301w20t10.uberapp.database.entity.DriverEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.google.firebase.firestore.DocumentReference;
 
+import java.util.List;
+
 public class Driver extends User {
     private DocumentReference driverReference;
+    private List<DocumentReference> paymentReferenceList;
+    private List<DocumentReference> finishedRideRequestList;
+    private List<DocumentReference> activeRideRequestList;
     private int rating2;
 
     @Deprecated

@@ -12,10 +12,14 @@ public class DriverEntity {
     private DocumentReference driverReference;
     public int rating;
     public List<DocumentReference> paymentListReference;
+    private List<DocumentReference> finishedRideRequestList;
+    private List<DocumentReference> activeRideRequestList;
 
     public DriverEntity() {
         this.rating = 0;
         this.paymentListReference = new ArrayList<>();
+        this.finishedRideRequestList = new ArrayList<>();
+        this.activeRideRequestList = new ArrayList<>();
     }
 
     public DocumentReference getDriverReference() {
@@ -32,5 +36,13 @@ public class DriverEntity {
 
     public List<DocumentReference> getPaymentListReference() {
         return paymentListReference;
+    }
+
+    public List<DocumentReference> getFinishedRideRequestList() {
+        return finishedRideRequestList;
+    }
+
+    public List<DocumentReference> getActiveRideRequestList() {
+        return activeRideRequestList;
     }
 }

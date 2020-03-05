@@ -12,9 +12,13 @@ public class RiderEntity {
 
     private DocumentReference riderReference;
     private List<DocumentReference> paymentReferenceList;
+    private List<DocumentReference> finishedRideRequestList;
+    private List<DocumentReference> activeRideRequestList;
 
     public RiderEntity() {
         paymentReferenceList = new ArrayList<>();
+        finishedRideRequestList = new ArrayList<>();
+        activeRideRequestList = new ArrayList<>();
     }
 
     public RiderEntity(List<DocumentReference> paymentReferenceList) {
@@ -31,5 +35,13 @@ public class RiderEntity {
 
     public void setRiderReference(DocumentReference documentReference) {
         this.riderReference = documentReference;
+    }
+
+    public List<DocumentReference> getActiveRideRequestList() {
+        return activeRideRequestList;
+    }
+
+    public List<DocumentReference> getFinishedRideRequestList() {
+        return finishedRideRequestList;
     }
 }

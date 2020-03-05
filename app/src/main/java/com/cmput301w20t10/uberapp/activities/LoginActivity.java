@@ -17,6 +17,7 @@ import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
 import com.cmput301w20t10.uberapp.models.Driver;
+import com.cmput301w20t10.uberapp.models.Rider;
 
 /**
  * @author Joshua Mayer
@@ -56,16 +57,14 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
         } else {
             Log.d("Testing", "onClick_signIn: Driver");
-            DatabaseManager db = DatabaseManager.getInstance();
-            LoginRegisterDAO dao = db.getLoginRegisterDAO();
-            dao.registerDriver("Namename", "Passpass", "email",
-                    "firstName", "lastName", "123", "asdf", this)
-                    .observe(this, new Observer<Driver>() {
-                        @Override
-                        public void onChanged(Driver driver) {
-                            Toast.makeText(LoginActivity.this, "Success", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+//            dao.registerRider("Namename", "Passpass", "email",
+//                    "firstName", "lastName", "123", "asdf", this)
+//                    .observe(this, driver -> {if (driver != null) {
+//                        Toast.makeText(LoginActivity.this, "Success", Toast.LENGTH_SHORT).show();
+//                    } else{
+//                        Toast.makeText(LoginActivity.this, "Failure", Toast.LENGTH_SHORT).show();
+//                    }
+//                    });
         }
 
     }
