@@ -9,7 +9,18 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 
+/**
+ * Entity representation for Rider model.
+ * Entity objects are the one-to-one representation of objects from the database.
+ *
+ * @author Allan Manuba
+ */
 public class RiderEntity extends EntityModelBase<RiderEntity.Field> {
+    private DocumentReference riderReference;
+    private List<DocumentReference> paymentReferenceList;
+    private List<DocumentReference> rideRequestList;
+    private List<DocumentReference> activeRideRequestList;
+
     public enum Field {
         RIDER_REFERENCE ("riderReference"),
         PAYMENT_LIST ("paymentList"),
@@ -28,25 +39,16 @@ public class RiderEntity extends EntityModelBase<RiderEntity.Field> {
         }
     }
 
-    private DocumentReference riderReference;
-    private List<DocumentReference> paymentReferenceList;
-    private List<DocumentReference> rideRequestList;
-    private List<DocumentReference> activeRideRequestList;
-
     public RiderEntity() {
         paymentReferenceList = new ArrayList<>();
         rideRequestList = new ArrayList<>();
         activeRideRequestList = new ArrayList<>();
     }
 
-    public RiderEntity(List<DocumentReference> paymentReferenceList) {
-        this.paymentReferenceList = paymentReferenceList;
-    }
-
     @Override
     @Exclude
-    public Field[] getDirtyFieldList() {
-        return this.dirtyFieldList.toArray(new Field[0]);
+    public Field[] getDirtyFieldSet() {
+        return this.dirtyFieldSet.toArray(new Field[0]);
     }
 
     // region getters and setters
@@ -56,7 +58,7 @@ public class RiderEntity extends EntityModelBase<RiderEntity.Field> {
     }
 
     public void setRiderReference(DocumentReference riderReference) {
-        this.dirtyFieldList.add(Field.RIDER_REFERENCE);
+        addDirtyField(Field.RIDER_REFERENCE);
         this.riderReference = riderReference;
     }
 
@@ -65,7 +67,7 @@ public class RiderEntity extends EntityModelBase<RiderEntity.Field> {
     }
 
     public void setPaymentList(List<DocumentReference> paymentReferenceList) {
-        this.dirtyFieldList.add(Field.PAYMENT_LIST);
+        addDirtyField(Field.PAYMENT_LIST);
         this.paymentReferenceList = paymentReferenceList;
     }
 
@@ -74,7 +76,7 @@ public class RiderEntity extends EntityModelBase<RiderEntity.Field> {
     }
 
     public void setRideRequestList(List<DocumentReference> rideRequestList) {
-        this.dirtyFieldList.add(Field.RIDE_REQUEST_LIST);
+        addDirtyField(Field.RIDE_REQUEST_LIST);
         this.rideRequestList = rideRequestList;
     }
 
@@ -83,7 +85,7 @@ public class RiderEntity extends EntityModelBase<RiderEntity.Field> {
     }
 
     public void setActiveRideRequestList(List<DocumentReference> activeRideRequestList) {
-        this.dirtyFieldList.add(Field.ACTIVE_RIDE_REQUEST_LIST);
+        addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
         this.activeRideRequestList = activeRideRequestList;
     }
 

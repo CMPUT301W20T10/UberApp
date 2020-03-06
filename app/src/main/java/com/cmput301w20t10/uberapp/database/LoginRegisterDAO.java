@@ -8,7 +8,8 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 
 /**
- * All functions here are related to logging in and registering
+ * Data Access Object (DAO) for all login and registration related functions.
+ * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
  */

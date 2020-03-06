@@ -4,30 +4,49 @@ import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
-import com.cmput301w20t10.uberapp.models.User;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import static android.content.ContentValues.TAG;
 
+/**
+ * Data Access Object (DAO) for User model.
+ * DAO contains specific operations that are concerned with the model they are associated with.
+ *
+ * @author Allan Manuba
+ */
 class UserDAO extends DAOBase<UserEntity> {
     private static final String COLLECTION_USERS = "users";
 
     /**
+     * Log the user in
      *
      * @param username
      * @param password
      * @return
+     * Returns a MutableLiveData object. To observe a MutableLiveData object:
+     *
+     * <pre>
+     *      DatabaseManager db = DatabaseManager.getInstance();
+     *      DAO dao = db.getDAO();
+     *      MutableLiveData<Model> liveData = dao.getModel(...);
+     *      liveData.observe(this, model -> {
+     *          // receive model inside here
+     *      });
+     * </pre>
+     *
+     * When observed, the object may receive model as the following:
+     * <li>
+     *     <ul><b>Non-null UserEntity object:</b> Log in was successful.</ul>
+     *     <ul><b>Null:</b> Log in failed.</ul>
+     * </li>
      */
     MutableLiveData<UserEntity> logIn(String username, String password) {
         MutableLiveData<UserEntity> userLiveData = new MutableLiveData<>();
@@ -104,6 +123,13 @@ class UserDAO extends DAOBase<UserEntity> {
         return userLiveData;
     }
 
+    /**
+     * Saves changes in UserEntity
+     *
+     * @param userEntity
+     * @return
+     * Returns a Task object that can be observed whether it is successful or not.
+     */
     @Override
     public Task save(final UserEntity userEntity) {
         final DocumentReference reference = userEntity.getUserReference();
@@ -113,7 +139,7 @@ class UserDAO extends DAOBase<UserEntity> {
             final Map<String, Object> dirtyPairMap = new HashMap<>();
 
             for (UserEntity.Field field:
-                 userEntity.getDirtyFieldList()) {
+                 userEntity.getDirtyFieldSet()) {
                 Object value = null;
 
                 switch (field) {

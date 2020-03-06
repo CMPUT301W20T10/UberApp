@@ -122,9 +122,9 @@ public class RideRequestDAOTest {
                         assertNotNull(rideRequestList);
 
                         if (rideRequestList.size() == count) {
-                            synchronized (syncObject) {
-                                syncObject.notify();
-                            }
+                        synchronized (syncObject) {
+                            syncObject.notify();
+                        }
                         }
                     });
         });

@@ -4,6 +4,12 @@ import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
+/**
+ * Entity representation for Driver model.
+ * Entity objects are the one-to-one representation of objects from the database.
+ *
+ * @author Allan Manuba
+ */
 public class UserEntity extends EntityModelBase<UserEntity.Field> {
 
     public enum Field {
@@ -62,13 +68,19 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
         this.riderReference = null;
     }
 
+    @Override
+    @Exclude
+    public Field[] getDirtyFieldSet() {
+        return dirtyFieldSet.toArray(new Field[0]);
+    }
+
     // region getters and setters
     public DocumentReference getUserReference() {
         return userReference;
     }
 
     public void setUserReference(DocumentReference userReference) {
-        dirtyFieldList.add(Field.USER_REFERENCE);
+        addDirtyField(Field.USER_REFERENCE);
         this.userReference = userReference;
     }
 
@@ -77,7 +89,7 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
     }
 
     public void setDriverReference(DocumentReference driverReference) {
-        dirtyFieldList.add(Field.DRIVER_REFERENCE);
+        addDirtyField(Field.DRIVER_REFERENCE);
         this.driverReference = driverReference;
     }
 
@@ -86,7 +98,7 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
     }
 
     public void setRiderReference(DocumentReference riderReference) {
-        dirtyFieldList.add(Field.RIDER_REFERENCE);
+        addDirtyField(Field.RIDER_REFERENCE);
         this.riderReference = riderReference;
     }
 
@@ -95,7 +107,7 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
     }
 
     public void setUsername(String username) {
-        dirtyFieldList.add(Field.USERNAME);
+        addDirtyField(Field.USERNAME);
         this.username = username;
     }
 
@@ -104,7 +116,7 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
     }
 
     public void setEmail(String email) {
-        dirtyFieldList.add(Field.EMAIL);
+        addDirtyField(Field.EMAIL);
         this.email = email;
     }
 
@@ -113,7 +125,7 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
     }
 
     public void setPhoneNumber(String phoneNumber) {
-        dirtyFieldList.add(Field.PHONE_NUMBER);
+        addDirtyField(Field.PHONE_NUMBER);
         this.phoneNumber = phoneNumber;
     }
 
@@ -122,7 +134,7 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
     }
 
     public void setPassword(String password) {
-        dirtyFieldList.add(Field.PASSWORD);
+        addDirtyField(Field.PASSWORD);
         this.password = password;
     }
 
@@ -131,7 +143,7 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
     }
 
     public void setFirstName(String firstName) {
-        dirtyFieldList.add(Field.FIRST_NAME);
+        addDirtyField(Field.FIRST_NAME);
         this.firstName = firstName;
     }
 
@@ -140,7 +152,7 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
     }
 
     public void setLastName(String lastName) {
-        dirtyFieldList.add(Field.LAST_NAME);
+        addDirtyField(Field.LAST_NAME);
         this.lastName = lastName;
     }
 
@@ -149,14 +161,8 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
     }
 
     public void setImage(String image) {
-        dirtyFieldList.add(Field.IMAGE);
+        addDirtyField(Field.IMAGE);
         this.image = image;
     }
     // endregion getters and setters
-
-    @Override
-    @Exclude
-    public Field[] getDirtyFieldList() {
-        return dirtyFieldList.toArray(new Field[0]);
-    }
 }

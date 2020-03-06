@@ -18,11 +18,46 @@ import androidx.lifecycle.MutableLiveData;
 
 import static android.content.ContentValues.TAG;
 
+/**
+ * Data Access Object (DAO) for Rider model.
+ * DAO contains specific operations that are concerned with the model they are associated with.
+ *
+ * @author Allan Manuba
+ */
 public class RiderDAO {
-    public static final String COLLECTION_RIDERS = "riders";
+    private static final String COLLECTION = "riders";
 
     RiderDAO() {}
 
+    /**
+     * Registers a rider
+     *
+     * @param username
+     * @param password
+     * @param email
+     * @param firstName
+     * @param lastName
+     * @param phoneNumber
+     * @param image
+     * @param owner
+     * @return
+     * Returns a MutableLiveData object. To observe a MutableLiveData object:
+     *
+     * <pre>
+     *      DatabaseManager db = DatabaseManager.getInstance();
+     *      DAO dao = db.getDAO();
+     *      MutableLiveData<Model> liveData = dao.getModel(...);
+     *      liveData.observe(this, model -> {
+     *          // receive model inside here
+     *      });
+     * </pre>
+     *
+     * When observed, the object may receive model as the following:
+     * <li>
+     *     <ul><b>Non-null Rider object:</b> the Rider object's fields were successfully added to the database.</ul>
+     *     <ul><b>Null:</b> Registration failed.</ul>
+     * </li>
+     */
     @Nullable
     public MutableLiveData<Rider> registerRider(String username,
                                                 String password,
@@ -38,7 +73,7 @@ public class RiderDAO {
 
         // todo: check if rider was already registered
 
-        db.collection(COLLECTION_RIDERS)
+        db.collection(COLLECTION)
                 .add(riderEntity)
                 .addOnSuccessListener(riderReference -> {
                     riderEntity.setRiderReference(riderReference);
@@ -61,6 +96,30 @@ public class RiderDAO {
         return riderLiveData;
     }
 
+    /**
+     * Attempts to log the user in as a rider.
+     *
+     * @param username
+     * @param password
+     * @param owner
+     * @return
+     * Returns a MutableLiveData object. To observe a MutableLiveData object:
+     *
+     * <pre>
+     *      DatabaseManager db = DatabaseManager.getInstance();
+     *      DAO dao = db.getDAO();
+     *      MutableLiveData<Model> liveData = dao.getModel(...);
+     *      liveData.observe(this, model -> {
+     *          // receive model inside here
+     *      });
+     * </pre>
+     *
+     * When observed, the object may receive model as the following:
+     * <li>
+     *     <ul><b>Non-null Rider object:</b> Log in was successful.</ul>
+     *     <ul><b>Null:</b> Log in was unsuccessful.</ul>
+     * </li>
+     */
     public MutableLiveData<Rider> logInAsRider(String username, String password, LifecycleOwner owner) {
         MutableLiveData<Rider> riderLiveData = new MutableLiveData<>();
 
@@ -118,6 +177,12 @@ public class RiderDAO {
                 });
     }
 
+    /**
+     * Saves changes in RiderEntity
+     * @param riderEntity
+     * @return
+     * Returns a Task object that can be observed whether it is successful or not.
+     */
     private Task save(final RiderEntity riderEntity) {
         final DocumentReference reference = riderEntity.getRiderReference();
         Task task = null;
@@ -126,7 +191,7 @@ public class RiderDAO {
             final Map<String, Object> dirtyPairMap = new HashMap<>();
 
             for (RiderEntity.Field field:
-                    riderEntity.getDirtyFieldList()) {
+                    riderEntity.getDirtyFieldSet()) {
                 Object value = null;
 
                 switch (field) {

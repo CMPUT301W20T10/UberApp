@@ -154,6 +154,38 @@ public class DatabaseManager  {
         return accessLevel;
     }
 
+    /**
+     * Updates the current user.
+     * This will control access to DAO's
+     * For example:
+     * <ul>
+     *     <li>If logged out, only LogInRegisterDAO can be accessed</li>
+     *     <li>If driver is logged in, only driver related DAO's can be accessed</li>
+     *     <li>If rider is logged in, only rider related DAO's can be accessed</li>
+     * </ul>
+     *
+     * @param user  Rider model or Driver model who is currently logged in
+     *              If null, sets the access level to LoggedOut
+     */
+    public <U extends User> void updateUser(@Nullable U user) {
+        if (user == null) {
+            accessLevel = AccessLevel.LOGGED_OUT;
+            rider = null;
+            driver = null;
+        } else if (user instanceof Rider) {
+            accessLevel = AccessLevel.RIDER;
+            this.driver = null;
+            this.rider = (Rider) user;
+        } else if (user instanceof Driver) {
+            accessLevel = AccessLevel.DRIVER;
+            this.driver = (Driver) user;
+            this.rider = null;
+        } else {
+            Log.e(TAG, "updateUser: Unknown user type");
+        }
+    }
+
+    // region DAO getters
     public RiderDAO getRiderDAO() {
         if (accessLevel != AccessLevel.LOGGED_OUT) {
             return new RiderDAO();
@@ -187,37 +219,7 @@ public class DatabaseManager  {
     public UnpairedRideListDAO getUnpairedRideListDAO() {
         return new UnpairedRideListDAO();
     }
-
-    /**
-     * Updates the current user.
-     * This will control access to DAO's
-     * For example:
-     * <ul>
-     *     <li>If logged out, only LogInRegisterDAO can be accessed</li>
-     *     <li>If driver is logged in, only driver related DAO's can be accessed</li>
-     *     <li>If rider is logged in, only rider related DAO's can be accessed</li>
-     * </ul>
-     *
-     * @param user  Rider model or Driver model who is currently logged in
-     *              If null, sets the access level to LoggedOut
-     */
-    public <U extends User> void updateUser(@Nullable U user) {
-        if (user == null) {
-            accessLevel = AccessLevel.LOGGED_OUT;
-            rider = null;
-            driver = null;
-        } else if (user instanceof Rider) {
-            accessLevel = AccessLevel.RIDER;
-            this.driver = null;
-            this.rider = (Rider) user;
-        } else if (user instanceof Driver) {
-            accessLevel = AccessLevel.DRIVER;
-            this.driver = (Driver) user;
-            this.rider = null;
-        } else {
-            Log.e(TAG, "updateUser: Unknown user type");
-        }
-    }
+    // endregion DAO getters
 
     // region deprecated
     /**

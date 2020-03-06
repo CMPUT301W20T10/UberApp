@@ -9,6 +9,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.GeoPoint;
 
+
+/**
+ * Entity representation for RiderRequest model.
+ * Entity objects are the one-to-one representation of objects from the database.
+ *
+ * @author Allan Manuba
+ */
 public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> {
     public static final String FIELD_RIDE_REQUEST_REFERENCE = "rideRequestId";
 
@@ -45,6 +52,9 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
         }
     }
 
+    /**
+     * Required for deserializing
+     */
     public RideRequestEntity() {}
 
     public RideRequestEntity(Rider rider, Route route, int fareOffer) {
@@ -59,8 +69,8 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
 
     @Override
     @Exclude
-    public Field[] getDirtyFieldList() {
-        return this.dirtyFieldList.toArray(new Field[0]);
+    public Field[] getDirtyFieldSet() {
+        return this.dirtyFieldSet.toArray(new Field[0]);
     }
 
     // region getters and setters
@@ -69,7 +79,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     }
 
     public void setRideRequestReference(DocumentReference rideRequestReference) {
-        this.dirtyFieldList.add(Field.RIDE_REQUEST_REFERENCE);
+        addDirtyField(Field.RIDE_REQUEST_REFERENCE);
         this.rideRequestReference = rideRequestReference;
     }
 
@@ -78,7 +88,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     }
 
     public void setDriverReference(DocumentReference driverReference) {
-        this.dirtyFieldList.add(Field.DRIVER_REFERENCE);
+        addDirtyField(Field.DRIVER_REFERENCE);
         this.driverReference = driverReference;
     }
 
@@ -87,7 +97,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     }
 
     public void setRiderReference(DocumentReference riderReference) {
-        this.dirtyFieldList.add(Field.RIDER_REFERENCE);
+        addDirtyField(Field.RIDER_REFERENCE);
         this.riderReference = riderReference;
     }
 
@@ -96,7 +106,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     }
 
     public void setPaymentReference(DocumentReference paymentReference) {
-        this.dirtyFieldList.add(Field.PAYMENT_REFERENCE);
+        addDirtyField(Field.PAYMENT_REFERENCE);
         this.paymentReference = paymentReference;
     }
 
@@ -105,7 +115,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     }
 
     public void setStartingPosition(GeoPoint startingPosition) {
-        this.dirtyFieldList.add(Field.STARTING_POSITION);
+        addDirtyField(Field.STARTING_POSITION);
         this.startingPosition = startingPosition;
     }
 
@@ -114,7 +124,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     }
 
     public void setDestination(GeoPoint destination) {
-        this.dirtyFieldList.add(Field.DESTINATION);
+        addDirtyField(Field.DESTINATION);
         this.destination = destination;
     }
 
@@ -123,7 +133,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     }
 
     public void setState(int state) {
-        this.dirtyFieldList.add(Field.STATE);
+        addDirtyField(Field.STATE);
         this.state = state;
     }
 
@@ -132,7 +142,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     }
 
     public void setFareOffer(int fareOffer) {
-        this.dirtyFieldList.add(Field.FARE_OFFER);
+        addDirtyField(Field.FARE_OFFER);
         this.fareOffer = fareOffer;
     }
 
@@ -141,7 +151,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     }
 
     public void setTimestamp(Timestamp timestamp) {
-        this.dirtyFieldList.add(Field.TIMESTAMP);
+        addDirtyField(Field.TIMESTAMP);
         this.timestamp = timestamp;
     }
     // endregion getters and setters

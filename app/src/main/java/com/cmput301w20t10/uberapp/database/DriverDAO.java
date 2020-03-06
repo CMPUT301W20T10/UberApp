@@ -3,7 +3,6 @@ package com.cmput301w20t10.uberapp.database;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.entity.DriverEntity;
-import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -20,11 +19,46 @@ import androidx.lifecycle.MutableLiveData;
 
 import static android.content.ContentValues.TAG;
 
+/**
+ * Data Access Object (DAO) for Driver model.
+ * DAO contains specific operations that are concerned with the model they are associated with.
+ *
+ * @author Allan Manuba
+ */
 public class DriverDAO {
     public static final String COLLECTION_DRIVERS = "drivers";
 
     DriverDAO() {}
 
+    /**
+     * Registers a driver.
+     *
+     * @param username
+     * @param password
+     * @param email
+     * @param firstName
+     * @param lastName
+     * @param phoneNumber
+     * @param image
+     * @param owner
+     * @return
+     * Returns a MutableLiveData object. To observe a MutableLiveData object:
+     *
+     * <pre>
+     *      DatabaseManager db = DatabaseManager.getInstance();
+     *      DAO dao = db.getDAO();
+     *      MutableLiveData<Model> liveData = dao.getModel(...);
+     *      liveData.observe(this, model -> {
+     *          // receive model inside here
+     *      });
+     * </pre>
+     *
+     * When observed, the object may receive model as the following:
+     * <li>
+     *     <ul><b>Non-null Driver object:</b> the Driver object's fields were successfully added to the database.</ul>
+     *     <ul><b>Null:</b> Registration failed.</ul>
+     * </li>
+     */
     @Nullable
     public MutableLiveData<Driver> registerDriver(String username,
                                                   String password,
@@ -62,6 +96,30 @@ public class DriverDAO {
         return driverLiveData;
     }
 
+    /**
+     * Attempts to log the user in as a driver.
+     *
+     * @param username
+     * @param password
+     * @param owner
+     * @return
+     * Returns a MutableLiveData object. To observe a MutableLiveData object:
+     *
+     * <pre>
+     *      DatabaseManager db = DatabaseManager.getInstance();
+     *      DAO dao = db.getDAO();
+     *      MutableLiveData<Model> liveData = dao.getModel(...);
+     *      liveData.observe(this, model -> {
+     *          // receive model inside here
+     *      });
+     * </pre>
+     *
+     * When observed, the object may receive model as the following:
+     * <li>
+     *     <ul><b>Non-null Driver object:</b> Log in was successful.</ul>
+     *     <ul><b>Null:</b> Log in was unsuccessful.</ul>
+     * </li>
+     */
     public LiveData<Driver> logInAsDriver(String username, String password, LifecycleOwner owner) {
         MutableLiveData<Driver> driverLiveData = new MutableLiveData<>();
 
@@ -89,7 +147,20 @@ public class DriverDAO {
         return driverLiveData;
     }
 
-
+    /**
+     * Helper function for registerDriver
+     *
+     * @param driverLiveData
+     * @param driverEntity
+     * @param username
+     * @param password
+     * @param email
+     * @param firstName
+     * @param lastName
+     * @param phoneNumber
+     * @param image
+     * @param owner
+     */
     private void registerDriverAsUser(MutableLiveData<Driver> driverLiveData,
                                       DriverEntity driverEntity,
                                       String username,
@@ -119,6 +190,12 @@ public class DriverDAO {
                 });
     }
 
+    /**
+     * Saves changes in driverEntity
+     * @param driverEntity
+     * @return
+     * Returns a Task object that can be observed whether it is successful or not.
+     */
     private Task save(DriverEntity driverEntity) {
         final DocumentReference reference = driverEntity.getDriverReference();
         Task task = null;
@@ -127,7 +204,7 @@ public class DriverDAO {
             final Map<String, Object> dirtyPairMap = new HashMap<>();
 
             for (DriverEntity.Field field:
-                    driverEntity.getDirtyFieldList()) {
+                    driverEntity.getDirtyFieldSet()) {
                 Object value = null;
 
                 switch (field) {
@@ -141,9 +218,10 @@ public class DriverDAO {
                         value = driverEntity.getPaymentList();
                         break;
                     case FINISHED_RIDE_REQUEST_LIST:
-                        value = driverEntity.getActiveRideRequestList();
+                        value = driverEntity.getFinishedRideRequestList();
                         break;
                     case ACTIVE_RIDE_REQUEST_LIST:
+                        value = driverEntity.getActiveRideRequestList();
                         break;
                     default:
                         break;

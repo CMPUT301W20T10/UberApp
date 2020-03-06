@@ -7,6 +7,12 @@ import com.google.firebase.firestore.Exclude;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entity representation for Driver model.
+ * Entity objects are the one-to-one representation of objects from the database.
+ *
+ * @author Allan Manuba
+ */
 public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
     public static final String DRIVER_REFERENCE = "driverReference";
 
@@ -43,8 +49,8 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
 
     @Override
     @Exclude
-    public Field[] getDirtyFieldList() {
-        return dirtyFieldList.toArray(new Field[0]);
+    public Field[] getDirtyFieldSet() {
+        return dirtyFieldSet.toArray(new Field[0]);
     }
 
     // region setters
@@ -54,7 +60,7 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
     }
 
     public void setDriverReference(DocumentReference driverReference) {
-        this.dirtyFieldList.add(Field.DRIVER_REFERENCE);
+        addDirtyField(Field.DRIVER_REFERENCE);
         this.driverReference = driverReference;
     }
 
@@ -63,7 +69,7 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
     }
 
     public void setPaymentList(List<DocumentReference> paymentList) {
-        this.dirtyFieldList.add(Field.PAYMENT_LIST);
+        addDirtyField(Field.PAYMENT_LIST);
         this.paymentList = paymentList;
     }
 
@@ -72,7 +78,7 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
     }
 
     public void setFinishedRideRequestList(List<DocumentReference> finishedRideRequestList) {
-        this.dirtyFieldList.add(Field.FINISHED_RIDE_REQUEST_LIST);
+        addDirtyField(Field.FINISHED_RIDE_REQUEST_LIST);
         this.finishedRideRequestList = finishedRideRequestList;
     }
 
@@ -81,7 +87,7 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
     }
 
     public void setActiveRideRequestList(List<DocumentReference> activeRideRequestList) {
-        this.dirtyFieldList.add(Field.ACTIVE_RIDE_REQUEST_LIST);
+        addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
         this.activeRideRequestList = activeRideRequestList;
     }
 
@@ -90,7 +96,7 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
     }
 
     public void setRating(int rating) {
-        this.dirtyFieldList.add(Field.RATING);
+        addDirtyField(Field.RATING);
         this.rating = rating;
     }
     // endregion setters

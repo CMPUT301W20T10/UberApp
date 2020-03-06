@@ -4,27 +4,34 @@ import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
 import com.cmput301w20t10.uberapp.database.entity.UnpairedRideEntity;
-import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.models.RideRequest;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import static android.content.ContentValues.TAG;
 
+/**
+ * Data Access Object (DAO) for UnpairedRideListDAO model.
+ * DAO contains specific operations that are concerned with the model they are associated with.
+ *
+ * @author Allan Manuba
+ */
 public class UnpairedRideListDAO {
     private static final String COLLECTION = "unpairedRideList";
 
+    /**
+     * Adds a ride request allowing searchable ride requests for drivers
+     *
+     * @param entity
+     * @return
+     * Returns a Task object that can be observed whether it is successful or not.
+     */
     public Task addRideRequest(RideRequestEntity entity) {
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         final UnpairedRideEntity unpairedRide = new UnpairedRideEntity(entity.getRideRequestReference());
@@ -33,6 +40,28 @@ public class UnpairedRideListDAO {
     }
 
     // todo: improve readability
+
+    /**
+     * Gives back all unpaired ride requests
+     *
+     * @return
+     * Returns a MutableLiveData object. To observe a MutableLiveData object:
+     *
+     * <pre>
+     *      DatabaseManager db = DatabaseManager.getInstance();
+     *      DAO dao = db.getDAO();
+     *      MutableLiveData<Model> liveData = dao.getModel(...);
+     *      liveData.observe(this, model -> {
+     *          // receive model inside here
+     *      });
+     * </pre>
+     *
+     * When observed, the object may receive model as the following:
+     * <li>
+     *     <ul><b>Non-null List<RideRequest> object:</b> Search was successful.</ul>
+     *     <ul><b>Null:</b> Search was unsuccessful.</ul>
+     * </li>
+     */
     public MutableLiveData<List<RideRequest>> getAllUnpairedRideRequest() {
         final MutableLiveData<List<RideRequest>> rideRequestMutableLiveData = new MutableLiveData<>();
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
