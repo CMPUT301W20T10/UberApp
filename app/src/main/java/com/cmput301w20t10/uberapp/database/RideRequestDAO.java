@@ -76,8 +76,6 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
                     entity.setRiderReference(rider.getRiderReference());
                     saveEntity(entity);
                     RideRequest model = new RideRequest(entity);
-                    Log.d(TAG, "createRideRequest: Rider: " + model.getRiderReference().getPath());
-                    Log.d(TAG, "createRideRequest: Request: " + model.getRideRequestReference().getPath());
 
                     // add to active rides
                     UnpairedRideListDAO unpairedRideListDAO = new UnpairedRideListDAO();
@@ -87,7 +85,6 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
                     rider.addActiveRequest(model);
                     RiderDAO riderDAO = new RiderDAO();
                     riderDAO.save(rider);
-                    Log.d(TAG, "createRideRequest: Request in active list: " + rider.getActiveRideRequestList().get(0).getPath());
 
                     rideRequestMutableLiveData.setValue(model);
                 })
@@ -101,34 +98,6 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
         return rideRequestMutableLiveData;
     }
 
-    public MutableLiveData<List<RideRequest>> getUnpairedRideRequest() {
-        Log.d(TAG, "getUnpairedRideRequest: run: corn");
-        MutableLiveData<List<RideRequest>> mutableLiveData = new MutableLiveData<>();
-        List<RideRequest> rideList = new ArrayList<>();
-        mutableLiveData.setValue(rideList);
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection(COLLECTION)
-                .whereEqualTo(RideRequestEntity.Field.STATE.toString(), RideRequest.State.Active.ordinal())
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot snapshot : task.getResult()) {
-                            Log.d(TAG, "getUnpairedRideRequest: run: " + snapshot.getData().toString());
-                            RideRequestEntity entity = snapshot.toObject(RideRequestEntity.class);
-                            RideRequest model = new RideRequest(entity);
-                            rideList.add(model);
-                            mutableLiveData.setValue(rideList);
-                        }
-                    } else {
-                        Log.e(TAG, "onComplete: ", task.getException());
-                    }
-                });
-
-        return mutableLiveData;
-    }
-
-    // todo: fix
     public MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Rider rider) {
         MutableLiveData<List<RideRequest>> mutableLiveData = new MutableLiveData<>();
         List<RideRequest> rideList = new ArrayList<>();
@@ -138,16 +107,13 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
         for (DocumentReference reference :
                 rider.getActiveRideRequestList()) {
             reference.get()
-                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
-                                rideList.add(new RideRequest(rideRequestEntity));
-                                mutableLiveData.setValue(rideList);
-                            } else {
-                                Log.e(TAG, "onComplete: ", task.getException());
-                            }
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
+                            rideList.add(new RideRequest(rideRequestEntity));
+                            mutableLiveData.setValue(rideList);
+                        } else {
+                            Log.e(TAG, "onComplete: ", task.getException());
                         }
                     });
         }

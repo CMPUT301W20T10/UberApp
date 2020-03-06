@@ -8,6 +8,7 @@ import android.util.Log;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
 import com.cmput301w20t10.uberapp.database.RideRequestDAO;
+import com.cmput301w20t10.uberapp.database.UnpairedRideListDAO;
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.models.Rider;
@@ -57,7 +58,6 @@ public class RideRequestDAOTest {
 
         Handler handler = new Handler(Looper.getMainLooper());
         handler.post(() -> {
-            Log.d(TAG, "run: Testing");
             dao.createRideRequest(rider, route, 10)
                     .observe(lifecycleOwnerMock, rideRequest -> {
                         assertNotNull(rideRequest);
@@ -99,7 +99,7 @@ public class RideRequestDAOTest {
         DatabaseManager databaseManager = DatabaseManager.getInstance();
 
         // Initialize ride request DAO
-        RideRequestDAO dao = databaseManager.getRideRequestDAO();
+        UnpairedRideListDAO dao = databaseManager.getUnpairedRideListDAO();
 
         // set up input
         RiderEntity riderEntity = new RiderEntity();
@@ -113,7 +113,7 @@ public class RideRequestDAOTest {
         Handler handler = new Handler(Looper.getMainLooper());
         handler.post(() -> {
             final int count = 5;
-            dao.getUnpairedRideRequest()
+            dao.getAllUnpairedRideRequest()
                     .observe(lifecycleOwnerMock, rideRequestList -> {
                         assertNotNull(rideRequestList);
 
@@ -161,7 +161,6 @@ public class RideRequestDAOTest {
 
         Handler handler = new Handler(Looper.getMainLooper());
         handler.post(() -> {
-            Log.d(TAG, "run: getAllActiveRideRequestTest: ");
             dao.logInAsRider("RyanBowler", "Password1", lifecycleOwnerMock)
                     .observe(lifecycleOwnerMock, rider1 -> {
                         assertNotNull(rider1);
@@ -181,11 +180,9 @@ public class RideRequestDAOTest {
         // create ride request
         RideRequestDAO rideRequestDAO = new RideRequestDAO();
         handler.post(() -> {
-            Log.d(TAG, "run: Testing");
             rideRequestDAO.createRideRequest(rider.get(), route, 10)
                     .observe(lifecycleOwnerMock, rideRequest -> {
                         assertNotNull(rideRequest);
-                        Log.d(TAG, "run: rider1: " + rideRequest.getRiderReference().getPath());
 
                         synchronized (syncObject) {
                             syncObject.notify();
@@ -201,23 +198,17 @@ public class RideRequestDAOTest {
 
         // create get all active ride request
         handler.post(() -> {
-            Log.d(TAG, "run: Testing");
             rideRequestDAO.getAllActiveRideRequest(rider.get())
                     .observe(lifecycleOwnerMock, rideRequestList -> {
                         assertNotNull(rideRequestList);
-                        Log.d(TAG, "run: getAllActiveRideRequestTest: " + rideRequestList.toString());
-                        Log.d(TAG, "run: getAllActiveRideRequestTest: " + rider.get().getRiderReference());
 
                         if (rideRequestList.size() > 0) {
-                            Log.d(TAG, "getAllActiveRideRequestTest: Success!");
-                            Log.d(TAG, "getAllActiveRideRequestTest: " + rideRequestList.get(0).getRideRequestReference().getPath());
                             synchronized (syncObject) {
                                 syncObject.notify();
                             }
                         }
                     });
         });
-
 
         // wait
         synchronized (syncObject) {
