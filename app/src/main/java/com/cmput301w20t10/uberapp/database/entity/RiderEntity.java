@@ -20,12 +20,14 @@ public class RiderEntity extends EntityModelBase<RiderEntity.Field> {
     private List<DocumentReference> paymentReferenceList;
     private List<DocumentReference> rideRequestList;
     private List<DocumentReference> activeRideRequestList;
+    private int balance;
 
     public enum Field {
         RIDER_REFERENCE ("riderReference"),
         PAYMENT_LIST ("paymentList"),
         RIDE_REQUEST_LIST("rideRequestList"),
-        ACTIVE_RIDE_REQUEST_LIST ("activeRideRequestList");
+        ACTIVE_RIDE_REQUEST_LIST ("activeRideRequestList"),
+        BALANCE ("balance");
 
         private String stringValue;
 
@@ -87,6 +89,15 @@ public class RiderEntity extends EntityModelBase<RiderEntity.Field> {
     public void setActiveRideRequestList(List<DocumentReference> activeRideRequestList) {
         addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
         this.activeRideRequestList = activeRideRequestList;
+    }
+
+    public int getBalance() {
+        return balance;
+    }
+
+    public void setBalance(int balance) {
+        addDirtyField(Field.BALANCE);
+        this.balance = balance;
     }
 
     // endregion getters and setters

@@ -1,9 +1,13 @@
 package com.cmput301w20t10.uberapp.database.base;
 
+import android.util.Log;
+
 import com.google.firebase.firestore.Exclude;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Base class for all Entity and Model classes.
@@ -25,6 +29,7 @@ public abstract class EntityModelBase<T> {
      */
     protected void addDirtyField(T state) {
         dirtyFieldSet.add(state);
+        Log.d(TAG, "addDirtyField: save: " + dirtyFieldSet.toString());
     }
 
     /**
@@ -39,7 +44,7 @@ public abstract class EntityModelBase<T> {
     /**
      * Clears the set of dirty states
      */
-    void clearDirtyStateSet() {
+    public void clearDirtyStateSet() {
         this.dirtyFieldSet.clear();
     }
 }

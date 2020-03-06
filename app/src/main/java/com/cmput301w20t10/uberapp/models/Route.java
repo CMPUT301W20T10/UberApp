@@ -22,8 +22,13 @@ public class Route {
     }
 
     public Route(GeoPoint startingPosition, GeoPoint destination) {
-        this.startingPosition = new LatLng(startingPosition.getLatitude(), startingPosition.getLongitude());
-        this.destination = new LatLng(destination.getLatitude(), destination.getLongitude());
+        if (startingPosition != null) {
+            this.startingPosition = new LatLng(startingPosition.getLatitude(), startingPosition.getLongitude());
+        }
+
+        if (startingPosition != null) {
+            this.destination = new LatLng(destination.getLatitude(), destination.getLongitude());
+        }
     }
 
     public void addLocation(Marker marker) {

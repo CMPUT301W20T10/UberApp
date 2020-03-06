@@ -5,12 +5,12 @@ import com.google.android.gms.tasks.Task;
 /**
  * Base class for all DAO
  * Created for consistency
- * @param <T extends EntityModelBase>
+ * @param <E extends EntityModelBase>
  *     T should be an Entity object
  *
  * @author Allan Manuba
  */
-public abstract class DAOBase<T extends EntityModelBase> {
+public abstract class DAOBase<E extends EntityModelBase> {
     /**
      * Saves all the dirty fields in a given entity. Dirty fields in an entity
      * are unsaved fields. EntityModelBase automatically detects these changes.
@@ -19,5 +19,5 @@ public abstract class DAOBase<T extends EntityModelBase> {
      * @return Task which returns the result about whether saving was successful or not
      * @author Allan Manuba
      */
-    public abstract Task save(final T entity);
+    public abstract Task saveEntity(final E entity);
 }

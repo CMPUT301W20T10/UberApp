@@ -1,5 +1,7 @@
 package com.cmput301w20t10.uberapp.database.entity;
 
+import android.util.Log;
+
 import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
@@ -8,6 +10,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.GeoPoint;
+
+import static android.content.ContentValues.TAG;
 
 
 /**
@@ -70,6 +74,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     @Override
     @Exclude
     public Field[] getDirtyFieldSet() {
+        Log.d(TAG, "getDirtyFieldSet: save: " + dirtyFieldSet.toString());
         return this.dirtyFieldSet.toArray(new Field[0]);
     }
 

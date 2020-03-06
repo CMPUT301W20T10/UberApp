@@ -183,7 +183,7 @@ public class DriverDAO {
                 .observe(owner, userEntity -> {
                     if (userEntity != null && userEntity.getUserReference() != null) {
                         userEntity.setDriverReference(driverEntity.getDriverReference());
-                        userDAO.save(userEntity);
+                        userDAO.saveEntity(userEntity);
                         Driver driver = new Driver(driverEntity, userEntity);
                         driverLiveData.setValue(driver);
                     }
@@ -231,6 +231,8 @@ public class DriverDAO {
                     dirtyPairMap.put(field.toString(), value);
                 }
             }
+
+            driverEntity.clearDirtyStateSet();
 
             if (dirtyPairMap.size() > 0) {
                 task = reference.update(dirtyPairMap);

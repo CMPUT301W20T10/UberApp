@@ -4,10 +4,12 @@ import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.models.Rider;
+import com.cmput301w20t10.uberapp.models.User;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -170,7 +172,7 @@ public class RiderDAO {
                 .observe(owner, userEntity -> {
                     if (userEntity != null && userEntity.getUserReference() != null) {
                         userEntity.setRiderReference(riderEntity.getRiderReference());
-                        userDAO.save(userEntity);
+                        userDAO.saveEntity(userEntity);
                         Rider rider = new Rider(riderEntity, userEntity);
                         riderLiveData.setValue(rider);
                     }
@@ -207,6 +209,58 @@ public class RiderDAO {
                     case ACTIVE_RIDE_REQUEST_LIST:
                         value = riderEntity.getActiveRideRequestList();
                         break;
+                    case BALANCE:
+                        value = riderEntity.getBalance();
+                        break;
+                    default:
+                        break;
+                }
+
+                if (value != null) {
+                    dirtyPairMap.put(field.toString(), value);
+                }
+            }
+
+            riderEntity.clearDirtyStateSet();
+
+            if (dirtyPairMap.size() > 0) {
+                task = reference.update(dirtyPairMap);
+            }
+        }
+
+        return task;
+    }
+
+    public Task save(Rider rider) {
+        final DocumentReference reference = rider.getRiderReference();
+        Task task = null;
+        Log.d(TAG, "save: "+ reference.getPath());
+        Log.d(TAG, "save: " + Arrays.toString(rider.getDirtyFieldSet()));
+
+        if (reference != null) {
+            final Map<String, Object> dirtyPairMap = new HashMap<>();
+
+            for (Rider.Field field:
+                    rider.getDirtyFieldSet()) {
+                Object value = null;
+
+                switch (field) {
+                    case PAYMENT_LIST:
+                        value = rider.getPaymentList();
+                        break;
+                    case RIDE_REQUEST_LIST:
+                        value = rider.getRideRequestList();
+                        break;
+                    case ACTIVE_RIDE_REQUEST_LIST:
+                        Log.d(TAG, "save: In RiderDAO at ACTIVE RIDE");
+                        value = rider.getActiveRideRequestList();
+                        break;
+                    case RIDER_REFERENCE:
+                        value = rider.getRiderReference();
+                        break;
+                    case BALANCE:
+                        value = rider.getBalance();
+                        break;
                     default:
                         break;
                 }
@@ -217,8 +271,15 @@ public class RiderDAO {
             }
 
             if (dirtyPairMap.size() > 0) {
+                Log.d(TAG, "save: Here: " + reference.getPath());
                 task = reference.update(dirtyPairMap);
             }
+
+            // call user task
+            UserDAO userDAO = new UserDAO();
+            userDAO.saveModel(rider, reference, null);
+
+            rider.clearDirtyStateSet();
         }
 
         return task;

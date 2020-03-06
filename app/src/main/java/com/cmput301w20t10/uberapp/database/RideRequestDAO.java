@@ -1,5 +1,6 @@
 package com.cmput301w20t10.uberapp.database;
 
+import android.media.DeniedByServerException;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
@@ -7,12 +8,17 @@ import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -57,7 +63,6 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
                                                           Route route,
                                                           int fareOffer) {
         MutableLiveData<RideRequest> rideRequestMutableLiveData = new MutableLiveData<>();
-        Log.d(TAG, "createRideRequest: Here");
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         RideRequestEntity entity = new RideRequestEntity(rider, route, fareOffer);
@@ -68,12 +73,21 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
                             RideRequestEntity.FIELD_RIDE_REQUEST_REFERENCE,
                             rideRequestReference);
                     entity.setRideRequestReference(rideRequestReference);
-                    save(entity);
+                    entity.setRiderReference(rider.getRiderReference());
+                    saveEntity(entity);
                     RideRequest model = new RideRequest(entity);
+                    Log.d(TAG, "createRideRequest: Rider: " + model.getRiderReference().getPath());
+                    Log.d(TAG, "createRideRequest: Request: " + model.getRideRequestReference().getPath());
 
                     // add to active rides
                     UnpairedRideListDAO unpairedRideListDAO = new UnpairedRideListDAO();
                     unpairedRideListDAO.addRideRequest(entity);
+
+                    // add reference to rider
+                    rider.addActiveRequest(model);
+                    RiderDAO riderDAO = new RiderDAO();
+                    riderDAO.save(rider);
+                    Log.d(TAG, "createRideRequest: Request in active list: " + rider.getActiveRideRequestList().get(0).getPath());
 
                     rideRequestMutableLiveData.setValue(model);
                 })
@@ -87,6 +101,60 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
         return rideRequestMutableLiveData;
     }
 
+    public MutableLiveData<List<RideRequest>> getUnpairedRideRequest() {
+        Log.d(TAG, "getUnpairedRideRequest: run: corn");
+        MutableLiveData<List<RideRequest>> mutableLiveData = new MutableLiveData<>();
+        List<RideRequest> rideList = new ArrayList<>();
+        mutableLiveData.setValue(rideList);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection(COLLECTION)
+                .whereEqualTo(RideRequestEntity.Field.STATE.toString(), RideRequest.State.Active.ordinal())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot snapshot : task.getResult()) {
+                            Log.d(TAG, "getUnpairedRideRequest: run: " + snapshot.getData().toString());
+                            RideRequestEntity entity = snapshot.toObject(RideRequestEntity.class);
+                            RideRequest model = new RideRequest(entity);
+                            rideList.add(model);
+                            mutableLiveData.setValue(rideList);
+                        }
+                    } else {
+                        Log.e(TAG, "onComplete: ", task.getException());
+                    }
+                });
+
+        return mutableLiveData;
+    }
+
+    // todo: fix
+    public MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Rider rider) {
+        MutableLiveData<List<RideRequest>> mutableLiveData = new MutableLiveData<>();
+        List<RideRequest> rideList = new ArrayList<>();
+        mutableLiveData.setValue(rideList);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        for (DocumentReference reference :
+                rider.getActiveRideRequestList()) {
+            reference.get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
+                                rideList.add(new RideRequest(rideRequestEntity));
+                                mutableLiveData.setValue(rideList);
+                            } else {
+                                Log.e(TAG, "onComplete: ", task.getException());
+                            }
+                        }
+                    });
+        }
+
+        return mutableLiveData;
+    }
+
     /**
      * Save changes in RideRequestEntity
      * @param entity
@@ -94,7 +162,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
      * Returns a Task object that can be observed whether it is successful or not.
      */
     @Override
-    public Task save(final RideRequestEntity entity) {
+    public Task saveEntity(final RideRequestEntity entity) {
         final DocumentReference reference = entity.getRideRequestReference();
         Task task = null;
 
@@ -141,6 +209,8 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
                     dirtyPairMap.put(field.toString(), value);
                 }
             }
+
+            entity.clearDirtyStateSet();
 
             if (dirtyPairMap.size() > 0) {
                 task = reference.update(dirtyPairMap);

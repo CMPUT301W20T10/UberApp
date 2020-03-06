@@ -8,21 +8,10 @@ import java.util.List;
 
 public class Driver extends User {
     private DocumentReference driverReference;
-    private List<DocumentReference> paymentReferenceList;
-    private List<DocumentReference> finishedRideRequestList;
+    private List<DocumentReference> paymentList;
+    private List<DocumentReference> rideRequestList;
     private List<DocumentReference> activeRideRequestList;
-    private int rating2;
-
-    @Deprecated
-    public Driver(String userName,
-                  String password,
-                  String email,
-                  String firstName,
-                  String lastName,
-                  String phoneNumber,
-                  float rating) {
-        super(userName, password, email, firstName, lastName, phoneNumber, rating);
-    }
+    private int rating;
 
     public Driver(String userName,
                   String password,
@@ -33,16 +22,59 @@ public class Driver extends User {
                   int rating,
                   String image) {
         super(userName, password, email, firstName, lastName, phoneNumber, image);
-        this.rating2 = rating;
+        this.rating = rating;
     }
 
     public Driver(DriverEntity driverEntity, UserEntity userEntity) {
         super(userEntity);
         this.driverReference = driverEntity.getDriverReference();
-        this.rating2 = driverEntity.getRating();
+        this.rating = driverEntity.getRating();
     }
 
-    public int getRating2() {
-        return rating2;
+    // region getters and setters
+    public DocumentReference getDriverReference() {
+        return driverReference;
     }
+
+    public void setDriverReference(DocumentReference driverReference) {
+        addDirtyField(Field.DRIVER_REFERENCE);
+        this.driverReference = driverReference;
+    }
+
+    public List<DocumentReference> getPaymentList() {
+        return paymentList;
+    }
+
+    public void setPaymentList(List<DocumentReference> paymentList) {
+        addDirtyField(Field.PAYMENT_LIST);
+        this.paymentList = paymentList;
+    }
+
+    public List<DocumentReference> getRideRequestList() {
+        return rideRequestList;
+    }
+
+    public void setRideRequestList(List<DocumentReference> rideRequestList) {
+        addDirtyField(Field.RIDE_REQUEST_LIST);
+        this.rideRequestList = rideRequestList;
+    }
+
+    public List<DocumentReference> getActiveRideRequestList() {
+        return activeRideRequestList;
+    }
+
+    public void setActiveRideRequestList(List<DocumentReference> activeRideRequestList) {
+        addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
+        this.activeRideRequestList = activeRideRequestList;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        addDirtyField(Field.RATING);
+        this.rating = rating;
+    }
+    // endregion getters and setters
 }

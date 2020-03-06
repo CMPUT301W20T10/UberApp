@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
+import com.cmput301w20t10.uberapp.models.User;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -113,7 +114,7 @@ class UserDAO extends DAOBase<UserEntity> {
                         userReference -> {
                             if (userReference != null) {
                                 userEntity.setUserReference(userReference);
-                                UserDAO.this.save(userEntity);
+                                UserDAO.this.saveEntity(userEntity);
                                 userLiveData.setValue(userEntity);
                             }
                         }
@@ -131,7 +132,7 @@ class UserDAO extends DAOBase<UserEntity> {
      * Returns a Task object that can be observed whether it is successful or not.
      */
     @Override
-    public Task save(final UserEntity userEntity) {
+    public Task saveEntity(final UserEntity userEntity) {
         final DocumentReference reference = userEntity.getUserReference();
         Task task = null;
 
@@ -182,9 +183,74 @@ class UserDAO extends DAOBase<UserEntity> {
                 }
             }
 
+            userEntity.clearDirtyStateSet();
+
             if (dirtyPairMap.size() > 0) {
                 task = reference.update(dirtyPairMap);
             }
+        }
+
+        return task;
+    }
+
+    public Task saveModel(User model,
+                          DocumentReference riderReference,
+                          DocumentReference driverReference) {
+        final DocumentReference reference = model.getUserReference();
+        Task task = null;
+
+        if (reference != null) {
+            final Map<String, Object> dirtyPairMap = new HashMap<>();
+
+            for (User.Field field:
+                    model.getDirtyFieldSet()) {
+                Object value = null;
+
+                switch (field) {
+                    case USERNAME:
+                        value = model.getUsername();
+                        break;
+                    case PASSWORD:
+                        value = model.getPassword();
+                        break;
+                    case EMAIL:
+                        value = model.getEmail();
+                        break;
+                    case FIRST_NAME:
+                        value = model.getFirstName();
+                        break;
+                    case LAST_NAME:
+                        value = model.getLastName();
+                        break;
+                    case PHONE_NUMBER:
+                        value = model.getPhoneNumber();
+                        break;
+                    case DRIVER_REFERENCE:
+                        value = driverReference;
+                        break;
+                    case RIDER_REFERENCE:
+                        value = riderReference;
+                        break;
+                    case USER_REFERENCE:
+                        value = model.getUserReference();
+                        break;
+                    case IMAGE:
+                        value = model.getImage();
+                        break;
+                    default:
+                        break;
+                }
+
+                if (value != null) {
+                    dirtyPairMap.put(field.toString(), value);
+                }
+            }
+
+            if (dirtyPairMap.size() > 0) {
+                task = reference.update(dirtyPairMap);
+            }
+
+            model.clearDirtyStateSet();
         }
 
         return task;
