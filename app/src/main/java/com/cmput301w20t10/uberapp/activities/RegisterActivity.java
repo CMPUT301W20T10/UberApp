@@ -33,8 +33,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         this.firstNameField = findViewById(R.id.first_name_field);
         this.lastNameField = findViewById(R.id.last_name_field);
-        this.usernameField = findViewById(R.id.username_field);
-        this.emailField = findViewById(R.id.username_field);
+        this.usernameField = findViewById(R.id.email_field);
+        this.emailField = findViewById(R.id.email_field);
         this.passwordField = findViewById(R.id.password_field);
         this.confirmPasswordField = findViewById(R.id.confirm_password_field);
         this.phoneField = findViewById(R.id.phone_field);

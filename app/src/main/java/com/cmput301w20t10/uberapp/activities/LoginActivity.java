@@ -38,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
 
         buttonLogIn.setOnClickListener(view -> onClick_signIn());
         
-        this.usernameField = findViewById(R.id.username_field);
+        this.usernameField = findViewById(R.id.email_field);
         this.passwordField = findViewById(R.id.password_field);
         this.loginTypeField = findViewById(R.id.rider_driver_toggle);
 
