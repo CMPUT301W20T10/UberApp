@@ -12,6 +12,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.GeoPoint;
 
+import java.util.Date;
+
+import androidx.annotation.NonNull;
+
 import static android.content.ContentValues.TAG;
 
 
@@ -64,14 +68,15 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
      */
     public RideRequestEntity() {}
 
-    public RideRequestEntity(Rider rider, Route route, int fareOffer) {
-        this.rideRequestReference = rider.getRiderReference();
+    public RideRequestEntity(@NonNull Rider rider, Route route, int fareOffer) {
+        this.riderReference = rider.getRiderReference();
         LatLng latLngStart = route.getStartingPosition();
         LatLng latLngDestination = route.getDestination();
         startingPosition = new GeoPoint(latLngStart.latitude, latLngStart.longitude);
         destination = new GeoPoint(latLngDestination.latitude, latLngDestination.longitude);
         this.state = 0;
         this.fareOffer = fareOffer;
+        this.timestamp = new Timestamp(new Date());
     }
 
     public RideRequestEntity(RideRequest model) {
@@ -219,6 +224,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     }
 
     public void setUnpairedReference(DocumentReference unpairedReference) {
+        Log.e(TAG, "setUnpairedReference: 4");
         addDirtyField(Field.UNPAIRED_REFERENCE);
         this.unpairedReference = unpairedReference;
     }

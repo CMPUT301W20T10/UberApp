@@ -34,29 +34,22 @@ public class UnpairedRideListDAO {
     /**
      * Adds a ride request allowing searchable ride requests for drivers
      *
-     * @param entity
+     * @param requestEntity
      * @return
      * Returns a Task object that can be observed whether it is successful or not.
      */
-    public Task addRideRequest(RideRequestEntity entity) {
+    public Task<DocumentReference> addRideRequest(RideRequestEntity requestEntity) {
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        final UnpairedRideEntity unpairedRide = new UnpairedRideEntity(entity.getRideRequestReference());
+        final UnpairedRideEntity unpairedRide = new UnpairedRideEntity(requestEntity.getRideRequestReference());
+        MutableLiveData<DocumentReference> liveData = new MutableLiveData<>();
         return db.collection(COLLECTION)
-                .add(unpairedRide)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        entity.setUnpairedReference(documentReference);
-                        RideRequestDAO dao = new RideRequestDAO();
-                        dao.saveEntity(entity);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "onFailure: ", e);
-                    }
-                });
+            .add(unpairedRide)
+            .addOnSuccessListener(documentReference -> {
+                requestEntity.setUnpairedReference(documentReference);
+                RideRequestDAO dao = new RideRequestDAO();
+                dao.saveEntity(requestEntity);
+            })
+            .addOnFailureListener(e -> Log.e(TAG, "onFailure: ", e));
     }
 
     // todo: improve readability
@@ -91,13 +84,11 @@ public class UnpairedRideListDAO {
                     if (task.isSuccessful()) {
                         List<RideRequest> rideRequestList = new ArrayList<>();
                         for (DocumentSnapshot snapshot : task.getResult().getDocuments()) {
-                            Log.d(TAG, "getAllUnpairedRideRequest: " + snapshot.getData().toString());
                             UnpairedRideEntity unpairedRideEntity = snapshot.toObject(UnpairedRideEntity.class);
                             unpairedRideEntity.getRideRequestReference()
                                     .get()
                                     .addOnCompleteListener(task1 -> {
                                         if (task1.isSuccessful()) {
-                                            Log.d(TAG, "entity??: " + task1.getResult().getData().toString());
                                             RideRequestEntity rideRequestEntity = task1.getResult().toObject(RideRequestEntity.class);
                                             rideRequestList.add(new RideRequest(rideRequestEntity));
                                             rideRequestMutableLiveData.setValue(rideRequestList);

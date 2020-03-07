@@ -1,12 +1,9 @@
 package com.cmput301w20t10.uberapp.database;
 
-import android.media.DeniedByServerException;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
-import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
-import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
@@ -14,11 +11,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,41 +57,39 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
      *     <ul><b>Null:</b> Registration failed.</ul>
      * </li>
      */
-    public MutableLiveData<RideRequest> createRideRequest(Rider rider,
+    public MutableLiveData<RideRequest> createRideRequest(@NonNull Rider rider,
                                                           Route route,
                                                           int fareOffer) {
         MutableLiveData<RideRequest> rideRequestMutableLiveData = new MutableLiveData<>();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        RideRequestEntity entity = new RideRequestEntity(rider, route, fareOffer);
+        RideRequestEntity requestEntity = new RideRequestEntity(rider, route, fareOffer);
         db.collection(COLLECTION)
-                .add(entity)
+                .add(requestEntity)
                 .addOnSuccessListener(rideRequestReference -> {
                     rideRequestReference.update(
                             RideRequestEntity.FIELD_RIDE_REQUEST_REFERENCE,
                             rideRequestReference);
-                    entity.setRideRequestReference(rideRequestReference);
-                    entity.setRiderReference(rider.getRiderReference());
-                    saveEntity(entity);
-                    RideRequest model = new RideRequest(entity);
+                    requestEntity.setRideRequestReference(rideRequestReference);
+                    requestEntity.setRiderReference(rider.getRiderReference());
+                    saveEntity(requestEntity)
+                    .addOnCompleteListener(task -> {
+                        RideRequest model = new RideRequest(requestEntity);
 
-                    // add to active rides
-                    UnpairedRideListDAO unpairedRideListDAO = new UnpairedRideListDAO();
-                    unpairedRideListDAO.addRideRequest(entity);
+                        // add to active rides
+                        UnpairedRideListDAO unpairedRideListDAO = new UnpairedRideListDAO();
+                        unpairedRideListDAO.addRideRequest(requestEntity)
+                                .addOnCompleteListener(task2 -> {
+                                    // add reference to rider
+                                    rider.addActiveRequest(model);
+                                    RiderDAO riderDAO = new RiderDAO();
+                                    riderDAO.save(rider);
 
-                    // add reference to rider
-                    rider.addActiveRequest(model);
-                    RiderDAO riderDAO = new RiderDAO();
-                    riderDAO.save(rider);
-
-                    rideRequestMutableLiveData.setValue(model);
+                                    rideRequestMutableLiveData.setValue(model);
+                                });
+                    });
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "onFailure: ", e);
-                    }
-                });
+                .addOnFailureListener(e -> Log.e(TAG, "onFailure: ", e));
 
         return rideRequestMutableLiveData;
     }
@@ -130,11 +124,12 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
      * Returns a Task object that can be observed whether it is successful or not.
      */
     @Override
-    public Task saveEntity(final RideRequestEntity entity) {
+    public Task<Void> saveEntity(final RideRequestEntity entity) {
         final DocumentReference reference = entity.getRideRequestReference();
-        Task task = null;
+        Task<Void> task = null;
 
         if (reference != null) {
+            Log.e(TAG, "saveEntity: 1 : " + Arrays.toString(entity.getDirtyFieldSet()));
             final Map<String, Object> dirtyPairMap = new HashMap<>();
 
             for (RideRequestEntity.Field field:
@@ -167,6 +162,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
                         value = entity.getFareOffer();
                         break;
                     case UNPAIRED_REFERENCE:
+                        Log.e(TAG, "saveEntity: 3");
                         value = entity.getUnpairedReference();
                         break;
                     case TIMESTAMP:

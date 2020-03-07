@@ -141,6 +141,8 @@ public class RiderDAO {
                                     if (task.isSuccessful() && task.getResult() != null) {
                                         RiderEntity riderEntity = task.getResult()
                                                 .toObject(RiderEntity.class);
+                                        riderEntity.setUserReference(userEntity.getUserReference());
+                                        save(riderEntity);
                                         Rider rider = new Rider(riderEntity, userEntity);
                                         riderLiveData.setValue(rider);
                                     } else {
@@ -177,6 +179,9 @@ public class RiderDAO {
                     if (userEntity != null && userEntity.getUserReference() != null) {
                         userEntity.setRiderReference(riderEntity.getRiderReference());
                         userDAO.saveEntity(userEntity);
+
+                        riderEntity.setUserReference(userEntity.getUserReference());
+                        save(riderEntity);
                         Rider rider = new Rider(riderEntity, userEntity);
                         riderLiveData.setValue(rider);
                     }
