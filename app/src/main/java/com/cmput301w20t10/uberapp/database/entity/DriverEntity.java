@@ -1,6 +1,7 @@
 package com.cmput301w20t10.uberapp.database.entity;
 
 import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
@@ -51,6 +52,13 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
     @Exclude
     public Field[] getDirtyFieldSet() {
         return dirtyFieldSet.toArray(new Field[0]);
+    }
+
+    public void deactivateRideRequest(RideRequest rideRequest) {
+        activeRideRequestList.remove(rideRequest.getRideRequestReference());
+        finishedRideRequestList.add(rideRequest.getRideRequestReference());
+        addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
+        addDirtyField(Field.FINISHED_RIDE_REQUEST_LIST);
     }
 
     // region setters

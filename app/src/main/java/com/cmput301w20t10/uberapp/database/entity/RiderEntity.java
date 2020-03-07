@@ -1,6 +1,7 @@
 package com.cmput301w20t10.uberapp.database.entity;
 
 import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
@@ -16,6 +17,7 @@ import androidx.annotation.NonNull;
  * @author Allan Manuba
  */
 public class RiderEntity extends EntityModelBase<RiderEntity.Field> {
+    private DocumentReference userReference;
     private DocumentReference riderReference;
     private List<DocumentReference> paymentReferenceList;
     private List<DocumentReference> rideRequestList;
@@ -24,6 +26,7 @@ public class RiderEntity extends EntityModelBase<RiderEntity.Field> {
 
     public enum Field {
         RIDER_REFERENCE ("riderReference"),
+        USER_REFERENCE ("userReference"),
         PAYMENT_LIST ("paymentList"),
         RIDE_REQUEST_LIST("rideRequestList"),
         ACTIVE_RIDE_REQUEST_LIST ("activeRideRequestList"),
@@ -53,7 +56,22 @@ public class RiderEntity extends EntityModelBase<RiderEntity.Field> {
         return this.dirtyFieldSet.toArray(new Field[0]);
     }
 
+    public void deactivateRideRequest(RideRequest rideRequest) {
+        activeRideRequestList.remove(rideRequest.getRideRequestReference());
+        rideRequestList.add(rideRequest.getRideRequestReference());
+        addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
+        addDirtyField(Field.RIDE_REQUEST_LIST);
+    }
+
     // region getters and setters
+    public DocumentReference getUserReference() {
+        return userReference;
+    }
+
+    public void setUserReference(DocumentReference userReference) {
+        addDirtyField(Field.USER_REFERENCE);
+        this.userReference = userReference;
+    }
 
     public DocumentReference getRiderReference() {
         return riderReference;

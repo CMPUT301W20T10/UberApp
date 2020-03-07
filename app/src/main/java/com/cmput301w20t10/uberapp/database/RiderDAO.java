@@ -3,10 +3,13 @@ package com.cmput301w20t10.uberapp.database;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
+import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.User;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
@@ -131,6 +134,7 @@ public class RiderDAO {
                     if (userEntity == null || userEntity.getRiderReference() == null) {
                         riderLiveData.setValue(null);
                     } else {
+                        // this gets rider using user reference
                         userEntity.getRiderReference()
                                 .get()
                                 .addOnCompleteListener(task -> {
@@ -185,7 +189,7 @@ public class RiderDAO {
      * @return
      * Returns a Task object that can be observed whether it is successful or not.
      */
-    private Task save(final RiderEntity riderEntity) {
+    public Task save(final RiderEntity riderEntity) {
         final DocumentReference reference = riderEntity.getRiderReference();
         Task task = null;
 
@@ -199,6 +203,9 @@ public class RiderDAO {
                 switch (field) {
                     case RIDER_REFERENCE:
                         value = riderEntity.getRiderReference();
+                        break;
+                    case USER_REFERENCE:
+                        value = riderEntity.getUserReference();
                         break;
                     case PAYMENT_LIST:
                         value = riderEntity.getPaymentList();
@@ -283,5 +290,37 @@ public class RiderDAO {
         }
 
         return task;
+    }
+
+    MutableLiveData<Rider> getRiderFromRiderReference(DocumentReference riderReference) {
+        if (riderReference != null) {
+            MutableLiveData<Rider> liveData = new MutableLiveData<>();
+
+            riderReference.get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            RiderEntity riderEntity = task.getResult().toObject(RiderEntity.class);
+                            DocumentReference userReference = riderEntity.getUserReference();
+                            userReference.get()
+                                    .addOnCompleteListener(task1 -> {
+                                        if (task1.isSuccessful()) {
+                                            UserEntity userEntity = task1.getResult().toObject(UserEntity.class);
+                                            Rider rider = new Rider(riderEntity, userEntity);
+                                            liveData.setValue(rider);
+                                        } else {
+                                            Log.e(TAG, "onComplete: ", task1.getException());
+                                            liveData.setValue(null);
+                                        }
+                                    });
+                        } else {
+                            Log.e(TAG, "onComplete: ", task.getException());
+                            liveData.setValue(null);
+                        }
+                    });
+
+            return liveData;
+        } else {
+            return null;
+        }
     }
 }

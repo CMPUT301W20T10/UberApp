@@ -36,9 +36,20 @@ public class Rider extends User {
      * @param rideRequest
      */
     public void addActiveRequest(RideRequest rideRequest) {
-        Log.d(TAG, "addActiveRequest: " + rideRequest.getRideRequestReference().getPath());
         activeRideRequestList.add(rideRequest.getRideRequestReference());
         addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
+    }
+
+    /**
+     * Immediately save after using
+     *
+     * @param rideRequest
+     */
+    public void deactivateRideRequest(RideRequest rideRequest) {
+        activeRideRequestList.remove(rideRequest.getRideRequestReference());
+        rideRequestList.add(rideRequest.getRideRequestReference());
+        addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
+        addDirtyField(Field.RIDE_REQUEST_LIST);
     }
 
     // region getters and setters

@@ -2,16 +2,22 @@ package com.cmput301w20t10.uberapp.database;
 
 import android.util.Log;
 
+import com.cmput301w20t10.uberapp.database.entity.DriverEntity;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
+import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UnpairedRideEntity;
 import com.cmput301w20t10.uberapp.models.RideRequest;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import static android.content.ContentValues.TAG;
@@ -36,7 +42,21 @@ public class UnpairedRideListDAO {
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         final UnpairedRideEntity unpairedRide = new UnpairedRideEntity(entity.getRideRequestReference());
         return db.collection(COLLECTION)
-                .add(unpairedRide);
+                .add(unpairedRide)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        entity.setUnpairedReference(documentReference);
+                        RideRequestDAO dao = new RideRequestDAO();
+                        dao.saveEntity(entity);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "onFailure: ", e);
+                    }
+                });
     }
 
     // todo: improve readability
@@ -91,5 +111,46 @@ public class UnpairedRideListDAO {
                     }
                 });
         return rideRequestMutableLiveData;
+    }
+
+    public Task removeRiderRequest(RideRequest rideRequest) {
+        DocumentReference documentReference = rideRequest.getUnpairedReference();
+
+        if (documentReference != null) {
+            rideRequest.setUnpairedReference(null);
+            RideRequestDAO rideRequestDAO = new RideRequestDAO();
+            rideRequestDAO.saveModel(rideRequest);
+
+            // remove request from active list in rider
+            // put request in rider history
+            rideRequest.getRiderReference()
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        RiderEntity riderEntity = documentSnapshot.toObject(RiderEntity.class);
+                        riderEntity.deactivateRideRequest(rideRequest);
+                        RiderDAO riderDAO = new RiderDAO();
+                        riderDAO.save(riderEntity);
+                    })
+                    .addOnFailureListener(e -> Log.e(TAG, "onFailure: ", e));
+
+            // remove request from driver active
+            // put request in driver history
+            DocumentReference driverReference = rideRequest.getDriverReference();
+            if (driverReference != null) {
+                driverReference.get()
+                        .addOnSuccessListener(documentSnapshot -> {
+                            DriverEntity driver = documentSnapshot.toObject(DriverEntity.class);
+                            driver.deactivateRideRequest(rideRequest);
+                            DriverDAO driverDAO = new DriverDAO();
+                            driverDAO.save(driver);
+                        })
+                        .addOnFailureListener(e -> Log.e(TAG, "onFailure: ", e));
+            }
+
+            // remove request from active list in system
+            return documentReference.delete();
+        } else {
+            return null;
+        }
     }
 }

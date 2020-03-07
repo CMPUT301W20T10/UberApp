@@ -16,11 +16,15 @@ import com.cmput301w20t10.uberapp.models.Route;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -29,6 +33,114 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(AndroidJUnit4.class)
 public class RideRequestDAOTest {
+    private Context appContext;
+    private LifecycleOwnerMock lifecycleOwner;
+    private DatabaseManager databaseManager;
+    private Handler handler;
+
+    @Before
+    public void initialize() {
+        appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        lifecycleOwner = new LifecycleOwnerMock();
+        databaseManager = DatabaseManager.getInstance();
+        handler = new Handler(Looper.getMainLooper());
+    }
+
+    private <T> void liveDataObserver(@NonNull MutableLiveData<T> liveData,
+                                      @NonNull Observer<T> observer,
+                                      final Object syncObject) throws InterruptedException {
+        handler.post(() -> liveData
+                .observe(lifecycleOwner, observer));
+
+        synchronized (syncObject) {
+            syncObject.wait();
+        }
+    }
+
+    private class AssertNullObserver<T> implements Observer<T> {
+        private final Object syncObject;
+
+        AssertNullObserver(Object syncObject) {
+            this.syncObject = syncObject;
+        }
+
+        @Override
+        public void onChanged(T t) {
+            assertNotNull(t);
+
+            synchronized (syncObject) {
+                syncObject.notify();
+            }
+        }
+    }
+
+    /**
+     * Reference: medium.com/android-development-by-danylo/simple-way-to-test-asynchronous-actions-in-android-service-asynctask-thread-rxjava-etc-d43b0402e005
+     * https://androidoverride.wordpress.com/2017/05/27/android-working-with-live-data-and-custom-life-cycle-owners/
+     */
+    @Test
+    public void registerAsRiderTest() throws InterruptedException {
+        LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
+
+        // get data
+        final Object syncObject = new Object();
+        MutableLiveData<Rider> liveData = loginRegisterDAO
+                .registerRider("OneOClock",
+                        "1:00",
+                        "email",
+                        "Hungry",
+                        "Snail",
+                        "100",
+                        "image",
+                        lifecycleOwner);
+        Observer<Rider> observer = new AssertNullObserver<>(syncObject);
+        liveDataObserver(liveData, observer, syncObject);
+    }
+
+    /**
+     * Reference: medium.com/android-development-by-danylo/simple-way-to-test-asynchronous-actions-in-android-service-asynctask-thread-rxjava-etc-d43b0402e005
+     * https://androidoverride.wordpress.com/2017/05/27/android-working-with-live-data-and-custom-life-cycle-owners/
+     */
+    @Test
+    public void loginAsRiderTest() throws InterruptedException {
+        // Context of the app under test.
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+
+        // Create mock lifecycle owner
+        LifecycleOwnerMock lifecycleOwnerMock = new LifecycleOwnerMock();
+
+        // Set up database manager
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
+
+        // Initialize ride request DAO
+        LoginRegisterDAO dao = databaseManager.getLoginRegisterDAO();
+
+        // set up input
+        RiderEntity riderEntity = new RiderEntity();
+        UserEntity userEntity = new UserEntity();
+        Rider rider = new Rider(riderEntity, userEntity);
+        Route route = new Route();
+
+        // get data
+        final Object syncObject = new Object();
+
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(() -> {
+            dao.logInAsRider("RyanBowler", "Password1", lifecycleOwnerMock)
+                    .observe(lifecycleOwnerMock, rider1 -> {
+                        assertNotNull(rider1);
+
+                        synchronized (syncObject) {
+                            syncObject.notify();
+                        }
+                    });
+        });
+
+        // wait
+        synchronized (syncObject) {
+            syncObject.wait();
+        }
+    }
 
     /**
      * Reference: medium.com/android-development-by-danylo/simple-way-to-test-asynchronous-actions-in-android-service-asynctask-thread-rxjava-etc-d43b0402e005
@@ -216,48 +328,5 @@ public class RideRequestDAOTest {
         }
     }
 
-    /**
-     * Reference: medium.com/android-development-by-danylo/simple-way-to-test-asynchronous-actions-in-android-service-asynctask-thread-rxjava-etc-d43b0402e005
-     * https://androidoverride.wordpress.com/2017/05/27/android-working-with-live-data-and-custom-life-cycle-owners/
-     */
-    @Test
-    public void loginAsRiderTest() throws InterruptedException {
-        // Context of the app under test.
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        // Create mock lifecycle owner
-        LifecycleOwnerMock lifecycleOwnerMock = new LifecycleOwnerMock();
-
-        // Set up database manager
-        DatabaseManager databaseManager = DatabaseManager.getInstance();
-
-        // Initialize ride request DAO
-        LoginRegisterDAO dao = databaseManager.getLoginRegisterDAO();
-
-        // set up input
-        RiderEntity riderEntity = new RiderEntity();
-        UserEntity userEntity = new UserEntity();
-        Rider rider = new Rider(riderEntity, userEntity);
-        Route route = new Route();
-
-        // get data
-        final Object syncObject = new Object();
-
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(() -> {
-            dao.logInAsRider("RyanBowler", "Password1", lifecycleOwnerMock)
-                .observe(lifecycleOwnerMock, rider1 -> {
-                    assertNotNull(rider1);
-
-                    synchronized (syncObject) {
-                        syncObject.notify();
-                    }
-                });
-        });
-
-        // wait
-        synchronized (syncObject) {
-            syncObject.wait();
-        }
-    }
 }

@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
+import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
+import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
@@ -164,6 +166,9 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
                     case FARE_OFFER:
                         value = entity.getFareOffer();
                         break;
+                    case UNPAIRED_REFERENCE:
+                        value = entity.getUnpairedReference();
+                        break;
                     case TIMESTAMP:
                         value = entity.getTimestamp();
                         break;
@@ -184,5 +189,28 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
         }
 
         return task;
+    }
+
+    public Task saveModel(final RideRequest model) {
+        return saveEntity(new RideRequestEntity(model));
+    }
+
+    public Task cancelRequest(final RideRequest rideRequest) {
+        rideRequest.setState(RideRequest.State.Cancelled);
+
+        // remove request from active list in system
+        // remove request from active list in rider
+        // put request in rider history
+        // remove request from driver active
+        // put request in driver history
+        UnpairedRideListDAO unpairedRideListDAO = new UnpairedRideListDAO();
+        unpairedRideListDAO.removeRiderRequest(rideRequest);
+
+        return saveModel(rideRequest);
+    }
+
+    public MutableLiveData<Rider> getRiderForRequest(final RideRequest rideRequest) {
+        RiderDAO riderDAO = new RiderDAO();
+        return riderDAO.getRiderFromRiderReference(rideRequest.getRiderReference());
     }
 }

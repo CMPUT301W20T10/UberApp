@@ -3,6 +3,7 @@ package com.cmput301w20t10.uberapp.database.entity;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.google.firebase.Timestamp;
@@ -27,6 +28,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     private DocumentReference driverReference;
     private DocumentReference riderReference;
     private DocumentReference paymentReference;
+    private DocumentReference unpairedReference;
 
     private GeoPoint startingPosition;
     private GeoPoint destination;
@@ -43,6 +45,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
         DESTINATION ("destination"),
         STATE ("state"),
         FARE_OFFER ("fareOffer"),
+        UNPAIRED_REFERENCE ("unpairedReference"),
         TIMESTAMP ("timestamp");
 
         private String stringValue;
@@ -69,6 +72,57 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
         destination = new GeoPoint(latLngDestination.latitude, latLngDestination.longitude);
         this.state = 0;
         this.fareOffer = fareOffer;
+    }
+
+    public RideRequestEntity(RideRequest model) {
+        // get dirty fields
+        for (RideRequest.Field otherField :
+                model.getDirtyFieldSet()) {
+            switch (otherField) {
+                case DRIVER_REFERENCE:
+                    addDirtyField(Field.DRIVER_REFERENCE);
+                    break;
+                case RIDER_REFERENCE:
+                    addDirtyField(Field.RIDER_REFERENCE);
+                    break;
+                case PAYMENT_REFERENCE:
+                    addDirtyField(Field.PAYMENT_REFERENCE);
+                    break;
+                case RIDE_REQUEST_REFERENCE:
+                    addDirtyField(Field.RIDE_REQUEST_REFERENCE);
+                    break;
+                case ROUTE:
+                    addDirtyField(Field.STARTING_POSITION);
+                    addDirtyField(Field.DESTINATION);
+                    break;
+                case STATE:
+                    addDirtyField(Field.STATE);
+                    break;
+                case TIMESTAMP:
+                    addDirtyField(Field.TIMESTAMP);
+                    break;
+                case FARE_OFFER:
+                    addDirtyField(Field.FARE_OFFER);
+                    break;
+            }
+        }
+        model.clearDirtyStateSet();
+
+        // set all fields
+        this.rideRequestReference = model.getRideRequestReference();
+        this.driverReference = model.getDriverReference();
+        this.riderReference = model.getRiderReference();
+        this.paymentReference = model.getPaymentReference();
+
+        LatLng latLngStart = model.getRoute().getStartingPosition();
+        LatLng latLngDest = model.getRoute().getDestination();
+
+        startingPosition = new GeoPoint(latLngStart.latitude, latLngStart.longitude);
+        destination = new GeoPoint(latLngDest.latitude, latLngDest.longitude);
+
+        state = model.getState().ordinal();
+        fareOffer = model.getFareOffer();
+        timestamp = new Timestamp(model.getTimestamp());
     }
 
     @Override
@@ -158,6 +212,15 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     public void setTimestamp(Timestamp timestamp) {
         addDirtyField(Field.TIMESTAMP);
         this.timestamp = timestamp;
+    }
+
+    public DocumentReference getUnpairedReference() {
+        return unpairedReference;
+    }
+
+    public void setUnpairedReference(DocumentReference unpairedReference) {
+        addDirtyField(Field.UNPAIRED_REFERENCE);
+        this.unpairedReference = unpairedReference;
     }
     // endregion getters and setters
 }
