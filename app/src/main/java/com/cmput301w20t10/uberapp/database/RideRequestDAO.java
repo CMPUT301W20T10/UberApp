@@ -217,6 +217,11 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
         RiderAcceptsRideFromDriverTask task = new RiderAcceptsRideFromDriverTask(rideRequest, rider);
         return task.run();
     }
+
+    public MutableLiveData<Boolean> confirmRideCompletion(RideRequest rideRequest, Rider rider) {
+        RiderConfirmsCompletionTask task = new RiderConfirmsCompletionTask(rider, rideRequest);
+        return task.run();
+    }
 }
 
 class CreateRideRequestTask extends GetTaskSequencer<RideRequest> {
@@ -452,6 +457,41 @@ class RiderAcceptsRideFromDriverTask extends GetTaskSequencer<Boolean> {
         } else {
             Log.w(TAG, "acceptRideRequest: Wrong rider");
             liveData.setValue(false);
+        }
+    }
+}
+
+class RiderConfirmsCompletionTask extends GetTaskSequencer<Boolean> {
+    final static String LOC = "Tomate: RideRequestDAO: RiderConfirmsCompletionTask: ";
+    private final RideRequest rideRequest;
+    private final Rider rider;
+
+    RiderConfirmsCompletionTask(Rider rider, RideRequest rideRequest) {
+        this.rider = rider;
+        this.rideRequest = rideRequest;
+    }
+
+    @Override
+    public MutableLiveData<Boolean> run() {
+        updateRideRequest();
+        return liveData;
+    }
+
+    private void updateRideRequest() {
+        if (rider.getRiderReference().getPath().equals(rideRequest.getRiderReference().getPath())) {
+            rideRequest.setState(RideRequest.State.RideCompleted);
+            RideRequestDAO rideRequestDAO = new RideRequestDAO();
+            rideRequestDAO.saveModel(rideRequest)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            liveData.setValue(true);
+                        } else {
+                            Log.e(TAG, LOC + "updateRideRequest: onComplete: ");
+                            liveData.setValue(false);
+                        }
+                    });
+        } else {
+            Log.w(TAG, LOC + "updateRideRequest: Wrong rider");
         }
     }
 }

@@ -415,8 +415,29 @@ public class BasicDAOTest {
         return rideRequest;
     }
 
-    public void riderConfirmCompletionTest() {
-        // todo: riderConfirmCompletionTest
+    @Test
+    public void riderConfirmCompletionTest() throws InterruptedException {
+        riderConfirmCompletion();
+    }
+
+    public RideRequest riderConfirmCompletion() throws InterruptedException {
+        RideRequest rideRequest = riderAcceptsDriver();
+
+        Rider rider = loginAsRider();
+
+        // get data
+        final Object syncObject = new Object();
+
+        Runnable runnable = () -> {
+            Observer<Boolean> observer = new AssertNullObserver<Boolean>(syncObject);
+            RideRequestDAO dao = databaseManager.getRideRequestDAO();
+            MutableLiveData<Boolean> liveData = dao.confirmRideCompletion(rideRequest, rider);
+            liveData.observe(lifecycleOwner, observer);
+        };
+
+        liveDataObserver(runnable, syncObject);
+
+        return rideRequest;
     }
 
     public void generateQRCodeTest() {
