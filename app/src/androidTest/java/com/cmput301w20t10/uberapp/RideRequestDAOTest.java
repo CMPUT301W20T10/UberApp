@@ -257,4 +257,21 @@ public class RideRequestDAOTest {
 
         liveDataObserver(runnable, syncObject);
     }
+
+    @Test
+    public void getRiderFromRequestTest() throws InterruptedException {
+        // Initialize
+        RideRequest rideRequest = createRideRequest();
+
+        final Object syncObject = new Object();
+
+        Runnable runnable = () -> {
+            Observer<Rider> observer = new AssertNullObserver<Rider>(syncObject);
+            RideRequestDAO dao = new RideRequestDAO();
+            MutableLiveData<Rider> liveData = dao.getRiderForRequest(rideRequest);
+            liveData.observe(lifecycleOwner, observer);
+        };
+
+        liveDataObserver(runnable, syncObject);
+    }
 }

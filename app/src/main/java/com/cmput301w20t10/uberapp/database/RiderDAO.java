@@ -9,7 +9,7 @@ import com.cmput301w20t10.uberapp.models.Rider;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,7 +19,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 
 import static android.content.ContentValues.TAG;
 
@@ -255,35 +254,8 @@ public class RiderDAO {
     }
 
     MutableLiveData<Rider> getRiderFromRiderReference(DocumentReference riderReference) {
-        if (riderReference != null) {
-            MutableLiveData<Rider> liveData = new MutableLiveData<>();
-
-            riderReference.get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            RiderEntity riderEntity = task.getResult().toObject(RiderEntity.class);
-                            DocumentReference userReference = riderEntity.getUserReference();
-                            userReference.get()
-                                    .addOnCompleteListener(task1 -> {
-                                        if (task1.isSuccessful()) {
-                                            UserEntity userEntity = task1.getResult().toObject(UserEntity.class);
-                                            Rider rider = new Rider(riderEntity, userEntity);
-                                            liveData.setValue(rider);
-                                        } else {
-                                            Log.e(TAG, "onComplete: ", task1.getException());
-                                            liveData.setValue(null);
-                                        }
-                                    });
-                        } else {
-                            Log.e(TAG, "onComplete: ", task.getException());
-                            liveData.setValue(null);
-                        }
-                    });
-
-            return liveData;
-        } else {
-            return null;
-        }
+        GetRiderFromReferenceTask task = new GetRiderFromReferenceTask(riderReference);
+        return task.run();
     }
 }
 
@@ -453,4 +425,59 @@ class LoginRiderTask extends GetTaskSequencer<Rider> {
                     }
                 });
     }
+}
+
+class GetRiderFromReferenceTask extends GetTaskSequencer<Rider> {
+    static final String LOC = "RiderDAO: GetRiderFromReferenceTask: ";
+    private final DocumentReference riderReference;
+    private RiderEntity riderEntity;
+
+    GetRiderFromReferenceTask(DocumentReference riderReference) {
+        this.riderReference = riderReference;
+    }
+
+    @Override
+    public MutableLiveData<Rider> run() {
+        getRiderEntity();
+        return liveData;
+    }
+
+    private void getRiderEntity() {
+        if (riderReference != null) {
+            riderReference.get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            this.riderEntity = task.getResult().toObject(RiderEntity.class);
+                            DocumentReference userReference = riderEntity.getUserReference();
+                            getUserEntity(userReference);
+                        } else {
+                            Log.e(TAG, LOC + "getRiderEntity: onComplete: ", task.getException());
+                            liveData.setValue(null);
+                        }
+                    });
+        } else {
+            Log.e(TAG, LOC + "getRiderEntity: ");
+            liveData.setValue(null);
+        }
+    }
+
+    private void getUserEntity(DocumentReference userReference) {
+        if (userReference != null) {
+            userReference.get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        UserEntity userEntity = task.getResult().toObject(UserEntity.class);
+                        Rider rider = new Rider(riderEntity, userEntity);
+                        liveData.setValue(rider);
+                    } else {
+                        Log.e(TAG, LOC + "getUserEntity: onComplete: ", task.getException());
+                        liveData.setValue(null);
+                    }
+                });
+        } else {
+            liveData.setValue(null);
+            Log.e(TAG, LOC + "getUserEntity: No UserEntity");
+        }
+    }
+
 }

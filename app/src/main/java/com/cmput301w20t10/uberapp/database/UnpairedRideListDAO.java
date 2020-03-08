@@ -245,19 +245,16 @@ class RemoveRiderRequestTask extends GetTaskSequencer<Boolean> {
     }
 
     private void deleteRequest() {
-        Log.d(TAG, "deleteRequest: We are here");
         documentReference.delete()
         .addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 liveData.setValue(true);
-                Log.d(TAG, "deleteRequest: onSuccess: ");
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 liveData.setValue(false);
-                Log.e(TAG, "deleteRequest: onFailure: ");
             }
         });
     }
