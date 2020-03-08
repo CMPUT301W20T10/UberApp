@@ -3,6 +3,8 @@ package com.cmput301w20t10.uberapp.database;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.entity.DriverEntity;
+import com.cmput301w20t10.uberapp.database.entity.UserEntity;
+import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -241,5 +243,66 @@ public class DriverDAO {
         }
 
         return task;
+    }
+
+    public MutableLiveData<Boolean> saveModel(Driver driver) {
+        SaveModelTask saveModelTask = new SaveModelTask(driver);
+        return saveModelTask.run();
+    }
+}
+
+class SaveModelTask extends GetTaskSequencer<Boolean> {
+    final static String LOC = "Tomate: DriverDAO: SaveModel: ";
+    private final Driver driver;
+    private final DriverEntity driverEntity;
+    private final UserEntity userEntity;
+
+    SaveModelTask(Driver driver) {
+        this.driver = driver;
+        driverEntity = new DriverEntity(driver);
+        userEntity = new UserEntity(driver);
+        driver.clearDirtyStateSet();
+    }
+
+    @Override
+    public MutableLiveData<Boolean> run() {
+        updateDriverEntity();
+        return liveData;
+    }
+
+    private void updateDriverEntity() {
+        DriverDAO driverDAO = new DriverDAO();
+        Task driverSaveTask = driverDAO.save(driverEntity);
+        if (driverSaveTask != null) {
+            driverSaveTask.addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, LOC + "updateDriverEntity: ");
+                    updateUserEntity();
+                } else {
+                    Log.e(TAG, LOC + "updateDriverEntity: onComplete: ", task.getException());
+                    liveData.setValue(false);
+                }
+            });
+        } else {
+            liveData.setValue(true);
+        }
+    }
+
+    private void updateUserEntity() {
+        UserDAO userDAO = new UserDAO();
+        Task saveUserTask = userDAO.saveEntity(userEntity);
+        if (saveUserTask != null) {
+            saveUserTask.addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, LOC + "updateUserEntity: ");
+                    liveData.setValue(true);
+                } else {
+                    Log.e(TAG, LOC + "updateUserEntity: onComplete: ", task.getException());
+                    liveData.setValue(false);
+                }
+            });
+        } else {
+            liveData.setValue(true);
+        }
     }
 }

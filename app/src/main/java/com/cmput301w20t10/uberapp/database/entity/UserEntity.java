@@ -1,8 +1,14 @@
 package com.cmput301w20t10.uberapp.database.entity;
 
+import android.util.Log;
+
 import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
+import com.cmput301w20t10.uberapp.models.Driver;
+import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Entity representation for Driver model.
@@ -66,6 +72,62 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
         this.image = image;
         this.driverReference = null;
         this.riderReference = null;
+    }
+
+    public UserEntity(Driver driver) {
+        this.userReference = driver.getUserReference();
+        this.driverReference = driver.getDriverReference();
+        this.username = driver.getUsername();
+        this.email = driver.getEmail();
+        this.phoneNumber = driver.getPhoneNumber();
+        this.password = driver.getPassword();
+        this.firstName = driver.getFirstName();
+        this.lastName = driver.getLastName();
+        this.image = driver.getImage();
+
+        for (Driver.Field dirtyField :
+                driver.getDirtyFieldSet()) {
+            switch (dirtyField) {
+                case USER_REFERENCE:
+                    addDirtyField(Field.USER_REFERENCE);
+                    break;
+                case USERNAME:
+                    addDirtyField(Field.USERNAME);
+                    break;
+                case PASSWORD:
+                    addDirtyField(Field.PASSWORD);
+                    break;
+                case EMAIL:
+                    addDirtyField(Field.EMAIL);
+                    break;
+                case FIRST_NAME:
+                    addDirtyField(Field.FIRST_NAME);
+                    break;
+                case LAST_NAME:
+                    addDirtyField(Field.LAST_NAME);
+                    break;
+                case PHONE_NUMBER:
+                    addDirtyField(Field.PHONE_NUMBER);
+                    break;
+                case IMAGE:
+                    addDirtyField(Field.IMAGE);
+                    break;
+                case DRIVER_REFERENCE:
+                    addDirtyField(Field.DRIVER_REFERENCE);
+                    break;
+                case PAYMENT_LIST:
+                case RIDER_REFERENCE:
+                case RIDE_REQUEST_LIST:
+                case ACTIVE_RIDE_REQUEST_LIST:
+                case RATING:
+                case BALANCE:
+                    // do nothing
+                    break;
+                default:
+                    Log.w(TAG, "UserEntity: Constructor: Unknown field: " + dirtyField.toString());
+                    break;
+            }
+        }
     }
 
     @Override

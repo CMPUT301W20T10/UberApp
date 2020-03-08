@@ -7,11 +7,8 @@ import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UnpairedRideEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
-import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -81,8 +78,13 @@ public class UnpairedRideListDAO {
         return task.run();
     }
 
-    public MutableLiveData<Boolean> removeRiderRequest(RideRequest rideRequest) {
-        RemoveRiderRequestTask task = new RemoveRiderRequestTask(rideRequest);
+    public MutableLiveData<Boolean> cancelRideRequest(RideRequest rideRequest) {
+        CancelUnpairedRideRequestTask task = new CancelUnpairedRideRequestTask(rideRequest, CancelUnpairedRideRequestTask.Type.Cancel);
+        return task.run();
+    }
+
+    public MutableLiveData<Boolean> removeRideRequest(RideRequest rideRequest) {
+        CancelUnpairedRideRequestTask task = new CancelUnpairedRideRequestTask(rideRequest, CancelUnpairedRideRequestTask.Type.Remove);
         return task.run();
     }
 }
@@ -139,14 +141,21 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
     }
 }
 
-class RemoveRiderRequestTask extends GetTaskSequencer<Boolean> {
+class CancelUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
     static final String LOC = "Tomate: UnpairedRideListDAO: RemoveRiderRequestTask: ";
 
     private final RideRequest rideRequest;
     private DocumentReference documentReference;
+    private final Type type;
 
-    RemoveRiderRequestTask(RideRequest rideRequest) {
+    public enum Type {
+        Cancel, // deactivates the ride request
+        Remove // only remove unpaired reference
+    }
+
+    CancelUnpairedRideRequestTask(RideRequest rideRequest, Type type) {
         this.rideRequest = rideRequest;
+        this.type = type;
     }
 
     @Override
@@ -161,20 +170,36 @@ class RemoveRiderRequestTask extends GetTaskSequencer<Boolean> {
         if (documentReference != null) {
             rideRequest.setUnpairedReference(null);
             RideRequestDAO rideRequestDAO = new RideRequestDAO();
-            rideRequestDAO.saveModel(rideRequest)
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    deactivateRequestFromRider();
-                } else {
-                    liveData.setValue(false);
-                }
-            });
+            Task<Void> rideRequestTask = rideRequestDAO.saveModel(rideRequest);
+            if (rideRequestTask != null) {
+                rideRequestTask.addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        switch (type) {
+                            case Cancel:
+                                getRider();
+                                break;
+                            case Remove:
+                                deleteRequest();
+                                break;
+                            default:
+                                Log.e(TAG, "removeSelfReferenceToUnpaired: Unknown type: " + type.toString());
+                                liveData.setValue(false);
+                                break;
+                        }
+                    } else {
+                        liveData.setValue(false);
+                    }
+                });
+            } else {
+                deleteRequest();
+            }
         } else {
             liveData.setValue(false);
         }
     }
 
-    private void deactivateRequestFromRider() {
+    // region cancel
+    private void getRider() {
         // remove request from active list in rider
         // put request in rider history
         rideRequest.getRiderReference()
@@ -182,7 +207,7 @@ class RemoveRiderRequestTask extends GetTaskSequencer<Boolean> {
                 .addOnSuccessListener(documentSnapshot -> {
                     Log.d(TAG, LOC + "deactivateRequestFromRider: onSuccess:");
                     RiderEntity riderEntity = documentSnapshot.toObject(RiderEntity.class);
-                    receiveRider(riderEntity);
+                    deactivateRequestFromRider(riderEntity);
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, LOC + "onFailure: ", e);
@@ -190,7 +215,7 @@ class RemoveRiderRequestTask extends GetTaskSequencer<Boolean> {
                 });
     }
 
-    private void receiveRider(RiderEntity riderEntity) {
+    private void deactivateRequestFromRider(RiderEntity riderEntity) {
         if (riderEntity != null) {
             riderEntity.deactivateRideRequest(rideRequest);
             RiderDAO riderDAO = new RiderDAO();
@@ -243,17 +268,14 @@ class RemoveRiderRequestTask extends GetTaskSequencer<Boolean> {
             liveData.setValue(false);
         }
     }
+    // endregion cancel
 
     private void deleteRequest() {
         documentReference.delete()
-        .addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                liveData.setValue(true);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
+        .addOnSuccessListener(aVoid -> liveData.setValue(true)).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, LOC + "deleteRequest: onFailure: ");
                 liveData.setValue(false);
             }
         });

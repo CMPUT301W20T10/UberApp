@@ -1,12 +1,18 @@
 package com.cmput301w20t10.uberapp.database.entity;
 
+import android.util.Log;
+
 import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
+import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
+import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Entity representation for Driver model.
@@ -46,6 +52,50 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
         this.paymentList = new ArrayList<>();
         this.finishedRideRequestList = new ArrayList<>();
         this.activeRideRequestList = new ArrayList<>();
+    }
+
+    public DriverEntity(Driver driver) {
+        this.driverReference = driver.getDriverReference();
+        this.paymentList = driver.getPaymentList();
+        this.finishedRideRequestList = driver.getRideRequestList();
+        this.activeRideRequestList = driver.getActiveRideRequestList();
+        this.rating = driver.getRating();
+
+        for (Driver.Field dirtyField :
+                driver.getDirtyFieldSet()) {
+            switch (dirtyField) {
+                case USER_REFERENCE:
+                case USERNAME:
+                case PASSWORD:
+                case EMAIL:
+                case FIRST_NAME:
+                case LAST_NAME:
+                case PHONE_NUMBER:
+                case IMAGE:
+                case RIDER_REFERENCE:
+                case BALANCE:
+                    // do nothing
+                    break;
+                case DRIVER_REFERENCE:
+                    addDirtyField(Field.DRIVER_REFERENCE);
+                    break;
+                case PAYMENT_LIST:
+                    addDirtyField(Field.PAYMENT_LIST);
+                    break;
+                case RIDE_REQUEST_LIST:
+                    addDirtyField(Field.FINISHED_RIDE_REQUEST_LIST);
+                    break;
+                case ACTIVE_RIDE_REQUEST_LIST:
+                    addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
+                    break;
+                case RATING:
+                    addDirtyField(Field.RATING);
+                    break;
+                default:
+                    Log.w(TAG, "DriverEntity: Constructor Unknown field: " + dirtyField.toString());
+                    break;
+            }
+        }
     }
 
     @Override

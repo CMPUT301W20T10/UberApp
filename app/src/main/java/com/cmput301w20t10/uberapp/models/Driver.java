@@ -29,6 +29,15 @@ public class Driver extends User {
         super(userEntity);
         this.driverReference = driverEntity.getDriverReference();
         this.rating = driverEntity.getRating();
+        this.paymentList = driverEntity.getPaymentList();
+        this.rideRequestList = driverEntity.getFinishedRideRequestList();
+        this.activeRideRequestList = driverEntity.getActiveRideRequestList();
+
+    }
+
+    public void addActiveRideRequest(RideRequest rideRequest) {
+        activeRideRequestList.add(rideRequest.getRideRequestReference());
+        addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
     }
 
     // region getters and setters

@@ -5,13 +5,12 @@ import android.util.Log;
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
+import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -180,6 +179,11 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
     public Task<Void> saveModel(final RideRequest rideRequest) {
         return saveEntity(new RideRequestEntity(rideRequest));
     }
+
+    public MutableLiveData<Boolean> acceptRequest(RideRequest rideRequest, Driver driver, LifecycleOwner owner) {
+        DriverAcceptRequestTask task = new DriverAcceptRequestTask(rideRequest, driver, owner);
+        return task.run();
+    }
 }
 
 class CreateRideRequestTask extends GetTaskSequencer<RideRequest> {
@@ -285,7 +289,7 @@ class CancelRideRequestTask extends GetTaskSequencer<Boolean> {
         // remove request from driver active
         // put request in driver history
         UnpairedRideListDAO unpairedRideListDAO = new UnpairedRideListDAO();
-        unpairedRideListDAO.removeRiderRequest(rideRequest)
+        unpairedRideListDAO.cancelRideRequest(rideRequest)
                 .observe(owner, aBoolean -> {
                     if (aBoolean) {
                         updateRideRequest();
@@ -311,5 +315,72 @@ class CancelRideRequestTask extends GetTaskSequencer<Boolean> {
             Log.d(TAG, LOC + "updateRideRequest: nothing to update");
             liveData.setValue(true);
         }
+    }
+}
+
+class DriverAcceptRequestTask extends GetTaskSequencer<Boolean> {
+    final static String LOC = "Tomate: RideRequestDAO: DriverAcceptRequestTask: ";
+    private final RideRequest rideRequest;
+    private final Driver driver;
+    private final LifecycleOwner owner;
+
+    DriverAcceptRequestTask(RideRequest rideRequest, Driver driver, LifecycleOwner owner) {
+        this.rideRequest = rideRequest;
+        this.driver = driver;
+        this.owner = owner;
+    }
+
+    @Override
+    public MutableLiveData<Boolean> run() {
+        changeRideRequestStatus();
+        return liveData;
+    }
+
+    private void changeRideRequestStatus() {
+        rideRequest.setState(RideRequest.State.DriverFound);
+        rideRequest.setDriverReference(driver.getDriverReference());
+        RideRequestDAO rideRequestDAO = new RideRequestDAO();
+        rideRequestDAO.saveModel(rideRequest)
+        .addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Log.d(TAG, LOC + "changeRideRequestStatus: ");
+                updateDriver();
+            } else {
+                Log.e(TAG, LOC + "changeRideRequestStatus: onComplete: ", task.getException());
+                liveData.setValue(false);
+            }
+        });
+    }
+
+    private void updateDriver() {
+        driver.addActiveRideRequest(rideRequest);
+        DriverDAO driverDAO = new DriverDAO();
+        driverDAO.saveModel(driver)
+            .observe(owner, aBoolean -> {
+                if (aBoolean) {
+                    Log.d(TAG, LOC + "updateDriver: ");
+                    removeRequestFromUnpaired();
+                } else {
+                    Log.e(TAG, LOC + "updateDriver: onChanged: ");
+                    liveData.setValue(false);
+                }
+            });
+    }
+
+    private void removeRequestFromUnpaired() {
+        UnpairedRideListDAO unpairedRideListDAO = new UnpairedRideListDAO();
+        unpairedRideListDAO.removeRideRequest(rideRequest)
+        .observe(owner, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (aBoolean) {
+                    Log.d(TAG, LOC + "onChanged: ");
+                    liveData.setValue(true);
+                } else {
+                    Log.e(TAG, LOC + "removeRequestFromUnpaired: onChanged: ");
+                    liveData.setValue(false);
+                }
+            }
+        });
     }
 }
