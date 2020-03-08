@@ -15,6 +15,8 @@ import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
@@ -145,15 +147,26 @@ public class RideRequestDAOTest {
      * Reference: medium.com/android-development-by-danylo/simple-way-to-test-asynchronous-actions-in-android-service-asynctask-thread-rxjava-etc-d43b0402e005
      */
     @Test
-    public void createRideRequest() throws InterruptedException {
+    public void createRideRequestTest() throws InterruptedException {
+        createRideRequest();
+    }
+
+    private RideRequest createRideRequest() throws InterruptedException {
         // Initialize
         Rider rider = logInAsRider();
+        AtomicReference<RideRequest> rideRequestAtomicReference = new AtomicReference<>();
 
         // get data
         final Object syncObject = new Object();
 
         Runnable runnable = () -> {
-            Observer<RideRequest> observer = new AssertNullObserver<RideRequest>(syncObject);
+            Observer<RideRequest> observer = new AssertNullObserver<RideRequest>(syncObject) {
+                @Override
+                public void onChanged(RideRequest rideRequest) {
+                    rideRequestAtomicReference.set(rideRequest);
+                    super.onChanged(rideRequest);
+                }
+            };
             Route route = new Route(new GeoPoint(0,0), new GeoPoint(10, 10));
             RideRequestDAO dao = databaseManager.getRideRequestDAO();
             MutableLiveData<RideRequest> liveData = dao.createRideRequest(rider, route, 10);
@@ -167,6 +180,7 @@ public class RideRequestDAOTest {
         // todo: check if references a valid rider
 
         // todo: check if references self
+        return rideRequestAtomicReference.get();
     }
 
 //    /**
@@ -196,85 +210,51 @@ public class RideRequestDAOTest {
 //    /**
 //     * Reference: medium.com/android-development-by-danylo/simple-way-to-test-asynchronous-actions-in-android-service-asynctask-thread-rxjava-etc-d43b0402e005
 //     */
-//    @Test
-//    public void getAllActiveRideRequestTest() throws InterruptedException {
-//        // Context of the app under test.
-//        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-//
-//        // Create mock lifecycle owner
-//        LifecycleOwnerMock lifecycleOwnerMock = new LifecycleOwnerMock();
-//
-//        // Set up database manager
-//        DatabaseManager databaseManager = DatabaseManager.getInstance();
-//
-//        // Initialize ride request DAO
-//        LoginRegisterDAO dao = databaseManager.getLoginRegisterDAO();
-//
-//        // set up input
-//        RiderEntity riderEntity = new RiderEntity();
-//        UserEntity userEntity = new UserEntity();
-//        AtomicReference<Rider> rider = new AtomicReference<>(new Rider(riderEntity, userEntity));
-//        Route route = new Route();
-//
-//        // get data
-//        final Object syncObject = new Object();
-//
-//        Handler handler = new Handler(Looper.getMainLooper());
-//        handler.post(() -> {
-//            dao.logInAsRider("RyanBowler", "Password1", lifecycleOwnerMock)
-//                    .observe(lifecycleOwnerMock, rider1 -> {
-//                        assertNotNull(rider1);
-//                        rider.set(rider1);
-//
-//                        synchronized (syncObject) {
-//                            syncObject.notify();
-//                        }
-//                    });
-//        });
-//
-//        // wait
-//        synchronized (syncObject) {
-//            syncObject.wait();
-//        }
-//
-//        // create ride request
-//        RideRequestDAO rideRequestDAO = new RideRequestDAO();
-//        handler.post(() -> {
-//            rideRequestDAO.createRideRequest(rider.get(), route, 10)
-//                    .observe(lifecycleOwnerMock, rideRequest -> {
-//                        assertNotNull(rideRequest);
-//
-//                        synchronized (syncObject) {
-//                            syncObject.notify();
-//                        }
-//                    });
-//        });
-//
-//
-//        // wait
-//        synchronized (syncObject) {
-//            syncObject.wait();
-//        }
-//
-//        // create get all active ride request
-//        handler.post(() -> {
-//            rideRequestDAO.getAllActiveRideRequest(rider.get())
-//                    .observe(lifecycleOwnerMock, rideRequestList -> {
-//                        assertNotNull(rideRequestList);
-//
-//                        if (rideRequestList.size() > 0) {
-//                            synchronized (syncObject) {
-//                                syncObject.notify();
-//                            }
-//                        }
-//                    });
-//        });
-//
-//        // wait
-//        synchronized (syncObject) {
-//            syncObject.wait();
-//        }
-//    }
+    @Test
+    public void getAllActiveRideRequestTest() throws InterruptedException {
+        // Initialize
+        Rider rider = logInAsRider();
 
+        // get data
+        final Object syncObject = new Object();
 
+        Runnable runnable = () -> {
+            Observer<List<RideRequest>> observer = new AssertNullObserver<List<RideRequest>>(syncObject) {
+                @Override
+                public void onChanged(List<RideRequest> rideRequests) {
+                    if (rideRequests.size() > 1) {
+                        super.onChanged(rideRequests);
+                    }
+                }
+            };
+            RideRequestDAO dao = databaseManager.getRideRequestDAO();
+            MutableLiveData<List<RideRequest>> liveData = dao.getAllActiveRideRequest(rider);
+            liveData.observe(lifecycleOwner, observer);
+        };
+
+        liveDataObserver(runnable, syncObject);
+    }
+
+    @Test
+    public void cancelRideByRiderTest() throws InterruptedException {
+        // Initialize
+        RideRequest rideRequest = createRideRequest();
+
+        final Object syncObject = new Object();
+
+        Runnable runnable = () -> {
+            Observer<Boolean> observer = new AssertNullObserver<Boolean>(syncObject) {
+                @Override
+                public void onChanged(Boolean aBoolean) {
+                    super.onChanged(aBoolean);
+                    assert aBoolean;
+                }
+            };
+            RideRequestDAO dao = new RideRequestDAO();
+            MutableLiveData<Boolean> liveData = dao.cancelRequest(rideRequest, lifecycleOwner);
+            liveData.observe(lifecycleOwner, observer);
+        };
+
+        liveDataObserver(runnable, syncObject);
+    }
 }

@@ -196,7 +196,7 @@ public class DriverDAO {
      * @return
      * Returns a Task object that can be observed whether it is successful or not.
      */
-    public Task save(DriverEntity driverEntity) {
+    public Task<Void> save(DriverEntity driverEntity) {
         final DocumentReference reference = driverEntity.getDriverReference();
         Task task = null;
 

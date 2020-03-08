@@ -7,7 +7,11 @@ import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UnpairedRideEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
+import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -16,6 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import static android.content.ContentValues.TAG;
@@ -50,8 +55,6 @@ public class UnpairedRideListDAO {
             .addOnFailureListener(e -> Log.e(TAG, "onFailure: ", e));
     }
 
-    // todo: improve readability
-
     /**
      * Gives back all unpaired ride requests
      *
@@ -78,45 +81,9 @@ public class UnpairedRideListDAO {
         return task.run();
     }
 
-    public Task removeRiderRequest(RideRequest rideRequest) {
-        DocumentReference documentReference = rideRequest.getUnpairedReference();
-
-        if (documentReference != null) {
-            rideRequest.setUnpairedReference(null);
-            RideRequestDAO rideRequestDAO = new RideRequestDAO();
-            rideRequestDAO.saveModel(rideRequest);
-
-            // remove request from active list in rider
-            // put request in rider history
-            rideRequest.getRiderReference()
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        RiderEntity riderEntity = documentSnapshot.toObject(RiderEntity.class);
-                        riderEntity.deactivateRideRequest(rideRequest);
-                        RiderDAO riderDAO = new RiderDAO();
-                        riderDAO.save(riderEntity);
-                    })
-                    .addOnFailureListener(e -> Log.e(TAG, "onFailure: ", e));
-
-            // remove request from driver active
-            // put request in driver history
-            DocumentReference driverReference = rideRequest.getDriverReference();
-            if (driverReference != null) {
-                driverReference.get()
-                        .addOnSuccessListener(documentSnapshot -> {
-                            DriverEntity driver = documentSnapshot.toObject(DriverEntity.class);
-                            driver.deactivateRideRequest(rideRequest);
-                            DriverDAO driverDAO = new DriverDAO();
-                            driverDAO.save(driver);
-                        })
-                        .addOnFailureListener(e -> Log.e(TAG, "onFailure: ", e));
-            }
-
-            // remove request from active list in system
-            return documentReference.delete();
-        } else {
-            return null;
-        }
+    public MutableLiveData<Boolean> removeRiderRequest(RideRequest rideRequest) {
+        RemoveRiderRequestTask task = new RemoveRiderRequestTask(rideRequest);
+        return task.run();
     }
 }
 
@@ -170,4 +137,130 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
                     });
         }
     }
+}
+
+class RemoveRiderRequestTask extends GetTaskSequencer<Boolean> {
+    static final String LOC = "Tomate: UnpairedRideListDAO: RemoveRiderRequestTask: ";
+
+    private final RideRequest rideRequest;
+    private DocumentReference documentReference;
+
+    RemoveRiderRequestTask(RideRequest rideRequest) {
+        this.rideRequest = rideRequest;
+    }
+
+    @Override
+    public MutableLiveData<Boolean> run() {
+        removeSelfReferenceToUnpaired();
+        return liveData;
+    }
+
+    private void removeSelfReferenceToUnpaired() {
+        this.documentReference = rideRequest.getUnpairedReference();
+
+        if (documentReference != null) {
+            rideRequest.setUnpairedReference(null);
+            RideRequestDAO rideRequestDAO = new RideRequestDAO();
+            rideRequestDAO.saveModel(rideRequest)
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    deactivateRequestFromRider();
+                } else {
+                    liveData.setValue(false);
+                }
+            });
+        } else {
+            liveData.setValue(false);
+        }
+    }
+
+    private void deactivateRequestFromRider() {
+        // remove request from active list in rider
+        // put request in rider history
+        rideRequest.getRiderReference()
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    Log.d(TAG, LOC + "deactivateRequestFromRider: onSuccess:");
+                    RiderEntity riderEntity = documentSnapshot.toObject(RiderEntity.class);
+                    receiveRider(riderEntity);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, LOC + "onFailure: ", e);
+                    liveData.setValue(false);
+                });
+    }
+
+    private void receiveRider(RiderEntity riderEntity) {
+        if (riderEntity != null) {
+            riderEntity.deactivateRideRequest(rideRequest);
+            RiderDAO riderDAO = new RiderDAO();
+            riderDAO.save(riderEntity)
+            .addOnSuccessListener(aVoid -> {
+                Log.d(TAG, LOC + "receiveRider: onSuccess: ");
+                getDriverReference();
+            });
+        } else {
+            liveData.setValue(false);
+        }
+    }
+
+    private void getDriverReference() {
+        // remove request from driver active
+        // put request in driver history
+        Log.d(TAG, LOC + "getDriverReference: We are here");
+        DocumentReference driverReference = rideRequest.getDriverReference();
+        if (driverReference != null) {
+            driverReference.get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        Log.d(TAG, LOC + "getDriverReference: ");
+                        DriverEntity driver = documentSnapshot.toObject(DriverEntity.class);
+                        deactivateRequestFromDriver(driver);
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, LOC + "getDriverReference: onFailure: ", e);
+                        liveData.setValue(false);
+                    });
+        } else {
+            Log.i(TAG, LOC + "getDriverReference: null driverReference or no driver");
+            deleteRequest();
+        }
+    }
+
+    private void deactivateRequestFromDriver(DriverEntity driver) {
+        if (driver != null) {
+            driver.deactivateRideRequest(rideRequest);
+            DriverDAO driverDAO = new DriverDAO();
+            driverDAO.save(driver)
+            .addOnSuccessListener(o -> {
+                Log.d(TAG, LOC + "deactivateRequestFromDriver: onSuccess");
+                deleteRequest();
+            })
+            .addOnFailureListener(e -> {
+                Log.e(TAG, "onFailure: ", e);
+                liveData.setValue(false);
+            });
+        } else {
+            liveData.setValue(false);
+        }
+    }
+
+    private void deleteRequest() {
+        Log.d(TAG, "deleteRequest: We are here");
+        documentReference.delete()
+        .addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                liveData.setValue(true);
+                Log.d(TAG, "deleteRequest: onSuccess: ");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                liveData.setValue(false);
+                Log.e(TAG, "deleteRequest: onFailure: ");
+            }
+        });
+    }
+
+
 }

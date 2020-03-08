@@ -20,7 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import static android.content.ContentValues.TAG;
 
@@ -32,6 +34,7 @@ import static android.content.ContentValues.TAG;
  */
 public class RideRequestDAO extends DAOBase<RideRequestEntity> {
     static final String COLLECTION = "rideRequests";
+    private static final String LOC = "Tomate: RideRequestDAO: ";
 
     /**
      * Create a ride request
@@ -69,15 +72,19 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
         List<RideRequest> rideList = new ArrayList<>();
         mutableLiveData.setValue(rideList);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         for (DocumentReference reference :
                 rider.getActiveRideRequestList()) {
             reference.get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
-                            rideList.add(new RideRequest(rideRequestEntity));
-                            mutableLiveData.setValue(rideList);
+
+                            if (rideRequestEntity != null) {
+                                rideList.add(new RideRequest(rideRequestEntity));
+                                mutableLiveData.setValue(rideList);
+                            } else {
+                                Log.e(TAG, "onComplete: ", task.getException());
+                            }
                         } else {
                             Log.e(TAG, "onComplete: ", task.getException());
                         }
@@ -152,32 +159,26 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
             if (dirtyPairMap.size() > 0) {
                 task = reference.update(dirtyPairMap);
             }
+        } else {
+            Log.e(TAG, LOC + "saveEntity: rideRequestReference is null");
         }
 
         return task;
     }
 
-    public Task saveModel(final RideRequest model) {
-        return saveEntity(new RideRequestEntity(model));
-    }
-
-    public Task cancelRequest(final RideRequest rideRequest) {
-        rideRequest.setState(RideRequest.State.Cancelled);
-
-        // remove request from active list in system
-        // remove request from active list in rider
-        // put request in rider history
-        // remove request from driver active
-        // put request in driver history
-        UnpairedRideListDAO unpairedRideListDAO = new UnpairedRideListDAO();
-        unpairedRideListDAO.removeRiderRequest(rideRequest);
-
-        return saveModel(rideRequest);
+    public MutableLiveData<Boolean> cancelRequest(final RideRequest rideRequest,
+                                                  final LifecycleOwner owner) {
+        CancelRideRequestTask task = new CancelRideRequestTask(rideRequest, owner);
+        return task.run();
     }
 
     public MutableLiveData<Rider> getRiderForRequest(final RideRequest rideRequest) {
         RiderDAO riderDAO = new RiderDAO();
         return riderDAO.getRiderFromRiderReference(rideRequest.getRiderReference());
+    }
+
+    public Task<Void> saveModel(final RideRequest rideRequest) {
+        return saveEntity(new RideRequestEntity(rideRequest));
     }
 }
 
@@ -256,5 +257,59 @@ class CreateRideRequestTask extends GetTaskSequencer<RideRequest> {
                 liveData.setValue(null);
             }
         });
+    }
+}
+
+class CancelRideRequestTask extends GetTaskSequencer<Boolean> {
+    static final String LOC = "RideRequestDAO: CancelRideRequestTask: ";
+    private final RideRequest rideRequest;
+    private final LifecycleOwner owner;
+
+    CancelRideRequestTask(RideRequest rideRequest, LifecycleOwner owner) {
+        this.rideRequest = rideRequest;
+        this.owner = owner;
+    }
+
+    @Override
+    public MutableLiveData<Boolean> run() {
+        removeRequestFromUnpaired();
+        return liveData;
+    }
+
+    private void removeRequestFromUnpaired() {
+        rideRequest.setState(RideRequest.State.Cancelled);
+
+        // remove request from active list in system
+        // remove request from active list in rider
+        // put request in rider history
+        // remove request from driver active
+        // put request in driver history
+        UnpairedRideListDAO unpairedRideListDAO = new UnpairedRideListDAO();
+        unpairedRideListDAO.removeRiderRequest(rideRequest)
+                .observe(owner, aBoolean -> {
+                    if (aBoolean) {
+                        updateRideRequest();
+                    } else {
+                        Log.e(TAG, LOC + "removeRequestFromUnpaired: Failure to remove rider request");
+                        liveData.setValue(false);
+                    }
+                });
+    }
+
+    private void updateRideRequest() {
+        RideRequestDAO rideRequestDAO = new RideRequestDAO();
+        Task task = rideRequestDAO.saveModel(rideRequest);
+        if (task != null) {
+            task.addOnCompleteListener(task2 -> {
+                if (task2.isSuccessful()) {
+                    liveData.setValue(true);
+                } else {
+                    liveData.setValue(false);
+                }
+            });
+        } else {
+            Log.d(TAG, LOC + "updateRideRequest: nothing to update");
+            liveData.setValue(true);
+        }
     }
 }

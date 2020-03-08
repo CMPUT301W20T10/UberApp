@@ -29,7 +29,6 @@ public abstract class EntityModelBase<T> {
      */
     protected void addDirtyField(T state) {
         dirtyFieldSet.add(state);
-        Log.d(TAG, "addDirtyField: save: " + dirtyFieldSet.toString());
     }
 
     /**
