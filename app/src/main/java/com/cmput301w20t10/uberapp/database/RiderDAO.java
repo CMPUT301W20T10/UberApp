@@ -4,12 +4,11 @@ import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
+import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Rider;
-import com.cmput301w20t10.uberapp.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
@@ -20,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import static android.content.ContentValues.TAG;
 
@@ -30,7 +30,7 @@ import static android.content.ContentValues.TAG;
  * @author Allan Manuba
  */
 public class RiderDAO {
-    private static final String COLLECTION = "riders";
+    static final String COLLECTION = "riders";
 
     RiderDAO() {}
 
@@ -72,33 +72,15 @@ public class RiderDAO {
                                                 String phoneNumber,
                                                 String image,
                                                 @NonNull LifecycleOwner owner) {
-        MutableLiveData<Rider> riderLiveData = new MutableLiveData<>();
-        RiderEntity riderEntity = new RiderEntity();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // todo: check if rider was already registered
-
-        db.collection(COLLECTION)
-                .add(riderEntity)
-                .addOnSuccessListener(riderReference -> {
-                    riderEntity.setRiderReference(riderReference);
-                    this.save(riderEntity);
-
-                    registerRiderAsUser(
-                            riderLiveData,
-                            riderEntity,
-                            riderLiveData,
-                            username,
-                            password,
-                            email,
-                            firstName,
-                            lastName,
-                            phoneNumber,
-                            image,
-                            owner);
-                })
-                .addOnFailureListener(e -> Log.w(TAG, "onFailure: Error adding document", e));
-        return riderLiveData;
+        RegisterRiderTask task = new RegisterRiderTask(username,
+                password,
+                email,
+                firstName,
+                lastName,
+                phoneNumber,
+                image,
+                owner);
+        return task.run();
     }
 
     /**
@@ -126,33 +108,8 @@ public class RiderDAO {
      * </li>
      */
     public MutableLiveData<Rider> logInAsRider(String username, String password, LifecycleOwner owner) {
-        MutableLiveData<Rider> riderLiveData = new MutableLiveData<>();
-
-        UserDAO userDAO = new UserDAO();
-        userDAO.logIn(username, password)
-                .observe(owner, userEntity -> {
-                    if (userEntity == null || userEntity.getRiderReference() == null) {
-                        riderLiveData.setValue(null);
-                    } else {
-                        // this gets rider using user reference
-                        userEntity.getRiderReference()
-                                .get()
-                                .addOnCompleteListener(task -> {
-                                    if (task.isSuccessful() && task.getResult() != null) {
-                                        RiderEntity riderEntity = task.getResult()
-                                                .toObject(RiderEntity.class);
-                                        riderEntity.setUserReference(userEntity.getUserReference());
-                                        save(riderEntity);
-                                        Rider rider = new Rider(riderEntity, userEntity);
-                                        riderLiveData.setValue(rider);
-                                    } else {
-                                        riderLiveData.setValue(null);
-                                    }
-                                });
-                    }
-                });
-
-        return riderLiveData;
+        LoginRiderTask task = new LoginRiderTask(username, password, owner);
+        return task.run();
     }
 
     private void registerRiderAsUser(MutableLiveData<Rider> riderLiveDate,
@@ -194,7 +151,7 @@ public class RiderDAO {
      * @return
      * Returns a Task object that can be observed whether it is successful or not.
      */
-    public Task save(final RiderEntity riderEntity) {
+    public Task<Void> save(final RiderEntity riderEntity) {
         final DocumentReference reference = riderEntity.getRiderReference();
         Task task = null;
 
@@ -243,9 +200,9 @@ public class RiderDAO {
         return task;
     }
 
-    public Task save(Rider rider) {
+    public Task<Void> save(Rider rider) {
         final DocumentReference reference = rider.getRiderReference();
-        Task task = null;
+        Task<Void> task = null;
         Log.d(TAG, "save: "+ reference.getPath());
         Log.d(TAG, "save: " + Arrays.toString(rider.getDirtyFieldSet()));
 
@@ -327,5 +284,173 @@ public class RiderDAO {
         } else {
             return null;
         }
+    }
+}
+
+class RegisterRiderTask extends GetTaskSequencer<Rider> {
+    private String username;
+    private String password;
+    private String email;
+    String firstName;
+    String lastName;
+    String phoneNumber;
+    String image;
+    @NonNull LifecycleOwner owner;
+
+    UserEntity userEntity;
+    RiderEntity riderEntity;
+    RiderDAO riderDAO;
+
+    RegisterRiderTask(String username,
+                      String password,
+                      String email,
+                      String firstName,
+                      String lastName,
+                      String phoneNumber,
+                      String image,
+                      @NonNull LifecycleOwner owner) {
+        super();
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.image = image;
+        this.owner = owner;
+    }
+
+    public MutableLiveData<Rider> run() {
+        addRiderEntity();
+        return liveData;
+    }
+
+    // task 1
+    private void addRiderEntity() {
+        this.riderEntity = new RiderEntity();
+        db.collection(RiderDAO.COLLECTION)
+            .add(riderEntity)
+            .addOnSuccessListener(this::updateRiderEntity);
+    }
+
+    // task 2
+    private void updateRiderEntity(DocumentReference riderReference) {
+        this.riderEntity.setRiderReference(riderReference);
+        this.riderDAO = new RiderDAO();
+        this.riderDAO.save(this.riderEntity)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        registerRiderAsUser();
+                    } else {
+                        Log.e(TAG, "onComplete: ", task.getException());
+                    }
+                });
+    }
+
+    // task 3
+    private void registerRiderAsUser() {
+        UserDAO userDAO = new UserDAO();
+        userDAO.registerUser(username,
+                password,
+                email,
+                firstName,
+                lastName,
+                phoneNumber,
+                image)
+                .observe(owner, userEntity -> {
+                    this.userEntity = userEntity;
+                    receiveUserEntity();
+                });
+    }
+
+    // task 4
+    private void receiveUserEntity(){
+        if (userEntity != null && userEntity.getUserReference() != null) {
+            UserDAO userDAO = new UserDAO();
+            this.userEntity.setRiderReference(riderEntity.getRiderReference());
+            userDAO.saveEntity(userEntity)
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    updateUserEntity();
+                } else {
+                    Log.e(TAG, "onComplete: ", task.getException());
+                }
+            });
+        } else {
+            // todo: improve error message
+            Log.e(TAG, "receiveUserEntity: ");
+        }
+    }
+
+    // task 5
+    private void updateUserEntity() {
+        riderEntity.setUserReference(userEntity.getUserReference());
+        this.riderDAO.save(riderEntity)
+        .addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    updateLiveData();
+                } else {
+                    Log.e(TAG, "onComplete: ", task.getException());
+                }
+            }
+        });
+    }
+
+    // task 6
+    private void updateLiveData() {
+        Rider rider = new Rider(riderEntity, userEntity);
+        liveData.setValue(rider);
+    }
+}
+
+class LoginRiderTask extends GetTaskSequencer<Rider> {
+    String username;
+    String password;
+    LifecycleOwner owner;
+    private UserEntity userEntity;
+
+    LoginRiderTask(String username, String password, LifecycleOwner owner) {
+        this.username = username;
+        this.password = password;
+        this.owner = owner;
+    }
+
+    @Override
+    public MutableLiveData<Rider> run() {
+        attemptLogin();
+        return liveData;
+    }
+
+    // task 1
+    private void attemptLogin() {
+        UserDAO userDAO = new UserDAO();
+        userDAO.logIn(username, password)
+                .observe(owner, userEntity -> {
+                    if (userEntity == null || userEntity.getRiderReference() == null) {
+                        liveData.setValue(null);
+                    } else {
+                        this.userEntity = userEntity;
+                        getRiderEntity();
+                    }
+                });
+    }
+
+    // task 2
+    private void getRiderEntity() {
+        // this gets rider using user reference
+        userEntity.getRiderReference()
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        RiderEntity riderEntity = task.getResult()
+                                .toObject(RiderEntity.class);
+                        Rider rider = new Rider(riderEntity, userEntity);
+                        liveData.setValue(rider);
+                    } else {
+                        liveData.setValue(null);
+                    }
+                });
     }
 }

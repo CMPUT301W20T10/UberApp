@@ -4,11 +4,11 @@ import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
+import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -31,7 +31,7 @@ import static android.content.ContentValues.TAG;
  * @author Allan Manuba
  */
 public class RideRequestDAO extends DAOBase<RideRequestEntity> {
-    private static final String COLLECTION = "rideRequests";
+    static final String COLLECTION = "rideRequests";
 
     /**
      * Create a ride request
@@ -60,38 +60,8 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
     public MutableLiveData<RideRequest> createRideRequest(@NonNull Rider rider,
                                                           Route route,
                                                           int fareOffer) {
-        MutableLiveData<RideRequest> rideRequestMutableLiveData = new MutableLiveData<>();
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        RideRequestEntity requestEntity = new RideRequestEntity(rider, route, fareOffer);
-        db.collection(COLLECTION)
-                .add(requestEntity)
-                .addOnSuccessListener(rideRequestReference -> {
-                    rideRequestReference.update(
-                            RideRequestEntity.FIELD_RIDE_REQUEST_REFERENCE,
-                            rideRequestReference);
-                    requestEntity.setRideRequestReference(rideRequestReference);
-                    requestEntity.setRiderReference(rider.getRiderReference());
-                    saveEntity(requestEntity)
-                    .addOnCompleteListener(task -> {
-                        RideRequest model = new RideRequest(requestEntity);
-
-                        // add to active rides
-                        UnpairedRideListDAO unpairedRideListDAO = new UnpairedRideListDAO();
-                        unpairedRideListDAO.addRideRequest(requestEntity)
-                                .addOnCompleteListener(task2 -> {
-                                    // add reference to rider
-                                    rider.addActiveRequest(model);
-                                    RiderDAO riderDAO = new RiderDAO();
-                                    riderDAO.save(rider);
-
-                                    rideRequestMutableLiveData.setValue(model);
-                                });
-                    });
-                })
-                .addOnFailureListener(e -> Log.e(TAG, "onFailure: ", e));
-
-        return rideRequestMutableLiveData;
+        CreateRideRequestTask task = new CreateRideRequestTask(rider, route, fareOffer);
+        return task.run();
     }
 
     public MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Rider rider) {
@@ -208,5 +178,83 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
     public MutableLiveData<Rider> getRiderForRequest(final RideRequest rideRequest) {
         RiderDAO riderDAO = new RiderDAO();
         return riderDAO.getRiderFromRiderReference(rideRequest.getRiderReference());
+    }
+}
+
+class CreateRideRequestTask extends GetTaskSequencer<RideRequest> {
+    private final int fareOffer;
+    private final Route route;
+    private final Rider rider;
+    private RideRequestEntity requestEntity;
+
+    CreateRideRequestTask(@NonNull Rider rider,
+                          Route route,
+                          int fareOffer) {
+        this.rider = rider;
+        this.route = route;
+        this.fareOffer = fareOffer;
+    }
+
+    @Override
+    public MutableLiveData<RideRequest> run() {
+        addRequestEntity();
+        return liveData;
+    }
+
+    private void addRequestEntity() {
+        this.requestEntity = new RideRequestEntity(rider, route, fareOffer);
+        db.collection(RideRequestDAO.COLLECTION)
+                .add(requestEntity)
+                .addOnSuccessListener(rideRequestReference -> {
+                    requestEntity.setRideRequestReference(rideRequestReference);
+                    requestEntity.setRiderReference(rider.getRiderReference());
+                    updateRideRequest();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "onFailure: ", e);
+                    liveData.setValue(null);
+                });
+    }
+
+    private void updateRideRequest() {
+        RideRequestDAO rideRequestDAO = new RideRequestDAO();
+        rideRequestDAO.saveEntity(requestEntity)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        addToUnpairedRideList();
+                    } else {
+                        Log.e(TAG, "updateRideRequest: ", task.getException());
+                        liveData.setValue(null);
+                    }
+                });
+    }
+
+    private void addToUnpairedRideList() {
+        // add to active rides
+        UnpairedRideListDAO unpairedRideListDAO = new UnpairedRideListDAO();
+        unpairedRideListDAO.addRideRequest(requestEntity)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        addReferenceToRider();
+                    } else {
+                        Log.e(TAG, "addToUnpairedRideList: ", task.getException());
+                        liveData.setValue(null);
+                    }
+                });
+    }
+
+    private void addReferenceToRider() {
+        RideRequest model = new RideRequest(requestEntity);
+        rider.addActiveRequest(model);
+        RiderDAO riderDAO = new RiderDAO();
+        riderDAO.save(rider)
+        .addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                liveData.setValue(model);
+            } else {
+                Log.e(TAG, "onComplete: ", task.getException());
+                liveData.setValue(null);
+            }
+        });
     }
 }

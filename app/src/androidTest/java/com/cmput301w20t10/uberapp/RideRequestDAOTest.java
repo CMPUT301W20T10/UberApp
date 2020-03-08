@@ -82,7 +82,7 @@ public class RideRequestDAOTest {
      */
     // todo: move to other test
     // todo: fix register to not return null
-    /*@Test
+    @Test
     public void registerAsRiderTest() throws InterruptedException {
         LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
 
@@ -90,22 +90,13 @@ public class RideRequestDAOTest {
         final Object syncObject = new Object();
 
         Runnable runnable = () -> {
-            Observer<Rider> observer = new AssertNullObserver<Rider>(syncObject) {
-                @Override
-                public void onChanged(Rider rider) {
-                    if (rider != null) {
-                        synchronized (syncObject) {
-                            syncObject.notify();
-                        }
-                    }
-                }
-            };
+            Observer<Rider> observer = new AssertNullObserver<Rider>(syncObject);
             MutableLiveData<Rider> liveData = loginRegisterDAO
-                    .registerRider("OneOClock",
+                    .registerRider("OneOClock2",
                             "1:00",
                             "email",
                             "Hungry",
-                            "Snail",
+                            "Snail2",
                             "100",
                             "image",
                             lifecycleOwner);
@@ -113,7 +104,7 @@ public class RideRequestDAOTest {
         };
 
         liveDataObserver(runnable, syncObject);
-    }*/
+    }
 
     /**
      * Reference: medium.com/android-development-by-danylo/simple-way-to-test-asynchronous-actions-in-android-service-asynctask-thread-rxjava-etc-d43b0402e005
@@ -201,7 +192,7 @@ public class RideRequestDAOTest {
 
         liveDataObserver(runnable, syncObject);
     }
-    
+
 //    /**
 //     * Reference: medium.com/android-development-by-danylo/simple-way-to-test-asynchronous-actions-in-android-service-asynctask-thread-rxjava-etc-d43b0402e005
 //     */

@@ -6,9 +6,8 @@ import com.cmput301w20t10.uberapp.database.entity.DriverEntity;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UnpairedRideEntity;
+import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.RideRequest;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -17,7 +16,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
 import static android.content.ContentValues.TAG;
@@ -29,7 +27,7 @@ import static android.content.ContentValues.TAG;
  * @author Allan Manuba
  */
 public class UnpairedRideListDAO {
-    private static final String COLLECTION = "unpairedRideList";
+    static final String COLLECTION = "unpairedRideList";
 
     /**
      * Adds a ride request allowing searchable ride requests for drivers
@@ -76,32 +74,8 @@ public class UnpairedRideListDAO {
      * </li>
      */
     public MutableLiveData<List<RideRequest>> getAllUnpairedRideRequest() {
-        final MutableLiveData<List<RideRequest>> rideRequestMutableLiveData = new MutableLiveData<>();
-        final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection(COLLECTION)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<RideRequest> rideRequestList = new ArrayList<>();
-                        for (DocumentSnapshot snapshot : task.getResult().getDocuments()) {
-                            UnpairedRideEntity unpairedRideEntity = snapshot.toObject(UnpairedRideEntity.class);
-                            unpairedRideEntity.getRideRequestReference()
-                                    .get()
-                                    .addOnCompleteListener(task1 -> {
-                                        if (task1.isSuccessful()) {
-                                            RideRequestEntity rideRequestEntity = task1.getResult().toObject(RideRequestEntity.class);
-                                            rideRequestList.add(new RideRequest(rideRequestEntity));
-                                            rideRequestMutableLiveData.setValue(rideRequestList);
-                                        } else {
-                                            Log.e(TAG, "onComplete: ", task1.getException());
-                                        }
-                                    });
-                        }
-                    } else {
-                        Log.e(TAG, "onComplete: ", task.getException());
-                    }
-                });
-        return rideRequestMutableLiveData;
+        final GetAllUnpairedRideRequestTask task = new GetAllUnpairedRideRequestTask();
+        return task.run();
     }
 
     public Task removeRiderRequest(RideRequest rideRequest) {
@@ -142,6 +116,58 @@ public class UnpairedRideListDAO {
             return documentReference.delete();
         } else {
             return null;
+        }
+    }
+}
+
+class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
+    private List<DocumentSnapshot> snapshotList;
+
+    @Override
+    public MutableLiveData<List<RideRequest>> run() {
+        getUnpairedCollection();
+        return liveData;
+    }
+
+    private void getUnpairedCollection() {
+        final MutableLiveData<List<RideRequest>> rideRequestMutableLiveData = new MutableLiveData<>();
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection(UnpairedRideListDAO.COLLECTION)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        snapshotList = task.getResult().getDocuments();
+                        convertToRideRequestList();
+                    } else {
+                        Log.e(TAG, "onComplete: ", task.getException());
+                        liveData.setValue(null);
+                    }
+                });
+    }
+
+    private void convertToRideRequestList() {
+        List<RideRequest> rideRequestList = new ArrayList<>();
+        liveData.setValue(rideRequestList);
+
+        for (DocumentSnapshot snapshot : snapshotList) {
+            UnpairedRideEntity unpairedRideEntity = snapshot.toObject(UnpairedRideEntity.class);
+
+            if (unpairedRideEntity == null) {
+                Log.e(TAG, "convertToRideRequestList: UnpairedEntity is null");
+                continue;
+            }
+
+            unpairedRideEntity.getRideRequestReference()
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
+                            rideRequestList.add(new RideRequest(rideRequestEntity));
+                            liveData.setValue(rideRequestList);
+                        } else {
+                            Log.e(TAG, "onComplete: ", task.getException());
+                        }
+                    });
         }
     }
 }

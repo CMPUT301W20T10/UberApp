@@ -19,5 +19,5 @@ public abstract class DAOBase<E extends EntityModelBase> {
      * @return Task which returns the result about whether saving was successful or not
      * @author Allan Manuba
      */
-    public abstract Task saveEntity(final E entity);
+    public abstract Task<Void> saveEntity(final E entity);
 }

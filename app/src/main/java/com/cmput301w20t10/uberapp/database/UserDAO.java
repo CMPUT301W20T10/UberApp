@@ -132,7 +132,7 @@ class UserDAO extends DAOBase<UserEntity> {
      * Returns a Task object that can be observed whether it is successful or not.
      */
     @Override
-    public Task saveEntity(final UserEntity userEntity) {
+    public Task<Void> saveEntity(final UserEntity userEntity) {
         final DocumentReference reference = userEntity.getUserReference();
         Task task = null;
 
