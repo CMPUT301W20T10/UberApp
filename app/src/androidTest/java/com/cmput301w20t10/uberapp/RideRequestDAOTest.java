@@ -3,21 +3,15 @@ package com.cmput301w20t10.uberapp;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
 import com.cmput301w20t10.uberapp.database.RideRequestDAO;
 import com.cmput301w20t10.uberapp.database.UnpairedRideListDAO;
-import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
-import com.cmput301w20t10.uberapp.database.entity.UnpairedRideEntity;
-import com.cmput301w20t10.uberapp.database.entity.UserEntity;
+import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
 import org.junit.Before;
@@ -33,7 +27,6 @@ import androidx.lifecycle.Observer;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import static androidx.constraintlayout.widget.Constraints.TAG;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(AndroidJUnit4.class)
@@ -108,16 +101,40 @@ public class RideRequestDAOTest {
         liveDataObserver(runnable, syncObject);
     }
 
+    @Test
+    public void registerAsDriverTest() throws InterruptedException {
+        LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
+
+        // get data
+        final Object syncObject = new Object();
+
+        Runnable runnable = () -> {
+            Observer<Driver> observer = new AssertNullObserver<Driver>(syncObject);
+            MutableLiveData<Driver> liveData = loginRegisterDAO
+                    .registerDriver("TwoOClock",
+                            "2:00",
+                            "email",
+                            "Full",
+                            "Pineapple",
+                            "200",
+                            "picture",
+                            lifecycleOwner);
+            liveData.observe(lifecycleOwner, observer);
+        };
+
+        liveDataObserver(runnable, syncObject);
+    }
+
     /**
      * Reference: medium.com/android-development-by-danylo/simple-way-to-test-asynchronous-actions-in-android-service-asynctask-thread-rxjava-etc-d43b0402e005
      * https://androidoverride.wordpress.com/2017/05/27/android-working-with-live-data-and-custom-life-cycle-owners/
      */
     @Test
     public void loginAsRiderTest() throws InterruptedException {
-        logInAsRider();
+        loginAsRider();
     }
 
-    private Rider logInAsRider() throws InterruptedException {
+    private Rider loginAsRider() throws InterruptedException {
         // get data
         final Object syncObject = new Object();
         AtomicReference<Rider> riderAtomicReference = new AtomicReference<>();
@@ -143,6 +160,37 @@ public class RideRequestDAOTest {
         return riderAtomicReference.get();
     }
 
+    @Test
+    public void loginAsDriverTest() throws InterruptedException {
+        loginAsDriver();
+    }
+
+    private Driver loginAsDriver() throws InterruptedException {
+        // get data
+        final Object syncObject = new Object();
+        AtomicReference<Driver> atomicReference = new AtomicReference<>();
+
+        Runnable runnable = () -> {
+            Observer<Driver> observer = new AssertNullObserver<Driver>(syncObject) {
+                @Override
+                public void onChanged(Driver driver) {
+                    super.onChanged(driver);
+                    atomicReference.set(driver);
+                }
+            };
+            LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
+            MutableLiveData<Driver> liveData = loginRegisterDAO
+                    .logInAsDriver("TwoOClock",
+                            "2:00",
+                            lifecycleOwner);
+            liveData.observe(lifecycleOwner, observer);
+        };
+
+        liveDataObserver(runnable, syncObject);
+
+        return atomicReference.get();
+    }
+
     /**
      * Reference: medium.com/android-development-by-danylo/simple-way-to-test-asynchronous-actions-in-android-service-asynctask-thread-rxjava-etc-d43b0402e005
      */
@@ -153,7 +201,7 @@ public class RideRequestDAOTest {
 
     private RideRequest createRideRequest() throws InterruptedException {
         // Initialize
-        Rider rider = logInAsRider();
+        Rider rider = loginAsRider();
         AtomicReference<RideRequest> rideRequestAtomicReference = new AtomicReference<>();
 
         // get data
@@ -213,7 +261,7 @@ public class RideRequestDAOTest {
     @Test
     public void getAllActiveRideRequestTest() throws InterruptedException {
         // Initialize
-        Rider rider = logInAsRider();
+        Rider rider = loginAsRider();
 
         // get data
         final Object syncObject = new Object();

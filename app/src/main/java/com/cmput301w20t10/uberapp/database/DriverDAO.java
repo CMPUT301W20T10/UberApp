@@ -68,6 +68,7 @@ public class DriverDAO {
                                                   String phoneNumber,
                                                   String image,
                                                   LifecycleOwner owner) {
+        // todo: improve code here
 
         MutableLiveData<Driver> driverLiveData = new MutableLiveData<>();
         DriverEntity driverEntity = new DriverEntity();
