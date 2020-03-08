@@ -184,6 +184,33 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
         DriverAcceptRequestTask task = new DriverAcceptRequestTask(rideRequest, driver, owner);
         return task.run();
     }
+
+    public MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Driver driver) {
+        MutableLiveData<List<RideRequest>> mutableLiveData = new MutableLiveData<>();
+        List<RideRequest> rideList = new ArrayList<>();
+        mutableLiveData.setValue(rideList);
+
+        for (DocumentReference reference :
+                driver.getActiveRideRequestList()) {
+            reference.get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
+
+                            if (rideRequestEntity != null) {
+                                rideList.add(new RideRequest(rideRequestEntity));
+                                mutableLiveData.setValue(rideList);
+                            } else {
+                                Log.e(TAG, "onComplete: ", task.getException());
+                            }
+                        } else {
+                            Log.e(TAG, "onComplete: ", task.getException());
+                        }
+                    });
+        }
+
+        return mutableLiveData;
+    }
 }
 
 class CreateRideRequestTask extends GetTaskSequencer<RideRequest> {

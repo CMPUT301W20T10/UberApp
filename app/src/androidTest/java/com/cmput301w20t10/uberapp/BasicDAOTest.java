@@ -13,6 +13,7 @@ import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.ThrowOnExtraProperties;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +31,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(AndroidJUnit4.class)
-public class RideRequestDAOTest {
+public class BasicDAOTest {
     private Context appContext;
     private LifecycleOwnerMock lifecycleOwner;
     private DatabaseManager databaseManager;
@@ -203,6 +204,7 @@ public class RideRequestDAOTest {
     private RideRequest createRideRequest() throws InterruptedException {
         // Initialize
         Rider rider = loginAsRider();
+        assertNotNull(rider);
         AtomicReference<RideRequest> rideRequestAtomicReference = new AtomicReference<>();
 
         // get data
@@ -348,8 +350,31 @@ public class RideRequestDAOTest {
         // todo: check if references self
     }
 
-    public void getAllActiveRideRequestForDriverTest() {
-        // todo: getAllActiveRideRequestForDriverTest
+    @Test
+    public void getAllActiveRideRequestForDriverTest() throws InterruptedException {
+        driverAcceptsRequestTest();
+        driverAcceptsRequestTest();
+        Driver driver = loginAsDriver();
+        assertNotNull(driver);
+
+        // get data
+        final Object syncObject = new Object();
+
+        Runnable runnable = () -> {
+            Observer<List<RideRequest>> observer = new AssertNullObserver<List<RideRequest>>(syncObject) {
+                @Override
+                public void onChanged(List<RideRequest> rideRequests) {
+                    if (rideRequests.size() > 1) {
+                        super.onChanged(rideRequests);
+                    }
+                }
+            };
+            RideRequestDAO dao = databaseManager.getRideRequestDAO();
+            MutableLiveData<List<RideRequest>> liveData = dao.getAllActiveRideRequest(driver);
+            liveData.observe(lifecycleOwner, observer);
+        };
+
+        liveDataObserver(runnable, syncObject);
     }
 
     public void estimateFareTest() {
