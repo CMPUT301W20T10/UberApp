@@ -51,7 +51,9 @@ public class QRScanActivity extends AppCompatActivity implements ZXingScannerVie
         setResult(RESULT_OK, intent);
         finish();
         // Do the transition here passing the intent
-        Intent passedIntent = new Intent(this, null);
+        Intent passedIntent = new Intent(this, LoginActivity.class);
+        passedIntent.putExtra("JSON", result.getText());
+
         startActivity(passedIntent);
     }
 }
