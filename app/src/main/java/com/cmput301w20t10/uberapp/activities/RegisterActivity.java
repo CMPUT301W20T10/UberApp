@@ -12,6 +12,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author Joshua Mayer
  * @version 1.0.3
@@ -33,15 +36,15 @@ public class RegisterActivity extends AppCompatActivity {
 
         this.firstNameField = findViewById(R.id.first_name_field);
         this.lastNameField = findViewById(R.id.last_name_field);
-        this.usernameField = findViewById(R.id.email_field);
+        this.usernameField = findViewById(R.id.username_field);
         this.emailField = findViewById(R.id.email_field);
         this.passwordField = findViewById(R.id.password_field);
         this.confirmPasswordField = findViewById(R.id.confirm_password_field);
         this.phoneField = findViewById(R.id.phone_field);
 
         final Intent intent = getIntent();
-        String email = intent.getStringExtra("EMAIL");
-        emailField.setText(email);
+        String username = intent.getStringExtra("USERNAME");
+        usernameField.setText(username);
 
     }
 
@@ -53,6 +56,13 @@ public class RegisterActivity extends AppCompatActivity {
     public void onRegisterPress(View view) {
         String password = passwordField.getText().toString();
         String conPassword = confirmPasswordField.getText().toString();
+        String email = emailField.getText().toString();
+        String phone = phoneField.getText().toString();
+
+        // Non-empty fields
+        if(!verifyFields()) {
+            return;
+        }
 
         // Check that the passwords match
         if (!password.equals(conPassword)) {
@@ -67,11 +77,19 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Non-empty fields
-        if(!verifyFields()) {
+        //Check that the email is valid
+        if (!validateEmail(email)) {
+            Toast.makeText(getApplicationContext(), "Email entered is not valid",
+                    Toast.LENGTH_LONG).show();
             return;
         }
 
+        //Check that the phone is valid
+        if (!validatePhone(phone)) {
+            Toast.makeText(getApplicationContext(), "Phone number entered is not valid",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
 
         // Check that the user doesn't already have info in database
 
@@ -121,6 +139,27 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    /**
+     * Validates that the email is valid
+     *
+     * @param email - The email to be validated
+     *
+     * @return - True if the validation succeeds, false otherwise
+     */
+    private boolean validateEmail(@NonNull String email) {
+        String emailFormat = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w]+$";
+        Pattern pattern = Pattern.compile(emailFormat);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.find();
+    }
+
+    private boolean validatePhone(@NonNull String phone) {
+        String phoneFormat = "^[0-9]{10}$";
+        Pattern pattern = Pattern.compile(phoneFormat);
+        Matcher matcher = pattern.matcher(phone);
+        return matcher.find();
     }
 
     /**
