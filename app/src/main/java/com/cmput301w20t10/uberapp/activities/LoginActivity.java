@@ -52,6 +52,9 @@ public class LoginActivity extends AppCompatActivity {
             Intent intent = new Intent(this, RiderMainActivity.class);
             startActivity(intent);
         } else {
+            Intent intent = new Intent(this, DriverMainActivity.class);
+            startActivity(intent);
+            /**
             Log.d("Testing", "onClick_signIn: Driver");
 //            DatabaseManager.getInstance().registerRider("Appletun",
 //                    "yum yum jelly jelly",
@@ -63,6 +66,7 @@ public class LoginActivity extends AppCompatActivity {
             DatabaseManager.getInstance().logInAsDriver(
                     "Thomas", "choo choo", this)
                     .observe(this, driver -> Log.d("Testing", "onChanged: Success: " + (driver != null)));
+             **/
         }
 
     }
