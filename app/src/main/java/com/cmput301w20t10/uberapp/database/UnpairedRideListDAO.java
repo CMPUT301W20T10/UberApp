@@ -90,6 +90,8 @@ public class UnpairedRideListDAO {
 }
 
 class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
+    final static String LOC = "UnpairedRideListDAO: GetAllUnpairedRideRequestTask: ";
+
     private List<DocumentSnapshot> snapshotList;
 
     @Override
@@ -130,7 +132,9 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
+                            Log.d(TAG, LOC + "convertToRideRequestList: " + task.getResult().getData().toString());
                             RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
+                            assert rideRequestEntity != null;
                             rideRequestList.add(new RideRequest(rideRequestEntity));
                             liveData.setValue(rideRequestList);
                         } else {

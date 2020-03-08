@@ -145,8 +145,9 @@ public class BasicDAOTest {
             Observer<Rider> observer = new AssertNullObserver<Rider>(syncObject) {
                 @Override
                 public void onChanged(Rider rider) {
-                    super.onChanged(rider);
+                    assertNotNull(rider);
                     riderAtomicReference.set(rider);
+                    super.onChanged(rider);
                 }
             };
             LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
@@ -176,8 +177,9 @@ public class BasicDAOTest {
             Observer<Driver> observer = new AssertNullObserver<Driver>(syncObject) {
                 @Override
                 public void onChanged(Driver driver) {
-                    super.onChanged(driver);
+                    assertNotNull(driver);
                     atomicReference.set(driver);
+                    super.onChanged(driver);
                 }
             };
             LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
@@ -360,7 +362,6 @@ public class BasicDAOTest {
         driverAcceptsRequestTest();
         driverAcceptsRequestTest();
         Driver driver = loginAsDriver();
-        assertNotNull(driver);
 
         // get data
         final Object syncObject = new Object();
