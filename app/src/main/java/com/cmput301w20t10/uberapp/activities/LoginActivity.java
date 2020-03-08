@@ -73,7 +73,7 @@ public class LoginActivity extends AppCompatActivity {
     public void onLoginPressed(View view) {
         // Check for empty fields
         if(usernameField.getText().toString().isEmpty()) {
-            Toast.makeText(getApplicationContext(), "Email Required", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Username Required", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -89,8 +89,8 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onRegisterPressed(View view) {
         Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
-        String email = usernameField.getText().toString();
-        intent.putExtra("EMAIL", email);
+        String username = usernameField.getText().toString();
+        intent.putExtra("USERNAME", username);
         startActivity(intent);
     }
 
