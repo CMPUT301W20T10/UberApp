@@ -328,6 +328,10 @@ public class BasicDAOTest {
 
     @Test
     public void driverAcceptsRequestTest() throws InterruptedException {
+        driverAcceptsRequest();
+    }
+
+    public RideRequest driverAcceptsRequest() throws InterruptedException {
         Driver driver = loginAsDriver();
         RideRequest rideRequest = createRideRequest();
 
@@ -348,6 +352,7 @@ public class BasicDAOTest {
         // todo: check if references a valid rider
 
         // todo: check if references self
+        return rideRequest;
     }
 
     @Test
@@ -379,6 +384,35 @@ public class BasicDAOTest {
 
     public void estimateFareTest() {
         // todo: estimate fare test
+    }
+
+    @Test
+    public void riderAcceptsDriverTest() throws InterruptedException {
+        riderAcceptsDriver();
+    }
+
+    public RideRequest riderAcceptsDriver() throws InterruptedException {
+        RideRequest rideRequest = driverAcceptsRequest();
+        Rider rider = loginAsRider();
+
+        // get data
+        final Object syncObject = new Object();
+
+        Runnable runnable = () -> {
+            Observer<Boolean> observer = new AssertNullObserver<Boolean>(syncObject);
+            RideRequestDAO dao = databaseManager.getRideRequestDAO();
+            MutableLiveData<Boolean> liveData = dao.acceptRideFromDriver(rideRequest, rider);
+            liveData.observe(lifecycleOwner, observer);
+        };
+
+        liveDataObserver(runnable, syncObject);
+
+        // todo: check if in active rides
+
+        // todo: check if references a valid rider
+
+        // todo: check if references self
+        return rideRequest;
     }
 
     public void riderConfirmCompletionTest() {

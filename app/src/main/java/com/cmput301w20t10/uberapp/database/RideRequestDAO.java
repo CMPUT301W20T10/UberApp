@@ -9,6 +9,7 @@ import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 
@@ -211,6 +212,11 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
 
         return mutableLiveData;
     }
+
+    public MutableLiveData<Boolean> acceptRideFromDriver(RideRequest rideRequest, Rider rider) {
+        RiderAcceptsRideFromDriverTask task = new RiderAcceptsRideFromDriverTask(rideRequest, rider);
+        return task.run();
+    }
 }
 
 class CreateRideRequestTask extends GetTaskSequencer<RideRequest> {
@@ -409,5 +415,43 @@ class DriverAcceptRequestTask extends GetTaskSequencer<Boolean> {
                 }
             }
         });
+    }
+}
+
+class RiderAcceptsRideFromDriverTask extends GetTaskSequencer<Boolean> {
+    final static String LOC = "Tomate: RideRequestDAO: RiderAcceptsRideFromDriverTask: ";
+
+    private final RideRequest rideRequest;
+    private final Rider rider;
+
+    RiderAcceptsRideFromDriverTask(RideRequest rideRequest, Rider rider) {
+        this.rideRequest = rideRequest;
+        this.rider = rider;
+    }
+
+    @Override
+    public MutableLiveData<Boolean> run() {
+        acceptRideRequest();
+        return liveData;
+    }
+
+    private void acceptRideRequest() {
+        // validate if right rider
+        if (rideRequest.getRiderReference().getPath().equals(rideRequest.getRiderReference().getPath())) {
+            rideRequest.setState(RideRequest.State.RiderAccepted);
+            RideRequestDAO rideRequestDAO = new RideRequestDAO();
+            rideRequestDAO.saveModel(rideRequest)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            liveData.setValue(true);
+                        } else {
+                            Log.e(TAG, LOC + "onComplete: ");
+                            liveData.setValue(false);
+                        }
+                    });
+        } else {
+            Log.w(TAG, "acceptRideRequest: Wrong rider");
+            liveData.setValue(false);
+        }
     }
 }
