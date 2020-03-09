@@ -1,14 +1,19 @@
 package com.cmput301w20t10.uberapp.activities;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.cmput301w20t10.uberapp.database.viewmodel.RiderViewModel;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -26,12 +31,20 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.util.Log;
 import android.view.Menu;
 import android.widget.Button;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 // todo: editable map markers
 
 public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCallback {
+    private static final String TAG = "Test" ;
     // core objects
     private AppBarConfiguration mAppBarConfiguration;
     private GoogleMap mainMap;
@@ -47,6 +60,11 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
     TextInputEditText editTextStartingPoint;
     TextInputEditText editTextDestination;
     TextInputEditText editTextPriceOffer;
+
+    private static final float DEFAULT_ZOOM = 15f;
+
+    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +97,7 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
         editTextStartingPoint = findViewById(R.id.text_starting_point);
         editTextDestination = findViewById(R.id.text_destination);
         editTextPriceOffer = findViewById(R.id.text_price_offer);
+
 
         // this ensures that the data are saved no matter what
         // shenanigans that the android lifecycle throws at us
@@ -122,8 +141,10 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
         mainMap = googleMap;
 
         // Add listener
+        /*
         mainMap.setOnMapClickListener(latLng -> {
-            MarkerOptions markerOptions = new MarkerOptions().position(latLng).title("Marker somewhere");
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(latLng);
             Marker marker = mainMap.addMarker(markerOptions);
             mainMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
@@ -131,10 +152,93 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
             route.addLocation(marker);
             routeLiveData.setValue(route);
         });
+        */
     }
 
     private void onClick_NewRide() {
         // todo: implement onclick new ride
+        String startingpoint = editTextStartingPoint.getText().toString();
+        String destination = editTextDestination.getText().toString();
+        String priceOffer = editTextPriceOffer.getText().toString();
+
+        Geocoder geocoder = new Geocoder(RiderMainActivity.this);
+        List<Address> startingPointList = new ArrayList<>();
+        List<Address> destinationList = new ArrayList<>();
+
+        try{
+            startingPointList = geocoder.getFromLocationName(startingpoint, 1);
+        }catch (IOException e){
+            Log.e(TAG, "geoLocate: IOException on start address: "+ e.getMessage());
+        }
+
+        try{
+            destinationList = geocoder.getFromLocationName(destination, 1);
+        }catch (IOException e){
+            Log.e(TAG, "geoLocate: IOException on destination address: "+ e.getMessage());
+        }
+
+        if (startingPointList.size() > 0){
+            Address startingAdddress = startingPointList.get(0);
+            Log.d(TAG, "geoLocate: found a location: " + startingAdddress.toString());
+            //drop pin at sdtarting position
+            dropPin(startingAdddress.getAddressLine(0), new LatLng( startingAdddress.getLatitude(), startingAdddress.getLongitude()));
+        }
+
+        if (destinationList.size() > 0){
+            Address destinationAddress = destinationList.get(0);
+            Log.d(TAG, "geoLocate: found a location: " + destinationAddress.toString());
+
+            //move camera to destination and drop pin
+            //moveCamera(new LatLng( destinationAddress.getLatitude(), destinationAddress.getLongitude()), DEFAULT_ZOOM);
+            dropPin(destinationAddress.getAddressLine(0), new LatLng( destinationAddress.getLatitude(), destinationAddress.getLongitude()));
+        }
+
+        drawRoute();
+
+    }
+
+    public void drawRoute(){
+        //start of rout
+        String origin = "origin=" + route.getStartingPosition().latitude + "," + route.getDestinationPosition().longitude;
+        //end of route
+        String dest = "destination=" + route.getDestinationPosition().latitude + ',' + route.getDestinationPosition().longitude;
+        //mode
+        String mode = "mode=driving";
+        //parameter
+        String parameter = origin + "&" + dest + "&" + mode;
+        //output format
+        String output = "json";
+        //build url
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameter + "&key=" + getString(R.string.google_maps_key);
+    }
+
+
+    public void moveCamera(MarkerOptions pin){
+        //Log.d(TAG, "moveCamers: moving the camera to: lat " + latLng.latitude + ", lng: " + latLng.longitude);
+        //mainMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+
+        builder.include(pin.getPosition());
+
+        LatLngBounds bounds = builder.build();
+
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+        int padding = (int) (width * 0.10); // offset from edges of the map 10% of screen
+
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+
+        mainMap.animateCamera(cu);
+    }
+
+    private void dropPin(String title, LatLng latLng){
+        MarkerOptions pin = new MarkerOptions()
+                .position(latLng)
+                .title(title);
+        Marker marker =mainMap.addMarker(pin);
+
+        route.addLocation(marker);
+        routeLiveData.setValue(route);
+        moveCamera(pin);
     }
 
     private void onRouteChanged(Route route) {

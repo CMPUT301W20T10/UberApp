@@ -16,4 +16,5 @@ public class RideRequest {
         RideCompleted,
         TransactionFinished
     }
+
 }
