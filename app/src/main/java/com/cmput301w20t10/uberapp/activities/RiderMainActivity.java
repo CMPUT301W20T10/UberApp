@@ -4,9 +4,11 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 
+import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.cmput301w20t10.uberapp.database.viewmodel.RiderViewModel;
+import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -16,6 +18,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
@@ -37,13 +40,18 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 // todo: editable map markers
 
-public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
     private static final String TAG = "Test" ;
     // core objects
     private AppBarConfiguration mAppBarConfiguration;
@@ -193,11 +201,11 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
             dropPin(destinationAddress.getAddressLine(0), new LatLng( destinationAddress.getLatitude(), destinationAddress.getLongitude()));
         }
 
-        drawRoute();
-
+        String url = create_URL();
+        new FetchURL(RiderMainActivity.this).execute(url, "driving");
     }
 
-    public void drawRoute(){
+    private String create_URL(){
         //start of rout
         String origin = "origin=" + route.getStartingPosition().latitude + "," + route.getDestinationPosition().longitude;
         //end of route
@@ -210,10 +218,45 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
         String output = "json";
         //build url
         String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameter + "&key=" + getString(R.string.google_maps_key);
+        return url;
     }
 
+    public static String requestDirection(String reqURL) throws IOException {
+        String responseString = "";
+        InputStream inputStream = null;
+        HttpURLConnection httpURLConnection = null;
+        try{
+            URL url = new URL(reqURL);
+            httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.connect();
 
-    public void moveCamera(MarkerOptions pin){
+            //get the response result
+            inputStream = httpURLConnection.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+            StringBuffer stringBuffer = new StringBuffer();
+            String line = "";
+            while ((line = bufferedReader.readLine()) !=null){
+                stringBuffer.append(line);
+            }
+
+            responseString = stringBuffer.toString();
+            bufferedReader.close();
+            inputStreamReader.close();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            if (inputStream !=null){
+                inputStream.close();
+            }
+            httpURLConnection.disconnect();
+        }
+        return  responseString;
+    }
+
+    private void moveCamera(MarkerOptions pin){
         //Log.d(TAG, "moveCamers: moving the camera to: lat " + latLng.latitude + ", lng: " + latLng.longitude);
         //mainMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
 
@@ -245,5 +288,10 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
         // todo: improve RiderMainActivity.onRouteChanged
         editTextStartingPoint.setText(route.getStartingPointString());
         editTextDestination.setText(route.getDestinationString());
+    }
+
+    @Override
+    public void onTaskDone(Object... values) {
+
     }
 }
