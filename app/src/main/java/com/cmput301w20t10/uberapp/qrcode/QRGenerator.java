@@ -2,6 +2,7 @@ package com.cmput301w20t10.uberapp.qrcode;
 
 import android.graphics.Bitmap;
 
+import com.cmput301w20t10.uberapp.models.Payment;
 import com.cmput301w20t10.uberapp.models.User;
 import com.google.zxing.WriterException;
 
@@ -34,7 +35,6 @@ public class QRGenerator {
             QRGEncoder encoder = new QRGEncoder(data.toString(), null, QRGContents.Type.TEXT, 800);
 
             return encoder.encodeAsBitmap();
-
         } catch (JSONException | WriterException e) {
             e.printStackTrace();
         }
@@ -42,4 +42,7 @@ public class QRGenerator {
         return null;
     }
 
+    public static Bitmap generateTransactionQR(Payment payment) {
+        return generateTransactionQR(payment.getSender(), payment.getRecipient(), payment.getValue());
+    }
 }
