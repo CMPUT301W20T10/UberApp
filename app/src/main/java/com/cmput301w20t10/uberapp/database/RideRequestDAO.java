@@ -9,7 +9,6 @@ import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 
@@ -123,8 +122,8 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
                     case RIDER_REFERENCE:
                         value = entity.getRiderReference();
                         break;
-                    case PAYMENT_REFERENCE:
-                        value = entity.getPaymentReference();
+                    case TRANSACTION_REFERENCE:
+                        value = entity.getTransactionReference();
                         break;
                     case STARTING_POSITION:
                         value = entity.getStartingPosition();

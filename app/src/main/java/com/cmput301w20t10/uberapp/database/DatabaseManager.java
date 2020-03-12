@@ -202,7 +202,7 @@ public class DatabaseManager  {
         }
     }
 
-    public PaymentDAO getPaymentDAO() {
+    public TransactionDAO getPaymentDAO() {
         // todo {allan}: instantiate driver dao here
         return null;
     }

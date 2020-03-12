@@ -31,7 +31,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     private DocumentReference rideRequestReference;
     private DocumentReference driverReference;
     private DocumentReference riderReference;
-    private DocumentReference paymentReference;
+    private DocumentReference transactionReference;
     private DocumentReference unpairedReference;
 
     private GeoPoint startingPosition;
@@ -44,7 +44,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
         RIDE_REQUEST_REFERENCE ("rideRequestReference"),
         DRIVER_REFERENCE ("driverReference"),
         RIDER_REFERENCE ("riderReference"),
-        PAYMENT_REFERENCE ("paymentReference"),
+        TRANSACTION_REFERENCE("transactionReference"),
         STARTING_POSITION ("startingPosition"),
         DESTINATION ("destination"),
         STATE ("state"),
@@ -90,8 +90,8 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
                 case RIDER_REFERENCE:
                     addDirtyField(Field.RIDER_REFERENCE);
                     break;
-                case PAYMENT_REFERENCE:
-                    addDirtyField(Field.PAYMENT_REFERENCE);
+                case TRANSACTION_REFERENCE:
+                    addDirtyField(Field.TRANSACTION_REFERENCE);
                     break;
                 case RIDE_REQUEST_REFERENCE:
                     addDirtyField(Field.RIDE_REQUEST_REFERENCE);
@@ -117,7 +117,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
         this.rideRequestReference = model.getRideRequestReference();
         this.driverReference = model.getDriverReference();
         this.riderReference = model.getRiderReference();
-        this.paymentReference = model.getPaymentReference();
+        this.transactionReference = model.getTransactionReference();
 
         LatLng latLngStart = model.getRoute().getStartingPosition();
         LatLng latLngDest = model.getRoute().getDestination();
@@ -165,13 +165,13 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
         this.riderReference = riderReference;
     }
 
-    public DocumentReference getPaymentReference() {
-        return paymentReference;
+    public DocumentReference getTransactionReference() {
+        return transactionReference;
     }
 
-    public void setPaymentReference(DocumentReference paymentReference) {
-        addDirtyField(Field.PAYMENT_REFERENCE);
-        this.paymentReference = paymentReference;
+    public void setTransactionReference(DocumentReference transactionReference) {
+        addDirtyField(Field.TRANSACTION_REFERENCE);
+        this.transactionReference = transactionReference;
     }
 
     public GeoPoint getStartingPosition() {

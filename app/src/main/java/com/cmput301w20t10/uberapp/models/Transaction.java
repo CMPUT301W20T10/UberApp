@@ -1,7 +1,6 @@
 package com.cmput301w20t10.uberapp.models;
 
 import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
-import com.cmput301w20t10.uberapp.database.entity.PaymentEntity;
 import com.google.firebase.firestore.DocumentReference;
 
 import org.json.JSONException;
@@ -9,8 +8,8 @@ import org.json.JSONObject;
 
 import java.util.Date;
 
-public class Payment extends EntityModelBase<Payment.Field> {
-    private DocumentReference paymentReference;
+public class Transaction extends EntityModelBase<Transaction.Field> {
+    private DocumentReference transactionReference;
     private final Date timestamp;
     private final User recipient;
     private final User sender;
@@ -21,7 +20,7 @@ public class Payment extends EntityModelBase<Payment.Field> {
         SENDER ("sender"),
         RECIPIENT ("recipient"),
         TIMESTAMP ("timestamp"),
-        PAYMENT_REFERENCE ("paymentReference");
+        TRANSACTION_REFERENCE("transactionReference");
 
         private String stringValue;
 
@@ -34,20 +33,20 @@ public class Payment extends EntityModelBase<Payment.Field> {
         }
     }
 
-    public Payment(User sender, User recipient, int value) {
+    public Transaction(User sender, User recipient, int value) {
         this.value = value;
         this.sender = sender;
         this.recipient = recipient;
         this.timestamp = new Date();
-        this.paymentReference = null;
+        this.transactionReference = null;
     }
 
-    public Payment(DocumentReference paymentReference,
-                   Date timestamp,
-                   User recipient,
-                   User sender,
-                   int  value) {
-        this.paymentReference = paymentReference;
+    public Transaction(DocumentReference transactionReference,
+                       Date timestamp,
+                       User recipient,
+                       User sender,
+                       int  value) {
+        this.transactionReference = transactionReference;
         this.timestamp = timestamp;
         this.recipient = recipient;
         this.sender = sender;
@@ -60,7 +59,8 @@ public class Payment extends EntityModelBase<Payment.Field> {
         data.put(Field.SENDER.toString(), sender.getUsername());
         data.put(Field.RECIPIENT.toString(), recipient.getUsername());
         data.put(Field.VALUE.toString(), value);
-        data.put(Field.PAYMENT_REFERENCE.toString(), paymentReference.getPath());
+        data.put(Field.TRANSACTION_REFERENCE.toString(), transactionReference.getPath());
+        data.put(Field.TIMESTAMP.toString(), timestamp.getTime());
         return data;
     }
 
@@ -70,13 +70,13 @@ public class Payment extends EntityModelBase<Payment.Field> {
     }
 
     // region getters and setters
-    public DocumentReference getPaymentReference() {
-        return paymentReference;
+    public DocumentReference getTransactionReference() {
+        return transactionReference;
     }
 
-    public void setPaymentReference(DocumentReference paymentReference) {
-        addDirtyField(Field.PAYMENT_REFERENCE);
-        this.paymentReference = paymentReference;
+    public void setTransactionReference(DocumentReference transactionReference) {
+        addDirtyField(Field.TRANSACTION_REFERENCE);
+        this.transactionReference = transactionReference;
     }
 
     public Date getTimestamp() {

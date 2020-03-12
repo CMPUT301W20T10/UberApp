@@ -5,12 +5,11 @@ import java.util.Date;
 import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firestore.v1.DeleteDocumentRequest;
 
 public class RideRequest extends EntityModelBase<RideRequest.Field> {
     private DocumentReference driverReference;
     private DocumentReference riderReference;
-    private DocumentReference paymentReference;
+    private DocumentReference transactionReference;
     private DocumentReference unpairedReference;
 
     private DocumentReference rideRequestReference;
@@ -31,7 +30,7 @@ public class RideRequest extends EntityModelBase<RideRequest.Field> {
     public enum Field {
         DRIVER_REFERENCE ("driverReference"),
         RIDER_REFERENCE ("riderReference"),
-        PAYMENT_REFERENCE ("paymentReference"),
+        TRANSACTION_REFERENCE("transactionReference"),
         RIDE_REQUEST_REFERENCE ("rideRequestReference"),
         ROUTE ("route"),
         STATE ("state"),
@@ -53,7 +52,7 @@ public class RideRequest extends EntityModelBase<RideRequest.Field> {
     public RideRequest(RideRequestEntity entity) {
         this.driverReference = entity.getDriverReference();
         this.riderReference = entity.getRiderReference();
-        this.paymentReference = entity.getPaymentReference();
+        this.transactionReference = entity.getTransactionReference();
         this.rideRequestReference = entity.getRideRequestReference();
         this.route = new Route(entity.getStartingPosition(), entity.getDestination());
         this.state = State.values()[entity.getState()];
@@ -94,13 +93,13 @@ public class RideRequest extends EntityModelBase<RideRequest.Field> {
         this.driverReference = driverReference;
     }
 
-    public DocumentReference getPaymentReference() {
-        return paymentReference;
+    public DocumentReference getTransactionReference() {
+        return transactionReference;
     }
 
-    public void setPaymentReference(DocumentReference paymentReference) {
-        addDirtyField(Field.PAYMENT_REFERENCE);
-        this.paymentReference = paymentReference;
+    public void setTransactionReference(DocumentReference transactionReference) {
+        addDirtyField(Field.TRANSACTION_REFERENCE);
+        this.transactionReference = transactionReference;
     }
 
     public Route getRoute() {

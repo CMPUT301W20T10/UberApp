@@ -2,7 +2,7 @@ package com.cmput301w20t10.uberapp.qrcode;
 
 import android.graphics.Bitmap;
 
-import com.cmput301w20t10.uberapp.models.Payment;
+import com.cmput301w20t10.uberapp.models.Transaction;
 import com.cmput301w20t10.uberapp.models.User;
 import com.google.zxing.WriterException;
 
@@ -42,7 +42,7 @@ public class QRGenerator {
         return null;
     }
 
-    public static Bitmap generateTransactionQR(Payment payment) {
-        return generateTransactionQR(payment.getSender(), payment.getRecipient(), payment.getValue());
+    public static Bitmap generateTransactionQR(Transaction transaction) {
+        return generateTransactionQR(transaction.getSender(), transaction.getRecipient(), transaction.getValue());
     }
 }
