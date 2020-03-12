@@ -1,18 +1,14 @@
 package com.cmput301w20t10.uberapp.models;
 
-import android.util.Log;
-
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.util.List;
 
-import static android.content.ContentValues.TAG;
-
 public class Rider extends User {
     private DocumentReference riderReference;
-    private List<DocumentReference> paymentList;
+    private List<DocumentReference> transactionList;
     private List<DocumentReference> rideRequestList;
     private List<DocumentReference> activeRideRequestList;
     private int balance;
@@ -24,7 +20,7 @@ public class Rider extends User {
     public Rider(RiderEntity riderEntity, UserEntity userEntity) {
         super(userEntity);
         this.riderReference = riderEntity.getRiderReference();
-        this.paymentList = riderEntity.getPaymentList();
+        this.transactionList = riderEntity.getPaymentList();
         this.rideRequestList = riderEntity.getRideRequestList();
         this.activeRideRequestList = riderEntity.getActiveRideRequestList();
         this.balance = riderEntity.getBalance();
@@ -63,13 +59,13 @@ public class Rider extends User {
         this.riderReference = riderReference;
     }
 
-    public List<DocumentReference> getPaymentList() {
-        return paymentList;
+    public List<DocumentReference> getTransactionList() {
+        return transactionList;
     }
 
-    public void setPaymentList(List<DocumentReference> paymentList) {
-        addDirtyField(Field.PAYMENT_LIST);
-        this.paymentList = paymentList;
+    public void setTransactionList(List<DocumentReference> transactionList) {
+        addDirtyField(Field.TRANSACTION_LIST);
+        this.transactionList = transactionList;
     }
 
     public List<DocumentReference> getRideRequestList() {

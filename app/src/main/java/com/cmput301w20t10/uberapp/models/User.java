@@ -32,7 +32,7 @@ public class User extends EntityModelBase<User.Field> {
         DRIVER_REFERENCE ("driverReference"),
         RIDER_REFERENCE ("riderReference"),
         // children fields
-        PAYMENT_LIST ("paymentList"),
+        TRANSACTION_LIST("paymentList"),
         RIDE_REQUEST_LIST ("rideRequest"),
         ACTIVE_RIDE_REQUEST_LIST ("activeRideRequestList"),
         // driver field

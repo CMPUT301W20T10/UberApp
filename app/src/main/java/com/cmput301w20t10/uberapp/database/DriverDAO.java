@@ -28,7 +28,8 @@ import static android.content.ContentValues.TAG;
  * @author Allan Manuba
  */
 public class DriverDAO {
-    public static final String COLLECTION_DRIVERS = "drivers";
+    private static final String COLLECTION_DRIVERS = "drivers";
+    final static String LOC = "DriverDAO: ";
 
     DriverDAO() {}
 
@@ -211,6 +212,9 @@ public class DriverDAO {
                 Object value = null;
 
                 switch (field) {
+                    case USER_REFERENCE:
+                        value = driverEntity.getUserReference();
+                        break;
                     case DRIVER_REFERENCE:
                         value = driverEntity.getDriverReference();
                         break;
@@ -248,6 +252,10 @@ public class DriverDAO {
     public MutableLiveData<Boolean> saveModel(Driver driver) {
         SaveModelTask saveModelTask = new SaveModelTask(driver);
         return saveModelTask.run();
+    }
+
+    public MutableLiveData<Driver> getDriverFromDriverReference(DocumentReference driverReference) {
+        return null;
     }
 }
 
@@ -303,6 +311,61 @@ class SaveModelTask extends GetTaskSequencer<Boolean> {
             });
         } else {
             liveData.setValue(true);
+        }
+    }
+}
+
+class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
+    static final String LOC = DriverDAO.LOC + "GetDriverFromReferenceTask: ";
+
+    private final DocumentReference driverReference;
+    private DriverEntity driverEntity;
+
+    GetDriverFromReferenceTask(DocumentReference drivereference) {
+        this.driverReference = drivereference;
+    }
+
+    @Override
+    public MutableLiveData<Driver> run() {
+        getDriverEntity();
+        return liveData;
+    }
+
+    private void getDriverEntity() {
+        if (driverReference != null) {
+            driverReference.get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            this.driverEntity = task.getResult().toObject(DriverEntity.class);
+                            DocumentReference userReference = driverEntity.getUserReference();
+                            getUserEntity(userReference);
+                        } else {
+                            Log.e(TAG, LOC + "getDriverEntity: ", task.getException());
+                        }
+                    });
+        } else {
+            Log.e(TAG, LOC + "getDriverEntity: reference null");
+            liveData.setValue(null);
+        }
+    }
+
+    private void getUserEntity(DocumentReference userReference) {
+        if (userReference != null) {
+
+            userReference.get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            UserEntity userEntity = task.getResult().toObject(UserEntity.class);
+                            Driver driver = new Driver(driverEntity, userEntity);
+                            liveData.setValue(driver);
+                        } else {
+                            Log.e(TAG, LOC + "getUserEntity: onComplete: ", task.getException());
+                            liveData.setValue(null);
+                        }
+                    });
+        } else {
+            Log.e(TAG, LOC + "getUserEntity: No User Entity");
+            liveData.setValue(null);
         }
     }
 }

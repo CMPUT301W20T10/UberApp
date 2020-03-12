@@ -7,6 +7,7 @@ import com.cmput301w20t10.uberapp.database.entity.TransactionEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Driver;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Transaction;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.User;
@@ -22,10 +23,11 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import static android.content.ContentValues.TAG;
 
-class TransactionDAO extends DAOBase<TransactionEntity> {
+public class TransactionDAO extends DAOBase<TransactionEntity> {
     static final String COLLECTION = "transactions";
     private final static String LOC = "TransactionDAO: ";
 
@@ -34,6 +36,12 @@ class TransactionDAO extends DAOBase<TransactionEntity> {
                                                           Driver recipient,
                                                           int value) {
         CreateTransactionTask task = new CreateTransactionTask(owner, sender, recipient, value);
+        return task.run();
+    }
+
+    public MutableLiveData<Transaction> createTransaction(LifecycleOwner owner,
+                                                          RideRequest rideRequest) {
+        CreateTransactionForRideTask task = new CreateTransactionForRideTask(owner, rideRequest);
         return task.run();
     }
 
@@ -211,5 +219,78 @@ class CreateTransactionTask extends GetTaskSequencer<Transaction> {
                         liveData.setValue(null);
                     }
                 });
+    }
+}
+
+class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
+    final static String LOC = "TransactionDAO: CreateTransactionForRideTask: ";
+
+    private final RideRequest rideRequest;
+    private final LifecycleOwner owner;
+
+    private Rider sender;
+    private Driver recipient;
+
+    CreateTransactionForRideTask(LifecycleOwner owner, RideRequest rideRequest) {
+        this.owner = owner;
+        this.rideRequest = rideRequest;
+    }
+
+    @Override
+    public MutableLiveData<Transaction> run() {
+        getRiderObject();
+        return liveData;
+    }
+
+    private void getRiderObject() {
+        RiderDAO riderDAO = new RiderDAO();
+        riderDAO.getRiderFromRiderReference(rideRequest.getRiderReference())
+                .observe(owner, new Observer<Rider>() {
+                    @Override
+                    public void onChanged(Rider rider) {
+                        if (rider != null) {
+                            sender = rider;
+                            getDriverObject();
+                        } else {
+                            Log.e(TAG, LOC + "getRiderObject: onChanged: rider null");
+                            liveData.setValue(null);
+                        }
+                    }
+                });
+    }
+
+    private void getDriverObject() {
+        DriverDAO driverDAO = new DriverDAO();
+        driverDAO.getDriverFromDriverReference(rideRequest.getDriverReference())
+        .observe(owner, new Observer<Driver>() {
+            @Override
+            public void onChanged(Driver driver) {
+                if (driver != null) {
+                    recipient = driver;
+                    createTransaction();
+                } else {
+                    Log.e(TAG, LOC + "onChanged: driver null");
+                    liveData.setValue(null);
+                }
+            }
+        });
+    }
+
+    private void createTransaction() {
+        // todo: yea
+    }
+
+    /**
+     * Change state for ride
+     * Add reference to transaction
+     * To history for rider
+     * Add transaction to list for rider
+     * todo: rename all instance of payment stuff for rider
+     * To history driver
+     * Add transaction to list for driver
+     * todo: rename all instance of payment stuff for driver
+     */
+    private void finishRideRequest() {
+
     }
 }

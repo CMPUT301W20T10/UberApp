@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Driver extends User {
     private DocumentReference driverReference;
-    private List<DocumentReference> paymentList;
+    private List<DocumentReference> transactionList;
     private List<DocumentReference> rideRequestList;
     private List<DocumentReference> activeRideRequestList;
     private int rating;
@@ -29,7 +29,7 @@ public class Driver extends User {
         super(userEntity);
         this.driverReference = driverEntity.getDriverReference();
         this.rating = driverEntity.getRating();
-        this.paymentList = driverEntity.getPaymentList();
+        this.transactionList = driverEntity.getPaymentList();
         this.rideRequestList = driverEntity.getFinishedRideRequestList();
         this.activeRideRequestList = driverEntity.getActiveRideRequestList();
 
@@ -50,13 +50,13 @@ public class Driver extends User {
         this.driverReference = driverReference;
     }
 
-    public List<DocumentReference> getPaymentList() {
-        return paymentList;
+    public List<DocumentReference> getTransactionList() {
+        return transactionList;
     }
 
-    public void setPaymentList(List<DocumentReference> paymentList) {
-        addDirtyField(Field.PAYMENT_LIST);
-        this.paymentList = paymentList;
+    public void setTransactionList(List<DocumentReference> transactionList) {
+        addDirtyField(Field.TRANSACTION_LIST);
+        this.transactionList = transactionList;
     }
 
     public List<DocumentReference> getRideRequestList() {

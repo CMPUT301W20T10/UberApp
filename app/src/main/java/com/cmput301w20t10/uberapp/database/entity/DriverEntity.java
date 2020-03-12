@@ -23,6 +23,7 @@ import static android.content.ContentValues.TAG;
 public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
     public static final String DRIVER_REFERENCE = "driverReference";
 
+    private DocumentReference userReference;
     private DocumentReference driverReference;
     private List<DocumentReference> paymentList;
     private List<DocumentReference> finishedRideRequestList;
@@ -30,6 +31,7 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
     private int rating;
 
     public enum Field {
+        USER_REFERENCE ("userReference"),
         DRIVER_REFERENCE ("driverReference"),
         RATING ("rating"),
         PAYMENT_LIST ("paymentList"),
@@ -55,8 +57,9 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
     }
 
     public DriverEntity(Driver driver) {
+        this.userReference = driver.getUserReference();
         this.driverReference = driver.getDriverReference();
-        this.paymentList = driver.getPaymentList();
+        this.paymentList = driver.getTransactionList();
         this.finishedRideRequestList = driver.getRideRequestList();
         this.activeRideRequestList = driver.getActiveRideRequestList();
         this.rating = driver.getRating();
@@ -64,7 +67,6 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
         for (Driver.Field dirtyField :
                 driver.getDirtyFieldSet()) {
             switch (dirtyField) {
-                case USER_REFERENCE:
                 case USERNAME:
                 case PASSWORD:
                 case EMAIL:
@@ -76,10 +78,13 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
                 case BALANCE:
                     // do nothing
                     break;
+                case USER_REFERENCE:
+                    addDirtyField(Field.USER_REFERENCE);
+                    break;
                 case DRIVER_REFERENCE:
                     addDirtyField(Field.DRIVER_REFERENCE);
                     break;
-                case PAYMENT_LIST:
+                case TRANSACTION_LIST:
                     addDirtyField(Field.PAYMENT_LIST);
                     break;
                 case RIDE_REQUEST_LIST:
@@ -112,6 +117,13 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
     }
 
     // region setters
+    public DocumentReference getUserReference() {
+        return userReference;
+    }
+
+    public void setUserReference(DocumentReference userReference) {
+        this.userReference = userReference;
+    }
 
     public DocumentReference getDriverReference() {
         return driverReference;

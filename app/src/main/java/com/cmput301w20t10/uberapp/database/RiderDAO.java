@@ -9,7 +9,6 @@ import com.cmput301w20t10.uberapp.models.Rider;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -213,8 +212,8 @@ public class RiderDAO {
                 Object value = null;
 
                 switch (field) {
-                    case PAYMENT_LIST:
-                        value = rider.getPaymentList();
+                    case TRANSACTION_LIST:
+                        value = rider.getTransactionList();
                         break;
                     case RIDE_REQUEST_LIST:
                         value = rider.getRideRequestList();

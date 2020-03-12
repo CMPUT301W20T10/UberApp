@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
 import com.cmput301w20t10.uberapp.models.Driver;
-import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
@@ -115,7 +114,7 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
                 case DRIVER_REFERENCE:
                     addDirtyField(Field.DRIVER_REFERENCE);
                     break;
-                case PAYMENT_LIST:
+                case TRANSACTION_LIST:
                 case RIDER_REFERENCE:
                 case RIDE_REQUEST_LIST:
                 case ACTIVE_RIDE_REQUEST_LIST:

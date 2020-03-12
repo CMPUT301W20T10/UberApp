@@ -7,13 +7,14 @@ import android.os.Looper;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
 import com.cmput301w20t10.uberapp.database.RideRequestDAO;
+import com.cmput301w20t10.uberapp.database.TransactionDAO;
 import com.cmput301w20t10.uberapp.database.UnpairedRideListDAO;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
+import com.cmput301w20t10.uberapp.models.Transaction;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.ThrowOnExtraProperties;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -441,12 +442,24 @@ public class BasicDAOTest {
         return rideRequest;
     }
 
-    public void generateQRCodeTest() {
-        // todo: generateQRCodeTest
-    }
+    public void createTransactionTest() throws InterruptedException {
+        RideRequest rideRequest = riderConfirmCompletion();
 
-    public void scanQRCodeTest() {
-        // todo: scan qr code test
+        // todo: change to get user instead of logging in
+        Rider rider = loginAsRider();
+        Driver driver = loginAsDriver();
+
+        // get data
+        final Object syncObject = new Object();
+
+        Runnable runnable = () -> {
+            Observer<Transaction> observer = new AssertNullObserver<Transaction>(syncObject);
+            TransactionDAO dao = databaseManager.getTransactionDAO();
+            MutableLiveData<Transaction> liveData = dao.createTransaction(lifecycleOwner, rider, driver, 1250);
+            liveData.observe(lifecycleOwner, observer);
+        };
+
+        liveDataObserver(runnable, syncObject);
     }
 
     public void riderRateDriverTest() {
