@@ -122,6 +122,7 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
     }
 
     public void setUserReference(DocumentReference userReference) {
+        addDirtyField(Field.USER_REFERENCE);
         this.userReference = userReference;
     }
 

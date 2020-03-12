@@ -1,5 +1,6 @@
 package com.cmput301w20t10.uberapp.database;
 
+import android.graphics.drawable.shapes.OvalShape;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
@@ -12,6 +13,8 @@ import com.cmput301w20t10.uberapp.models.Transaction;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -40,8 +43,9 @@ public class TransactionDAO extends DAOBase<TransactionEntity> {
     }
 
     public MutableLiveData<Transaction> createTransaction(LifecycleOwner owner,
-                                                          RideRequest rideRequest) {
-        CreateTransactionForRideTask task = new CreateTransactionForRideTask(owner, rideRequest);
+                                                          RideRequest rideRequest,
+                                                          int value) {
+        CreateTransactionForRideTask task = new CreateTransactionForRideTask(owner, rideRequest, value);
         return task.run();
     }
 
@@ -227,11 +231,14 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
 
     private final RideRequest rideRequest;
     private final LifecycleOwner owner;
+    private final int value;
 
+    private TransactionEntity transactionEntity;
     private Rider sender;
     private Driver recipient;
 
-    CreateTransactionForRideTask(LifecycleOwner owner, RideRequest rideRequest) {
+    CreateTransactionForRideTask(LifecycleOwner owner, RideRequest rideRequest, int value) {
+        this.value = value;
         this.owner = owner;
         this.rideRequest = rideRequest;
     }
@@ -277,20 +284,51 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
     }
 
     private void createTransaction() {
-        // todo: yea
+        transactionEntity = new TransactionEntity(sender, recipient, value);
+        db.collection(TransactionDAO.COLLECTION)
+                .add(transactionEntity)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        updateTransactionEntity(documentReference);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, LOC + "createTransaction: onFailure: ", e);
+                        liveData.setValue(null);
+                    }
+                });
     }
 
-    /**
-     * Change state for ride
-     * Add reference to transaction
-     * To history for rider
-     * Add transaction to list for rider
-     * todo: rename all instance of payment stuff for rider
-     * To history driver
-     * Add transaction to list for driver
-     * todo: rename all instance of payment stuff for driver
-     */
-    private void finishRideRequest() {
+    private void updateTransactionEntity(DocumentReference documentReference) {
+        transactionEntity.setTransactionReference(documentReference);
+        TransactionDAO transactionDAO = new TransactionDAO();
+        transactionDAO.saveEntity(transactionEntity)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            updateRideRequest();
+                        } else {
+                            Log.e(TAG, LOC + "updateTransactionEntity: onComplete: ", task.getException());
+                            liveData.setValue(null);
+                        }
+                    }
+                });
+    }
+
+    private void updateRideRequest() {
+        // todo: here
+        updateRider();
+    }
+
+    private void updateRider() {
+        updateDriver();
+    }
+
+    private void updateDriver() {
 
     }
 }

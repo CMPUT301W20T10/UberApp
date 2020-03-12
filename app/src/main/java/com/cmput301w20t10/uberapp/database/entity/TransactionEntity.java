@@ -70,6 +70,7 @@ public class TransactionEntity extends EntityModelBase<TransactionEntity.Field> 
     }
 
     public void setTransactionReference(DocumentReference transactionReference) {
+        addDirtyField(Field.TRANSACTION_REFERENCE);
         this.transactionReference = transactionReference;
     }
 
@@ -78,6 +79,7 @@ public class TransactionEntity extends EntityModelBase<TransactionEntity.Field> 
     }
 
     public void setTimestamp(Timestamp timestamp) {
+        addDirtyField(Field.TIMESTAMP);
         this.timestamp = timestamp;
     }
 
@@ -86,6 +88,7 @@ public class TransactionEntity extends EntityModelBase<TransactionEntity.Field> 
     }
 
     public void setRecipient(DocumentReference recipient) {
+        addDirtyField(Field.RECIPIENT);
         this.recipient = recipient;
     }
 
@@ -94,6 +97,7 @@ public class TransactionEntity extends EntityModelBase<TransactionEntity.Field> 
     }
 
     public void setSender(DocumentReference sender) {
+        addDirtyField(Field.SENDER);
         this.sender = sender;
     }
 
@@ -102,6 +106,7 @@ public class TransactionEntity extends EntityModelBase<TransactionEntity.Field> 
     }
 
     public void setValue(int value) {
+        addDirtyField(Field.VALUE);
         this.value = value;
     }
     // endregion setters and getters
