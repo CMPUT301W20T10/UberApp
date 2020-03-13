@@ -3,6 +3,8 @@
     <style name="AppTheme.NoActionBar" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <!-- Used for Navigation bar
         <item name="android:statusBarColor">@android:color/transparent</item>
+        -->
     </style>
 </resources>
