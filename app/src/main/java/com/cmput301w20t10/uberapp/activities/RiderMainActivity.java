@@ -1,5 +1,6 @@
 package com.cmput301w20t10.uberapp.activities;
 
+
 import android.location.Address;
 import android.location.Geocoder;
 import android.content.Intent;
@@ -37,7 +38,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+
 import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -56,6 +59,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // todo: editable map markers
+
 
 public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
     private static final String TAG = "Test" ;

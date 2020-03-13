@@ -43,6 +43,11 @@
     <string name="request_username">Username</string>
     <string name="request_distance">XXkm away</string>
     <string name="request_offer">Offer: $XXX</string>
+    <string name="request_accept">Accept</string>
+    <string name="request_first_name">Firstname</string>
+    <string name="request_last_name">Lastname</string>
+    <string name="request_start_dest">Start Destination</string>
+    <string name="request_end_dest">End Destination</string>
     <!-- endRide request strings -->
 
 </resources>

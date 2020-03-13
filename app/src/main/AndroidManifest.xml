@@ -72,7 +72,6 @@
             android:name=".activities.DriverMainActivity"
             android:label="@string/title_activity_driver_main"
             android:theme="@style/AppTheme.NoActionBar" />
-            android:label="RiderMainActivity"/>
 <!--            android:theme="@style/AppTheme.NoActionBar" -->
         <activity
             android:name=".activities.ProfilePage"

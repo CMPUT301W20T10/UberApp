@@ -120,6 +120,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
         this.transactionReference = model.getTransactionReference();
 
         LatLng latLngStart = model.getRoute().getStartingPosition();
+
         LatLng latLngDest = model.getRoute().getDestinationPosition();
 
         startingPosition = new GeoPoint(latLngStart.latitude, latLngStart.longitude);

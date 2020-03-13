@@ -10,6 +10,7 @@ import android.widget.ImageButton;
 import com.cmput301w20t10.uberapp.R;
 
 
+
 // TODO: 2020-03-13 look at comments in the button onclick listeners. Explains that it needs functionality set up first. Basically a empty activity for right now.
 public class EditProfile extends AppCompatActivity {
     Button butCancel;
