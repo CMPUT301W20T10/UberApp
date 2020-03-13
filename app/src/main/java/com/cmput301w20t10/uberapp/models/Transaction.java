@@ -1,6 +1,7 @@
 package com.cmput301w20t10.uberapp.models;
 
 import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
+import com.cmput301w20t10.uberapp.database.entity.TransactionEntity;
 import com.google.firebase.firestore.DocumentReference;
 
 import org.json.JSONException;
@@ -13,7 +14,7 @@ public class Transaction extends EntityModelBase<Transaction.Field> {
     private final Date timestamp;
     private final User recipient;
     private final User sender;
-    private final int value;
+    private final float value;
 
     public enum Field {
         VALUE ("value"),
@@ -33,7 +34,7 @@ public class Transaction extends EntityModelBase<Transaction.Field> {
         }
     }
 
-    public Transaction(User sender, User recipient, int value) {
+    public Transaction(User sender, User recipient, float value) {
         this.value = value;
         this.sender = sender;
         this.recipient = recipient;
@@ -45,7 +46,7 @@ public class Transaction extends EntityModelBase<Transaction.Field> {
                        Date timestamp,
                        User recipient,
                        User sender,
-                       int  value) {
+                       float  value) {
         this.transactionReference = transactionReference;
         this.timestamp = timestamp;
         this.recipient = recipient;
@@ -91,7 +92,7 @@ public class Transaction extends EntityModelBase<Transaction.Field> {
         return sender;
     }
 
-    public int getValue() {
+    public float getValue() {
         return value;
     }
     // endregion getters and setters

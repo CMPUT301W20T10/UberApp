@@ -6,6 +6,9 @@ import com.cmput301w20t10.uberapp.database.entity.DriverEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Driver;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -28,7 +31,7 @@ import static android.content.ContentValues.TAG;
  * @author Allan Manuba
  */
 public class DriverDAO {
-    private static final String COLLECTION_DRIVERS = "drivers";
+    static final String COLLECTION = "drivers";
     final static String LOC = "DriverDAO: ";
 
     DriverDAO() {}
@@ -71,33 +74,15 @@ public class DriverDAO {
                                                   String phoneNumber,
                                                   String image,
                                                   LifecycleOwner owner) {
-        // todo: improve code here
-
-        MutableLiveData<Driver> driverLiveData = new MutableLiveData<>();
-        DriverEntity driverEntity = new DriverEntity();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // todo: check if rider was already registered
-
-        db.collection(COLLECTION_DRIVERS)
-                .add(driverEntity)
-                .addOnSuccessListener(driverReference -> {
-                    driverEntity.setDriverReference(driverReference);
-                    save(driverEntity);
-                    registerDriverAsUser(
-                            driverLiveData,
-                            driverEntity,
-                            username,
-                            password,
-                            email,
-                            firstName,
-                            lastName,
-                            phoneNumber,
-                            image,
-                            owner);
-                })
-                .addOnFailureListener(e -> Log.w(TAG, "onFailure: Error adding document", e));
-        return driverLiveData;
+        RegisterDriverTask task = new RegisterDriverTask(username,
+                password,
+                email,
+                firstName,
+                lastName,
+                phoneNumber,
+                image,
+                owner);
+        return task.run();
     }
 
     /**
@@ -149,49 +134,6 @@ public class DriverDAO {
                 });
 
         return driverLiveData;
-    }
-
-    /**
-     * Helper function for registerDriver
-     *
-     * @param driverLiveData
-     * @param driverEntity
-     * @param username
-     * @param password
-     * @param email
-     * @param firstName
-     * @param lastName
-     * @param phoneNumber
-     * @param image
-     * @param owner
-     */
-    private void registerDriverAsUser(MutableLiveData<Driver> driverLiveData,
-                                      DriverEntity driverEntity,
-                                      String username,
-                                      String password,
-                                      String email,
-                                      String firstName,
-                                      String lastName,
-                                      String phoneNumber,
-                                      String image,
-                                      @NonNull LifecycleOwner owner){
-        // create user then set driver
-        UserDAO userDAO = new UserDAO();
-        userDAO.registerUser(username,
-                password,
-                email,
-                firstName,
-                lastName,
-                phoneNumber,
-                image)
-                .observe(owner, userEntity -> {
-                    if (userEntity != null && userEntity.getUserReference() != null) {
-                        userEntity.setDriverReference(driverEntity.getDriverReference());
-                        userDAO.saveEntity(userEntity);
-                        Driver driver = new Driver(driverEntity, userEntity);
-                        driverLiveData.setValue(driver);
-                    }
-                });
     }
 
     /**
@@ -367,5 +309,109 @@ class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
             Log.e(TAG, LOC + "getUserEntity: No User Entity");
             liveData.setValue(null);
         }
+    }
+}
+
+class RegisterDriverTask extends GetTaskSequencer<Driver> {
+    static final String LOC = "Tomate: RegisterDriverTask: ";
+
+    private final String username;
+    private final String password;
+    private final String email;
+    private final String firstName;
+    private final String lastName;
+    private final String phoneNumber;
+    private final String image;
+    private final LifecycleOwner owner;
+
+    private DriverEntity driverEntity;
+    private UserEntity userEntity;
+
+    UserDAO userDAO;
+
+    public RegisterDriverTask(String username,
+                              String password,
+                              String email,
+                              String firstName,
+                              String lastName,
+                              String phoneNumber,
+                              String image,
+                              LifecycleOwner owner) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.image = image;
+        this.owner = owner;
+    }
+
+    @Override
+    public MutableLiveData<Driver> run() {
+        createDriverEntity();
+        return liveData;
+    }
+
+    private void createDriverEntity() {
+        driverEntity = new DriverEntity();
+        db.collection(DriverDAO.COLLECTION)
+                .add(driverEntity)
+                .addOnSuccessListener(documentReference -> {
+                    driverEntity.setDriverReference(documentReference);
+                    createUser();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, LOC + "createDriverEntity: onFailure: ", e);
+                    liveData.setValue(null);
+                });
+
+    }
+
+    private void createUser() {
+        userDAO = new UserDAO();
+        userDAO.registerUser(username,
+                password,
+                email,
+                firstName,
+                lastName,
+                phoneNumber,
+                image)
+                .observe(owner, userEntity -> {
+                    if (userEntity != null) {
+                        RegisterDriverTask.this.userEntity = userEntity;
+                        updateDriverEntity();
+                    } else {
+                        Log.e(TAG, LOC + "createUser: ");
+                        liveData.setValue(null);
+                    }
+                });
+    }
+
+    private void updateDriverEntity() {
+        driverEntity.setUserReference(userEntity.getUserReference());
+        DriverDAO driverDAO = new DriverDAO();
+        driverDAO.save(driverEntity).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                updateUserEntity();
+            } else {
+                Log.e(TAG, LOC + "updateDriverEntity: onComplete: ", task.getException());
+                liveData.setValue(null);
+            }
+        });
+    }
+
+    private void updateUserEntity() {
+        userEntity.setDriverReference(driverEntity.getDriverReference());
+        userDAO.saveEntity(userEntity)
+        .addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Driver driver = new Driver(driverEntity, userEntity);
+                liveData.setValue(driver);
+            } else {
+                Log.e(TAG, LOC + "updateUserEntity: onComplete: ", task.getException());
+                liveData.setValue(null);
+            }
+        });
     }
 }

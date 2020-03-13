@@ -24,7 +24,8 @@ import static android.content.ContentValues.TAG;
  * @author Allan Manuba
  */
 class UserDAO extends DAOBase<UserEntity> {
-    private static final String COLLECTION_USERS = "users";
+    private static final String COLLECTION = "users";
+    final static String LOC = "Tomate: UserDAO: ";
 
     /**
      * Log the user in
@@ -53,7 +54,7 @@ class UserDAO extends DAOBase<UserEntity> {
         MutableLiveData<UserEntity> userLiveData = new MutableLiveData<>();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection(COLLECTION_USERS)
+        db.collection(COLLECTION)
                 .whereEqualTo(UserEntity.Field.USERNAME.toString(), username)
                 .whereEqualTo(UserEntity.Field.PASSWORD.toString(), password)
                 .get()
@@ -108,7 +109,7 @@ class UserDAO extends DAOBase<UserEntity> {
                 lastName,
                 phoneNumber,
                 image);
-        db.collection(COLLECTION_USERS)
+        db.collection(COLLECTION)
                 .add(userEntity)
                 .addOnSuccessListener(
                         userReference -> {
@@ -116,6 +117,8 @@ class UserDAO extends DAOBase<UserEntity> {
                                 userEntity.setUserReference(userReference);
                                 UserDAO.this.saveEntity(userEntity);
                                 userLiveData.setValue(userEntity);
+                            } else {
+                                Log.e(TAG, LOC + "registerUser: Failed to add user");
                             }
                         }
                 )

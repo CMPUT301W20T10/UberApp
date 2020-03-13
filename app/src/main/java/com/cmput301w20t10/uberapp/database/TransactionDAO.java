@@ -20,6 +20,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -163,7 +164,7 @@ class TransactionEntityToModelTask extends GetTaskSequencer<Transaction> {
 }
 
 class CreateTransactionTask extends GetTaskSequencer<Transaction> {
-    static final String LOC = "TransactionDAO: CreateTransactionTask: ";
+    static final String LOC = "Toamte: TransactionDAO: CreateTransactionTask: ";
 
     private final int value;
     private final Driver recipient;
@@ -191,6 +192,7 @@ class CreateTransactionTask extends GetTaskSequencer<Transaction> {
         db.collection(TransactionDAO.COLLECTION)
                 .add(transactionEntity)
                 .addOnSuccessListener(documentReference -> {
+                    Log.d(TAG, LOC + "initCreation: ");
                     transactionEntity.setTransactionReference(documentReference);
                     updateTransactionEntity();
                 })
@@ -236,6 +238,8 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
     private TransactionEntity transactionEntity;
     private Rider sender;
     private Driver recipient;
+    RiderDAO riderDAO;
+    DriverDAO driverDAO;
 
     CreateTransactionForRideTask(LifecycleOwner owner, RideRequest rideRequest, int value) {
         this.value = value;
@@ -250,35 +254,29 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
     }
 
     private void getRiderObject() {
-        RiderDAO riderDAO = new RiderDAO();
+        riderDAO = new RiderDAO();
         riderDAO.getRiderFromRiderReference(rideRequest.getRiderReference())
-                .observe(owner, new Observer<Rider>() {
-                    @Override
-                    public void onChanged(Rider rider) {
-                        if (rider != null) {
-                            sender = rider;
-                            getDriverObject();
-                        } else {
-                            Log.e(TAG, LOC + "getRiderObject: onChanged: rider null");
-                            liveData.setValue(null);
-                        }
+                .observe(owner, rider -> {
+                    if (rider != null) {
+                        sender = rider;
+                        getDriverObject();
+                    } else {
+                        Log.e(TAG, LOC + "getRiderObject: onChanged: rider null");
+                        liveData.setValue(null);
                     }
                 });
     }
 
     private void getDriverObject() {
-        DriverDAO driverDAO = new DriverDAO();
+        driverDAO = new DriverDAO();
         driverDAO.getDriverFromDriverReference(rideRequest.getDriverReference())
-        .observe(owner, new Observer<Driver>() {
-            @Override
-            public void onChanged(Driver driver) {
-                if (driver != null) {
-                    recipient = driver;
-                    createTransaction();
-                } else {
-                    Log.e(TAG, LOC + "onChanged: driver null");
-                    liveData.setValue(null);
-                }
+        .observe(owner, driver -> {
+            if (driver != null) {
+                recipient = driver;
+                createTransaction();
+            } else {
+                Log.e(TAG, LOC + "onChanged: driver null");
+                liveData.setValue(null);
             }
         });
     }
@@ -287,18 +285,10 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
         transactionEntity = new TransactionEntity(sender, recipient, value);
         db.collection(TransactionDAO.COLLECTION)
                 .add(transactionEntity)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        updateTransactionEntity(documentReference);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, LOC + "createTransaction: onFailure: ", e);
-                        liveData.setValue(null);
-                    }
+                .addOnSuccessListener(documentReference -> updateTransactionEntity(documentReference))
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, LOC + "createTransaction: onFailure: ", e);
+                    liveData.setValue(null);
                 });
     }
 
@@ -306,29 +296,59 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
         transactionEntity.setTransactionReference(documentReference);
         TransactionDAO transactionDAO = new TransactionDAO();
         transactionDAO.saveEntity(transactionEntity)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            updateRideRequest();
-                        } else {
-                            Log.e(TAG, LOC + "updateTransactionEntity: onComplete: ", task.getException());
-                            liveData.setValue(null);
-                        }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        updateRideRequest();
+                    } else {
+                        Log.e(TAG, LOC + "updateTransactionEntity: onComplete: ", task.getException());
+                        liveData.setValue(null);
                     }
                 });
     }
 
     private void updateRideRequest() {
-        // todo: here
+        rideRequest.setState(RideRequest.State.TransactionFinished);
+        RideRequestDAO rideRequestDAO = new RideRequestDAO();
+        rideRequestDAO.saveModel(rideRequest)
+        .addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                updateRideRequest();
+            } else {
+                Log.e(TAG, LOC + "updateRideRequest: onComplete: Fail to save ride request", task.getException());
+                liveData.setValue(null);
+            }
+        });
         updateRider();
     }
 
     private void updateRider() {
-        updateDriver();
+        sender.deactivateRideRequest(rideRequest);
+        riderDAO.save(sender)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        updateDriver();
+                    } else {
+                        Log.e(TAG, LOC + "updateRider: onComplete: Fail to update rider", task.getException());
+                        liveData.setValue(null);
+                    }
+                });
     }
 
     private void updateDriver() {
-
+        recipient.deactivateRideRequest(rideRequest);
+        driverDAO.saveModel(recipient)
+                .observe(owner, aBoolean -> {
+                    if (aBoolean) {
+                        Transaction transaction = new Transaction(transactionEntity.getTransactionReference(),
+                                transactionEntity.getTimestamp().toDate(),
+                                recipient,
+                                sender,
+                                value);
+                        liveData.setValue(transaction);
+                    } else {
+                        Log.e(TAG, LOC + "updateDriver: onChanged: ");
+                        liveData.setValue(null);
+                    }
+                });
     }
 }

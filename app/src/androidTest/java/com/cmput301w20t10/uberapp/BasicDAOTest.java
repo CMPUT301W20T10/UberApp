@@ -3,6 +3,7 @@ package com.cmput301w20t10.uberapp;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
@@ -30,9 +31,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 @RunWith(AndroidJUnit4.class)
 public class BasicDAOTest {
+    private static final String TAG = "Tomate";
     private Context appContext;
     private LifecycleOwnerMock lifecycleOwner;
     private DatabaseManager databaseManager;
@@ -79,7 +82,6 @@ public class BasicDAOTest {
      */
     // todo: move to other test
     // todo: fix register to not return null
-    /*
     @Test
     public void registerAsRiderTest() throws InterruptedException {
         LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
@@ -90,7 +92,7 @@ public class BasicDAOTest {
         Runnable runnable = () -> {
             Observer<Rider> observer = new AssertNullObserver<Rider>(syncObject);
             MutableLiveData<Rider> liveData = loginRegisterDAO
-                    .registerRider("OneOClock2",
+                    .registerRider("HepCat",
                             "1:00",
                             "email",
                             "Hungry",
@@ -114,7 +116,7 @@ public class BasicDAOTest {
         Runnable runnable = () -> {
             Observer<Driver> observer = new AssertNullObserver<Driver>(syncObject);
             MutableLiveData<Driver> liveData = loginRegisterDAO
-                    .registerDriver("TwoOClock",
+                    .registerDriver("Charlie",
                             "2:00",
                             "email",
                             "Full",
@@ -127,7 +129,6 @@ public class BasicDAOTest {
 
         liveDataObserver(runnable, syncObject);
     }
-*/
     /**
      * Reference: medium.com/android-development-by-danylo/simple-way-to-test-asynchronous-actions-in-android-service-asynctask-thread-rxjava-etc-d43b0402e005
      * https://androidoverride.wordpress.com/2017/05/27/android-working-with-live-data-and-custom-life-cycle-owners/
@@ -153,7 +154,7 @@ public class BasicDAOTest {
             };
             LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
             MutableLiveData<Rider> liveData = loginRegisterDAO
-                    .logInAsRider("OneOClock",
+                    .logInAsRider("Hepcat",
                             "1:00",
                             lifecycleOwner);
             liveData.observe(lifecycleOwner, observer);
@@ -185,7 +186,7 @@ public class BasicDAOTest {
             };
             LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
             MutableLiveData<Driver> liveData = loginRegisterDAO
-                    .logInAsDriver("TwoOClock",
+                    .logInAsDriver("Charlie",
                             "2:00",
                             lifecycleOwner);
             liveData.observe(lifecycleOwner, observer);
@@ -442,24 +443,38 @@ public class BasicDAOTest {
         return rideRequest;
     }
 
+    @Test
     public void createTransactionTest() throws InterruptedException {
         RideRequest rideRequest = riderConfirmCompletion();
 
         // todo: change to get user instead of logging in
         Rider rider = loginAsRider();
         Driver driver = loginAsDriver();
+        AtomicReference<Transaction> transactionAtomicReference = new AtomicReference<>();
 
         // get data
         final Object syncObject = new Object();
 
         Runnable runnable = () -> {
-            Observer<Transaction> observer = new AssertNullObserver<Transaction>(syncObject);
+            Observer<Transaction> observer = new AssertNullObserver<Transaction>(syncObject) {
+                @Override
+                public void onChanged(Transaction transaction) {
+                    transactionAtomicReference.set(transaction);
+                    super.onChanged(transaction);
+                }
+            };
             TransactionDAO dao = databaseManager.getTransactionDAO();
             MutableLiveData<Transaction> liveData = dao.createTransaction(lifecycleOwner, rider, driver, 1250);
             liveData.observe(lifecycleOwner, observer);
         };
 
         liveDataObserver(runnable, syncObject);
+
+        Transaction transaction = transactionAtomicReference.get();
+        Log.d(TAG, "createTransactionTest: Rider: " + rider.getRiderReference().getPath());
+        Log.d(TAG, "createTransactionTest: Driver: " + driver.getDriverReference().getPath());
+        Log.d(TAG, "createTransactionTest: RideRequest: " + rideRequest.getRideRequestReference().getPath());
+        Log.d(TAG, "createTransactionTest: RideRequest: " + transaction.getTransactionReference().getPath());
     }
 
     public void riderRateDriverTest() {

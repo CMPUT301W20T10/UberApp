@@ -6,6 +6,7 @@ import com.cmput301w20t10.uberapp.models.Transaction;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.Exclude;
 
 import java.util.Date;
 
@@ -20,7 +21,7 @@ public class TransactionEntity extends EntityModelBase<TransactionEntity.Field> 
     private Timestamp timestamp;
     private DocumentReference recipient;
     private DocumentReference sender;
-    private int value;
+    private float value;
 
     public enum Field {
         VALUE ("value"),
@@ -59,6 +60,7 @@ public class TransactionEntity extends EntityModelBase<TransactionEntity.Field> 
     }
 
     @Override
+    @Exclude
     public Field[] getDirtyFieldSet() {
         return dirtyFieldSet.toArray(new Field[0]);
     }
@@ -101,7 +103,7 @@ public class TransactionEntity extends EntityModelBase<TransactionEntity.Field> 
         this.sender = sender;
     }
 
-    public int getValue() {
+    public float getValue() {
         return value;
     }
 

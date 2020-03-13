@@ -40,6 +40,14 @@ public class Driver extends User {
         addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
     }
 
+
+    public void deactivateRideRequest(RideRequest rideRequest) {
+        activeRideRequestList.remove(rideRequest.getRideRequestReference());
+        rideRequestList.add(rideRequest.getRideRequestReference());
+        addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
+        addDirtyField(Field.RIDE_REQUEST_LIST);
+    }
+
     // region getters and setters
     public DocumentReference getDriverReference() {
         return driverReference;
