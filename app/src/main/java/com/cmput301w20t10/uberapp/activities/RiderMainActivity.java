@@ -1,5 +1,6 @@
 package com.cmput301w20t10.uberapp.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.cmput301w20t10.uberapp.R;
@@ -12,6 +13,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -26,12 +28,15 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 
 // todo: editable map markers
 
-public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class RiderMainActivity extends BaseActivity implements OnMapReadyCallback {
     // core objects
     private AppBarConfiguration mAppBarConfiguration;
     private GoogleMap mainMap;
@@ -94,19 +99,6 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
         buttonNewRide.setOnClickListener(view -> onClick_NewRide());
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.rider_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
-                || super.onSupportNavigateUp();
-    }
 
     /**
      * Manipulates the map once available.

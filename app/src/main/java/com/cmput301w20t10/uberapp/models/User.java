@@ -17,6 +17,8 @@ public class User {
     private String phoneNumber;
     private int balance;
 
+    public User() {}//default constructor.
+
     // todo: deprecate
     private float rating;
 
