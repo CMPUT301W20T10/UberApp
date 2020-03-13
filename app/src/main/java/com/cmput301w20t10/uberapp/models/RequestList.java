@@ -1,4 +1,4 @@
-package com.cmput301w20t10.uberapp.activities;
+package com.cmput301w20t10.uberapp.models;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -16,9 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.cmput301w20t10.uberapp.R;
-import com.cmput301w20t10.uberapp.models.RideRequest;
-import com.cmput301w20t10.uberapp.models.rideRequestHolder;
-
 
 public class RequestList extends ArrayAdapter<RideRequest> {
 
@@ -37,6 +34,7 @@ public class RequestList extends ArrayAdapter<RideRequest> {
      * Asked by: Ethan Allen, https://stackoverflow.com/users/546509/ethan-allen
      * Answered by: Leonardo Cardoso, https://stackoverflow.com/users/1255990/leonardo-cardoso
      */
+
     public View getView(int position, @Nullable View view, @NonNull ViewGroup parent) {
         rideRequestHolder holder = null;
 
@@ -53,7 +51,6 @@ public class RequestList extends ArrayAdapter<RideRequest> {
             TextView firstName = view.findViewById(R.id.request_first_name);
             TextView lastName = view.findViewById(R.id.request_last_name);
             Button acceptButton = view.findViewById(R.id.accept_request_button);
-
 
             holder = new rideRequestHolder(textViewWrap, username, distance, offer, firstName, lastName, acceptButton);
             holder.setTextViewWrap(textViewWrap);
@@ -75,9 +72,4 @@ public class RequestList extends ArrayAdapter<RideRequest> {
 
         return view;
     }
-//        username.setText(rideRequest.getUsername());
-//        distance.setText(String.format("%.2f", rideRequest.getDistance()) +"km away");
-//        offer.setText("Offer: $" + String.format("%.2f", rideRequest.getOffer()));
-//
-//        return view;
 }

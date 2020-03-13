@@ -6,6 +6,10 @@ import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
 import com.google.firebase.firestore.DocumentReference;
 
+
+/**
+ * WILL LEARN TO USE - Kevin
+ */
 public class RideRequest2 extends EntityModelBase<RideRequest2.Field> {
     private DocumentReference driverReference;
     private DocumentReference riderReference;

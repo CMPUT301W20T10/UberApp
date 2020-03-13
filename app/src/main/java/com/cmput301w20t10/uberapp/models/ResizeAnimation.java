@@ -24,6 +24,15 @@ public class ResizeAnimation extends Animation {
     private ArrayAdapter<RideRequest> mRequestAdapter;
     private RideRequest mRequestItem;
 
+    /**
+     * Animation of expanding and collapsing of listitem
+     * @param requestAdapter
+     * @param rideRequest
+     * @param fromWidth
+     * @param fromHeight
+     * @param toWidth
+     * @param toHeight
+     */
     public ResizeAnimation(ArrayAdapter<RideRequest> requestAdapter, RideRequest rideRequest, float fromWidth, float fromHeight, float toWidth, float toHeight) {
         mToHeight = toHeight;
         mToWidth = toWidth;
@@ -35,6 +44,11 @@ public class ResizeAnimation extends Animation {
         setDuration(200);
     }
 
+    /**
+     * Transformation of listitem
+     * @param interpolatedTime
+     * @param t
+     */
     @Override
     protected void applyTransformation(float interpolatedTime, Transformation t) {
         float height = (mToHeight - mFromHeight) * interpolatedTime + mFromHeight;

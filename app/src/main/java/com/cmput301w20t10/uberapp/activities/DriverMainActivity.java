@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.models.RequestList;
 import com.cmput301w20t10.uberapp.models.ResizeAnimation;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -64,6 +65,7 @@ public class DriverMainActivity extends AppCompatActivity implements OnMapReadyC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_driver_main);
+
         Display display = this.getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
