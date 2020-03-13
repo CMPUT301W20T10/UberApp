@@ -24,7 +24,7 @@ public class BaseActivity extends AppCompatActivity {
 
     private FloatingActionButton fabMenu;
     private FloatingActionButton fabHome;
-    private FloatingActionButton  fabSearch;
+    private FloatingActionButton fabSearch;
     private FloatingActionButton fabProfile;
     private FloatingActionButton fabExit;
     private FloatingActionButton fabHistory;

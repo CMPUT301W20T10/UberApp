@@ -47,7 +47,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class DriverMainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class DriverMainActivity extends BaseActivity implements OnMapReadyCallback {
 
     private GoogleMap mainMap;
     private Location currentLocation;
