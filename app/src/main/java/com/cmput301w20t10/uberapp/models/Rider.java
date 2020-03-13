@@ -33,7 +33,7 @@ public class Rider extends User {
      */
     public void addActiveRequest(RideRequest rideRequest) {
         activeRideRequestList.add(rideRequest.getRideRequestReference());
-        addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
+        addDirtyField(EnumField.ACTIVE_RIDE_REQUEST_LIST);
     }
 
     /**
@@ -44,8 +44,8 @@ public class Rider extends User {
     public void deactivateRideRequest(RideRequest rideRequest) {
         activeRideRequestList.remove(rideRequest.getRideRequestReference());
         rideRequestList.add(rideRequest.getRideRequestReference());
-        addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
-        addDirtyField(Field.RIDE_REQUEST_LIST);
+        addDirtyField(EnumField.ACTIVE_RIDE_REQUEST_LIST);
+        addDirtyField(EnumField.RIDE_REQUEST_LIST);
     }
 
     // region getters and setters
@@ -55,7 +55,7 @@ public class Rider extends User {
     }
 
     public void setRiderReference(DocumentReference riderReference) {
-        addDirtyField(Field.RIDER_REFERENCE);
+        addDirtyField(EnumField.RIDER_REFERENCE);
         this.riderReference = riderReference;
     }
 
@@ -64,7 +64,7 @@ public class Rider extends User {
     }
 
     public void setTransactionList(List<DocumentReference> transactionList) {
-        addDirtyField(Field.TRANSACTION_LIST);
+        addDirtyField(EnumField.TRANSACTION_LIST);
         this.transactionList = transactionList;
     }
 
@@ -73,7 +73,7 @@ public class Rider extends User {
     }
 
     public void setRideRequestList(List<DocumentReference> rideRequestList) {
-        addDirtyField(Field.RIDE_REQUEST_LIST);
+        addDirtyField(EnumField.RIDE_REQUEST_LIST);
         this.rideRequestList = rideRequestList;
     }
 
@@ -82,7 +82,7 @@ public class Rider extends User {
     }
 
     public void setActiveRideRequestList(List<DocumentReference> activeRideRequestList) {
-        addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
+        addDirtyField(EnumField.ACTIVE_RIDE_REQUEST_LIST);
         this.activeRideRequestList = activeRideRequestList;
     }
 
@@ -91,7 +91,7 @@ public class Rider extends User {
     }
 
     public void setBalance(int balance) {
-        addDirtyField(Field.BALANCE);
+        addDirtyField(EnumField.BALANCE);
         this.balance = balance;
     }
     // endregion getters and setters

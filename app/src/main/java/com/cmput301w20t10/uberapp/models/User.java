@@ -7,9 +7,9 @@ import com.google.firebase.firestore.Exclude;
 
 /**
  * This is a data holder class intended to hold the data regarding a user. Drawbacks to this class
- *  involve the security risk of storing the password in a String format
+ * involve the security risk of storing the password in a String format
  */
-public class User extends EntityModelBase<User.Field> {
+public class User extends EntityModelBase<EnumField> {
     private DocumentReference userReference;
     private String username;
     private String password;
@@ -20,12 +20,15 @@ public class User extends EntityModelBase<User.Field> {
 
     private int balance;
 
-    public User() {}//default constructor.
-
     // todo: deprecate
+    @Deprecated
     private float rating;
 
+    public User() {
+    }
+
     // todo: deprecate
+    @Deprecated
     public User(String username,
                 String password,
                 String email,
@@ -40,39 +43,9 @@ public class User extends EntityModelBase<User.Field> {
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.rating = rating;
-    private String image;
-
-    public enum Field {
-        USER_REFERENCE ("userReference"),
-        USERNAME ("username"),
-        PASSWORD ("password"),
-        EMAIL ("email"),
-        FIRST_NAME ("firstName"),
-        LAST_NAME ("lastName"),
-        PHONE_NUMBER ("phoneNumber"),
-        IMAGE ("image"),
-        // shadowed
-        DRIVER_REFERENCE ("driverReference"),
-        RIDER_REFERENCE ("riderReference"),
-        // children fields
-        TRANSACTION_LIST("paymentList"),
-        RIDE_REQUEST_LIST ("rideRequest"),
-        ACTIVE_RIDE_REQUEST_LIST ("activeRideRequestList"),
-        // driver field
-        RATING ("rating"),
-        // rider field
-        BALANCE ("balance");
-
-        private String stringValue;
-
-        Field(String fieldName) {
-            this.stringValue = fieldName;
-        }
-
-        public String toString() {
-            return stringValue;
-        }
     }
+
+    private String image;
 
     public User(String username,
                 String password,
@@ -118,8 +91,8 @@ public class User extends EntityModelBase<User.Field> {
 
     @Override
     @Exclude
-    public Field[] getDirtyFieldSet() {
-        return dirtyFieldSet.toArray(new Field[0]);
+    public EnumField[] getDirtyFieldSet() {
+        return dirtyFieldSet.toArray(new EnumField[0]);
     }
 
     // region setter and getter
@@ -128,7 +101,7 @@ public class User extends EntityModelBase<User.Field> {
     }
 
     public void setUserReference(DocumentReference userReference) {
-        addDirtyField(Field.USER_REFERENCE);
+        addDirtyField(EnumField.USER_REFERENCE);
         this.userReference = userReference;
     }
 
@@ -137,7 +110,7 @@ public class User extends EntityModelBase<User.Field> {
     }
 
     public void setUsername(String username) {
-        addDirtyField(Field.USERNAME);
+        addDirtyField(EnumField.USERNAME);
         this.username = username;
     }
 
@@ -146,7 +119,7 @@ public class User extends EntityModelBase<User.Field> {
     }
 
     public void setPassword(String password) {
-        addDirtyField(Field.PASSWORD);
+        addDirtyField(EnumField.PASSWORD);
         this.password = password;
     }
 
@@ -155,7 +128,7 @@ public class User extends EntityModelBase<User.Field> {
     }
 
     public void setEmail(String email) {
-        addDirtyField(Field.EMAIL);
+        addDirtyField(EnumField.EMAIL);
         this.email = email;
     }
 
@@ -164,7 +137,7 @@ public class User extends EntityModelBase<User.Field> {
     }
 
     public void setFirstName(String firstName) {
-        addDirtyField(Field.FIRST_NAME);
+        addDirtyField(EnumField.FIRST_NAME);
         this.firstName = firstName;
     }
 
@@ -173,7 +146,7 @@ public class User extends EntityModelBase<User.Field> {
     }
 
     public void setLastName(String lastName) {
-        addDirtyField(Field.LAST_NAME);
+        addDirtyField(EnumField.LAST_NAME);
         this.lastName = lastName;
     }
 
@@ -182,7 +155,7 @@ public class User extends EntityModelBase<User.Field> {
     }
 
     public void setPhoneNumber(String phoneNumber) {
-        addDirtyField(Field.PHONE_NUMBER);
+        addDirtyField(EnumField.PHONE_NUMBER);
         this.phoneNumber = phoneNumber;
     }
 
@@ -191,7 +164,7 @@ public class User extends EntityModelBase<User.Field> {
     }
 
     public void setImage(String image) {
-        addDirtyField(Field.IMAGE);
+        addDirtyField(EnumField.IMAGE);
         this.image = image;
     }
     // endregion setter and getter

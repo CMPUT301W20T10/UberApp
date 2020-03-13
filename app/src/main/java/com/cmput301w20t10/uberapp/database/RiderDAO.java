@@ -2,9 +2,15 @@ package com.cmput301w20t10.uberapp.database;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.MutableLiveData;
+
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
+import com.cmput301w20t10.uberapp.models.EnumField;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -13,11 +19,6 @@ import com.google.firebase.firestore.DocumentReference;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.MutableLiveData;
 
 import static android.content.ContentValues.TAG;
 
@@ -208,7 +209,7 @@ public class RiderDAO {
         if (reference != null) {
             final Map<String, Object> dirtyPairMap = new HashMap<>();
 
-            for (Rider.Field field:
+            for (EnumField field :
                     rider.getDirtyFieldSet()) {
                 Object value = null;
 
