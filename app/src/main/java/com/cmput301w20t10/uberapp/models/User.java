@@ -17,6 +17,29 @@ public class User extends EntityModelBase<User.Field> {
     private String firstName;
     private String lastName;
     private String phoneNumber;
+
+    private int balance;
+
+    public User() {}//default constructor.
+
+    // todo: deprecate
+    private float rating;
+
+    // todo: deprecate
+    public User(String username,
+                String password,
+                String email,
+                String firstName,
+                String lastName,
+                String phoneNumber,
+                float rating) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.rating = rating;
     private String image;
 
     public enum Field {

@@ -50,8 +50,18 @@
             android:label="@string/title_activity_driver_main_map" />
         <activity
             android:name=".activities.RiderMainActivity"
-            android:label="@string/title_activity_driver_main"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:label="RiderMainActivity"/>
+<!--            android:theme="@style/AppTheme.NoActionBar" -->
+        <activity
+            android:name=".activities.ProfilePage"
+            android:label="ProfilePage"/>
+<!--            android:theme="@style/AppTheme.NoActionBar"-->
+        <activity
+            android:name=".activities.SearchProfile"
+            android:label="SearchProfile" />
+        <activity
+            android:name=".activities.EditProfile"
+            android:label="EditProfile"/>
     </application>
 
 </manifest>
