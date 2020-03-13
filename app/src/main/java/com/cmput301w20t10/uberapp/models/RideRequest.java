@@ -1,134 +1,155 @@
 package com.cmput301w20t10.uberapp.models;
 
+import java.util.Date;
 
-import android.widget.ImageView;
-
+import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
+import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
 import com.google.firebase.firestore.DocumentReference;
 
-public class RideRequest implements Comparable<RideRequest> {
-    private String username;
-    private Float distance;
-    private Float offer;
-    private String firstName;
-    private String lastName;
-    private ImageView profilePic;
-    private DocumentReference userReference;
 
-    private int collapsedHeight, currentHeight, expandedHeight;
-    private boolean isOpen;
-    private rideRequestHolder holder;
+/**
+ * WILL LEARN TO USE - Kevin
+ */
+public class RideRequest extends EntityModelBase<RideRequest.Field> {
+    private DocumentReference driverReference;
+    private DocumentReference riderReference;
+    private DocumentReference transactionReference;
+    private DocumentReference unpairedReference;
 
-    public RideRequest(String username, Float distance, Float offer, DocumentReference userReference, String firstName, String lastName,
-                int collapsedHeight, int currentHeight, int expandedHeight) {
-        this.username = username;
-        this.distance = distance;
-        this.offer = offer;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.userReference = userReference;
-        this.collapsedHeight = collapsedHeight;
-        this.currentHeight = currentHeight;
-        this.expandedHeight = expandedHeight;
-        this.isOpen = false;
+    private DocumentReference rideRequestReference;
+    private Route route;
+    private State state;
+    private int fareOffer;
+    private Date timestamp;
+
+    public enum State {
+        Active,
+        DriverFound,
+        RiderAccepted,
+        RideCompleted,
+        TransactionFinished,
+        Cancelled
     }
 
-    public String getUsername() {
-        return username;
+    public enum Field {
+        DRIVER_REFERENCE ("driverReference"),
+        RIDER_REFERENCE ("riderReference"),
+        TRANSACTION_REFERENCE("transactionReference"),
+        RIDE_REQUEST_REFERENCE ("rideRequestReference"),
+        ROUTE ("route"),
+        STATE ("state"),
+        TIMESTAMP ("timestamp"),
+        UNPAIRED_REFERENCE ("unpairedReference"),
+        FARE_OFFER ("fareOffer");
+
+        private String stringValue;
+
+        Field(String fieldName) {
+            this.stringValue = fieldName;
+        }
+
+        public String toString() {
+            return stringValue;
+        }
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public RideRequest(RideRequestEntity entity) {
+        this.driverReference = entity.getDriverReference();
+        this.riderReference = entity.getRiderReference();
+        this.transactionReference = entity.getTransactionReference();
+        this.rideRequestReference = entity.getRideRequestReference();
+        this.route = new Route(entity.getStartingPosition(), entity.getDestination());
+        this.state = State.values()[entity.getState()];
+        this.timestamp = entity.getTimestamp().toDate();
+        this.fareOffer = entity.getFareOffer();
+        this.unpairedReference = entity.getUnpairedReference();
     }
 
-    public Float getDistance() {
-        return distance;
+    @Override
+    public Field[] getDirtyFieldSet() {
+        return dirtyFieldSet.toArray(new Field[0]);
     }
 
-    public void setDistance(Float distance) {
-        this.distance = distance;
+    // region getters and setters
+    public DocumentReference getRideRequestReference() {
+        return rideRequestReference;
     }
 
-    public Float getOffer() {
-        return offer;
+    public void setRideRequestReference(DocumentReference rideRequestReference) {
+        addDirtyField(Field.RIDE_REQUEST_REFERENCE);
+        this.rideRequestReference = rideRequestReference;
     }
 
-    public void setOffer(Float offer) {
-        this.offer = offer;
+    public DocumentReference getRiderReference() {
+        return riderReference;
     }
 
-    public ImageView getProfilePic() {
-        return profilePic;
+    public void setRiderReference(DocumentReference riderReference) {
+        addDirtyField(Field.RIDER_REFERENCE);
+        this.riderReference = riderReference;
+    }
+    public DocumentReference getDriverReference() {
+        return driverReference;
     }
 
-    public void setProfilePic(ImageView profilePic) {
-        this.profilePic = profilePic;
+    public void setDriverReference(DocumentReference driverReference) {
+        addDirtyField(Field.DRIVER_REFERENCE);
+        this.driverReference = driverReference;
     }
 
-    public DocumentReference getUserReference() {
-        return userReference;
+    public DocumentReference getTransactionReference() {
+        return transactionReference;
     }
 
-    public void setUserReference(DocumentReference userReference) {
-        this.userReference = userReference;
+    public void setTransactionReference(DocumentReference transactionReference) {
+        addDirtyField(Field.TRANSACTION_REFERENCE);
+        this.transactionReference = transactionReference;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public Route getRoute() {
+        return route;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setRoute(Route route) {
+        addDirtyField(Field.ROUTE);
+        this.route = route;
     }
 
-    public String getLastName() {
-        return lastName;
+    public State getState() {
+        return state;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setState(State state) {
+        addDirtyField(Field.STATE);
+        this.state = state;
     }
 
-    public int getCollapsedHeight() {
-        return collapsedHeight;
+    public int getFareOffer() {
+        return fareOffer;
     }
 
-    public void setCollapsedHeight(int collapsedHeight) {
-        this.collapsedHeight = collapsedHeight;
+    public void setFareOffer(int fareOffer) {
+        addDirtyField(Field.FARE_OFFER);
+        this.fareOffer = fareOffer;
     }
 
-    public int getCurrentHeight() {
-        return currentHeight;
+    public Date getTimestamp() {
+        return timestamp;
     }
 
-    public void setCurrentHeight(int currentHeight) {
-        this.currentHeight = currentHeight;
+    public void setTimestamp(Date timestamp) {
+        addDirtyField(Field.TIMESTAMP);
+        this.timestamp = timestamp;
     }
 
-    public int getExpandedHeight() {
-        return expandedHeight;
+    public DocumentReference getUnpairedReference() {
+        return unpairedReference;
     }
 
-    public void setExpandedHeight(int expandedHeight) {
-        this.expandedHeight = expandedHeight;
+    public void setUnpairedReference(DocumentReference unpairedReference) {
+        addDirtyField(Field.UNPAIRED_REFERENCE);
+        this.unpairedReference = unpairedReference;
     }
+    // endregion getters and setters
 
-    public boolean isOpen() {
-        return isOpen;
-    }
-
-    public void setOpen(boolean open) {
-        isOpen = open;
-    }
-
-    public rideRequestHolder getHolder() {
-        return holder;
-    }
-
-    public void setHolder(rideRequestHolder holder) {
-        this.holder = holder;
-    }
-
-    public int compareTo(RideRequest rideRequest) {
-        return distance.compareTo(rideRequest.distance);
-    }
 }

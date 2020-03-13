@@ -21,8 +21,8 @@ public class ResizeAnimation extends Animation {
     private float mToWidth;
     private float mFromWidth;
 
-    private ArrayAdapter<RideRequest> mRequestAdapter;
-    private RideRequest mRequestItem;
+    private ArrayAdapter<RideRequest_old> mRequestAdapter;
+    private RideRequest_old mRequestItem;
 
     /**
      * Animation of expanding and collapsing of listitem
@@ -33,7 +33,7 @@ public class ResizeAnimation extends Animation {
      * @param toWidth
      * @param toHeight
      */
-    public ResizeAnimation(ArrayAdapter<RideRequest> requestAdapter, RideRequest rideRequest, float fromWidth, float fromHeight, float toWidth, float toHeight) {
+    public ResizeAnimation(ArrayAdapter<RideRequest_old> requestAdapter, RideRequest_old rideRequest, float fromWidth, float fromHeight, float toWidth, float toHeight) {
         mToHeight = toHeight;
         mToWidth = toWidth;
         mFromHeight = fromHeight;

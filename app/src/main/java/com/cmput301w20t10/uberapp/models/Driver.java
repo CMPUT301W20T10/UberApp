@@ -35,13 +35,13 @@ public class Driver extends User {
 
     }
 
-    public void addActiveRideRequest(RideRequest2 rideRequest) {
+    public void addActiveRideRequest(RideRequest rideRequest) {
         activeRideRequestList.add(rideRequest.getRideRequestReference());
         addDirtyField(EnumField.ACTIVE_RIDE_REQUEST_LIST);
     }
 
 
-    public void deactivateRideRequest(RideRequest2 rideRequest) {
+    public void deactivateRideRequest(RideRequest rideRequest) {
         activeRideRequestList.remove(rideRequest.getRideRequestReference());
         rideRequestList.add(rideRequest.getRideRequestReference());
         addDirtyField(EnumField.ACTIVE_RIDE_REQUEST_LIST);

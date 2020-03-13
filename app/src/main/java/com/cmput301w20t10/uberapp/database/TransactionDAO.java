@@ -7,7 +7,7 @@ import com.cmput301w20t10.uberapp.database.entity.TransactionEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Driver;
-import com.cmput301w20t10.uberapp.models.RideRequest2;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Transaction;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.User;
@@ -40,7 +40,7 @@ public class TransactionDAO extends DAOBase<TransactionEntity> {
     }
 
     public MutableLiveData<Transaction> createTransaction(LifecycleOwner owner,
-                                                          RideRequest2 rideRequest,
+                                                          RideRequest rideRequest,
                                                           int value) {
         CreateTransactionForRideTask task = new CreateTransactionForRideTask(owner, rideRequest, value);
         return task.run();
@@ -227,7 +227,7 @@ class CreateTransactionTask extends GetTaskSequencer<Transaction> {
 class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
     final static String LOC = "Tomate: TransactionDAO: CreateTransactionForRideTask: ";
 
-    private final RideRequest2 rideRequest;
+    private final RideRequest rideRequest;
     private final LifecycleOwner owner;
     private final int value;
 
@@ -237,7 +237,7 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
     RiderDAO riderDAO;
     DriverDAO driverDAO;
 
-    CreateTransactionForRideTask(LifecycleOwner owner, RideRequest2 rideRequest, int value) {
+    CreateTransactionForRideTask(LifecycleOwner owner, RideRequest rideRequest, int value) {
         this.value = value;
         this.owner = owner;
         this.rideRequest = rideRequest;
@@ -307,7 +307,7 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
     }
 
     private void updateRideRequest() {
-        rideRequest.setState(RideRequest2.State.TransactionFinished);
+        rideRequest.setState(RideRequest.State.TransactionFinished);
         RideRequestDAO rideRequestDAO = new RideRequestDAO();
         rideRequestDAO.saveModel(rideRequest)
         .addOnCompleteListener(task -> {

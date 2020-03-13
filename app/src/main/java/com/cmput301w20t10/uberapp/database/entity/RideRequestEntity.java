@@ -3,7 +3,7 @@ package com.cmput301w20t10.uberapp.database.entity;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
-import com.cmput301w20t10.uberapp.models.RideRequest2;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.google.firebase.Timestamp;
@@ -79,9 +79,9 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
         this.timestamp = new Timestamp(new Date());
     }
 
-    public RideRequestEntity(RideRequest2 model) {
+    public RideRequestEntity(RideRequest model) {
         // get dirty fields
-        for (RideRequest2.Field otherField :
+        for (RideRequest.Field otherField :
                 model.getDirtyFieldSet()) {
             switch (otherField) {
                 case DRIVER_REFERENCE:

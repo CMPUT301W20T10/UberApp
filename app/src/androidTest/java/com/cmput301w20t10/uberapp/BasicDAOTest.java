@@ -12,7 +12,7 @@ import com.cmput301w20t10.uberapp.database.RideRequestDAO;
 import com.cmput301w20t10.uberapp.database.TransactionDAO;
 import com.cmput301w20t10.uberapp.database.UnpairedRideListDAO;
 import com.cmput301w20t10.uberapp.models.Driver;
-import com.cmput301w20t10.uberapp.models.RideRequest2;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.cmput301w20t10.uberapp.models.Transaction;
@@ -210,26 +210,26 @@ public class BasicDAOTest {
         createRideRequest();
     }
 
-    private RideRequest2 createRideRequest() throws InterruptedException {
+    private RideRequest createRideRequest() throws InterruptedException {
         // Initialize
         Rider rider = loginAsRider();
         assertNotNull(rider);
-        AtomicReference<RideRequest2> rideRequestAtomicReference = new AtomicReference<>();
+        AtomicReference<RideRequest> rideRequestAtomicReference = new AtomicReference<>();
 
         // get data
         final Object syncObject = new Object();
 
         Runnable runnable = () -> {
-            Observer<RideRequest2> observer = new AssertNullObserver<RideRequest2>(syncObject) {
+            Observer<RideRequest> observer = new AssertNullObserver<RideRequest>(syncObject) {
                 @Override
-                public void onChanged(RideRequest2 rideRequest) {
+                public void onChanged(RideRequest rideRequest) {
                     rideRequestAtomicReference.set(rideRequest);
                     super.onChanged(rideRequest);
                 }
             };
             Route route = new Route(new GeoPoint(0,0), new GeoPoint(10, 10));
             RideRequestDAO dao = databaseManager.getRideRequestDAO();
-            MutableLiveData<RideRequest2> liveData = dao.createRideRequest(rider, route, 10);
+            MutableLiveData<RideRequest> liveData = dao.createRideRequest(rider, route, 10);
             liveData.observe(lifecycleOwner, observer);
         };
 
@@ -251,16 +251,16 @@ public class BasicDAOTest {
         final Object syncObject = new Object();
 
         Runnable runnable = () -> {
-            Observer<List<RideRequest2>> observer = new AssertNullObserver<List<RideRequest2>>(syncObject) {
+            Observer<List<RideRequest>> observer = new AssertNullObserver<List<RideRequest>>(syncObject) {
                 @Override
-                public void onChanged(List<RideRequest2> rideRequests) {
+                public void onChanged(List<RideRequest> rideRequests) {
                     if (rideRequests.size() > 0) {
                         super.onChanged(rideRequests);
                     }
                 }
             };
             UnpairedRideListDAO dao = new UnpairedRideListDAO();
-            MutableLiveData<List<RideRequest2>> liveData = dao.getAllUnpairedRideRequest();
+            MutableLiveData<List<RideRequest>> liveData = dao.getAllUnpairedRideRequest();
             liveData.observe(lifecycleOwner, observer);
         };
 
@@ -279,16 +279,16 @@ public class BasicDAOTest {
         final Object syncObject = new Object();
 
         Runnable runnable = () -> {
-            Observer<List<RideRequest2>> observer = new AssertNullObserver<List<RideRequest2>>(syncObject) {
+            Observer<List<RideRequest>> observer = new AssertNullObserver<List<RideRequest>>(syncObject) {
                 @Override
-                public void onChanged(List<RideRequest2> rideRequests) {
+                public void onChanged(List<RideRequest> rideRequests) {
                     if (rideRequests.size() > 1) {
                         super.onChanged(rideRequests);
                     }
                 }
             };
             RideRequestDAO dao = databaseManager.getRideRequestDAO();
-            MutableLiveData<List<RideRequest2>> liveData = dao.getAllActiveRideRequest(rider);
+            MutableLiveData<List<RideRequest>> liveData = dao.getAllActiveRideRequest(rider);
             liveData.observe(lifecycleOwner, observer);
         };
 
@@ -298,7 +298,7 @@ public class BasicDAOTest {
     @Test
     public void cancelRideByRiderTest() throws InterruptedException {
         // Initialize
-        RideRequest2 rideRequest = createRideRequest();
+        RideRequest rideRequest = createRideRequest();
 
         final Object syncObject = new Object();
 
@@ -321,7 +321,7 @@ public class BasicDAOTest {
     @Test
     public void getRiderFromRequestTest() throws InterruptedException {
         // Initialize
-        RideRequest2 rideRequest = createRideRequest();
+        RideRequest rideRequest = createRideRequest();
 
         final Object syncObject = new Object();
 
@@ -340,9 +340,9 @@ public class BasicDAOTest {
         driverAcceptsRequest();
     }
 
-    public RideRequest2 driverAcceptsRequest() throws InterruptedException {
+    public RideRequest driverAcceptsRequest() throws InterruptedException {
         Driver driver = loginAsDriver();
-        RideRequest2 rideRequest = createRideRequest();
+        RideRequest rideRequest = createRideRequest();
 
         // get data
         final Object syncObject = new Object();
@@ -374,16 +374,16 @@ public class BasicDAOTest {
         final Object syncObject = new Object();
 
         Runnable runnable = () -> {
-            Observer<List<RideRequest2>> observer = new AssertNullObserver<List<RideRequest2>>(syncObject) {
+            Observer<List<RideRequest>> observer = new AssertNullObserver<List<RideRequest>>(syncObject) {
                 @Override
-                public void onChanged(List<RideRequest2> rideRequests) {
+                public void onChanged(List<RideRequest> rideRequests) {
                     if (rideRequests.size() > 1) {
                         super.onChanged(rideRequests);
                     }
                 }
             };
             RideRequestDAO dao = databaseManager.getRideRequestDAO();
-            MutableLiveData<List<RideRequest2>> liveData = dao.getAllActiveRideRequest(driver);
+            MutableLiveData<List<RideRequest>> liveData = dao.getAllActiveRideRequest(driver);
             liveData.observe(lifecycleOwner, observer);
         };
 
@@ -399,8 +399,8 @@ public class BasicDAOTest {
         riderAcceptsDriver();
     }
 
-    public RideRequest2 riderAcceptsDriver() throws InterruptedException {
-        RideRequest2 rideRequest = driverAcceptsRequest();
+    public RideRequest riderAcceptsDriver() throws InterruptedException {
+        RideRequest rideRequest = driverAcceptsRequest();
         Rider rider = loginAsRider();
 
         // get data
@@ -428,8 +428,8 @@ public class BasicDAOTest {
         riderConfirmCompletion();
     }
 
-    public RideRequest2 riderConfirmCompletion() throws InterruptedException {
-        RideRequest2 rideRequest = riderAcceptsDriver();
+    public RideRequest riderConfirmCompletion() throws InterruptedException {
+        RideRequest rideRequest = riderAcceptsDriver();
 
         Rider rider = loginAsRider();
 
@@ -450,7 +450,7 @@ public class BasicDAOTest {
 
     @Test
     public void createTransactionTest() throws InterruptedException {
-        RideRequest2 rideRequest = riderConfirmCompletion();
+        RideRequest rideRequest = riderConfirmCompletion();
 
         // todo: change to get user instead of logging in
         Rider rider = loginAsRider();

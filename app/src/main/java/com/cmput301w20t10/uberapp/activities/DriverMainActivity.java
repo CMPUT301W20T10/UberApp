@@ -24,7 +24,7 @@ import androidx.core.app.ActivityCompat;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.models.RequestList;
 import com.cmput301w20t10.uberapp.models.ResizeAnimation;
-import com.cmput301w20t10.uberapp.models.RideRequest;
+import com.cmput301w20t10.uberapp.models.RideRequest_old;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -54,8 +54,8 @@ public class DriverMainActivity extends AppCompatActivity implements OnMapReadyC
     private FusedLocationProviderClient client;
 
     ListView requestList;
-    ArrayAdapter<RideRequest> requestAdapter;
-    ArrayList<RideRequest> requestDataList;
+    ArrayAdapter<RideRequest_old> requestAdapter;
+    ArrayList<RideRequest_old> requestDataList;
 
     FirebaseFirestore db;
 
@@ -132,7 +132,7 @@ public class DriverMainActivity extends AppCompatActivity implements OnMapReadyC
                                                             String username = (String) usersSnapshot.get("username");
                                                             String firstName = (String) usersSnapshot.get("firstName");
                                                             String lastName = (String) usersSnapshot.get("lastName");
-                                                            requestDataList.add((new RideRequest(username, distance[0] / 1000, offer, usersReference, firstName, lastName,
+                                                            requestDataList.add((new RideRequest_old(username, distance[0] / 1000, offer, usersReference, firstName, lastName,
                                                                     collapsedHeight, collapsedHeight, expandedHeight)));
                                                             Collections.sort(requestDataList);
                                                             requestAdapter = new RequestList(DriverMainActivity.this, requestDataList);
@@ -180,7 +180,7 @@ public class DriverMainActivity extends AppCompatActivity implements OnMapReadyC
      * Answered by: Leonardo Cardoso, https://stackoverflow.com/users/1255990/leonardo-cardoso
      */
     private void toggle(View view, final int position) {
-        RideRequest rideRequest = requestDataList.get(position);
+        RideRequest_old rideRequest = requestDataList.get(position);
         rideRequest.getHolder().setTextViewWrap((LinearLayout) view);
 
         int fromHeight = 0;
@@ -209,7 +209,7 @@ public class DriverMainActivity extends AppCompatActivity implements OnMapReadyC
      */
     private void closeAll() {
         int i = 0;
-        for (RideRequest rideRequest : requestDataList) {
+        for (RideRequest_old rideRequest : requestDataList) {
             if (rideRequest.isOpen()) {
                 toggleAnimation(rideRequest, i, rideRequest.getExpandedHeight(), rideRequest.getCollapsedHeight(), false);
             }
@@ -223,7 +223,7 @@ public class DriverMainActivity extends AppCompatActivity implements OnMapReadyC
      * Asked by: Ethan Allen, https://stackoverflow.com/users/546509/ethan-allen
      * Answered by: Leonardo Cardoso, https://stackoverflow.com/users/1255990/leonardo-cardoso
      */
-    private void toggleAnimation(final RideRequest rideRequest, final int position, final int fromHeight, final int toHeight, final boolean goToItem) {
+    private void toggleAnimation(final RideRequest_old rideRequest, final int position, final int fromHeight, final int toHeight, final boolean goToItem) {
         ResizeAnimation resizeAnimation = new ResizeAnimation(requestAdapter, rideRequest, 0, fromHeight, 0, toHeight);
         resizeAnimation.setAnimationListener(new Animation.AnimationListener() {
 

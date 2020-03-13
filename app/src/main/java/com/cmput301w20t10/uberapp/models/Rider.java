@@ -31,7 +31,7 @@ public class Rider extends User {
      *
      * @param rideRequest
      */
-    public void addActiveRequest(RideRequest2 rideRequest) {
+    public void addActiveRequest(RideRequest rideRequest) {
         activeRideRequestList.add(rideRequest.getRideRequestReference());
         addDirtyField(EnumField.ACTIVE_RIDE_REQUEST_LIST);
     }
@@ -41,7 +41,7 @@ public class Rider extends User {
      *
      * @param rideRequest
      */
-    public void deactivateRideRequest(RideRequest2 rideRequest) {
+    public void deactivateRideRequest(RideRequest rideRequest) {
         activeRideRequestList.remove(rideRequest.getRideRequestReference());
         rideRequestList.add(rideRequest.getRideRequestReference());
         addDirtyField(EnumField.ACTIVE_RIDE_REQUEST_LIST);

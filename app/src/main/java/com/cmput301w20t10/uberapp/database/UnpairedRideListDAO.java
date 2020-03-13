@@ -7,7 +7,7 @@ import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UnpairedRideEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
-import com.cmput301w20t10.uberapp.models.RideRequest2;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -73,35 +73,35 @@ public class UnpairedRideListDAO {
      *     <ul><b>Null:</b> Search was unsuccessful.</ul>
      * </li>
      */
-    public MutableLiveData<List<RideRequest2>> getAllUnpairedRideRequest() {
+    public MutableLiveData<List<RideRequest>> getAllUnpairedRideRequest() {
         final GetAllUnpairedRideRequestTask task = new GetAllUnpairedRideRequestTask();
         return task.run();
     }
 
-    public MutableLiveData<Boolean> cancelRideRequest(RideRequest2 rideRequest) {
+    public MutableLiveData<Boolean> cancelRideRequest(RideRequest rideRequest) {
         CancelUnpairedRideRequestTask task = new CancelUnpairedRideRequestTask(rideRequest, CancelUnpairedRideRequestTask.Type.Cancel);
         return task.run();
     }
 
-    public MutableLiveData<Boolean> removeRideRequest(RideRequest2 rideRequest) {
+    public MutableLiveData<Boolean> removeRideRequest(RideRequest rideRequest) {
         CancelUnpairedRideRequestTask task = new CancelUnpairedRideRequestTask(rideRequest, CancelUnpairedRideRequestTask.Type.Remove);
         return task.run();
     }
 }
 
-class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest2>> {
+class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
     final static String LOC = "UnpairedRideListDAO: GetAllUnpairedRideRequestTask: ";
 
     private List<DocumentSnapshot> snapshotList;
 
     @Override
-    public MutableLiveData<List<RideRequest2>> run() {
+    public MutableLiveData<List<RideRequest>> run() {
         getUnpairedCollection();
         return liveData;
     }
 
     private void getUnpairedCollection() {
-        final MutableLiveData<List<RideRequest2>> rideRequestMutableLiveData = new MutableLiveData<>();
+        final MutableLiveData<List<RideRequest>> rideRequestMutableLiveData = new MutableLiveData<>();
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection(UnpairedRideListDAO.COLLECTION)
                 .get()
@@ -117,7 +117,7 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest2>>
     }
 
     private void convertToRideRequestList() {
-        List<RideRequest2> rideRequestList = new ArrayList<>();
+        List<RideRequest> rideRequestList = new ArrayList<>();
         liveData.setValue(rideRequestList);
 
         for (DocumentSnapshot snapshot : snapshotList) {
@@ -135,7 +135,7 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest2>>
                             Log.d(TAG, LOC + "convertToRideRequestList: " + task.getResult().getData().toString());
                             RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
                             assert rideRequestEntity != null;
-                            rideRequestList.add(new RideRequest2(rideRequestEntity));
+                            rideRequestList.add(new RideRequest(rideRequestEntity));
                             liveData.setValue(rideRequestList);
                         } else {
                             Log.e(TAG, "onComplete: ", task.getException());
@@ -148,7 +148,7 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest2>>
 class CancelUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
     static final String LOC = "Tomate: UnpairedRideListDAO: RemoveRiderRequestTask: ";
 
-    private final RideRequest2 rideRequest;
+    private final RideRequest rideRequest;
     private DocumentReference documentReference;
     private final Type type;
 
@@ -157,7 +157,7 @@ class CancelUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
         Remove // only remove unpaired reference
     }
 
-    CancelUnpairedRideRequestTask(RideRequest2 rideRequest, Type type) {
+    CancelUnpairedRideRequestTask(RideRequest rideRequest, Type type) {
         this.rideRequest = rideRequest;
         this.type = type;
     }

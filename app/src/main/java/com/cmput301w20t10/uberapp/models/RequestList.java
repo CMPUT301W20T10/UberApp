@@ -17,12 +17,12 @@ import androidx.annotation.Nullable;
 
 import com.cmput301w20t10.uberapp.R;
 
-public class RequestList extends ArrayAdapter<RideRequest> {
+public class RequestList extends ArrayAdapter<RideRequest_old> {
 
-    private ArrayList<RideRequest> rideRequests;
+    private ArrayList<RideRequest_old> rideRequests;
     private Context context;
 
-    public RequestList(Context context, ArrayList<RideRequest> rideRequests) {
+    public RequestList(Context context, ArrayList<RideRequest_old> rideRequests) {
         super(context,0,rideRequests);
         this.rideRequests = rideRequests;
         this.context = context;
@@ -38,7 +38,7 @@ public class RequestList extends ArrayAdapter<RideRequest> {
     public View getView(int position, @Nullable View view, @NonNull ViewGroup parent) {
         rideRequestHolder holder = null;
 
-        RideRequest rideRequest = rideRequests.get(position);
+        RideRequest_old rideRequest = rideRequests.get(position);
 
         if (view == null){
             LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

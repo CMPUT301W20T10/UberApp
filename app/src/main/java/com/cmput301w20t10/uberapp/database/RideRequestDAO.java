@@ -6,7 +6,7 @@ import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Driver;
-import com.cmput301w20t10.uberapp.models.RideRequest2;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.google.android.gms.tasks.Task;
@@ -59,16 +59,16 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
      *     <ul><b>Null:</b> Registration failed.</ul>
      * </li>
      */
-    public MutableLiveData<RideRequest2> createRideRequest(@NonNull Rider rider,
-                                                           Route route,
-                                                           int fareOffer) {
+    public MutableLiveData<RideRequest> createRideRequest(@NonNull Rider rider,
+                                                          Route route,
+                                                          int fareOffer) {
         CreateRideRequestTask task = new CreateRideRequestTask(rider, route, fareOffer);
         return task.run();
     }
 
-    public MutableLiveData<List<RideRequest2>> getAllActiveRideRequest(Rider rider) {
-        MutableLiveData<List<RideRequest2>> mutableLiveData = new MutableLiveData<>();
-        List<RideRequest2> rideList = new ArrayList<>();
+    public MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Rider rider) {
+        MutableLiveData<List<RideRequest>> mutableLiveData = new MutableLiveData<>();
+        List<RideRequest> rideList = new ArrayList<>();
         mutableLiveData.setValue(rideList);
 
         for (DocumentReference reference :
@@ -79,7 +79,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
                             RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
 
                             if (rideRequestEntity != null) {
-                                rideList.add(new RideRequest2(rideRequestEntity));
+                                rideList.add(new RideRequest(rideRequestEntity));
                                 mutableLiveData.setValue(rideList);
                             } else {
                                 Log.e(TAG, "onComplete: ", task.getException());
@@ -165,29 +165,29 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
         return task;
     }
 
-    public MutableLiveData<Boolean> cancelRequest(final RideRequest2 rideRequest,
+    public MutableLiveData<Boolean> cancelRequest(final RideRequest rideRequest,
                                                   final LifecycleOwner owner) {
         CancelRideRequestTask task = new CancelRideRequestTask(rideRequest, owner);
         return task.run();
     }
 
-    public MutableLiveData<Rider> getRiderForRequest(final RideRequest2 rideRequest) {
+    public MutableLiveData<Rider> getRiderForRequest(final RideRequest rideRequest) {
         RiderDAO riderDAO = new RiderDAO();
         return riderDAO.getRiderFromRiderReference(rideRequest.getRiderReference());
     }
 
-    public Task<Void> saveModel(final RideRequest2 rideRequest) {
+    public Task<Void> saveModel(final RideRequest rideRequest) {
         return saveEntity(new RideRequestEntity(rideRequest));
     }
 
-    public MutableLiveData<Boolean> acceptRequest(RideRequest2 rideRequest, Driver driver, LifecycleOwner owner) {
+    public MutableLiveData<Boolean> acceptRequest(RideRequest rideRequest, Driver driver, LifecycleOwner owner) {
         DriverAcceptRequestTask task = new DriverAcceptRequestTask(rideRequest, driver, owner);
         return task.run();
     }
 
-    public MutableLiveData<List<RideRequest2>> getAllActiveRideRequest(Driver driver) {
-        MutableLiveData<List<RideRequest2>> mutableLiveData = new MutableLiveData<>();
-        List<RideRequest2> rideList = new ArrayList<>();
+    public MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Driver driver) {
+        MutableLiveData<List<RideRequest>> mutableLiveData = new MutableLiveData<>();
+        List<RideRequest> rideList = new ArrayList<>();
         mutableLiveData.setValue(rideList);
 
         for (DocumentReference reference :
@@ -198,7 +198,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
                             RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
 
                             if (rideRequestEntity != null) {
-                                rideList.add(new RideRequest2(rideRequestEntity));
+                                rideList.add(new RideRequest(rideRequestEntity));
                                 mutableLiveData.setValue(rideList);
                             } else {
                                 Log.e(TAG, "onComplete: ", task.getException());
@@ -212,18 +212,18 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
         return mutableLiveData;
     }
 
-    public MutableLiveData<Boolean> acceptRideFromDriver(RideRequest2 rideRequest, Rider rider) {
+    public MutableLiveData<Boolean> acceptRideFromDriver(RideRequest rideRequest, Rider rider) {
         RiderAcceptsRideFromDriverTask task = new RiderAcceptsRideFromDriverTask(rideRequest, rider);
         return task.run();
     }
 
-    public MutableLiveData<Boolean> confirmRideCompletion(RideRequest2 rideRequest, Rider rider) {
+    public MutableLiveData<Boolean> confirmRideCompletion(RideRequest rideRequest, Rider rider) {
         RiderConfirmsCompletionTask task = new RiderConfirmsCompletionTask(rider, rideRequest);
         return task.run();
     }
 }
 
-class CreateRideRequestTask extends GetTaskSequencer<RideRequest2> {
+class CreateRideRequestTask extends GetTaskSequencer<RideRequest> {
     private final int fareOffer;
     private final Route route;
     private final Rider rider;
@@ -238,7 +238,7 @@ class CreateRideRequestTask extends GetTaskSequencer<RideRequest2> {
     }
 
     @Override
-    public MutableLiveData<RideRequest2> run() {
+    public MutableLiveData<RideRequest> run() {
         addRequestEntity();
         return liveData;
     }
@@ -286,7 +286,7 @@ class CreateRideRequestTask extends GetTaskSequencer<RideRequest2> {
     }
 
     private void addReferenceToRider() {
-        RideRequest2 model = new RideRequest2(requestEntity);
+        RideRequest model = new RideRequest(requestEntity);
         rider.addActiveRequest(model);
         RiderDAO riderDAO = new RiderDAO();
         riderDAO.save(rider)
@@ -303,10 +303,10 @@ class CreateRideRequestTask extends GetTaskSequencer<RideRequest2> {
 
 class CancelRideRequestTask extends GetTaskSequencer<Boolean> {
     static final String LOC = "RideRequestDAO: CancelRideRequestTask: ";
-    private final RideRequest2 rideRequest;
+    private final RideRequest rideRequest;
     private final LifecycleOwner owner;
 
-    CancelRideRequestTask(RideRequest2 rideRequest, LifecycleOwner owner) {
+    CancelRideRequestTask(RideRequest rideRequest, LifecycleOwner owner) {
         this.rideRequest = rideRequest;
         this.owner = owner;
     }
@@ -318,7 +318,7 @@ class CancelRideRequestTask extends GetTaskSequencer<Boolean> {
     }
 
     private void removeRequestFromUnpaired() {
-        rideRequest.setState(RideRequest2.State.Cancelled);
+        rideRequest.setState(RideRequest.State.Cancelled);
 
         // remove request from active list in system
         // remove request from active list in rider
@@ -357,11 +357,11 @@ class CancelRideRequestTask extends GetTaskSequencer<Boolean> {
 
 class DriverAcceptRequestTask extends GetTaskSequencer<Boolean> {
     final static String LOC = "Tomate: RideRequestDAO: DriverAcceptRequestTask: ";
-    private final RideRequest2 rideRequest;
+    private final RideRequest rideRequest;
     private final Driver driver;
     private final LifecycleOwner owner;
 
-    DriverAcceptRequestTask(RideRequest2 rideRequest, Driver driver, LifecycleOwner owner) {
+    DriverAcceptRequestTask(RideRequest rideRequest, Driver driver, LifecycleOwner owner) {
         this.rideRequest = rideRequest;
         this.driver = driver;
         this.owner = owner;
@@ -374,7 +374,7 @@ class DriverAcceptRequestTask extends GetTaskSequencer<Boolean> {
     }
 
     private void changeRideRequestStatus() {
-        rideRequest.setState(RideRequest2.State.DriverFound);
+        rideRequest.setState(RideRequest.State.DriverFound);
         rideRequest.setDriverReference(driver.getDriverReference());
         RideRequestDAO rideRequestDAO = new RideRequestDAO();
         rideRequestDAO.saveModel(rideRequest)
@@ -425,10 +425,10 @@ class DriverAcceptRequestTask extends GetTaskSequencer<Boolean> {
 class RiderAcceptsRideFromDriverTask extends GetTaskSequencer<Boolean> {
     final static String LOC = "Tomate: RideRequestDAO: RiderAcceptsRideFromDriverTask: ";
 
-    private final RideRequest2 rideRequest;
+    private final RideRequest rideRequest;
     private final Rider rider;
 
-    RiderAcceptsRideFromDriverTask(RideRequest2 rideRequest, Rider rider) {
+    RiderAcceptsRideFromDriverTask(RideRequest rideRequest, Rider rider) {
         this.rideRequest = rideRequest;
         this.rider = rider;
     }
@@ -442,7 +442,7 @@ class RiderAcceptsRideFromDriverTask extends GetTaskSequencer<Boolean> {
     private void acceptRideRequest() {
         // validate if right rider
         if (rideRequest.getRiderReference().getPath().equals(rideRequest.getRiderReference().getPath())) {
-            rideRequest.setState(RideRequest2.State.RiderAccepted);
+            rideRequest.setState(RideRequest.State.RiderAccepted);
             RideRequestDAO rideRequestDAO = new RideRequestDAO();
             rideRequestDAO.saveModel(rideRequest)
                     .addOnCompleteListener(task -> {
@@ -462,10 +462,10 @@ class RiderAcceptsRideFromDriverTask extends GetTaskSequencer<Boolean> {
 
 class RiderConfirmsCompletionTask extends GetTaskSequencer<Boolean> {
     final static String LOC = "Tomate: RideRequestDAO: RiderConfirmsCompletionTask: ";
-    private final RideRequest2 rideRequest;
+    private final RideRequest rideRequest;
     private final Rider rider;
 
-    RiderConfirmsCompletionTask(Rider rider, RideRequest2 rideRequest) {
+    RiderConfirmsCompletionTask(Rider rider, RideRequest rideRequest) {
         this.rider = rider;
         this.rideRequest = rideRequest;
     }
@@ -478,7 +478,7 @@ class RiderConfirmsCompletionTask extends GetTaskSequencer<Boolean> {
 
     private void updateRideRequest() {
         if (rider.getRiderReference().getPath().equals(rideRequest.getRiderReference().getPath())) {
-            rideRequest.setState(RideRequest2.State.RideCompleted);
+            rideRequest.setState(RideRequest.State.RideCompleted);
             RideRequestDAO rideRequestDAO = new RideRequestDAO();
             rideRequestDAO.saveModel(rideRequest)
                     .addOnCompleteListener(task -> {

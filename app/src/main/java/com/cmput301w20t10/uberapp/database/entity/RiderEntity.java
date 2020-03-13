@@ -1,7 +1,7 @@
 package com.cmput301w20t10.uberapp.database.entity;
 
 import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
-import com.cmput301w20t10.uberapp.models.RideRequest2;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
@@ -56,7 +56,7 @@ public class RiderEntity extends EntityModelBase<RiderEntity.Field> {
         return this.dirtyFieldSet.toArray(new Field[0]);
     }
 
-    public void deactivateRideRequest(RideRequest2 rideRequest) {
+    public void deactivateRideRequest(RideRequest rideRequest) {
         activeRideRequestList.remove(rideRequest.getRideRequestReference());
         rideRequestList.add(rideRequest.getRideRequestReference());
         addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
