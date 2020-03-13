@@ -18,7 +18,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
+import com.google.android.gms.maps.model.Polyline;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
@@ -26,6 +26,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -72,6 +73,8 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
     private static final float DEFAULT_ZOOM = 15f;
 
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+    Polyline currentPolyline;
 
 
     @Override
@@ -201,6 +204,7 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
             dropPin(destinationAddress.getAddressLine(0), new LatLng( destinationAddress.getLatitude(), destinationAddress.getLongitude()));
         }
 
+        //this part would draw a route if direction API was enabled.. figuring out another way//
         String url = create_URL();
         new FetchURL(RiderMainActivity.this).execute(url, "driving");
     }
@@ -271,6 +275,8 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
 
         mainMap.animateCamera(cu);
+
+
     }
 
     private void dropPin(String title, LatLng latLng){
@@ -292,6 +298,9 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
 
     @Override
     public void onTaskDone(Object... values) {
-
+        if (currentPolyline !=null){
+            currentPolyline.remove();
+        }
+        currentPolyline = mainMap.addPolyline((PolylineOptions) values[0]);
     }
 }
