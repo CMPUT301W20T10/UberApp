@@ -14,6 +14,8 @@
     <string name="last_name_field_hint">Last name</string>
     <string name="username_field_hint">Username</string>
     <string name="confirm_password_field_hint">Confirm Password</string>
+    <string name="driver">Driver</string>
+    <string name="rider">Rider</string>
     <string name="cancel_button">Cancel</string>
     <string name="phone_field_hint">Phone number</string>
     <!-- endregion Register screen -->
@@ -36,4 +38,11 @@
     <string name="menu_send">Send</string>
     <string name="title_activity_driver_main_map">Map</string>
     <!-- endregion Driver main screen generated string -->
+
+    <!-- Ride request strings -->
+    <string name="request_username">Username</string>
+    <string name="request_distance">XXkm away</string>
+    <string name="request_offer">Offer: $XXX</string>
+    <!-- endRide request strings -->
+
 </resources>
