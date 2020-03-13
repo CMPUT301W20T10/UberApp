@@ -71,7 +71,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     public RideRequestEntity(@NonNull Rider rider, Route route, int fareOffer) {
         this.riderReference = rider.getRiderReference();
         LatLng latLngStart = route.getStartingPosition();
-        LatLng latLngDestination = route.getDestination();
+        LatLng latLngDestination = route.getDestinationPosition();
         startingPosition = new GeoPoint(latLngStart.latitude, latLngStart.longitude);
         destination = new GeoPoint(latLngDestination.latitude, latLngDestination.longitude);
         this.state = 0;
@@ -120,7 +120,8 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
         this.transactionReference = model.getTransactionReference();
 
         LatLng latLngStart = model.getRoute().getStartingPosition();
-        LatLng latLngDest = model.getRoute().getDestination();
+
+        LatLng latLngDest = model.getRoute().getDestinationPosition();
 
         startingPosition = new GeoPoint(latLngStart.latitude, latLngStart.longitude);
         destination = new GeoPoint(latLngDest.latitude, latLngDest.longitude);

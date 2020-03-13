@@ -67,7 +67,8 @@
                     android:id="@+id/text_starting_point"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Starting point" />
+                    android:hint="Starting point"
+                    android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -82,11 +83,13 @@
                 app:endIconMode="custom"
                 app:endIconContentDescription="Destination icon"
                 app:endIconDrawable="@drawable/ic_my_location_black_24dp">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/text_destination"
-                    android:hint="Destination"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:hint="Destination"
+                    android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout

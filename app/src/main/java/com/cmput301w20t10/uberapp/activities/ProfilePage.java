@@ -21,13 +21,10 @@ public class ProfilePage extends BaseActivity {
 
 // TODO: 2020-03-13  Need to add functionality - update info based on who is logged in.
 
-
-        editProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(),EditProfile.class);
-                v.getContext().startActivity(intent);
-            }
+      
+        editProfile.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(),EditProfile.class);
+            v.getContext().startActivity(intent);
         });
     }
 

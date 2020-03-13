@@ -57,7 +57,7 @@ public class DriverMainActivity extends AppCompatActivity implements OnMapReadyC
     ArrayAdapter<RideRequest_old> requestAdapter;
     ArrayList<RideRequest_old> requestDataList;
 
-    FirebaseFirestore db;
+    private FirebaseFirestore db;
 
     private boolean accordion = true;
 
