@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created by diasvg.py -->
+<svg width="77.590cm" height="42.023cm" viewBox="1.393 -4.376 77.590 42.023"
+ xmlns="http://www.w3.org/2000/svg"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- Layer: Background -->
+<g id="Background">
+<!-- UML - Class -->
+<rect x="57.096" y="11.259" width="8.585" height="1.400" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="61.388" y="12.209"  fill="#000000" text-anchor="middle" font-size="1.00" font-family="sans" font-style="normal" font-weight="700">
+RideRequest</text>
+<rect x="57.096" y="12.659" width="8.585" height="2.600" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="57.246" y="13.359"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++start: Location</text>
+<text x="57.246" y="14.159"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++end: Location</text>
+<text x="57.246" y="14.959"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++willingToPay: double</text>
+<rect x="57.096" y="15.259" width="8.585" height="0.400" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<!-- UML - Class -->
+<rect x="70.733" y="12.159" width="8.200" height="1.400" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="74.833" y="13.109"  fill="#000000" text-anchor="middle" font-size="1.00" font-family="sans" font-style="normal" font-weight="700">
+Location</text>
+<rect x="70.733" y="13.559" width="8.200" height="1.800" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="70.883" y="14.259"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++address: String</text>
+<text x="70.883" y="15.059"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++description: String</text>
+<rect x="70.733" y="15.359" width="8.200" height="0.400" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<!-- UML - Association -->
+<polyline fill="none" stroke="#000000" stroke-width="0.100"  points="66.939,13.959 68.532,13.959 68.532,13.959 70.682,13.959 "/>
+<polygon fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  points="65.681,13.959 66.381,13.719 67.081,13.959 66.381,14.199 "/>
+<text x="67.281" y="13.759"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+1</text>
+<text x="70.482" y="13.759"  fill="#000000" text-anchor="end" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+2</text>
+<!-- UML - Class -->
+<rect x="16.224" y="12.436" width="10.510" height="1.400" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="21.479" y="13.386"  fill="#000000" text-anchor="middle" font-size="1.00" font-family="sans" font-style="normal" font-weight="400">
+User</text>
+<rect x="16.224" y="13.836" width="10.510" height="5.800" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="16.374" y="14.536"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+-username: String</text>
+<text x="16.374" y="15.336"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+-password: String</text>
+<text x="16.374" y="16.136"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++firstName: String</text>
+<text x="16.374" y="16.936"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++lastName: String</text>
+<text x="16.374" y="17.736"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+-email: String</text>
+<text x="16.374" y="18.536"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+-phone: String</text>
+<text x="16.374" y="19.336"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+-balance: double</text>
+<rect x="16.224" y="19.636" width="10.510" height="5.000" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="16.374" y="20.336"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++getUsername(): String</text>
+<text x="16.374" y="21.136"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++getEmail(): String</text>
+<text x="16.374" y="21.936"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++getPhone(): String</text>
+<text x="16.374" y="22.736"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++getRealname(): String</text>
+<text x="16.374" y="23.536"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++changePhone(phone:String)</text>
+<text x="16.374" y="24.336"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++changeEmail(email:String)</text>
+<!-- UML - Class -->
+<rect x="45.958" y="32.598" width="18.595" height="1.400" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="55.255" y="33.548"  fill="#000000" text-anchor="middle" font-size="1.00" font-family="sans" font-style="normal" font-weight="700">
+Rider</text>
+<rect x="45.958" y="33.998" width="18.595" height="1.000" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="46.108" y="34.698"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+-myRequests: Collection&lt;RideRequest&gt;</text>
+<rect x="45.958" y="34.998" width="18.595" height="2.600" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="46.108" y="35.698"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++createRideRequest(start:Location,end:Location,</text>
+<text x="46.108" y="36.498"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+                   willingToPay:int)</text>
+<text x="46.108" y="37.298"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++generateQR(paymentAmount:double)</text>
+<!-- UML - Class -->
+<rect x="33.605" y="23.130" width="15.515" height="1.400" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="41.362" y="24.080"  fill="#000000" text-anchor="middle" font-size="1.00" font-family="sans" font-style="normal" font-weight="700">
+Driver</text>
+<rect x="33.605" y="24.530" width="15.515" height="1.000" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="33.755" y="25.230"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+-rating: int = 0</text>
+<rect x="33.605" y="25.530" width="15.515" height="4.200" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="33.755" y="26.230"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++thumbsUp()</text>
+<text x="33.755" y="27.030"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++thumbsDown()</text>
+<text x="33.755" y="27.830"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++getRequests(): Collection&lt;RideRequest&gt;</text>
+<text x="33.755" y="28.630"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++cancelRequest(request:RideRequest)</text>
+<text x="33.755" y="29.430"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++scanQR(): double</text>
+<!-- UML - Generalization -->
+<polyline fill="none" stroke="#000000" stroke-width="0.100"  points="21.479,25.548 21.479,26.486 27.517,26.486 27.517,26.030 33.605,26.030 "/>
+<polygon fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  points="21.879,25.548 21.479,24.748 21.079,25.548 "/>
+<!-- UML - Generalization -->
+<polyline fill="none" stroke="#000000" stroke-width="0.100"  points="21.479,25.548 21.479,33.298 45.958,33.298 "/>
+<polygon fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  points="21.879,25.548 21.479,24.748 21.079,25.548 "/>
+<!-- UML - Class -->
+<rect x="32.707" y="4.835" width="17.055" height="1.400" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="41.234" y="5.785"  fill="#000000" text-anchor="middle" font-size="1.00" font-family="sans" font-style="normal" font-weight="700">
+RequestDatabase</text>
+<rect x="32.707" y="6.235" width="17.055" height="1.000" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="32.857" y="6.935"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+-requests: Collection&lt;RideRequest&gt;</text>
+<rect x="32.707" y="7.235" width="17.055" height="2.600" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="32.857" y="7.935"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++getRideRequests(): Collection&lt;RideRequest&gt;</text>
+<text x="32.857" y="8.735"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++addRequest(request:RideRequest)</text>
+<text x="32.857" y="9.535"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++deleteRequest(request:RideRequest)</text>
+<!-- UML - Class -->
+<rect x="2.184" y="1.448" width="16.670" height="1.400" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="10.519" y="2.398"  fill="#000000" text-anchor="middle" font-size="1.00" font-family="sans" font-style="normal" font-weight="700">
+UserDatabase</text>
+<rect x="2.184" y="2.848" width="16.670" height="1.000" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="2.334" y="3.548"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+-users: Collection&lt;User&gt;</text>
+<rect x="2.184" y="3.848" width="16.670" height="1.000" fill="#FFFFFF" stroke="#000000" stroke-width="0.100" />
+<text x="2.334" y="4.548"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
++login(uname:String,password:String): User</text>
+<!-- UML - Association -->
+<polyline fill="none" stroke="#000000" stroke-width="0.100"  points="51.020,6.735 61.388,6.735 61.388,11.259 "/>
+<polygon fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  points="49.762,6.735 50.462,6.495 51.162,6.735 50.462,6.975 "/>
+<text x="61.588" y="11.059"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+*</text>
+<!-- UML - Note -->
+<polygon fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  points="52.600,1.450 65.990,1.450 66.590,2.050 66.590,3.950 52.600,3.950 "/>
+<polyline fill="none" stroke="#000000" stroke-width="0.050"  points="65.990,1.450 65.990,2.050 66.590,2.050 "/>
+<text x="52.950" y="2.695"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+Wrapper class to simplify firebase</text>
+<text x="52.950" y="3.495"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+connection to Requests</text>
+<!-- Standard - Line -->
+<line x1="49.762" y1="4.835" x2="52.600" y2="3.950" stroke="#000000" stroke-width="0.100" />
+<!-- UML - Association -->
+<polyline fill="none" stroke="#000000" stroke-width="0.100"  points="21.479,12.436 21.479,6.735 32.707,6.735 "/>
+<text x="27.093" y="6.535"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+Add new Requests</text>
+<polygon fill="#000000" stroke="none" stroke-width="0.100"  points="30.273,6.535 30.273,6.135 30.673,6.335 "/>
+<!-- UML - Association -->
+<polyline fill="none" stroke="#000000" stroke-width="0.100"  points="55.255,31.339 55.255,13.959 57.096,13.959 "/>
+<polygon fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  points="55.255,32.598 55.015,31.898 55.255,31.198 55.495,31.898 "/>
+<text x="56.896" y="13.759"  fill="#000000" text-anchor="end" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+*</text>
+<!-- UML - Association -->
+<polyline fill="none" stroke="#000000" stroke-width="0.100"  points="10.519,6.107 10.519,17.536 16.224,17.536 "/>
+<polygon fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  points="10.519,4.848 10.759,5.548 10.519,6.248 10.279,5.548 "/>
+<text x="16.024" y="17.336"  fill="#000000" text-anchor="end" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+*</text>
+<!-- UML - Note -->
+<polygon fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  points="1.443,-4.326 13.293,-4.326 13.893,-3.726 13.893,-1.826 1.443,-1.826 "/>
+<polyline fill="none" stroke="#000000" stroke-width="0.050"  points="13.293,-4.326 13.293,-3.726 13.893,-3.726 "/>
+<text x="1.793" y="-3.081"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+Wrapper to simplify connection</text>
+<text x="1.793" y="-2.281"  fill="#000000" text-anchor="start" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+to users database</text>
+<!-- Standard - Line -->
+<line x1="10.519" y1="1.448" x2="7.668" y2="-1.826" stroke="#000000" stroke-width="0.100" />
+<!-- Standard - Text -->
+<text x="55.591" y="20.652"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+User maintains their own</text>
+<text x="55.591" y="21.453"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+requests too for offline</text>
+<text x="55.591" y="22.253"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+persistence</text>
+<!-- Standard - Text -->
+<!-- UML - Association -->
+<polyline fill="none" stroke="#000000" stroke-width="0.100"  points="41.234,9.835 41.234,16.483 41.362,16.483 41.362,23.130 "/>
+<text x="41.298" y="16.283"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="monospace" font-style="normal" font-weight="400">
+Request / Remove Rides</text>
+<polygon fill="#000000" stroke="none" stroke-width="0.100"  points="45.633,16.283 45.633,15.883 46.033,16.083 "/>
+</g>
+</svg>

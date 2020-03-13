@@ -1,6 +1,7 @@
 package com.cmput301w20t10.uberapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +15,10 @@ import android.widget.Toast;
 
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
+import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
+import com.cmput301w20t10.uberapp.database.RiderDAO;
+import com.cmput301w20t10.uberapp.models.Driver;
+import com.cmput301w20t10.uberapp.models.Rider;
 
 /**
  * @author Joshua Mayer
@@ -53,16 +58,14 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
         } else {
             Log.d("Testing", "onClick_signIn: Driver");
-//            DatabaseManager.getInstance().registerRider("Appletun",
-//                    "yum yum jelly jelly",
-//                    "mrmr@gmail.com",
-//                    "Appletun",
-//                    "3.14",
-//                    "123",
-//                    this);
-            DatabaseManager.getInstance().logInAsDriver(
-                    "Thomas", "choo choo", this)
-                    .observe(this, driver -> Log.d("Testing", "onChanged: Success: " + (driver != null)));
+            LoginRegisterDAO dao = DatabaseManager.getInstance().getLoginRegisterDAO();
+            dao.logInAsRider("RyanBowler", "Password1",  this)
+                    .observe(this, rider -> {if (rider != null) {
+                        Toast.makeText(LoginActivity.this, "Creating ride request", Toast.LENGTH_SHORT).show();
+                    } else{
+                        Toast.makeText(LoginActivity.this, "Failure", Toast.LENGTH_SHORT).show();
+                    }
+                    });
         }
 
     }
