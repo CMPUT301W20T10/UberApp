@@ -15,28 +15,13 @@ public class ProfilePage extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.profile_page);
-
-        /**
-         * Adding our layout to parent class frame layout.
-         */
-        getLayoutInflater().inflate(R.layout.profile_page, frameLayout);
-
-        /**
-         * Setting title and itemChecked
-         */
-        mDrawerList.setItemChecked(position, true);
-        setTitle(listArray[position]);
+        setContentView(R.layout.profile_page);
 
         editProfile = findViewById(R.id.butEditProf);
 
-        /*
-        StackOverflow post by Martin Sing:
-        https://stackoverflow.com/users/6906943/martin-sing
-        Answer:
-        https://stackoverflow.com/a/41389737
-        for information regarding how to go to next activity on button press.
-        */
+// TODO: 2020-03-13  Need to add functionality - update info based on who is logged in.
+
+
         editProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

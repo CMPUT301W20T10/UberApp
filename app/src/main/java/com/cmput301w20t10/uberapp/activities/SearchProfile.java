@@ -20,7 +20,17 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
-public class SearchProfile extends AppCompatActivity {
+
+/*
+* This was created based on information from user Alex Mamo : https://stackoverflow.com/users/5246885/alex-mamo
+* from the stackoverflow post : https://stackoverflow.com/a/49277842
+* Alex is a Google Developer Expert for Firebase.
+* His answer help create this activity(SearchProfile.java) by making a recyclerview list update with FirestoreRecycleAdapter in order to create a live list connected to the firestore.
+*/
+
+
+// TODO: 2020-03-13 Need to add functionality: Search specific names, click on searched user profile?  to contact that user? 
+public class SearchProfile extends BaseActivity {
 
     private SearchView SearchField;
     private RecyclerView SearchList;
@@ -79,6 +89,10 @@ public class SearchProfile extends AppCompatActivity {
     }
 
 
+    /**
+     * This is a view holder for the incoming items (USERS), it is passed to the adapter to get inserted into the list.
+     * Handles setting the username,image and etc.
+     */
     private class UserViewHolder extends RecyclerView.ViewHolder {
         private View view;
 
