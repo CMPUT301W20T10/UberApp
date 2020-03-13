@@ -89,8 +89,8 @@ public class LoginActivity extends AppCompatActivity {
                 if (driver != null) {
                     Log.d("Testing", "Login Success");
                     Log.d("Testing", "Driver Main Activity not yet in this branch");
-                    /*Intent intent = new Intent(this, DriverMainActivity.class);
-                    startActivity(intent);*/
+                    Intent intent = new Intent(this, DriverMainActivity.class);
+                    startActivity(intent);
                 } else {
                     Toast.makeText(getApplicationContext(), "Invalid Username/Password", Toast.LENGTH_LONG).show();
                 }
