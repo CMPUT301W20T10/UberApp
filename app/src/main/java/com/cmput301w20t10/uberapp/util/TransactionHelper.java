@@ -25,13 +25,13 @@ public class TransactionHelper {
      *                          contain the necessary data for a transaction
      */
     @NotNull
-    public static Transaction parseTransaction(@NotNull String json) throws JSONException {
+    public static TransactionHelper.Transaction parseTransaction(@NotNull String json) throws JSONException {
         JSONObject obj = new JSONObject(json);
         Transaction result = new Transaction();
 
         result.senderUsername = obj.getString("sender");
         result.recipientUsername = obj.getString("recipient");
-        result.transactionAmount = obj.getDouble("value");
+        result.transactionAmount = obj.getInt("value");
 
         return result;
     }
@@ -41,12 +41,23 @@ public class TransactionHelper {
      * A simple data structure to represent a transaction
      * @author Joshua Mayer
      * @version 1.0.0
+     *
+     * @author Allan Manuba
+     * @version 1.0.1
+     *  (1) Change transactionAmount's data type from double to int
+     *  Note: Never use lossy data types for currency
+     *  Either use a built in currency data type or use int and treat the currency in cents
+     *  (2) Add path to make transaction searchable in the database
+     *  (3) Add timestamp to make transaction sortable by date
+     *  todo: path and timestamp not yet implemented
+     *  Check out generateJSONObject in Payment (model)
+     *  @see com.cmput301w20t10.uberapp.models.Transaction#generateJSONObject()
      */
     public static class Transaction {
-    public String senderUsername;
-    public String recipientUsername;
-    public double transactionAmount;
-}
-
-
+        public String senderUsername;
+        public String recipientUsername;
+        public int transactionAmount;
+        public String path;
+        public long timestamp;
+    }
 }

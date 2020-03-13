@@ -2,6 +2,7 @@ package com.cmput301w20t10.uberapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +17,10 @@ import android.widget.Toast;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.models.*;
+import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
+import com.cmput301w20t10.uberapp.database.RiderDAO;
+import com.cmput301w20t10.uberapp.models.Driver;
+import com.cmput301w20t10.uberapp.models.Rider;
 
 /**
  * @author Joshua Mayer
