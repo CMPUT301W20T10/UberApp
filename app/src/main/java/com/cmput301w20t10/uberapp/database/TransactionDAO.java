@@ -35,6 +35,7 @@ public class TransactionDAO extends DAOBase<TransactionEntity> {
     static final String COLLECTION = "transactions";
     private final static String LOC = "TransactionDAO: ";
 
+    @Deprecated
     public MutableLiveData<Transaction> createTransaction(LifecycleOwner owner,
                                                           Rider sender,
                                                           Driver recipient,
@@ -229,7 +230,7 @@ class CreateTransactionTask extends GetTaskSequencer<Transaction> {
 }
 
 class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
-    final static String LOC = "TransactionDAO: CreateTransactionForRideTask: ";
+    final static String LOC = "Tomate: TransactionDAO: CreateTransactionForRideTask: ";
 
     private final RideRequest rideRequest;
     private final LifecycleOwner owner;
@@ -285,7 +286,10 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
         transactionEntity = new TransactionEntity(sender, recipient, value);
         db.collection(TransactionDAO.COLLECTION)
                 .add(transactionEntity)
-                .addOnSuccessListener(documentReference -> updateTransactionEntity(documentReference))
+                .addOnSuccessListener(documentReference -> {
+                    Log.d(TAG, LOC + "createTransaction: ");
+                    updateTransactionEntity(documentReference);
+                })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, LOC + "createTransaction: onFailure: ", e);
                     liveData.setValue(null);
@@ -298,6 +302,7 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
         transactionDAO.saveEntity(transactionEntity)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        Log.d(TAG, LOC + "updateTransactionEntity: ");
                         updateRideRequest();
                     } else {
                         Log.e(TAG, LOC + "updateTransactionEntity: onComplete: ", task.getException());
@@ -312,13 +317,13 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
         rideRequestDAO.saveModel(rideRequest)
         .addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                updateRideRequest();
+                Log.d(TAG, LOC + "updateRideRequest: ");
+                updateRider();
             } else {
                 Log.e(TAG, LOC + "updateRideRequest: onComplete: Fail to save ride request", task.getException());
                 liveData.setValue(null);
             }
         });
-        updateRider();
     }
 
     private void updateRider() {
@@ -326,6 +331,7 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
         riderDAO.save(sender)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        Log.d(TAG, "updateRider: saveComplete: ");
                         updateDriver();
                     } else {
                         Log.e(TAG, LOC + "updateRider: onComplete: Fail to update rider", task.getException());
@@ -339,6 +345,7 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
         driverDAO.saveModel(recipient)
                 .observe(owner, aBoolean -> {
                     if (aBoolean) {
+                        Log.d(TAG, "updateDriver: saveComplete");
                         Transaction transaction = new Transaction(transactionEntity.getTransactionReference(),
                                 transactionEntity.getTimestamp().toDate(),
                                 recipient,

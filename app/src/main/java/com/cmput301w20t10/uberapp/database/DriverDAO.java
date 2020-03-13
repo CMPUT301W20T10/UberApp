@@ -197,7 +197,13 @@ public class DriverDAO {
     }
 
     public MutableLiveData<Driver> getDriverFromDriverReference(DocumentReference driverReference) {
-        return null;
+        GetDriverFromReferenceTask task = new GetDriverFromReferenceTask(driverReference);
+        return task.run();
+    }
+
+    public MutableLiveData<Boolean> rateDriver(Driver driver, int increment) {
+        driver.incrementRating(increment);
+        return saveModel(driver);
     }
 }
 

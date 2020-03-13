@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
+import com.cmput301w20t10.uberapp.database.DriverDAO;
 import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
 import com.cmput301w20t10.uberapp.database.RideRequestDAO;
 import com.cmput301w20t10.uberapp.database.TransactionDAO;
@@ -32,6 +33,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class BasicDAOTest {
@@ -82,6 +84,7 @@ public class BasicDAOTest {
      */
     // todo: move to other test
     // todo: fix register to not return null
+    /*
     @Test
     public void registerAsRiderTest() throws InterruptedException {
         LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
@@ -129,6 +132,8 @@ public class BasicDAOTest {
 
         liveDataObserver(runnable, syncObject);
     }
+     */
+
     /**
      * Reference: medium.com/android-development-by-danylo/simple-way-to-test-asynchronous-actions-in-android-service-asynctask-thread-rxjava-etc-d43b0402e005
      * https://androidoverride.wordpress.com/2017/05/27/android-working-with-live-data-and-custom-life-cycle-owners/
@@ -154,7 +159,7 @@ public class BasicDAOTest {
             };
             LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
             MutableLiveData<Rider> liveData = loginRegisterDAO
-                    .logInAsRider("Hepcat",
+                    .logInAsRider("HepCat",
                             "1:00",
                             lifecycleOwner);
             liveData.observe(lifecycleOwner, observer);
@@ -464,7 +469,7 @@ public class BasicDAOTest {
                 }
             };
             TransactionDAO dao = databaseManager.getTransactionDAO();
-            MutableLiveData<Transaction> liveData = dao.createTransaction(lifecycleOwner, rider, driver, 1250);
+            MutableLiveData<Transaction> liveData = dao.createTransaction(lifecycleOwner, rideRequest, 1250);
             liveData.observe(lifecycleOwner, observer);
         };
 
@@ -477,7 +482,27 @@ public class BasicDAOTest {
         Log.d(TAG, "createTransactionTest: RideRequest: " + transaction.getTransactionReference().getPath());
     }
 
-    public void riderRateDriverTest() {
-        // todo: riderRateDriverTest
+    @Test
+    public void riderRateDriverTest() throws InterruptedException {
+        Driver driver = loginAsDriver();
+
+        // get data
+        final Object syncObject = new Object();
+
+        Runnable runnable = () -> {
+            Observer<Boolean> observer = new AssertNullObserver<Boolean>(syncObject) {
+                @Override
+                public void onChanged(Boolean aBoolean) {
+                    assertTrue(aBoolean);
+                    super.onChanged(aBoolean);
+                }
+            };
+            DriverDAO driverDAO = databaseManager.getInstance().getDriverDAO();
+            int increment = 1;
+            MutableLiveData<Boolean> liveData = driverDAO.rateDriver(driver, increment);
+            liveData.observe(lifecycleOwner, observer);
+        };
+
+        liveDataObserver(runnable, syncObject);
     }
 }

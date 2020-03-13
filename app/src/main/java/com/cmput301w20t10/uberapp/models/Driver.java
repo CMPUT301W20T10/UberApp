@@ -93,5 +93,9 @@ public class Driver extends User {
         addDirtyField(Field.RATING);
         this.rating = rating;
     }
+
+    public void incrementRating(int increment) {
+        setRating(this.rating + increment);
+    }
     // endregion getters and setters
 }

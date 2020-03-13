@@ -198,6 +198,7 @@ public class RiderDAO {
         return task;
     }
 
+    // todo: improve
     public Task<Void> save(Rider rider) {
         final DocumentReference reference = rider.getRiderReference();
         Task<Void> task = null;
