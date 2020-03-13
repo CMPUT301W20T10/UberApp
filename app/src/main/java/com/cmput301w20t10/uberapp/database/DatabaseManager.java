@@ -37,15 +37,10 @@ public class DatabaseManager  {
     //  it's volatile cause we're gonna run this in multiple threads
     // todo (allan): make a better explanation why you put volatile here
     private static volatile DatabaseManager INSTANCE = new DatabaseManager();
-    private State state = State.LOGGED_OUT;
+    private EnumState state = EnumState.LOGGED_OUT;
     private Rider rider = null;
     private Driver driver = null;
 
-    public enum State {
-        LOGGED_OUT,
-        DRIVER,
-        RIDER
-    }
 
     /**
      * Minimum privilege
@@ -86,8 +81,8 @@ public class DatabaseManager  {
     private boolean verify(Context context) {
         SharedPreferences preferences = context
                 .getSharedPreferences(PREF_FILE_KEY, Context.MODE_PRIVATE);
-        boolean isLoggedIn = State.LOGGED_OUT.ordinal() !=
-                preferences.getInt(PREF_DB_STATE, State.LOGGED_OUT.ordinal());
+        boolean isLoggedIn = EnumState.LOGGED_OUT.ordinal() !=
+                preferences.getInt(PREF_DB_STATE, EnumState.LOGGED_OUT.ordinal());
 
         if(isLoggedIn) {
             // todo: verification
@@ -97,7 +92,7 @@ public class DatabaseManager  {
     }
 
     public RiderDAO getRiderDAO() {
-        if (state != State.LOGGED_OUT) {
+        if (state != EnumState.LOGGED_OUT) {
             return new RiderDAOImpl();
         } else {
             return null;
@@ -105,7 +100,7 @@ public class DatabaseManager  {
     }
 
     public DriverDAO getDriverDAO() {
-        if (state != State.LOGGED_OUT) {
+        if (state != EnumState.LOGGED_OUT) {
             return new DriverDAOImpl();
         } else {
             return null;
@@ -128,7 +123,7 @@ public class DatabaseManager  {
         MutableLiveData<Rider> riderLiveData = new MutableLiveData<>();
         new RiderDAOImpl().logInAsRider(username, password, owner)
             .observe(owner, rider -> {
-                state = State.RIDER;
+                state = EnumState.RIDER;
                 this.driver = null;
                 this.rider = rider;
                 riderLiveData.setValue(rider);
@@ -159,7 +154,7 @@ public class DatabaseManager  {
         MutableLiveData<Driver> driverLiveData = new MutableLiveData<>();
         new DriverDAOImpl().logInAsDriver(username, password, owner)
                 .observe(owner, driver -> {
-                    state = State.DRIVER;
+                    state = EnumState.DRIVER;
                     this.driver = driver;
                     this.rider = null;
                     driverLiveData.setValue(driver);
