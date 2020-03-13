@@ -1,5 +1,7 @@
 package com.cmput301w20t10.uberapp.activities;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class RideRequest {
     private String username;
     private Float distance;

@@ -39,7 +39,7 @@ public class RequestList extends ArrayAdapter<RideRequest> {
         TextView offer = view.findViewById(R.id.request_offer);
 
         username.setText(rideRequest.getUsername());
-        distance.setText(rideRequest.getDistance().toString() +"km away");
+        distance.setText(String.format("%.2f", rideRequest.getDistance()) +"km away");
         offer.setText("Offer: $" + String.format("%.2f", rideRequest.getOffer()));
 
         return view;
