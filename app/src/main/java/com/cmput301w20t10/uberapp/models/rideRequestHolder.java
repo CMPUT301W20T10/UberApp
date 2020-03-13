@@ -1,4 +1,4 @@
-package com.cmput301w20t10.uberapp.activities;
+package com.cmput301w20t10.uberapp.models;
 
 import android.widget.Button;
 import android.widget.LinearLayout;

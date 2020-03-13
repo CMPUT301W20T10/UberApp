@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.models.RideRequest;
+import com.cmput301w20t10.uberapp.models.rideRequestHolder;
 
 
 public class RequestList extends ArrayAdapter<RideRequest> {
@@ -37,7 +38,7 @@ public class RequestList extends ArrayAdapter<RideRequest> {
      * Answered by: Leonardo Cardoso, https://stackoverflow.com/users/1255990/leonardo-cardoso
      */
     public View getView(int position, @Nullable View view, @NonNull ViewGroup parent) {
-        com.cmput301w20t10.uberapp.activities.rideRequestHolder holder = null;
+        rideRequestHolder holder = null;
 
         RideRequest rideRequest = rideRequests.get(position);
 
@@ -54,10 +55,10 @@ public class RequestList extends ArrayAdapter<RideRequest> {
             Button acceptButton = view.findViewById(R.id.accept_request_button);
 
 
-            holder = new com.cmput301w20t10.uberapp.activities.rideRequestHolder(textViewWrap, username, distance, offer, firstName, lastName, acceptButton);
+            holder = new rideRequestHolder(textViewWrap, username, distance, offer, firstName, lastName, acceptButton);
             holder.setTextViewWrap(textViewWrap);
         } else {
-            holder = (com.cmput301w20t10.uberapp.activities.rideRequestHolder) view.getTag();
+            holder = (rideRequestHolder) view.getTag();
         }
 
         holder.getTextViewWrap().setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, rideRequest.getCurrentHeight()));

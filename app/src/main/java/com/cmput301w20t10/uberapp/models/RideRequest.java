@@ -16,7 +16,7 @@ public class RideRequest implements Comparable<RideRequest> {
 
     private int collapsedHeight, currentHeight, expandedHeight;
     private boolean isOpen;
-    private com.cmput301w20t10.uberapp.activities.rideRequestHolder holder;
+    private rideRequestHolder holder;
 
     public RideRequest(String username, Float distance, Float offer, DocumentReference userReference, String firstName, String lastName,
                 int collapsedHeight, int currentHeight, int expandedHeight) {
@@ -120,11 +120,11 @@ public class RideRequest implements Comparable<RideRequest> {
         isOpen = open;
     }
 
-    public com.cmput301w20t10.uberapp.activities.rideRequestHolder getHolder() {
+    public rideRequestHolder getHolder() {
         return holder;
     }
 
-    public void setHolder(com.cmput301w20t10.uberapp.activities.rideRequestHolder holder) {
+    public void setHolder(rideRequestHolder holder) {
         this.holder = holder;
     }
 
