@@ -147,5 +147,4 @@ public class RideRequest extends EntityModelBase<RideRequest.Field> {
         this.unpairedReference = unpairedReference;
     }
     // endregion getters and setters
-
 }
