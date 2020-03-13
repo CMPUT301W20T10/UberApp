@@ -66,11 +66,11 @@ public class DriverMainActivity extends AppCompatActivity implements OnMapReadyC
     private FusedLocationProviderClient client;
     private static final int REQUEST_CODE = 101;
 
-    ListView requestList;
-    ArrayAdapter<RideRequest> requestAdapter;
-    ArrayList<RideRequest> requestDataList;
+    private ListView requestList;
+    private ArrayAdapter<RideRequest> requestAdapter;
+    private ArrayList<RideRequest> requestDataList;
 
-    FirebaseFirestore db;
+    private FirebaseFirestore db;
 
 
     @Override
