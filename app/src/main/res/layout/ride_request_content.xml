@@ -21,10 +21,9 @@
                 android:layout_width="320px"
                 android:layout_height="320px"
                 android:background="@null"
-                android:scaleType="fitCenter"
                 android:onClick="onPicturePressed"
-                android:src="@drawable/person">
-            </ImageButton>
+                android:scaleType="fitCenter"
+                android:src="@drawable/person"></ImageButton>
 
             <TextView
                 android:layout_width="match_parent"
@@ -108,7 +107,7 @@
         android:text="@string/request_start_dest"
         android:textColor="@android:color/black"
         android:textSize="70px"
-        android:background="@drawable/back"
+        android:background="@drawable/border"
         android:layout_marginBottom="10px"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" >
@@ -120,7 +119,7 @@
         android:text="@string/request_end_dest"
         android:textColor="@android:color/black"
         android:textSize="70px"
-        android:background="@drawable/back"
+        android:background="@drawable/border"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" >
 

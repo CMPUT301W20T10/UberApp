@@ -22,6 +22,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.models.ResizeAnimation;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -244,7 +246,7 @@ public class DriverMainActivity extends AppCompatActivity implements OnMapReadyC
     }
 
     /*
-     * goToItem() is code from Stack overflow used to move listview to expanded listitem
+     * goToItem() is code from Stack overflow used to move listview to expanded rideRequest
      * URL of question: https://stackoverflow.com/questions/12522348
      * Asked by: Ethan Allen, https://stackoverflow.com/users/546509/ethan-allen
      * Answered by: Leonardo Cardoso, https://stackoverflow.com/users/1255990/leonardo-cardoso
