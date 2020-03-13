@@ -96,28 +96,19 @@ public class BaseActivity extends AppCompatActivity {
         fabExit.animate().translationY(800);
 
         //Begin onclickListeners for each fab button, each sends to new activity. This activity should extend baseactivity so it can also have Menu.
-        fabProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(BaseActivity.this, ProfilePage.class);
-                startActivity(intent);
-            }
+        fabProfile.setOnClickListener(v -> {
+            Intent intent = new Intent(BaseActivity.this, ProfilePage.class);
+            startActivity(intent);
         });
 
-        fabSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(BaseActivity.this, SearchProfile.class);
-                startActivity(intent);
-            }
+        fabSearch.setOnClickListener(v -> {
+            Intent intent = new Intent(BaseActivity.this, SearchProfile.class);
+            startActivity(intent);
         });
 
-        fabHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(BaseActivity.this, RiderMainActivity.class);
-                startActivity(intent);
-            }
+        fabHome.setOnClickListener(v -> {
+            Intent intent = new Intent(BaseActivity.this, RiderMainActivity.class);
+            startActivity(intent);
         });
 
     }
