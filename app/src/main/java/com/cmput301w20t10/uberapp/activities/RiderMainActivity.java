@@ -61,7 +61,7 @@ import java.util.List;
 // todo: editable map markers
 
 
-public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
+public class RiderMainActivity extends BaseActivity implements OnMapReadyCallback, TaskLoadedCallback {
     private static final String TAG = "Test" ;
     // core objects
     private AppBarConfiguration mAppBarConfiguration;
