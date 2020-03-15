@@ -4,8 +4,8 @@ import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
 import com.cmput301w20t10.uberapp.models.Driver;
+import com.cmput301w20t10.uberapp.models.EnumField;
 import com.cmput301w20t10.uberapp.models.RideRequest;
-import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
@@ -64,7 +64,7 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
         this.activeRideRequestList = driver.getActiveRideRequestList();
         this.rating = driver.getRating();
 
-        for (Driver.Field dirtyField :
+        for (EnumField dirtyField :
                 driver.getDirtyFieldSet()) {
             switch (dirtyField) {
                 case USERNAME:

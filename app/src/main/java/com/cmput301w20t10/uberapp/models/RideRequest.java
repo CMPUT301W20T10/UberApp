@@ -6,6 +6,10 @@ import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
 import com.google.firebase.firestore.DocumentReference;
 
+
+/**
+ * WILL LEARN TO USE - Kevin
+ */
 public class RideRequest extends EntityModelBase<RideRequest.Field> {
     private DocumentReference driverReference;
     private DocumentReference riderReference;
@@ -140,6 +144,7 @@ public class RideRequest extends EntityModelBase<RideRequest.Field> {
 
     public DocumentReference getUnpairedReference() {
         return unpairedReference;
+
     }
 
     public void setUnpairedReference(DocumentReference unpairedReference) {
@@ -147,5 +152,4 @@ public class RideRequest extends EntityModelBase<RideRequest.Field> {
         this.unpairedReference = unpairedReference;
     }
     // endregion getters and setters
-
 }

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/text_wrap"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:id="@+id/profile_picture"
+                android:layout_width="320px"
+                android:layout_height="320px"
+                android:background="@null"
+                android:onClick="onPicturePressed"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_person_black_24dp"></ImageButton>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:clickable="false"
+                android:gravity="center"
+                android:text="Tap to view\nprofile"
+                android:textColor="#83FF0000"></TextView>
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/request_first_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="80px"
+                    android:paddingRight="20px"
+                    android:textColor="@android:color/black"
+                    android:text="@string/request_first_name">
+
+                </TextView>
+                <TextView
+                    android:id="@+id/request_last_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="80px"
+                    android:textColor="@android:color/black"
+                    android:text="@string/request_last_name">
+
+                </TextView>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/request_distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/request_distance"
+                android:textColor="@android:color/black"
+                android:textSize="80px"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/request_username" />
+
+            <TextView
+                android:id="@+id/request_offer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/request_offer"
+                android:textColor="@android:color/black"
+                android:textSize="80px"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/request_distance" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/request_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/request_username"
+        android:textColor="@android:color/black"
+        android:textSize="70px"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/request_start_dest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/request_start_dest"
+        android:textColor="@android:color/black"
+        android:textSize="70px"
+        android:background="@drawable/border"
+        android:layout_marginBottom="10px"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+    </TextView>
+    <TextView
+        android:id="@+id/request_end_dest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/request_end_dest"
+        android:textColor="@android:color/black"
+        android:textSize="70px"
+        android:background="@drawable/border"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+
+    </TextView>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+        <Button
+            android:id="@+id/accept_request_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/request_accept">
+        </Button>
+
+    </LinearLayout>
+
+
+</LinearLayout>

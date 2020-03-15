@@ -2,8 +2,11 @@ package com.cmput301w20t10.uberapp.database;
 
 import android.util.Log;
 
+import androidx.lifecycle.MutableLiveData;
+
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
+import com.cmput301w20t10.uberapp.models.EnumField;
 import com.cmput301w20t10.uberapp.models.User;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -12,8 +15,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import androidx.lifecycle.MutableLiveData;
 
 import static android.content.ContentValues.TAG;
 
@@ -205,7 +206,7 @@ class UserDAO extends DAOBase<UserEntity> {
         if (reference != null) {
             final Map<String, Object> dirtyPairMap = new HashMap<>();
 
-            for (User.Field field:
+            for (EnumField field :
                     model.getDirtyFieldSet()) {
                 Object value = null;
 

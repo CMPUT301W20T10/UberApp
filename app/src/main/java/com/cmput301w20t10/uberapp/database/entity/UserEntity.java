@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
 import com.cmput301w20t10.uberapp.models.Driver;
+import com.cmput301w20t10.uberapp.models.EnumField;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
@@ -84,7 +85,7 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
         this.lastName = driver.getLastName();
         this.image = driver.getImage();
 
-        for (Driver.Field dirtyField :
+        for (EnumField dirtyField :
                 driver.getDirtyFieldSet()) {
             switch (dirtyField) {
                 case USER_REFERENCE:
