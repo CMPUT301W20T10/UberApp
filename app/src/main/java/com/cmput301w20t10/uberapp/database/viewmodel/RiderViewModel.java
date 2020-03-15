@@ -3,8 +3,6 @@ package com.cmput301w20t10.uberapp.database.viewmodel;
 import android.app.Application;
 
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
-import com.cmput301w20t10.uberapp.database.dao.RiderDAO;
-import com.cmput301w20t10.uberapp.database.RiderDAOImpl;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 
