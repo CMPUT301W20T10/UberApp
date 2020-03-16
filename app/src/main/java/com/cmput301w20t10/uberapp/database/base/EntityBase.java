@@ -1,5 +1,7 @@
 package com.cmput301w20t10.uberapp.database.base;
 
+import android.util.Log;
+
 import com.google.firebase.firestore.Exclude;
 
 import java.util.HashSet;
@@ -15,11 +17,11 @@ import java.util.Set;
  *     T should be of type enum where the fields represent the fields in the database.
  *     It should override Object.toString(), returning camel case version of these fields.
  * @author Allan Manuba
+ * @version 1.0.0
+ * @version 1.0.1
+ * Remove dirtyFieldSet that shadows the dirtyFieldSet in DatabaseObjectBase
  */
-public abstract class EntityBase<Field> extends DatabaseObjectBase {
-    @Exclude
-    protected Set<Field> dirtyFieldSet = new HashSet<>();
-
+public abstract class EntityBase<Field> extends DatabaseObjectBase<Field> {
     /**
      * When overriding, also add the @Exclude annotation to avoid
      * deserializing errors

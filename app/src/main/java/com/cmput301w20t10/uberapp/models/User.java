@@ -100,6 +100,7 @@ public class User extends ModelBase<Field, UserEntity> {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
+        this.image = image;
     }
 
     public User(String username,

@@ -31,6 +31,7 @@ import androidx.lifecycle.Observer;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -42,7 +43,6 @@ public class BasicDAOTest {
     private LifecycleOwnerMock lifecycleOwner;
     private DatabaseManager databaseManager;
     private Handler handler;
-    private Rider testRider;
 
     @Before
     public void initialize() {
@@ -84,16 +84,22 @@ public class BasicDAOTest {
      */
     // todo: move to other test
     // todo: fix register to not return null
-    /*
     @Test
     public void registerAsRiderTest() throws InterruptedException {
         LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
 
         // get data
         final Object syncObject = new Object();
+        final AtomicReference<Rider> riderAtomicReference = new AtomicReference<>();
 
         Runnable runnable = () -> {
-            Observer<Rider> observer = new AssertNullObserver<Rider>(syncObject);
+            Observer<Rider> observer = new AssertNullObserver<Rider>(syncObject) {
+                @Override
+                public void onChanged(Rider rider) {
+                    riderAtomicReference.set(rider);
+                    super.onChanged(rider);
+                }
+            };
             MutableLiveData<Rider> liveData = loginRegisterDAO
                     .registerRider("HepCat",
                             "1:00",
@@ -107,6 +113,15 @@ public class BasicDAOTest {
         };
 
         liveDataObserver(runnable, syncObject);
+
+        Rider rider = riderAtomicReference.get();
+        assertEquals(rider.getUsername(), "HepCat");
+        assertEquals(rider.getPassword(), "1:00");
+        assertEquals(rider.getEmail(), "email");
+        assertEquals(rider.getFirstName(), "Hungry");
+        assertEquals(rider.getLastName(), "Snail2");
+        assertEquals(rider.getPhoneNumber(), "100");
+        assertEquals(rider.getImage(), "image");
     }
 
     @Test
@@ -132,7 +147,6 @@ public class BasicDAOTest {
 
         liveDataObserver(runnable, syncObject);
     }
-     */
 
     /**
      * Reference: medium.com/android-development-by-danylo/simple-way-to-test-asynchronous-actions-in-android-service-asynctask-thread-rxjava-etc-d43b0402e005

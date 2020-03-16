@@ -37,7 +37,7 @@ public class RiderEntity extends EntityBase<Field> {
     private List<DocumentReference> transactionList;
     private List<DocumentReference> rideRequestList;
     private List<DocumentReference> activeRideRequestList;
-    private int balance;
+    private float balance;
 
     enum Field {
         RIDER_REFERENCE ("riderReference"),
@@ -176,11 +176,11 @@ public class RiderEntity extends EntityBase<Field> {
         this.activeRideRequestList = activeRideRequestList;
     }
 
-    public int getBalance() {
+    public float getBalance() {
         return balance;
     }
 
-    public void setBalance(int balance) {
+    public void setBalance(float balance) {
         addDirtyField(Field.BALANCE);
         this.balance = balance;
     }

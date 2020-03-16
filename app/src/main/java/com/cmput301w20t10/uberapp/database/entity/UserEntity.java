@@ -74,7 +74,7 @@ public class UserEntity extends EntityBase<Field> {
     /**
      * For Firestore deserialization
      */
-    public UserEntity() {}
+    public UserEntity() { super(); }
 
     public UserEntity(String username,
                       String password,
@@ -83,6 +83,7 @@ public class UserEntity extends EntityBase<Field> {
                       String lastName,
                       String phoneNumber,
                       String image) {
+        super();
         this.username = username;
         this.password = password;
         this.email = email;
@@ -106,6 +107,7 @@ public class UserEntity extends EntityBase<Field> {
                       String lastName,
                       String phoneNumber,
                       String image) {
+        super();
         this.username = username;
         this.password = password;
         this.email = email;
@@ -115,8 +117,7 @@ public class UserEntity extends EntityBase<Field> {
         this.image = image;
         this.driverReference = driverReference;
         this.riderReference = riderReference;
-        this.userReference = userReference
-        ;
+        this.userReference = userReference;
     }
     // endregion Constructors
 
@@ -131,6 +132,8 @@ public class UserEntity extends EntityBase<Field> {
     @Override
     @Exclude
     public Map<String, Object> getDirtyFieldMap() {
+        Log.d(TAG, LOC + "getDirtyFieldMap: Here!");
+        Log.d(TAG, LOC + "getDirtyFieldMap: Set: " + dirtyFieldSet.toString());
         HashMap<String, Object> dirtyFieldMap = new HashMap<>();
         for (Field dirtyField :
                 dirtyFieldSet) {
@@ -170,6 +173,8 @@ public class UserEntity extends EntityBase<Field> {
                     break;
             }
         }
+        Log.d(TAG, LOC + "getDirtyFieldMap: End!");
+        Log.d(TAG, LOC + "getDirtyFieldMap: " + dirtyFieldMap.toString());
         return  dirtyFieldMap;
     }
 

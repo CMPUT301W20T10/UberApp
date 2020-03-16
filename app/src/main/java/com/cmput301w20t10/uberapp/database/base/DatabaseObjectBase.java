@@ -1,5 +1,7 @@
 package com.cmput301w20t10.uberapp.database.base;
 
+import android.util.Log;
+
 import com.google.firebase.firestore.Exclude;
 
 import java.util.HashSet;
@@ -28,7 +30,9 @@ public abstract class DatabaseObjectBase<Field> {
      * @param field
      */
     protected void addDirtyField(Field field) {
+        Log.d("", "Tomate: Tomate: DatabaseObjectBase: addDirtyField: " + field.toString());
         dirtyFieldSet.add(field);
+        Log.d("", "Tomate: Tomate: DatabaseObjectBase: addDirtyField: " + dirtyFieldSet.toString());
     }
 
     /**

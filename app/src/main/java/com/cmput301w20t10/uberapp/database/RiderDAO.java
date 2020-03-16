@@ -28,7 +28,7 @@ import static android.content.ContentValues.TAG;
  * @author Allan Manuba
  */
 public class RiderDAO extends DAOBase<RiderEntity, Rider> {
-    static final String LOC = "RiderDAO: ";
+    static final String LOC = "Tomate: RiderDAO: ";
     static final String COLLECTION = "riders";
 
     RiderDAO() {}
