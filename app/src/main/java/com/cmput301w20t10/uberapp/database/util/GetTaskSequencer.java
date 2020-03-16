@@ -13,5 +13,5 @@ public abstract class GetTaskSequencer<T> {
         liveData = new MutableLiveData<T>();
     }
 
-    public abstract  MutableLiveData<T> run();
+    public abstract MutableLiveData<T> run();
 }

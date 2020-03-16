@@ -1,15 +1,17 @@
 package com.cmput301w20t10.uberapp.models;
 
+import android.util.Log;
+
 import com.cmput301w20t10.uberapp.database.entity.DriverEntity;
-import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.util.List;
 
 public class Driver extends User {
+    private static final String LOC = "Driver: ";
     private DocumentReference driverReference;
     private List<DocumentReference> transactionList;
-    private List<DocumentReference> rideRequestList;
+    private List<DocumentReference> finishedRideRequestList;
     private List<DocumentReference> activeRideRequestList;
     private int rating;
 
@@ -25,27 +27,77 @@ public class Driver extends User {
         this.rating = rating;
     }
 
-    public Driver(DriverEntity driverEntity, UserEntity userEntity) {
-        super(userEntity);
-        this.driverReference = driverEntity.getDriverReference();
-        this.rating = driverEntity.getRating();
-        this.transactionList = driverEntity.getPaymentList();
-        this.rideRequestList = driverEntity.getFinishedRideRequestList();
-        this.activeRideRequestList = driverEntity.getActiveRideRequestList();
-
+    public Driver(DocumentReference driverReference,
+                  List<DocumentReference> transactionList,
+                  List<DocumentReference> finishedRideRequestList,
+                  List<DocumentReference> activeRideRequestList,
+                  String username,
+                  String password,
+                  String email,
+                  String firstName,
+                  String lastName,
+                  String phoneNumber,
+                  int rating,
+                  String image) {
+        super(username, password, email, firstName, lastName, phoneNumber, image);
+        this.driverReference = driverReference;
+        this.transactionList = transactionList;
+        this.finishedRideRequestList = finishedRideRequestList;
+        this.activeRideRequestList = activeRideRequestList;
+        this.rating = rating;
     }
 
     public void addActiveRideRequest(RideRequest rideRequest) {
         activeRideRequestList.add(rideRequest.getRideRequestReference());
-        addDirtyField(EnumField.ACTIVE_RIDE_REQUEST_LIST);
+        addDirtyField(User.Field.ACTIVE_RIDE_REQUEST_LIST);
     }
 
 
     public void deactivateRideRequest(RideRequest rideRequest) {
         activeRideRequestList.remove(rideRequest.getRideRequestReference());
-        rideRequestList.add(rideRequest.getRideRequestReference());
-        addDirtyField(EnumField.ACTIVE_RIDE_REQUEST_LIST);
-        addDirtyField(EnumField.RIDE_REQUEST_LIST);
+        finishedRideRequestList.add(rideRequest.getRideRequestReference());
+        addDirtyField(User.Field.ACTIVE_RIDE_REQUEST_LIST);
+        addDirtyField(User.Field.FINISHED_RIDE_REQUEST_LIST);
+    }
+
+    public void transferChanges(DriverEntity driverEntity) {
+        for (Field dirtyField :
+                dirtyFieldSet) {
+            switch (dirtyField) {
+                case USERNAME:
+                case PASSWORD:
+                case EMAIL:
+                case FIRST_NAME:
+                case LAST_NAME:
+                case PHONE_NUMBER:
+                case IMAGE:
+                case RIDER_REFERENCE:
+                case BALANCE:
+                    // do nothing
+                    break;
+                case USER_REFERENCE:
+                    driverEntity.setUserReference(getUserReference());
+                    break;
+                case DRIVER_REFERENCE:
+                    driverEntity.setDriverReference(getDriverReference());
+                    break;
+                case TRANSACTION_LIST:
+                    driverEntity.setPaymentList(getTransactionList());
+                    break;
+                case FINISHED_RIDE_REQUEST_LIST:
+                    driverEntity.setFinishedRideRequestList(getFinishedRideRequestList());
+                    break;
+                case ACTIVE_RIDE_REQUEST_LIST:
+                    driverEntity.setActiveRideRequestList(getActiveRideRequestList());
+                    break;
+                case RATING:
+                    driverEntity.setRating(getRating());
+                    break;
+                default:
+                    Log.e("", LOC +"transferChanges: Unknown field: " + dirtyField.toString());
+                    break;
+            }
+        }
     }
 
     // region getters and setters
@@ -54,7 +106,7 @@ public class Driver extends User {
     }
 
     public void setDriverReference(DocumentReference driverReference) {
-        addDirtyField(EnumField.DRIVER_REFERENCE);
+        addDirtyField(User.Field.DRIVER_REFERENCE);
         this.driverReference = driverReference;
     }
 
@@ -63,17 +115,17 @@ public class Driver extends User {
     }
 
     public void setTransactionList(List<DocumentReference> transactionList) {
-        addDirtyField(EnumField.TRANSACTION_LIST);
+        addDirtyField(User.Field.TRANSACTION_LIST);
         this.transactionList = transactionList;
     }
 
-    public List<DocumentReference> getRideRequestList() {
-        return rideRequestList;
+    public List<DocumentReference> getFinishedRideRequestList() {
+        return finishedRideRequestList;
     }
 
-    public void setRideRequestList(List<DocumentReference> rideRequestList) {
-        addDirtyField(EnumField.RIDE_REQUEST_LIST);
-        this.rideRequestList = rideRequestList;
+    public void setFinishedRideRequestList(List<DocumentReference> finishedRideRequestList) {
+        addDirtyField(User.Field.FINISHED_RIDE_REQUEST_LIST);
+        this.finishedRideRequestList = finishedRideRequestList;
     }
 
     public List<DocumentReference> getActiveRideRequestList() {
@@ -81,7 +133,7 @@ public class Driver extends User {
     }
 
     public void setActiveRideRequestList(List<DocumentReference> activeRideRequestList) {
-        addDirtyField(EnumField.ACTIVE_RIDE_REQUEST_LIST);
+        addDirtyField(User.Field.ACTIVE_RIDE_REQUEST_LIST);
         this.activeRideRequestList = activeRideRequestList;
     }
 
@@ -90,7 +142,7 @@ public class Driver extends User {
     }
 
     public void setRating(int rating) {
-        addDirtyField(EnumField.RATING);
+        addDirtyField(User.Field.RATING);
         this.rating = rating;
     }
 

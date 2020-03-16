@@ -1,7 +1,6 @@
 package com.cmput301w20t10.uberapp.database;
 
 
-import android.graphics.drawable.shapes.OvalShape;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
@@ -14,25 +13,21 @@ import com.cmput301w20t10.uberapp.models.Transaction;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 
 import static android.content.ContentValues.TAG;
 
-public class TransactionDAO extends DAOBase<TransactionEntity> {
+public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
     static final String COLLECTION = "transactions";
     private final static String LOC = "TransactionDAO: ";
 
@@ -53,57 +48,33 @@ public class TransactionDAO extends DAOBase<TransactionEntity> {
     }
 
     @Override
-    public Task<Void> saveEntity(TransactionEntity entity) {
-        final DocumentReference reference = entity.getTransactionReference();
-        Task<Void> task = null;
+    public MutableLiveData<Boolean> saveEntity(TransactionEntity entity) {
+        MutableLiveData<Boolean> liveData = new MutableLiveData<>();
+        DocumentReference userReference = entity.getTransactionReference();
 
-        if (reference != null) {
-            Log.e(TAG, "saveEntity: 1 : " + Arrays.toString(entity.getDirtyFieldSet()));
-            final Map<String, Object> dirtyPairMap = new HashMap<>();
-
-            for (TransactionEntity.Field field:
-                    entity.getDirtyFieldSet()) {
-                Object value = null;
-
-                switch (field) {
-                    case VALUE:
-                        value = entity.getValue();
-                        break;
-                    case SENDER:
-                        value = entity.getSender();
-                        break;
-                    case RECIPIENT:
-                        value = entity.getRecipient();
-                        break;
-                    case TIMESTAMP:
-                        value = entity.getTimestamp();
-                        break;
-                    case TRANSACTION_REFERENCE:
-                        value = entity.getTransactionReference();
-                        break;
-                    default:
-                        break;
-                }
-
-                if (value != null) {
-                    dirtyPairMap.put(field.toString(), value);
-                }
-            }
-
+        if (userReference != null) {
+            Map<String, Object> fieldMap = entity.getDirtyFieldMap();
             entity.clearDirtyStateSet();
-
-            if (dirtyPairMap.size() > 0) {
-                task = reference.update(dirtyPairMap);
-            }
+            userReference.update(fieldMap)
+                    .addOnCompleteListener(task -> {
+                        boolean isSuccessful = task.isSuccessful();
+                        if (!isSuccessful) {
+                            Log.e(TAG, LOC + "saveEntity: onComplete: ", task.getException());
+                        }
+                        liveData.setValue(isSuccessful);
+                    });
         } else {
-            Log.e(TAG, LOC + "saveEntity: transactionReference is null");
+            liveData.setValue(false);
         }
 
-        return task;
+        return liveData;
     }
 
-    public Task<Void> saveModel(final Transaction transaction) {
-        return saveEntity(new TransactionEntity(transaction));
+    @Override
+    public MutableLiveData<Boolean> saveModel(Transaction transaction) {
+        TransactionEntity entity = new TransactionEntity();
+        transaction.transferChanges(entity);
+        return saveEntity(entity);
     }
 
     public MutableLiveData<Transaction> transactionEntityToModel(TransactionEntity entity) {
@@ -207,11 +178,11 @@ class CreateTransactionTask extends GetTaskSequencer<Transaction> {
     private void updateTransactionEntity() {
         transactionDAO = new TransactionDAO();
         transactionDAO.saveEntity(transactionEntity)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
+                .observe(owner, aBoolean -> {
+                    if (aBoolean) {
                         convertToTransaction();
                     } else {
-                        Log.e(TAG, "updateTransactionEntity: onComplete: ", task.getException());
+                        Log.e(TAG, LOC + "updateTransactionEntity: onComplete: ");
                         liveData.setValue(null);
                     }
                 });
@@ -301,41 +272,39 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
         transactionEntity.setTransactionReference(documentReference);
         TransactionDAO transactionDAO = new TransactionDAO();
         transactionDAO.saveEntity(transactionEntity)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
+                .observe(owner, aBoolean -> {
+                    if (aBoolean) {
                         Log.d(TAG, LOC + "updateTransactionEntity: ");
                         updateRideRequest();
                     } else {
-                        Log.e(TAG, LOC + "updateTransactionEntity: onComplete: ", task.getException());
+                        Log.e(TAG, LOC + "updateTransactionEntity: onComplete: ");
                         liveData.setValue(null);
-                    }
-                });
+                    }});
     }
 
     private void updateRideRequest() {
         rideRequest.setState(RideRequest.State.TransactionFinished);
         RideRequestDAO rideRequestDAO = new RideRequestDAO();
         rideRequestDAO.saveModel(rideRequest)
-        .addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Log.d(TAG, LOC + "updateRideRequest: ");
-                updateRider();
-            } else {
-                Log.e(TAG, LOC + "updateRideRequest: onComplete: Fail to save ride request", task.getException());
-                liveData.setValue(null);
-            }
-        });
+                .observe(owner, aBoolean -> {
+                    if (aBoolean) {
+                        updateRider();
+                    } else {
+                        Log.e(TAG, LOC + "updateRideRequest: onComplete: Fail to save ride request");
+                        liveData.setValue(null);
+                    }
+                });
     }
 
     private void updateRider() {
         sender.deactivateRideRequest(rideRequest);
-        riderDAO.save(sender)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
+        riderDAO.saveModel(sender)
+                .observe(owner, aBoolean -> {
+                    if (aBoolean) {
                         Log.d(TAG, "updateRider: saveComplete: ");
                         updateDriver();
                     } else {
-                        Log.e(TAG, LOC + "updateRider: onComplete: Fail to update rider", task.getException());
+                        Log.e(TAG, LOC + "updateRider: onComplete: Fail to update rider");
                         liveData.setValue(null);
                     }
                 });
@@ -346,7 +315,6 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
         driverDAO.saveModel(recipient)
                 .observe(owner, aBoolean -> {
                     if (aBoolean) {
-                        Log.d(TAG, "updateDriver: saveComplete");
                         Transaction transaction = new Transaction(transactionEntity.getTransactionReference(),
                                 transactionEntity.getTimestamp().toDate(),
                                 recipient,

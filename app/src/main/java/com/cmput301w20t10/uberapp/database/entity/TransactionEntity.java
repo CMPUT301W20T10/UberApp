@@ -1,6 +1,6 @@
 package com.cmput301w20t10.uberapp.database.entity;
 
-import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.Transaction;
 import com.cmput301w20t10.uberapp.models.Rider;
@@ -9,6 +9,10 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.cmput301w20t10.uberapp.database.entity.TransactionEntity.*;
 
 /**
  * Entity representation for Transaction model.
@@ -16,14 +20,14 @@ import java.util.Date;
  *
  * @author Allan Manuba
  */
-public class TransactionEntity extends EntityModelBase<TransactionEntity.Field> {
+public class TransactionEntity extends EntityBase<Field> {
     private DocumentReference transactionReference;
     private Timestamp timestamp;
     private DocumentReference recipient;
     private DocumentReference sender;
     private float value;
 
-    public enum Field {
+    enum Field {
         VALUE ("value"),
         SENDER ("sender"),
         RECIPIENT ("recipient"),
@@ -61,10 +65,30 @@ public class TransactionEntity extends EntityModelBase<TransactionEntity.Field> 
 
     @Override
     @Exclude
-    public Field[] getDirtyFieldSet() {
-        return dirtyFieldSet.toArray(new Field[0]);
+    public Map<String, Object> getDirtyFieldMap() {
+        Map<String, Object> dirtyFieldMap = new HashMap<>();
+        for (Field dirtyField :
+                dirtyFieldSet) {
+            switch (dirtyField) {
+                case VALUE:
+                    dirtyFieldMap.put(dirtyField.toString(), getValue());
+                    break;
+                case SENDER:
+                    dirtyFieldMap.put(dirtyField.toString(), getSender());
+                    break;
+                case RECIPIENT:
+                    dirtyFieldMap.put(dirtyField.toString(), getRecipient());
+                    break;
+                case TIMESTAMP:
+                    dirtyFieldMap.put(dirtyField.toString(), getTimestamp());
+                    break;
+                case TRANSACTION_REFERENCE:
+                    dirtyFieldMap.put(dirtyField.toString(), getTransactionReference());
+                    break;
+            }
+        }
+        return dirtyFieldMap;
     }
-
 
     // region setters and getters
     public DocumentReference getTransactionReference() {
@@ -107,7 +131,7 @@ public class TransactionEntity extends EntityModelBase<TransactionEntity.Field> 
         return value;
     }
 
-    public void setValue(int value) {
+    public void setValue(float value) {
         addDirtyField(Field.VALUE);
         this.value = value;
     }

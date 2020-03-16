@@ -7,17 +7,16 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 
+import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
-import com.cmput301w20t10.uberapp.models.EnumField;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 import static android.content.ContentValues.TAG;
@@ -28,7 +27,8 @@ import static android.content.ContentValues.TAG;
  *
  * @author Allan Manuba
  */
-public class RiderDAO {
+public class RiderDAO extends DAOBase<RiderEntity, Rider> {
+    static final String LOC = "RiderDAO: ";
     static final String COLLECTION = "riders";
 
     RiderDAO() {}
@@ -107,151 +107,36 @@ public class RiderDAO {
      * </li>
      */
     public MutableLiveData<Rider> logInAsRider(String username, String password, LifecycleOwner owner) {
-        LoginRiderTask task = new LoginRiderTask(username, password, owner);
+        LogInAsRiderTask task = new LogInAsRiderTask(username, password, owner);
         return task.run();
     }
 
-    private void registerRiderAsUser(MutableLiveData<Rider> riderLiveDate,
-                                     RiderEntity riderEntity,
-                                     MutableLiveData<Rider> riderLiveData,
-                                     String username,
-                                     String password,
-                                     String email,
-                                     String firstName,
-                                     String lastName,
-                                     String phoneNumber,
-                                     String image,
-                                     @NonNull LifecycleOwner owner){
-        // create user then set driver
-        UserDAO userDAO = new UserDAO();
-        userDAO.registerUser(username,
-                password,
-                email,
-                firstName,
-                lastName,
-                phoneNumber,
-                image)
-                .observe(owner, userEntity -> {
-                    if (userEntity != null && userEntity.getUserReference() != null) {
-                        userEntity.setRiderReference(riderEntity.getRiderReference());
-                        userDAO.saveEntity(userEntity);
-
-                        riderEntity.setUserReference(userEntity.getUserReference());
-                        save(riderEntity);
-                        Rider rider = new Rider(riderEntity, userEntity);
-                        riderLiveData.setValue(rider);
-                    }
-                });
-    }
-
-    /**
-     * Saves changes in RiderEntity
-     * @param riderEntity
-     * @return
-     * Returns a Task object that can be observed whether it is successful or not.
-     */
-    public Task<Void> save(final RiderEntity riderEntity) {
+    @Override
+    public MutableLiveData<Boolean> saveEntity(RiderEntity riderEntity) {
         final DocumentReference reference = riderEntity.getRiderReference();
-        Task task = null;
+        final MutableLiveData<Boolean> liveData = new MutableLiveData<>();
 
         if (reference != null) {
-            final Map<String, Object> dirtyPairMap = new HashMap<>();
-
-            for (RiderEntity.Field field:
-                    riderEntity.getDirtyFieldSet()) {
-                Object value = null;
-
-                switch (field) {
-                    case RIDER_REFERENCE:
-                        value = riderEntity.getRiderReference();
-                        break;
-                    case USER_REFERENCE:
-                        value = riderEntity.getUserReference();
-                        break;
-                    case PAYMENT_LIST:
-                        value = riderEntity.getPaymentList();
-                        break;
-                    case RIDE_REQUEST_LIST:
-                        value = riderEntity.getRideRequestList();
-                        break;
-                    case ACTIVE_RIDE_REQUEST_LIST:
-                        value = riderEntity.getActiveRideRequestList();
-                        break;
-                    case BALANCE:
-                        value = riderEntity.getBalance();
-                        break;
-                    default:
-                        break;
-                }
-
-                if (value != null) {
-                    dirtyPairMap.put(field.toString(), value);
-                }
-            }
-
-            riderEntity.clearDirtyStateSet();
-
-            if (dirtyPairMap.size() > 0) {
-                task = reference.update(dirtyPairMap);
-            }
+            final Map<String, Object> dirtyFieldMap = riderEntity.getDirtyFieldMap();
+            reference.update(dirtyFieldMap)
+                    .addOnCompleteListener(task -> {
+                        final boolean isSuccessful = task.isSuccessful();
+                        if (isSuccessful) {
+                            Log.e(TAG, "saveEntity: ", task.getException());
+                        }
+                        liveData.setValue(isSuccessful);
+                    });
+        } else {
+            Log.e(TAG, LOC + "saveEntity: Reference is null");
+            liveData.setValue(false);
         }
 
-        return task;
+        return liveData;
     }
 
-    // todo: improve
-    public Task<Void> save(Rider rider) {
-        final DocumentReference reference = rider.getRiderReference();
-        Task<Void> task = null;
-        Log.d(TAG, "save: "+ reference.getPath());
-        Log.d(TAG, "save: " + Arrays.toString(rider.getDirtyFieldSet()));
-
-        if (reference != null) {
-            final Map<String, Object> dirtyPairMap = new HashMap<>();
-
-            for (EnumField field :
-                    rider.getDirtyFieldSet()) {
-                Object value = null;
-
-                switch (field) {
-                    case TRANSACTION_LIST:
-                        value = rider.getTransactionList();
-                        break;
-                    case RIDE_REQUEST_LIST:
-                        value = rider.getRideRequestList();
-                        break;
-                    case ACTIVE_RIDE_REQUEST_LIST:
-                        Log.d(TAG, "save: In RiderDAO at ACTIVE RIDE");
-                        value = rider.getActiveRideRequestList();
-                        break;
-                    case RIDER_REFERENCE:
-                        value = rider.getRiderReference();
-                        break;
-                    case BALANCE:
-                        value = rider.getBalance();
-                        break;
-                    default:
-                        break;
-                }
-
-                if (value != null) {
-                    dirtyPairMap.put(field.toString(), value);
-                }
-            }
-
-            if (dirtyPairMap.size() > 0) {
-                Log.d(TAG, "save: Here: " + reference.getPath());
-                task = reference.update(dirtyPairMap);
-            }
-
-            // call user task
-            UserDAO userDAO = new UserDAO();
-            userDAO.saveModel(rider, reference, null);
-
-            rider.clearDirtyStateSet();
-        }
-
-        return task;
+    @Override
+    public MutableLiveData<Boolean> saveModel(Rider rider) {
+        return null;
     }
 
     MutableLiveData<Rider> getRiderFromRiderReference(DocumentReference riderReference) {
@@ -261,6 +146,7 @@ public class RiderDAO {
 }
 
 class RegisterRiderTask extends GetTaskSequencer<Rider> {
+    private static final String LOC = RiderDAO.LOC + "RegisterRiderTask: ";
     private String username;
     private String password;
     private String email;
@@ -303,19 +189,24 @@ class RegisterRiderTask extends GetTaskSequencer<Rider> {
         this.riderEntity = new RiderEntity();
         db.collection(RiderDAO.COLLECTION)
             .add(riderEntity)
-            .addOnSuccessListener(this::updateRiderEntity);
+            .addOnSuccessListener(this::updateRiderEntity)
+        .addOnFailureListener(e -> {
+            Log.e(TAG, "addRiderEntity: onFailure: ", e);
+            liveData.setValue(null);
+        });
     }
 
     // task 2
     private void updateRiderEntity(DocumentReference riderReference) {
         this.riderEntity.setRiderReference(riderReference);
         this.riderDAO = new RiderDAO();
-        this.riderDAO.save(this.riderEntity)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
+        this.riderDAO.saveEntity(this.riderEntity)
+                .observe(owner, aBoolean -> {
+                    if (aBoolean) {
                         registerRiderAsUser();
                     } else {
-                        Log.e(TAG, "onComplete: ", task.getException());
+                        Log.e(TAG, "updateRiderEntity: ");
+                        liveData.setValue(null);
                     }
                 });
     }
@@ -331,77 +222,87 @@ class RegisterRiderTask extends GetTaskSequencer<Rider> {
                 phoneNumber,
                 image)
                 .observe(owner, userEntity -> {
-                    this.userEntity = userEntity;
-                    receiveUserEntity();
+                    if (userEntity != null) {
+                        this.userEntity = userEntity;
+                        receiveUserEntity();
+                    } else {
+                        Log.e(TAG, "registerRiderAsUser: ");
+                        liveData.setValue(null);
+                    }
                 });
     }
 
     // task 4
-    private void receiveUserEntity(){
+    private void receiveUserEntity() {
         if (userEntity != null && userEntity.getUserReference() != null) {
             UserDAO userDAO = new UserDAO();
             this.userEntity.setRiderReference(riderEntity.getRiderReference());
             userDAO.saveEntity(userEntity)
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    updateUserEntity();
-                } else {
-                    Log.e(TAG, "onComplete: ", task.getException());
-                }
-            });
-        } else {
-            // todo: improve error message
-            Log.e(TAG, "receiveUserEntity: ");
+                    .observe(owner, aBoolean -> {
+                        if (aBoolean) {
+                            updateUserEntity();
+                        } else {
+                            Log.e(TAG, "receiveUserEntity: ");
+                            liveData.setValue(null);
+                        }
+                    });
         }
     }
 
     // task 5
     private void updateUserEntity() {
         riderEntity.setUserReference(userEntity.getUserReference());
-        this.riderDAO.save(riderEntity)
-        .addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    updateLiveData();
-                } else {
-                    Log.e(TAG, "onComplete: ", task.getException());
-                }
-            }
-        });
-    }
-
-    // task 6
-    private void updateLiveData() {
-        Rider rider = new Rider(riderEntity, userEntity);
-        liveData.setValue(rider);
+        this.riderDAO.saveEntity(riderEntity)
+                .observe(owner, aBoolean -> {
+                    if (aBoolean) {
+                        Rider rider = new Rider(riderEntity.getRiderReference(),
+                                riderEntity.getTransactionList(),
+                                riderEntity.getFinishedRideRequestList(),
+                                riderEntity.getActiveRideRequestList(),
+                                userEntity.getUsername(),
+                                userEntity.getPassword(),
+                                userEntity.getEmail(),
+                                userEntity.getFirstName(),
+                                userEntity.getLastName(),
+                                userEntity.getPhoneNumber(),
+                                userEntity.getImage(),
+                                riderEntity.getBalance());
+                        liveData.setValue(rider);
+                    } else {
+                        Log.e(TAG, LOC + "receiveUserEntity: ");
+                        liveData.setValue(null);
+                    }
+                });
     }
 }
 
-class LoginRiderTask extends GetTaskSequencer<Rider> {
-    String username;
-    String password;
-    LifecycleOwner owner;
-    private UserEntity userEntity;
+class LogInAsRiderTask extends GetTaskSequencer<Rider> {
+    static final String LOC = DriverDAO.LOC + "LogInAsDriverTask";
 
-    LoginRiderTask(String username, String password, LifecycleOwner owner) {
+    private final String password;
+    private final String username;
+    private final LifecycleOwner owner;
+    private UserEntity userEntity;
+    private RiderEntity riderEntity;
+
+    LogInAsRiderTask(String username, String password, LifecycleOwner owner) {
+        this.owner = owner;
         this.username = username;
         this.password = password;
-        this.owner = owner;
     }
 
     @Override
     public MutableLiveData<Rider> run() {
-        attemptLogin();
+        userLogin();
         return liveData;
     }
 
-    // task 1
-    private void attemptLogin() {
+    private void userLogin() {
         UserDAO userDAO = new UserDAO();
         userDAO.logIn(username, password)
                 .observe(owner, userEntity -> {
-                    if (userEntity == null || userEntity.getRiderReference() == null) {
+                    if (userEntity == null || userEntity.getDriverReference() == null) {
+                        Log.e(TAG, LOC + "userLogin: ");
                         liveData.setValue(null);
                     } else {
                         this.userEntity = userEntity;
@@ -410,21 +311,40 @@ class LoginRiderTask extends GetTaskSequencer<Rider> {
                 });
     }
 
-    // task 2
     private void getRiderEntity() {
-        // this gets rider using user reference
         userEntity.getRiderReference()
                 .get()
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        RiderEntity riderEntity = task.getResult()
-                                .toObject(RiderEntity.class);
-                        Rider rider = new Rider(riderEntity, userEntity);
-                        liveData.setValue(rider);
+                    if (task.isSuccessful()) {
+                        convertToModel();
+                        riderEntity = task.getResult().toObject(RiderEntity.class);
+                        convertToModel();
                     } else {
+                        Log.e(TAG, LOC +"getDriverEntity: onComplete: ", task.getException());
                         liveData.setValue(null);
                     }
                 });
+    }
+
+    private void convertToModel() {
+        if (riderEntity == null) {
+            Log.e(TAG, "convertToModel: driverEntity is null");
+            liveData.setValue(null);
+        } else {
+            Rider rider = new Rider(riderEntity.getRiderReference(),
+                    riderEntity.getTransactionList(),
+                    riderEntity.getFinishedRideRequestList(),
+                    riderEntity.getActiveRideRequestList(),
+                    userEntity.getUsername(),
+                    userEntity.getPassword(),
+                    userEntity.getEmail(),
+                    userEntity.getFirstName(),
+                    userEntity.getLastName(),
+                    userEntity.getPhoneNumber(),
+                    userEntity.getImage(),
+                    riderEntity.getBalance());
+            liveData.setValue(rider);
+        }
     }
 }
 

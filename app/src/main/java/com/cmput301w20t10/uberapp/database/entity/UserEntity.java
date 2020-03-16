@@ -2,13 +2,17 @@ package com.cmput301w20t10.uberapp.database.entity;
 
 import android.util.Log;
 
-import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.EnumField;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static android.content.ContentValues.TAG;
+import static com.cmput301w20t10.uberapp.database.entity.UserEntity.*;
 
 /**
  * Entity representation for Driver model.
@@ -16,7 +20,8 @@ import static android.content.ContentValues.TAG;
  *
  * @author Allan Manuba
  */
-public class UserEntity extends EntityModelBase<UserEntity.Field> {
+public class UserEntity extends EntityBase<Field> {
+    private static final String LOC = "Tomate: UserEntity: ";
 
     public enum Field {
         USERNAME ("username"),
@@ -72,68 +77,75 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
         this.image = image;
         this.driverReference = null;
         this.riderReference = null;
+        this.userReference = null;
     }
 
-    public UserEntity(Driver driver) {
-        this.userReference = driver.getUserReference();
-        this.driverReference = driver.getDriverReference();
-        this.username = driver.getUsername();
-        this.email = driver.getEmail();
-        this.phoneNumber = driver.getPhoneNumber();
-        this.password = driver.getPassword();
-        this.firstName = driver.getFirstName();
-        this.lastName = driver.getLastName();
-        this.image = driver.getImage();
-
-        for (EnumField dirtyField :
-                driver.getDirtyFieldSet()) {
-            switch (dirtyField) {
-                case USER_REFERENCE:
-                    addDirtyField(Field.USER_REFERENCE);
-                    break;
-                case USERNAME:
-                    addDirtyField(Field.USERNAME);
-                    break;
-                case PASSWORD:
-                    addDirtyField(Field.PASSWORD);
-                    break;
-                case EMAIL:
-                    addDirtyField(Field.EMAIL);
-                    break;
-                case FIRST_NAME:
-                    addDirtyField(Field.FIRST_NAME);
-                    break;
-                case LAST_NAME:
-                    addDirtyField(Field.LAST_NAME);
-                    break;
-                case PHONE_NUMBER:
-                    addDirtyField(Field.PHONE_NUMBER);
-                    break;
-                case IMAGE:
-                    addDirtyField(Field.IMAGE);
-                    break;
-                case DRIVER_REFERENCE:
-                    addDirtyField(Field.DRIVER_REFERENCE);
-                    break;
-                case TRANSACTION_LIST:
-                case RIDER_REFERENCE:
-                case RIDE_REQUEST_LIST:
-                case ACTIVE_RIDE_REQUEST_LIST:
-                case RATING:
-                case BALANCE:
-                    // do nothing
-                    break;
-                default:
-                    Log.w(TAG, "UserEntity: Constructor: Unknown field: " + dirtyField.toString());
-                    break;
-            }
-        }
+    public UserEntity(DocumentReference userReference,
+                      DocumentReference driverReference,
+                      DocumentReference riderReference,
+                      String username,
+                      String password,
+                      String email,
+                      String firstName,
+                      String lastName,
+                      String phoneNumber,
+                      String image) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.image = image;
+        this.driverReference = driverReference;
+        this.riderReference = riderReference;
+        this.userReference = userReference
+        ;
     }
 
     @Override
     @Exclude
-    public Field[] getDirtyFieldSet() {
-        return dirtyFieldSet.toArray(new Field[0]);
+    public Map<String, Object> getDirtyFieldMap() {
+        HashMap<String, Object> dirtyFieldMap = new HashMap<>();
+        for (Field dirtyField :
+                dirtyFieldSet) {
+            switch (dirtyField) {
+                case USERNAME:
+                    dirtyFieldMap.put(dirtyField.toString(), getUsername());
+                    break;
+                case PASSWORD:
+                    dirtyFieldMap.put(dirtyField.toString(), getPassword());
+                    break;
+                case EMAIL:
+                    dirtyFieldMap.put(dirtyField.toString(), getEmail());
+                    break;
+                case FIRST_NAME:
+                    dirtyFieldMap.put(dirtyField.toString(), getFirstName());
+                    break;
+                case LAST_NAME:
+                    dirtyFieldMap.put(dirtyField.toString(), getLastName());
+                    break;
+                case PHONE_NUMBER:
+                    dirtyFieldMap.put(dirtyField.toString(), getPhoneNumber());
+                    break;
+                case DRIVER_REFERENCE:
+                    dirtyFieldMap.put(dirtyField.toString(), getDriverReference());
+                    break;
+                case RIDER_REFERENCE:
+                    dirtyFieldMap.put(dirtyField.toString(), getRiderReference());
+                    break;
+                case USER_REFERENCE:
+                    dirtyFieldMap.put(dirtyField.toString(), getUserReference());
+                    break;
+                case IMAGE:
+                    dirtyFieldMap.put(dirtyField.toString(), getImage());
+                    break;
+                default:
+                    Log.e(TAG, LOC + "getDirtyFieldMap: Unknown field: " + dirtyField.toString());
+                    break;
+            }
+        }
+        return  dirtyFieldMap;
     }
 
     // region getters and setters

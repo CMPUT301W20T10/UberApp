@@ -2,18 +2,25 @@ package com.cmput301w20t10.uberapp.database;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
+import com.cmput301w20t10.uberapp.database.base.ModelBase;
+import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.models.EnumField;
+import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.User;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static android.content.ContentValues.TAG;
@@ -24,7 +31,7 @@ import static android.content.ContentValues.TAG;
  *
  * @author Allan Manuba
  */
-class UserDAO extends DAOBase<UserEntity> {
+class UserDAO extends DAOBase<UserEntity, User> {
     private static final String COLLECTION = "users";
     final static String LOC = "Tomate: UserDAO: ";
 
@@ -51,7 +58,8 @@ class UserDAO extends DAOBase<UserEntity> {
      *     <ul><b>Null:</b> Log in failed.</ul>
      * </li>
      */
-    MutableLiveData<UserEntity> logIn(String username, String password) {
+    // todo: improve
+    LiveData<UserEntity> logIn(String username, String password) {
         MutableLiveData<UserEntity> userLiveData = new MutableLiveData<>();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -91,7 +99,8 @@ class UserDAO extends DAOBase<UserEntity> {
      * @param phoneNumber
      * @return  null if user already registered
      */
-    public MutableLiveData<UserEntity> registerUser(String username,
+    // todo: improve
+    public LiveData<UserEntity> registerUser(String username,
                                                     String password,
                                                     String email,
                                                     String firstName,
@@ -136,127 +145,41 @@ class UserDAO extends DAOBase<UserEntity> {
      * Returns a Task object that can be observed whether it is successful or not.
      */
     @Override
-    public Task<Void> saveEntity(final UserEntity userEntity) {
-        final DocumentReference reference = userEntity.getUserReference();
-        Task task = null;
+    public MutableLiveData<Boolean> saveEntity(final UserEntity userEntity) {
+        MutableLiveData<Boolean> liveData = new MutableLiveData<>();
+        DocumentReference userReference = userEntity.getUserReference();
 
-        if (reference != null) {
-            final Map<String, Object> dirtyPairMap = new HashMap<>();
-
-            for (UserEntity.Field field:
-                 userEntity.getDirtyFieldSet()) {
-                Object value = null;
-
-                switch (field) {
-                    case USERNAME:
-                        value = userEntity.getUsername();
-                        break;
-                    case PASSWORD:
-                        value = userEntity.getPassword();
-                        break;
-                    case EMAIL:
-                        value = userEntity.getEmail();
-                        break;
-                    case FIRST_NAME:
-                        value = userEntity.getFirstName();
-                        break;
-                    case LAST_NAME:
-                        value = userEntity.getLastName();
-                        break;
-                    case PHONE_NUMBER:
-                        value = userEntity.getPhoneNumber();
-                        break;
-                    case DRIVER_REFERENCE:
-                        value = userEntity.getDriverReference();
-                        break;
-                    case RIDER_REFERENCE:
-                        value = userEntity.getRiderReference();
-                        break;
-                    case USER_REFERENCE:
-                        value = userEntity.getUserReference();
-                        break;
-                    case IMAGE:
-                        value = userEntity.getImage();
-                        break;
-                    default:
-                        break;
-                }
-
-                if (value != null) {
-                    dirtyPairMap.put(field.toString(), value);
-                }
-            }
-
+        if (userReference != null) {
+            Map<String, Object> fieldMap = userEntity.getDirtyFieldMap();
             userEntity.clearDirtyStateSet();
-
-            if (dirtyPairMap.size() > 0) {
-                task = reference.update(dirtyPairMap);
-            }
+            userReference.update(fieldMap)
+                    .addOnCompleteListener(task -> {
+                        boolean isSuccessful = task.isSuccessful();
+                        if (!isSuccessful) {
+                            Log.e(TAG, LOC + "saveEntity: onComplete: ", task.getException());
+                        }
+                        liveData.setValue(isSuccessful);
+                    });
+        } else {
+            liveData.setValue(false);
         }
 
-        return task;
+        return liveData;
     }
 
-    public Task saveModel(User model,
-                          DocumentReference riderReference,
-                          DocumentReference driverReference) {
+    @Override
+    public MutableLiveData<Boolean> saveModel(User model) {
         final DocumentReference reference = model.getUserReference();
-        Task task = null;
 
         if (reference != null) {
-            final Map<String, Object> dirtyPairMap = new HashMap<>();
-
-            for (EnumField field :
-                    model.getDirtyFieldSet()) {
-                Object value = null;
-
-                switch (field) {
-                    case USERNAME:
-                        value = model.getUsername();
-                        break;
-                    case PASSWORD:
-                        value = model.getPassword();
-                        break;
-                    case EMAIL:
-                        value = model.getEmail();
-                        break;
-                    case FIRST_NAME:
-                        value = model.getFirstName();
-                        break;
-                    case LAST_NAME:
-                        value = model.getLastName();
-                        break;
-                    case PHONE_NUMBER:
-                        value = model.getPhoneNumber();
-                        break;
-                    case DRIVER_REFERENCE:
-                        value = driverReference;
-                        break;
-                    case RIDER_REFERENCE:
-                        value = riderReference;
-                        break;
-                    case USER_REFERENCE:
-                        value = model.getUserReference();
-                        break;
-                    case IMAGE:
-                        value = model.getImage();
-                        break;
-                    default:
-                        break;
-                }
-
-                if (value != null) {
-                    dirtyPairMap.put(field.toString(), value);
-                }
-            }
-
-            if (dirtyPairMap.size() > 0) {
-                task = reference.update(dirtyPairMap);
-            }
-
-            model.clearDirtyStateSet();
+            UserEntity userEntity = new UserEntity();
+            model.transferChanges(userEntity);
+            return saveEntity(userEntity);
+        } else {
+            Log.e(TAG, LOC + "saveModel: Reference is null");
+            MutableLiveData<Boolean> liveData = new MutableLiveData<>();
+            liveData.setValue(false);
+            return liveData;
         }
-
-        return task;
     }
 }

@@ -229,7 +229,7 @@ public class BasicDAOTest {
             };
             Route route = new Route(new GeoPoint(0,0), new GeoPoint(10, 10));
             RideRequestDAO dao = databaseManager.getRideRequestDAO();
-            MutableLiveData<RideRequest> liveData = dao.createRideRequest(rider, route, 10);
+            MutableLiveData<RideRequest> liveData = dao.createRideRequest(rider, route, 10, lifecycleOwner);
             liveData.observe(lifecycleOwner, observer);
         };
 
@@ -409,7 +409,7 @@ public class BasicDAOTest {
         Runnable runnable = () -> {
             Observer<Boolean> observer = new AssertNullObserver<Boolean>(syncObject);
             RideRequestDAO dao = databaseManager.getRideRequestDAO();
-            MutableLiveData<Boolean> liveData = dao.acceptRideFromDriver(rideRequest, rider);
+            MutableLiveData<Boolean> liveData = dao.acceptRideFromDriver(rideRequest, rider, lifecycleOwner);
             liveData.observe(lifecycleOwner, observer);
         };
 
@@ -439,7 +439,7 @@ public class BasicDAOTest {
         Runnable runnable = () -> {
             Observer<Boolean> observer = new AssertNullObserver<Boolean>(syncObject);
             RideRequestDAO dao = databaseManager.getRideRequestDAO();
-            MutableLiveData<Boolean> liveData = dao.confirmRideCompletion(rideRequest, rider);
+            MutableLiveData<Boolean> liveData = dao.confirmRideCompletion(rideRequest, rider, lifecycleOwner);
             liveData.observe(lifecycleOwner, observer);
         };
 
