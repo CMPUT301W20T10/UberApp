@@ -16,11 +16,19 @@ import static com.cmput301w20t10.uberapp.database.entity.TransactionEntity.*;
 
 /**
  * Entity representation for Transaction model.
- * Entity objects are the one-to-one representation of objects from the database.
+ * @see EntityBase
  *
  * @author Allan Manuba
+ * @version 1.0.0
  */
 public class TransactionEntity extends EntityBase<Field> {
+
+    // region Fields
+    /**
+     * Fields
+     * @version 1.0.0
+     */
+
     private DocumentReference transactionReference;
     private Timestamp timestamp;
     private DocumentReference recipient;
@@ -40,29 +48,37 @@ public class TransactionEntity extends EntityBase<Field> {
             this.stringValue = fieldName;
         }
 
+        @Override
         public String toString() {
             return stringValue;
         }
     }
+    // endregion Fields
 
-    public TransactionEntity() {}
+    // region Constructors
+    /**
+     * Constructors
+     * @version 1.0.0
+     */
+    public TransactionEntity() { super(); }
 
     public TransactionEntity(Rider sender, Driver recipient, int value) {
+        super();
         this.sender = sender.getUserReference();
         this.recipient = recipient.getUserReference();
         this.timestamp = new Timestamp(new Date());
         this.value = value;
     }
+    // endregion Constructors
 
-    public TransactionEntity(Transaction transaction) {
-        super();
-        this.transactionReference = transaction.getTransactionReference();
-        this.timestamp = new Timestamp(transaction.getTimestamp());
-        this.recipient = transaction.getRecipient().getUserReference();
-        this.sender = transaction.getSender().getUserReference();
-        this.value = transaction.getValue();
-    }
-
+    /**
+     * @see EntityBase#addDirtyField(Object)
+     *
+     * @return a map that can be used to update a Firestore reference
+     *
+     * @author Allan Manuba
+     * @version 1.0.0
+     */
     @Override
     @Exclude
     public Map<String, Object> getDirtyFieldMap() {
@@ -90,7 +106,7 @@ public class TransactionEntity extends EntityBase<Field> {
         return dirtyFieldMap;
     }
 
-    // region setters and getters
+    // region Setters and getters
     public DocumentReference getTransactionReference() {
         return transactionReference;
     }
@@ -135,5 +151,5 @@ public class TransactionEntity extends EntityBase<Field> {
         addDirtyField(Field.VALUE);
         this.value = value;
     }
-    // endregion setters and getters
+    // endregion Setters and getters
 }

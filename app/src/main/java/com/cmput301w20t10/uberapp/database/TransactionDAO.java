@@ -17,8 +17,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -54,7 +52,7 @@ public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
 
         if (userReference != null) {
             Map<String, Object> fieldMap = entity.getDirtyFieldMap();
-            entity.clearDirtyStateSet();
+            entity.clearDirtyFieldSet();
             userReference.update(fieldMap)
                     .addOnCompleteListener(task -> {
                         boolean isSuccessful = task.isSuccessful();

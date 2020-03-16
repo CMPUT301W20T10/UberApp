@@ -3,7 +3,6 @@ package com.cmput301w20t10.uberapp.database.entity;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.EntityBase;
-import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.google.firebase.Timestamp;
@@ -27,9 +26,14 @@ import static com.cmput301w20t10.uberapp.database.entity.RideRequestEntity.*;
  * Entity objects are the one-to-one representation of objects from the database.
  *
  * @author Allan Manuba
+ * @version 1.0.0
  */
 public class RideRequestEntity extends EntityBase<Field> {
-    public static final String FIELD_RIDE_REQUEST_REFERENCE = "rideRequestId";
+    // region Fields
+    /**
+     * Fields
+     * @version 1.0.0
+     */
     private static final String LOC = "RideRequestEntity";
 
     private DocumentReference rideRequestReference;
@@ -67,6 +71,13 @@ public class RideRequestEntity extends EntityBase<Field> {
             return stringValue;
         }
     }
+    // endregion Fields
+
+    // region Constructors
+    /**
+     * Constructors
+     * @version 1.0.0
+     */
 
     /**
      * Required for deserializing
@@ -83,7 +94,16 @@ public class RideRequestEntity extends EntityBase<Field> {
         this.fareOffer = fareOffer;
         this.timestamp = new Timestamp(new Date());
     }
+    // endregion
 
+    /**
+     * @see EntityBase#addDirtyField(Object)
+     *
+     * @return a map that can be used to update a Firestore reference
+     *
+     * @author Allan Manuba
+     * @version 1.0.0
+     */
     @Override
     @Exclude
     public Map<String, Object> getDirtyFieldMap() {

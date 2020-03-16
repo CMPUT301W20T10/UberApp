@@ -14,22 +14,21 @@ import static com.cmput301w20t10.uberapp.database.entity.UnpairedRideEntity.*;
 
 /**
  * Entity representation for UnpairedRideEntity model.
- * Entity objects are the one-to-one representation of objects from the database.
+ * @see EntityBase
+ *
  * todo: add timestamp
  * @author Allan Manuba
+ * @version 1.0.0
  */
 public class UnpairedRideEntity extends EntityBase<Field> {
+    // region Fields
+    /**
+     * Fields
+     * @version 1.0.0
+     */
+
     private static final String LOC = "UnpairedRideEntity: ";
     private DocumentReference rideRequestReference;
-
-    /**
-     * Don't remove. This is required during deserialization.
-     */
-    public UnpairedRideEntity() {}
-
-    public UnpairedRideEntity(DocumentReference rideRequestReference) {
-        this.rideRequestReference = rideRequestReference;
-    }
 
     public enum Field {
         RIDE_REQUEST_REFERENCE ("rideRequestReference");
@@ -44,7 +43,32 @@ public class UnpairedRideEntity extends EntityBase<Field> {
             return stringValue;
         }
     }
+    // endregion Fields
 
+    // region Constructors
+    /**
+     * Constructors
+     * @version 1.0.0
+     */
+
+    /**
+     * Don't remove. This is required during deserialization.
+     */
+    public UnpairedRideEntity() {}
+
+    public UnpairedRideEntity(DocumentReference rideRequestReference) {
+        this.rideRequestReference = rideRequestReference;
+    }
+    // endregion Constructors
+
+    /**
+     * @see EntityBase#addDirtyField(Object)
+     *
+     * @return a map that can be used to update a Firestore reference
+     *
+     * @author Allan Manuba
+     * @version 1.0.0
+     */
     @Override
     @Exclude
     public Map<String, Object> getDirtyFieldMap() {

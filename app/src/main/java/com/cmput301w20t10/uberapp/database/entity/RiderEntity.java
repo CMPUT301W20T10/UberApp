@@ -20,11 +20,18 @@ import static com.cmput301w20t10.uberapp.database.entity.RiderEntity.*;
 
 /**
  * Entity representation for Rider model.
- * Entity objects are the one-to-one representation of objects from the database.
+ * @see EntityBase
  *
  * @author Allan Manuba
+ * @version 1.0.0
  */
 public class RiderEntity extends EntityBase<Field> {
+    // region Fields
+    /**
+     * Fields
+     * @version 1.0.0
+     */
+
     private DocumentReference userReference;
     private DocumentReference riderReference;
     private List<DocumentReference> transactionList;
@@ -51,13 +58,26 @@ public class RiderEntity extends EntityBase<Field> {
             return stringValue;
         }
     }
+    // endregion
 
+    /**
+     * Constructors
+     * @version 1.0.0
+     */
     public RiderEntity() {
         transactionList = new ArrayList<>();
         rideRequestList = new ArrayList<>();
         activeRideRequestList = new ArrayList<>();
     }
 
+    /**
+     * @see EntityBase#addDirtyField(Object)
+     *
+     * @return a map that can be used to update a Firestore reference
+     *
+     * @author Allan Manuba
+     * @version 1.0.0
+     */
     @Override
     @Exclude
     public Map<String, Object> getDirtyFieldMap() {
@@ -93,6 +113,16 @@ public class RiderEntity extends EntityBase<Field> {
         return dirtyFieldMap;
     }
 
+    /**
+     * Downgrades the status of a given ride request such that it is no longer part
+     * of the active ride request list, and it can only be seen in the history from
+     * that point on
+     *
+     * @param rideRequest
+     *
+     * @author Allan Manuba
+     * @version 1.0.0
+     */
     public void deactivateRideRequest(RideRequest rideRequest) {
         activeRideRequestList.remove(rideRequest.getRideRequestReference());
         rideRequestList.add(rideRequest.getRideRequestReference());
@@ -100,7 +130,7 @@ public class RiderEntity extends EntityBase<Field> {
         addDirtyField(Field.FINISHED_RIDE_REQUEST_LIST);
     }
 
-    // region getters and setters
+    // region Getters and setters
     public DocumentReference getUserReference() {
         return userReference;
     }

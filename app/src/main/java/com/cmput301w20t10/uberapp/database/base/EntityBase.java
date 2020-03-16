@@ -22,7 +22,9 @@ public abstract class EntityBase<Field> extends DatabaseObjectBase {
 
     /**
      * When overriding, also add the @Exclude annotation to avoid
-     * deserializing errors.
+     * deserializing errors
+     *
+     * @return A Map<String, Object> object which can be used to update documents in Firestore
      */
     @Exclude
     public abstract Map<String, Object> getDirtyFieldMap();
@@ -30,7 +32,7 @@ public abstract class EntityBase<Field> extends DatabaseObjectBase {
     /**
      * Clears the set of dirty states
      */
-    public void clearDirtyStateSet() {
+    public void clearDirtyFieldSet() {
         this.dirtyFieldSet.clear();
     }
 }

@@ -14,12 +14,17 @@ import static com.cmput301w20t10.uberapp.database.entity.DriverEntity.*;
 
 /**
  * Entity representation for Driver model.
- * Entity objects are the one-to-one representation of objects from the database.
+ * @see EntityBase
  *
  * @author Allan Manuba
+ * @version 1.0.0
  */
 public class DriverEntity extends EntityBase<Field> {
-    public static final String DRIVER_REFERENCE = "driverReference";
+    // region Fields
+    /**
+     * Fields
+     * version 1.0.0
+     */
 
     private DocumentReference userReference;
     private DocumentReference driverReference;
@@ -46,15 +51,24 @@ public class DriverEntity extends EntityBase<Field> {
         public String toString() {
             return stringValue;
         }
-    };
+    }
+    // endregion Fields
+
+    // region Constructors
+    /**
+     * Constructors
+     * @version 1.0.0
+     */
 
     public DriverEntity() {
+        super();
         this.rating = 0;
         this.paymentList = new ArrayList<>();
         this.finishedRideRequestList = new ArrayList<>();
         this.activeRideRequestList = new ArrayList<>();
     }
 
+    // todo (Allan): investigate if still needed
     public DriverEntity(DocumentReference userReference,
                         DocumentReference driverReference,
                         List<DocumentReference> paymentList,
@@ -66,7 +80,16 @@ public class DriverEntity extends EntityBase<Field> {
         this.finishedRideRequestList = finishedRideRequestList;
         this.activeRideRequestList = activeRideRequestList;
     }
+    // endregion Constructors
 
+    /**
+     * Should only be used in the database.
+     *
+     * @return a map that can be used to update a Firestore reference
+     *
+     * @author Allan Manuba
+     * @version 1.0.0
+     */
     @Override
     @Exclude
     public Map<String, Object> getDirtyFieldMap() {
@@ -99,6 +122,16 @@ public class DriverEntity extends EntityBase<Field> {
         return dirtyFieldMap;
     }
 
+    /**
+     * Downgrades the status of a given ride request such that it is no longer part
+     * of the active ride request list, and it can only be seen in the history from
+     * that point on
+     *
+     * @param rideRequest
+     *
+     * @author Allan Manuba
+     * @version 1.0.0
+     */
     public void deactivateRideRequest(RideRequest rideRequest) {
         activeRideRequestList.remove(rideRequest.getRideRequestReference());
         finishedRideRequestList.add(rideRequest.getRideRequestReference());

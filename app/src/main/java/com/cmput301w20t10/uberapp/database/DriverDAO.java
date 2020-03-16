@@ -7,14 +7,10 @@ import com.cmput301w20t10.uberapp.database.entity.DriverEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Driver;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.Map;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
@@ -176,7 +172,7 @@ class SaveDriverModelTask extends GetTaskSequencer<Boolean> {
         driverEntity = new DriverEntity();
         userEntity = new UserEntity();
         driver.transferChanges(driverEntity);
-        driver.clearDirtyStateSet();
+        driver.clearDirtyFieldSet();
     }
 
     @Override

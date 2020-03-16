@@ -16,11 +16,17 @@ import static com.cmput301w20t10.uberapp.database.entity.UserEntity.*;
 
 /**
  * Entity representation for Driver model.
- * Entity objects are the one-to-one representation of objects from the database.
+ * @see EntityBase
  *
  * @author Allan Manuba
+ * @version 1.0.0
  */
 public class UserEntity extends EntityBase<Field> {
+    // region Fields
+    /**
+     * Fields
+     * @version 1.0.0
+     */
     private static final String LOC = "Tomate: UserEntity: ";
 
     public enum Field {
@@ -57,8 +63,17 @@ public class UserEntity extends EntityBase<Field> {
     private String firstName;
     private String lastName;
     private String image;
+    // endregion fields
 
+    // region Constructors
+    /**
+     * Constructors
+     * @version 1.0.0
+     */
 
+    /**
+     * For Firestore deserialization
+     */
     public UserEntity() {}
 
     public UserEntity(String username,
@@ -80,6 +95,7 @@ public class UserEntity extends EntityBase<Field> {
         this.userReference = null;
     }
 
+    // todo: check out if still needed
     public UserEntity(DocumentReference userReference,
                       DocumentReference driverReference,
                       DocumentReference riderReference,
@@ -102,7 +118,16 @@ public class UserEntity extends EntityBase<Field> {
         this.userReference = userReference
         ;
     }
+    // endregion Constructors
 
+    /**
+     * @see EntityBase#addDirtyField(Object)
+     *
+     * @return a map that can be used to update a Firestore reference
+     *
+     * @author Allan Manuba
+     * @version 1.0.0
+     */
     @Override
     @Exclude
     public Map<String, Object> getDirtyFieldMap() {
