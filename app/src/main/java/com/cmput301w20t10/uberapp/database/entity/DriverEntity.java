@@ -140,6 +140,12 @@ public class DriverEntity extends EntityBase<Field> {
     }
 
     // region setters
+    @Override
+    @Exclude
+    public DocumentReference getMainReference() {
+        return getDriverReference();
+    }
+
     public DocumentReference getUserReference() {
         return userReference;
     }

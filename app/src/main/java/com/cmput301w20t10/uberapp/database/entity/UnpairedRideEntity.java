@@ -88,6 +88,13 @@ public class UnpairedRideEntity extends EntityBase<Field> {
     }
 
     // region setter and getter
+    @Override
+    @Exclude
+    public DocumentReference getMainReference() {
+        // todo add more warnings here
+        return null;
+    }
+
     public DocumentReference getRideRequestReference() {
         return rideRequestReference;
     }

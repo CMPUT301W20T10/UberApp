@@ -107,6 +107,12 @@ public class TransactionEntity extends EntityBase<Field> {
     }
 
     // region Setters and getters
+    @Override
+    @Exclude
+    public DocumentReference getMainReference() {
+        return getTransactionReference();
+    }
+
     public DocumentReference getTransactionReference() {
         return transactionReference;
     }

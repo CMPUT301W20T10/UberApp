@@ -94,9 +94,8 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
     private List<DocumentSnapshot> snapshotList;
 
     @Override
-    public MutableLiveData<List<RideRequest>> run() {
+    public void doFirstTask() {
         getUnpairedCollection();
-        return liveData;
     }
 
     private void getUnpairedCollection() {
@@ -110,14 +109,14 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
                         convertToRideRequestList();
                     } else {
                         Log.e(TAG, "onComplete: ", task.getException());
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
 
     private void convertToRideRequestList() {
         List<RideRequest> rideRequestList = new ArrayList<>();
-        liveData.setValue(rideRequestList);
+        postResult(rideRequestList);
 
         for (DocumentSnapshot snapshot : snapshotList) {
             UnpairedRideEntity unpairedRideEntity = snapshot.toObject(UnpairedRideEntity.class);
@@ -135,7 +134,7 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
                             RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
                             assert rideRequestEntity != null;
                             rideRequestList.add(new RideRequest(rideRequestEntity));
-                            liveData.setValue(rideRequestList);
+                            postResult(rideRequestList);
                         } else {
                             Log.e(TAG, "onComplete: ", task.getException());
                         }
@@ -172,9 +171,8 @@ class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
     }
 
     @Override
-    public MutableLiveData<Boolean> run() {
+    public void doFirstTask() {
         removeSelfReferenceToUnpaired();
-        return liveData;
     }
 
     private void removeSelfReferenceToUnpaired() {
@@ -195,15 +193,15 @@ class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
                         break;
                     default:
                         Log.e(TAG, "removeSelfReferenceToUnpaired: Unknown type: " + type.toString());
-                        liveData.setValue(false);
+                        postResult(false);
                         break;
                 }
             } else {
-                liveData.setValue(false);
+                    postResult(false);
             }
             });
         } else {
-            liveData.setValue(false);
+            postResult(false);
         }
     }
 
@@ -220,7 +218,7 @@ class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, LOC + "onFailure: ", e);
-                    liveData.setValue(false);
+                    postResult(false);
                 });
     }
 
@@ -234,11 +232,11 @@ class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
                             getDriverReference();
                         } else {
                             Log.e(TAG, LOC +"deactivateRequestFromRider: ");
-                            liveData.setValue(false);
+                            postResult(false);
                         }
                     });
         } else {
-            liveData.setValue(false);
+            postResult(false);
         }
     }
 
@@ -256,7 +254,7 @@ class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
                     })
                     .addOnFailureListener(e -> {
                         Log.e(TAG, LOC + "getDriverReference: onFailure: ", e);
-                        liveData.setValue(false);
+                        postResult(false);
                     });
         } else {
             Log.i(TAG, LOC + "getDriverReference: null driverReference or no driver");
@@ -274,20 +272,20 @@ class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
                             deleteRequest();
                         } else {
                             Log.e(TAG, LOC + "deactivateRequestFromDriver: ");
-                            liveData.setValue(false);
+                            postResult(false);
                         }
                     });
         } else {
-            liveData.setValue(false);
+            postResult(false);
         }
     }
     // endregion cancel
 
     private void deleteRequest() {
         documentReference.delete()
-        .addOnSuccessListener(aVoid -> liveData.setValue(true)).addOnFailureListener(e -> {
+        .addOnSuccessListener(aVoid -> postResult(true)).addOnFailureListener(e -> {
             Log.e(TAG, LOC + "deleteRequest: onFailure: ");
-            liveData.setValue(false);
+            postResult(false);
         });
     }
 

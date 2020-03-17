@@ -179,6 +179,12 @@ public class UserEntity extends EntityBase<Field> {
     }
 
     // region getters and setters
+    @Override
+    @Exclude
+    public DocumentReference getMainReference() {
+        return getUserReference();
+    }
+
     public DocumentReference getUserReference() {
         return userReference;
     }

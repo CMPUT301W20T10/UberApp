@@ -1,6 +1,15 @@
 package com.cmput301w20t10.uberapp.database.base;
 
+import android.util.Log;
+
+import com.cmput301w20t10.uberapp.database.util.DatabaseLogger;
+import com.google.firebase.firestore.DocumentReference;
+
+import java.util.Map;
+
 import androidx.lifecycle.MutableLiveData;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Base class for DAO's that handle read and writing for models and entities
@@ -11,7 +20,11 @@ import androidx.lifecycle.MutableLiveData;
  *     Models are application objects that front end programmers get to interact with
  *
  * @author Allan Manuba
- * @version 1.0.0
+ * @version 1.0.2
+ * Apply same default saving style for entities and model for all subclasses
+ *
+ * @author Allan Manuba
+ * @version 1.0.1
  */
 public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase> {
     /**
@@ -27,7 +40,27 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
      * @author Allan Manuba
      * @version 1.0.0
      */
-    public abstract MutableLiveData<Boolean> saveEntity(Entity entity);
+    public MutableLiveData<Boolean> saveEntity(Entity entity) {
+        final DocumentReference reference = entity.getMainReference();
+        final MutableLiveData<Boolean> liveData = new MutableLiveData<>();
+
+        if (reference != null) {
+            final Map<String, Object> dirtyFieldMap = entity.getDirtyFieldMap();
+            reference.update(dirtyFieldMap)
+                    .addOnCompleteListener(task -> {
+                        final boolean isSuccessful = task.isSuccessful();
+                        if (!isSuccessful) {
+                            DatabaseLogger.error(new Exception(), "", task.getException());
+                        }
+                        liveData.setValue(isSuccessful);
+                    });
+        } else {
+            DatabaseLogger.error(new Exception(), "Reference is null", null);
+            liveData.setValue(false);
+        }
+
+        return liveData;
+    }
 
     /**
      * Saves all dirty fields for a given model. Dirty fields in an entity are unsaved fields.

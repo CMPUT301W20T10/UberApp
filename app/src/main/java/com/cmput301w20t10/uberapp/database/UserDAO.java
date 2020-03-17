@@ -120,42 +120,16 @@ class UserDAO extends DAOBase<UserEntity, User> {
                                 userLiveData.setValue(userEntity);
                             } else {
                                 Log.e(TAG, LOC + "registerUser: Failed to add user");
+                                userLiveData.setValue(null);
                             }
                         }
                 )
-                .addOnFailureListener(e -> Log.w(TAG, "onFailure: ", e));
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "onFailure: ", e);
+                    userLiveData.setValue(null);
+                });
 
         return userLiveData;
-    }
-
-    /**
-     * Saves changes in UserEntity
-     *
-     * @param userEntity
-     * @return
-     * Returns a Task object that can be observed whether it is successful or not.
-     */
-    @Override
-    public MutableLiveData<Boolean> saveEntity(final UserEntity userEntity) {
-        MutableLiveData<Boolean> liveData = new MutableLiveData<>();
-        DocumentReference userReference = userEntity.getUserReference();
-
-        if (userReference != null) {
-            Map<String, Object> fieldMap = userEntity.getDirtyFieldMap();
-            userEntity.clearDirtyFieldSet();
-            userReference.update(fieldMap)
-                    .addOnCompleteListener(task -> {
-                        boolean isSuccessful = task.isSuccessful();
-                        if (!isSuccessful) {
-                            Log.e(TAG, LOC + "saveEntity: onComplete: ", task.getException());
-                        }
-                        liveData.setValue(isSuccessful);
-                    });
-        } else {
-            liveData.setValue(false);
-        }
-
-        return liveData;
     }
 
     @Override

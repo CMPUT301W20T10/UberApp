@@ -12,9 +12,6 @@ import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Rider;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.util.Map;
@@ -112,30 +109,8 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
     }
 
     @Override
-    public MutableLiveData<Boolean> saveEntity(RiderEntity riderEntity) {
-        final DocumentReference reference = riderEntity.getRiderReference();
-        final MutableLiveData<Boolean> liveData = new MutableLiveData<>();
-
-        if (reference != null) {
-            final Map<String, Object> dirtyFieldMap = riderEntity.getDirtyFieldMap();
-            reference.update(dirtyFieldMap)
-                    .addOnCompleteListener(task -> {
-                        final boolean isSuccessful = task.isSuccessful();
-                        if (isSuccessful) {
-                            Log.e(TAG, "saveEntity: ", task.getException());
-                        }
-                        liveData.setValue(isSuccessful);
-                    });
-        } else {
-            Log.e(TAG, LOC + "saveEntity: Reference is null");
-            liveData.setValue(false);
-        }
-
-        return liveData;
-    }
-
-    @Override
     public MutableLiveData<Boolean> saveModel(Rider rider) {
+        // todo save rider model
         return null;
     }
 
@@ -179,9 +154,9 @@ class RegisterRiderTask extends GetTaskSequencer<Rider> {
         this.owner = owner;
     }
 
-    public MutableLiveData<Rider> run() {
+    @Override
+    public void doFirstTask() {
         addRiderEntity();
-        return liveData;
     }
 
     // task 1
@@ -192,7 +167,7 @@ class RegisterRiderTask extends GetTaskSequencer<Rider> {
             .addOnSuccessListener(this::updateRiderEntity)
         .addOnFailureListener(e -> {
             Log.e(TAG, "addRiderEntity: onFailure: ", e);
-            liveData.setValue(null);
+            postResult(null);
         });
     }
 
@@ -206,7 +181,7 @@ class RegisterRiderTask extends GetTaskSequencer<Rider> {
                         registerRiderAsUser();
                     } else {
                         Log.e(TAG, "updateRiderEntity: ");
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
@@ -227,7 +202,7 @@ class RegisterRiderTask extends GetTaskSequencer<Rider> {
                         receiveUserEntity();
                     } else {
                         Log.e(TAG, "registerRiderAsUser: ");
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
@@ -243,7 +218,7 @@ class RegisterRiderTask extends GetTaskSequencer<Rider> {
                             updateUserEntity();
                         } else {
                             Log.e(TAG, "receiveUserEntity: ");
-                            liveData.setValue(null);
+                            postResult(null);
                         }
                     });
         }
@@ -267,10 +242,10 @@ class RegisterRiderTask extends GetTaskSequencer<Rider> {
                                 userEntity.getPhoneNumber(),
                                 userEntity.getImage(),
                                 riderEntity.getBalance());
-                        liveData.setValue(rider);
+                        postResult(rider);
                     } else {
                         Log.e(TAG, LOC + "receiveUserEntity: ");
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
@@ -292,9 +267,8 @@ class LogInAsRiderTask extends GetTaskSequencer<Rider> {
     }
 
     @Override
-    public MutableLiveData<Rider> run() {
+    public void doFirstTask() {
         userLogin();
-        return liveData;
     }
 
     private void userLogin() {
@@ -303,7 +277,7 @@ class LogInAsRiderTask extends GetTaskSequencer<Rider> {
                 .observe(owner, userEntity -> {
                     if (userEntity == null || userEntity.getDriverReference() == null) {
                         Log.e(TAG, LOC + "userLogin: ");
-                        liveData.setValue(null);
+                        postResult(null);
                     } else {
                         this.userEntity = userEntity;
                         getRiderEntity();
@@ -321,7 +295,7 @@ class LogInAsRiderTask extends GetTaskSequencer<Rider> {
                         convertToModel();
                     } else {
                         Log.e(TAG, LOC +"getDriverEntity: onComplete: ", task.getException());
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
@@ -329,7 +303,7 @@ class LogInAsRiderTask extends GetTaskSequencer<Rider> {
     private void convertToModel() {
         if (riderEntity == null) {
             Log.e(TAG, "convertToModel: driverEntity is null");
-            liveData.setValue(null);
+            postResult(null);
         } else {
             Rider rider = new Rider(riderEntity.getRiderReference(),
                     riderEntity.getTransactionList(),
@@ -343,7 +317,7 @@ class LogInAsRiderTask extends GetTaskSequencer<Rider> {
                     userEntity.getPhoneNumber(),
                     userEntity.getImage(),
                     riderEntity.getBalance());
-            liveData.setValue(rider);
+            postResult(rider);
         }
     }
 }
@@ -358,9 +332,8 @@ class GetRiderFromReferenceTask extends GetTaskSequencer<Rider> {
     }
 
     @Override
-    public MutableLiveData<Rider> run() {
+    public void doFirstTask() {
         getRiderEntity();
-        return liveData;
     }
 
     private void getRiderEntity() {
@@ -373,12 +346,12 @@ class GetRiderFromReferenceTask extends GetTaskSequencer<Rider> {
                             getUserEntity(userReference);
                         } else {
                             Log.e(TAG, LOC + "getRiderEntity: onComplete: ", task.getException());
-                            liveData.setValue(null);
+                            postResult(null);
                         }
                     });
         } else {
             Log.e(TAG, LOC + "getRiderEntity: ");
-            liveData.setValue(null);
+            postResult(null);
         }
     }
 
@@ -389,14 +362,14 @@ class GetRiderFromReferenceTask extends GetTaskSequencer<Rider> {
                     if (task.isSuccessful()) {
                         UserEntity userEntity = task.getResult().toObject(UserEntity.class);
                         Rider rider = new Rider(riderEntity, userEntity);
-                        liveData.setValue(rider);
+                        postResult(rider);
                     } else {
                         Log.e(TAG, LOC + "getUserEntity: onComplete: ", task.getException());
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
         } else {
-            liveData.setValue(null);
+            postResult(null);
             Log.e(TAG, LOC + "getUserEntity: No UserEntity");
         }
     }

@@ -150,6 +150,12 @@ public class RideRequestEntity extends EntityBase<Field> {
     }
 
     // region getters and setters
+    @Override
+    @Exclude
+    public DocumentReference getMainReference() {
+        return getRideRequestReference();
+    }
+
     public DocumentReference getRideRequestReference() {
         return rideRequestReference;
     }

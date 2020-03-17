@@ -109,36 +109,9 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
         return task.run();
     }
 
-    /**
-     * Saves changes in driverEntity
-     * @param driverEntity
-     * @return
-     * Returns a Task object that can be observed whether it is successful or not.
-     */
-    public MutableLiveData<Boolean> saveEntity(final DriverEntity driverEntity) {
-        final DocumentReference reference = driverEntity.getDriverReference();
-        final MutableLiveData<Boolean> liveData = new MutableLiveData<>();
-
-        if (reference != null) {
-            final Map<String, Object> dirtyFieldMap = driverEntity.getDirtyFieldMap();
-            reference.update(dirtyFieldMap)
-            .addOnCompleteListener(task -> {
-                final boolean isSuccessful = task.isSuccessful();
-                if (isSuccessful) {
-                    Log.e(TAG, "saveEntity: ", task.getException());
-                }
-                liveData.setValue(isSuccessful);
-            });
-        } else {
-            Log.e(TAG, LOC + "saveEntity: Reference is null");
-            liveData.setValue(false);
-        }
-
-        return liveData;
-    }
-
     @Override
     public MutableLiveData<Boolean> saveModel(Driver driver) {
+        // todo: save model driver
         return null;
     }
 
@@ -176,9 +149,8 @@ class SaveDriverModelTask extends GetTaskSequencer<Boolean> {
     }
 
     @Override
-    public MutableLiveData<Boolean> run() {
+    public void doFirstTask() {
         updateDriverEntity();
-        return liveData;
     }
 
     private void updateDriverEntity() {
@@ -189,7 +161,7 @@ class SaveDriverModelTask extends GetTaskSequencer<Boolean> {
                         updateUserEntity();
                     } else {
                         Log.e(TAG, LOC + "updateDriverEntity: onChanged: ");
-                        liveData.setValue(false);
+                        postResult(false);
                     }
                 });
     }
@@ -203,7 +175,7 @@ class SaveDriverModelTask extends GetTaskSequencer<Boolean> {
                 if (!aBoolean) {
                     Log.e(TAG, LOC +"onChanged: ");
                 }
-                liveData.setValue(false);
+                postResult(false);
             }
         });
     }
@@ -220,9 +192,8 @@ class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
     }
 
     @Override
-    public MutableLiveData<Driver> run() {
+    public void doFirstTask() {
         getDriverEntity();
-        return liveData;
     }
 
     private void getDriverEntity() {
@@ -239,7 +210,7 @@ class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
                     });
         } else {
             Log.e(TAG, LOC + "getDriverEntity: reference null");
-            liveData.setValue(null);
+            postResult(null);
         }
     }
 
@@ -262,15 +233,15 @@ class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
                                     userEntity.getPhoneNumber(),
                                     driverEntity.getRating(),
                                     userEntity.getImage());
-                            liveData.setValue(driver);
+                            postResult(driver);
                         } else {
                             Log.e(TAG, LOC + "getUserEntity: onComplete: ", task.getException());
-                            liveData.setValue(null);
+                            postResult(null);
                         }
                     });
         } else {
             Log.e(TAG, LOC + "getUserEntity: No User Entity");
-            liveData.setValue(null);
+            postResult(null);
         }
     }
 }
@@ -311,9 +282,8 @@ class RegisterDriverTask extends GetTaskSequencer<Driver> {
     }
 
     @Override
-    public MutableLiveData<Driver> run() {
+    public void doFirstTask() {
         createDriverEntity();
-        return liveData;
     }
 
     private void createDriverEntity() {
@@ -326,7 +296,7 @@ class RegisterDriverTask extends GetTaskSequencer<Driver> {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, LOC + "createDriverEntity: onFailure: ", e);
-                    liveData.setValue(null);
+                    postResult(null);
                 });
 
     }
@@ -346,7 +316,7 @@ class RegisterDriverTask extends GetTaskSequencer<Driver> {
                         updateDriverEntity();
                     } else {
                         Log.e(TAG, LOC + "createUser: ");
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
@@ -360,7 +330,7 @@ class RegisterDriverTask extends GetTaskSequencer<Driver> {
                         updateUserEntity();
                     } else {
                         Log.e(TAG, LOC + "updateDriverEntity: onChanged: ");
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
@@ -382,10 +352,10 @@ class RegisterDriverTask extends GetTaskSequencer<Driver> {
                                 userEntity.getPhoneNumber(),
                                 driverEntity.getRating(),
                                 userEntity.getImage());
-                        liveData.setValue(driver);
+                        postResult(driver);
                     } else {
                         Log.e(TAG, LOC + "updateUserEntity: ");
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
@@ -407,9 +377,8 @@ class LogInAsDriverTask extends GetTaskSequencer<Driver> {
     }
 
     @Override
-    public MutableLiveData<Driver> run() {
+    public void doFirstTask() {
         userLogin();
-        return liveData;
     }
 
     private void userLogin() {
@@ -418,7 +387,7 @@ class LogInAsDriverTask extends GetTaskSequencer<Driver> {
                 .observe(owner, userEntity -> {
                     if (userEntity == null || userEntity.getDriverReference() == null) {
                         Log.e(TAG, LOC + "userLogin: ");
-                        liveData.setValue(null);
+                        postResult(null);
                     } else {
                         this.userEntity = userEntity;
                         getDriverEntity();
@@ -436,7 +405,7 @@ class LogInAsDriverTask extends GetTaskSequencer<Driver> {
                         convertToModel();
                     } else {
                         Log.e(TAG, LOC +"getDriverEntity: onComplete: ", task.getException());
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
@@ -444,7 +413,7 @@ class LogInAsDriverTask extends GetTaskSequencer<Driver> {
     private void convertToModel() {
         if (driverEntity == null) {
             Log.e(TAG, "convertToModel: driverEntity is null");
-            liveData.setValue(null);
+            postResult(null);
         } else {
             Driver driver = new Driver(driverEntity.getDriverReference(),
                     driverEntity.getTransactionList(),
@@ -458,7 +427,7 @@ class LogInAsDriverTask extends GetTaskSequencer<Driver> {
                     userEntity.getPhoneNumber(),
                     driverEntity.getRating(),
                     userEntity.getImage());
-            liveData.setValue(driver);
+            postResult(driver);
         }
     }
 }

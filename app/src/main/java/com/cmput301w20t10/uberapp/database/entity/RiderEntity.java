@@ -131,6 +131,12 @@ public class RiderEntity extends EntityBase<Field> {
     }
 
     // region Getters and setters
+    @Override
+    @Exclude
+    public DocumentReference getMainReference() {
+        return getRiderReference();
+    }
+
     public DocumentReference getUserReference() {
         return userReference;
     }

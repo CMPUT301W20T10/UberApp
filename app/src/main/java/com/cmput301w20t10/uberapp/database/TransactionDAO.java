@@ -46,29 +46,6 @@ public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
     }
 
     @Override
-    public MutableLiveData<Boolean> saveEntity(TransactionEntity entity) {
-        MutableLiveData<Boolean> liveData = new MutableLiveData<>();
-        DocumentReference userReference = entity.getTransactionReference();
-
-        if (userReference != null) {
-            Map<String, Object> fieldMap = entity.getDirtyFieldMap();
-            entity.clearDirtyFieldSet();
-            userReference.update(fieldMap)
-                    .addOnCompleteListener(task -> {
-                        boolean isSuccessful = task.isSuccessful();
-                        if (!isSuccessful) {
-                            Log.e(TAG, LOC + "saveEntity: onComplete: ", task.getException());
-                        }
-                        liveData.setValue(isSuccessful);
-                    });
-        } else {
-            liveData.setValue(false);
-        }
-
-        return liveData;
-    }
-
-    @Override
     public MutableLiveData<Boolean> saveModel(Transaction transaction) {
         TransactionEntity entity = new TransactionEntity();
         transaction.transferChanges(entity);
@@ -92,9 +69,8 @@ class TransactionEntityToModelTask extends GetTaskSequencer<Transaction> {
     }
 
     @Override
-    public MutableLiveData<Transaction> run() {
+    public void doFirstTask() {
         getSender();
-        return liveData;
     }
 
     private void getSender() {
@@ -106,7 +82,7 @@ class TransactionEntityToModelTask extends GetTaskSequencer<Transaction> {
                         getRecipient();
                     } else {
                         Log.e(TAG, LOC + "getSender: onComplete: ", task.getException());
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
@@ -124,10 +100,10 @@ class TransactionEntityToModelTask extends GetTaskSequencer<Transaction> {
                                     sender,
                                     recipient,
                                     transactionEntity.getValue());
-                            liveData.setValue(transaction);
+                            postResult(transaction);
                         } else {
                             Log.e(TAG, LOC + "getRecipient: onComplete: ", task.getException());
-                            liveData.setValue(null);
+                            postResult(null);
                         }
                     }
                 });
@@ -153,9 +129,8 @@ class CreateTransactionTask extends GetTaskSequencer<Transaction> {
     }
 
     @Override
-    public MutableLiveData<Transaction> run() {
+    public void doFirstTask() {
         initCreation();
-        return liveData;
     }
 
     private void initCreation() {
@@ -169,7 +144,7 @@ class CreateTransactionTask extends GetTaskSequencer<Transaction> {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, LOC + "onFailure: ", e);
-                    liveData.setValue(null);
+                    postResult(null);
                 });
     }
 
@@ -181,7 +156,7 @@ class CreateTransactionTask extends GetTaskSequencer<Transaction> {
                         convertToTransaction();
                     } else {
                         Log.e(TAG, LOC + "updateTransactionEntity: onComplete: ");
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
@@ -190,10 +165,10 @@ class CreateTransactionTask extends GetTaskSequencer<Transaction> {
         transactionDAO.transactionEntityToModel(transactionEntity)
                 .observe(owner, transaction -> {
                     if (transaction != null) {
-                        liveData.setValue(transaction);
+                        postResult(transaction);
                     } else {
                         Log.e(TAG, LOC + "convertToTransaction: onChanged: ");
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
@@ -219,9 +194,8 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
     }
 
     @Override
-    public MutableLiveData<Transaction> run() {
+    public void doFirstTask() {
         getRiderObject();
-        return liveData;
     }
 
     private void getRiderObject() {
@@ -233,7 +207,7 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
                         getDriverObject();
                     } else {
                         Log.e(TAG, LOC + "getRiderObject: onChanged: rider null");
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
@@ -247,7 +221,7 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
                 createTransaction();
             } else {
                 Log.e(TAG, LOC + "onChanged: driver null");
-                liveData.setValue(null);
+                postResult(null);
             }
         });
     }
@@ -262,7 +236,7 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, LOC + "createTransaction: onFailure: ", e);
-                    liveData.setValue(null);
+                    postResult(null);
                 });
     }
 
@@ -276,7 +250,7 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
                         updateRideRequest();
                     } else {
                         Log.e(TAG, LOC + "updateTransactionEntity: onComplete: ");
-                        liveData.setValue(null);
+                        postResult(null);
                     }});
     }
 
@@ -289,7 +263,7 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
                         updateRider();
                     } else {
                         Log.e(TAG, LOC + "updateRideRequest: onComplete: Fail to save ride request");
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
@@ -303,7 +277,7 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
                         updateDriver();
                     } else {
                         Log.e(TAG, LOC + "updateRider: onComplete: Fail to update rider");
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
@@ -318,10 +292,10 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
                                 recipient,
                                 sender,
                                 value);
-                        liveData.setValue(transaction);
+                        postResult(transaction);
                     } else {
                         Log.e(TAG, LOC + "updateDriver: onChanged: ");
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
