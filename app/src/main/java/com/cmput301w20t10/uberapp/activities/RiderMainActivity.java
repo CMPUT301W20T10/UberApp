@@ -147,14 +147,31 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
 
     private void onClick_NewRide() {
         // todo: implement onclick new ride
+
+        if(editTextStartingPoint.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Starting Point Required", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if(editTextDestination.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Destination Required", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if(editTextPriceOffer.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Price Offer Required", Toast.LENGTH_LONG).show();
+            return;
+        }
         String startingpoint = editTextStartingPoint.getText().toString();
         String destination = editTextDestination.getText().toString();
         String priceOffer = editTextPriceOffer.getText().toString();
 
+        drawRoute(startingpoint, destination);
+
+    }
+
+    private void drawRoute(String startingpoint, String destination){
         Geocoder geocoder = new Geocoder(RiderMainActivity.this);
         List<Address> startingPointList = new ArrayList<>();
         List<Address> destinationList = new ArrayList<>();
-
         try{
             startingPointList = geocoder.getFromLocationName(startingpoint, 1);
         }catch (IOException e){
@@ -167,14 +184,12 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
             Log.e(TAG, "geoLocate: IOException on destination address: "+ e.getMessage());
         }
 
-        if (startingPointList.size() > 0){
+        if (startingPointList.size() > 0 && destinationList.size() > 0){
             Address startingAdddress = startingPointList.get(0);
             Log.d(TAG, "geoLocate: found a location: " + startingAdddress.toString());
             //drop pin at sdtarting position
             dropPin(startingAdddress.getAddressLine(0), new LatLng( startingAdddress.getLatitude(), startingAdddress.getLongitude()));
-        }
 
-        if (destinationList.size() > 0){
             Address destinationAddress = destinationList.get(0);
             Log.d(TAG, "geoLocate: found a location: " + destinationAddress.toString());
 
@@ -182,12 +197,14 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
             //moveCamera(new LatLng( destinationAddress.getLatitude(), destinationAddress.getLongitude()), DEFAULT_ZOOM);
             dropPin(destinationAddress.getAddressLine(0), new LatLng( destinationAddress.getLatitude(), destinationAddress.getLongitude()));
         }
-
+        else{
+            Toast.makeText(getApplicationContext(), "Could not find Route", Toast.LENGTH_LONG).show();
+            return;
+        }
         //this part would draw a route if direction API was enabled.. figuring out another way//
         String url = create_URL();
         new FetchURL(RiderMainActivity.this).execute(url, "driving");
     }
-
     private String create_URL(){
         //start of rout
         String origin = "origin=" + route.getStartingPosition().latitude + "," + route.getDestinationPosition().longitude;
