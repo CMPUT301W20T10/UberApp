@@ -16,7 +16,7 @@ import java.util.Set;
  *     it should represent the database columns or fields in Firestore
  *
  * @author Allan Manuba
- * @version 1.0.0
+ * @version 1.0.1
  */
 public abstract class DatabaseObjectBase<Field> {
     /**
@@ -30,9 +30,7 @@ public abstract class DatabaseObjectBase<Field> {
      * @param field
      */
     protected void addDirtyField(Field field) {
-        Log.d("", "Tomate: Tomate: DatabaseObjectBase: addDirtyField: " + field.toString());
         dirtyFieldSet.add(field);
-        Log.d("", "Tomate: Tomate: DatabaseObjectBase: addDirtyField: " + dirtyFieldSet.toString());
     }
 
     /**

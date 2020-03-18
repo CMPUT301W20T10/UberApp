@@ -230,7 +230,8 @@ class RegisterRiderTask extends GetTaskSequencer<Rider> {
         this.riderDAO.saveEntity(riderEntity)
                 .observe(owner, aBoolean -> {
                     if (aBoolean) {
-                        Rider rider = new Rider(riderEntity.getRiderReference(),
+                        Rider rider = new Rider(riderEntity.getUserReference(),
+                                riderEntity.getRiderReference(),
                                 riderEntity.getTransactionList(),
                                 riderEntity.getFinishedRideRequestList(),
                                 riderEntity.getActiveRideRequestList(),
@@ -305,7 +306,8 @@ class LogInAsRiderTask extends GetTaskSequencer<Rider> {
             Log.e(TAG, "convertToModel: driverEntity is null");
             postResult(null);
         } else {
-            Rider rider = new Rider(riderEntity.getRiderReference(),
+            Rider rider = new Rider(riderEntity.getUserReference(),
+                    riderEntity.getRiderReference(),
                     riderEntity.getTransactionList(),
                     riderEntity.getFinishedRideRequestList(),
                     riderEntity.getActiveRideRequestList(),

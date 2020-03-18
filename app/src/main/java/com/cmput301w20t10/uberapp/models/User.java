@@ -87,13 +87,15 @@ public class User extends ModelBase<Field, UserEntity> {
         this.rating = rating;
     }
 
-    public User(String username,
+    public User(DocumentReference userReference,
+                String username,
                 String password,
                 String email,
                 String firstName,
                 String lastName,
                 String phoneNumber,
                 String image) {
+        this.userReference = userReference;
         this.username = username;
         this.password = password;
         this.email = email;

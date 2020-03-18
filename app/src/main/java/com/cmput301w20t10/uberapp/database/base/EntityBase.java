@@ -20,7 +20,7 @@ import java.util.Set;
  *
  * @author Allan Manuba
  * @version 1.0.3
- * Add abstract getMainReference for DAOBase uses
+ * Add abstract getMainReference for DAOBase usage in saveEntity
  *
  * @version 1.0.2
  * Remove dirtyFieldSet that shadows the dirtyFieldSet in DatabaseObjectBase

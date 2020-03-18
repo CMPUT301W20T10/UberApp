@@ -1,4 +1,4 @@
-package com.cmput301w20t10.uberapp;
+package com.cmput301w20t10.uberapp.util;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle;
@@ -6,7 +6,15 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 
 /**
- * https://androidoverride.wordpress.com/2017/05/27/android-working-with-live-data-and-custom-life-cycle-owners/
+ * Mocks Android's LifecycleOwner
+ *
+ * Reference:
+ *  Website Title: Android – Working with live data and custom life cycle owners.
+ *  Author: Sushobh Nadiger
+ *  Link: androidoverride.wordpress.com/2017/05/27/android-working-with-live-data-and-custom-life-cycle-owners/
+ *
+ * @author Allan Manuba
+ * @version 1.0.1
  */
 public class LifecycleOwnerMock implements LifecycleOwner {
     private LifecycleRegistry lifecycleRegistry;

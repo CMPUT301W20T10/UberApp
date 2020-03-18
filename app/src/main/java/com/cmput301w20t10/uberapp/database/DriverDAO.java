@@ -221,7 +221,8 @@ class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             UserEntity userEntity = task.getResult().toObject(UserEntity.class);
-                            Driver driver = new Driver(driverEntity.getDriverReference(),
+                            Driver driver = new Driver(userEntity.getUserReference(),
+                                    driverEntity.getDriverReference(),
                                     driverEntity.getTransactionList(),
                                     driverEntity.getFinishedRideRequestList(),
                                     driverEntity.getActiveRideRequestList(),
@@ -340,7 +341,8 @@ class RegisterDriverTask extends GetTaskSequencer<Driver> {
         userDAO.saveEntity(userEntity)
                 .observe(owner, aBoolean -> {
                     if (aBoolean) {
-                        Driver driver = new Driver(driverEntity.getDriverReference(),
+                        Driver driver = new Driver(userEntity.getUserReference(),
+                                driverEntity.getDriverReference(),
                                 driverEntity.getTransactionList(),
                                 driverEntity.getFinishedRideRequestList(),
                                 driverEntity.getActiveRideRequestList(),
@@ -415,7 +417,8 @@ class LogInAsDriverTask extends GetTaskSequencer<Driver> {
             Log.e(TAG, "convertToModel: driverEntity is null");
             postResult(null);
         } else {
-            Driver driver = new Driver(driverEntity.getDriverReference(),
+            Driver driver = new Driver(userEntity.getUserReference(),
+                    driverEntity.getDriverReference(),
                     driverEntity.getTransactionList(),
                     driverEntity.getFinishedRideRequestList(),
                     driverEntity.getActiveRideRequestList(),

@@ -15,19 +15,8 @@ public class Driver extends User {
     private List<DocumentReference> activeRideRequestList;
     private int rating;
 
-    public Driver(String userName,
-                  String password,
-                  String email,
-                  String firstName,
-                  String lastName,
-                  String phoneNumber,
-                  int rating,
-                  String image) {
-        super(userName, password, email, firstName, lastName, phoneNumber, image);
-        this.rating = rating;
-    }
-
-    public Driver(DocumentReference driverReference,
+    public Driver(DocumentReference userReference,
+                  DocumentReference driverReference,
                   List<DocumentReference> transactionList,
                   List<DocumentReference> finishedRideRequestList,
                   List<DocumentReference> activeRideRequestList,
@@ -39,7 +28,7 @@ public class Driver extends User {
                   String phoneNumber,
                   int rating,
                   String image) {
-        super(username, password, email, firstName, lastName, phoneNumber, image);
+        super(userReference, username, password, email, firstName, lastName, phoneNumber, image);
         this.driverReference = driverReference;
         this.transactionList = transactionList;
         this.finishedRideRequestList = finishedRideRequestList;
