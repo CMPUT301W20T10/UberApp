@@ -1,9 +1,16 @@
 package com.cmput301w20t10.uberapp.activities;
 
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
@@ -11,11 +18,14 @@ import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.cmput301w20t10.uberapp.database.viewmodel.RiderViewModel;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -23,6 +33,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -30,6 +42,9 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -73,18 +88,21 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
 
     // local data
     private Route route;
+    private static final float DEFAULT_ZOOM = 15f;
+    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+    Polyline currentPolyline;
 
     // views
     TextInputEditText editTextStartingPoint;
     TextInputEditText editTextDestination;
     TextInputEditText editTextPriceOffer;
 
-    private static final float DEFAULT_ZOOM = 15f;
-
-    LatLngBounds.Builder builder = new LatLngBounds.Builder();
-
-    Polyline currentPolyline;
-
+    //tracking
+    LocationManager locationManager;
+    LocationListener locationListener;
+    LatLng userLatLong;
+    CircleOptions circleOptions;
+    private FusedLocationProviderClient fusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +113,11 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        //user location tracking
+
+        //trackuser();
+
 
         // get reference for the destination and starting point texts
         editTextStartingPoint = findViewById(R.id.text_starting_point);
@@ -116,6 +139,60 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         buttonNewRide.setOnClickListener(view -> onClick_NewRide());
     }
 
+    private void InitalLocation(){
+       Log.d(TAG, "getDeviceLocation: getting the devices current location");
+
+       fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+       final Task location = fusedLocationClient.getLastLocation();
+        Log.d(TAG, "getDeviceLocation: getting the devices current location");
+
+        location.addOnCompleteListener(new OnCompleteListener() {
+           @Override
+           public void onComplete(@NonNull Task task) {
+                if (task.isSuccessful()){
+                    Location currentlocation = (Location) task.getResult();
+                    Log.d(TAG, "onComplete: found location!" + currentlocation.getLatitude() + " " + currentlocation.getLongitude());
+                    userLatLong = new LatLng(currentlocation.getLatitude(), currentlocation.getLongitude());
+//                    circleOptions.center(new LatLng(currentlocation.getLatitude(),currentlocation.getLongitude()));
+//                    mainMap.addCircle(circleOptions);
+                    mainMap.moveCamera(CameraUpdateFactory.newLatLng(userLatLong));
+                }
+                else{
+                    Log.d(TAG, "getDeviceLocation: not found");
+                }
+           }
+       });
+    }
+    private void trackuser(){
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new LocationListener(){
+
+            @Override
+            public void onLocationChanged(Location location) {
+                //get user latlong
+                userLatLong = new LatLng(location.getLatitude(), location.getLongitude());
+//                circleOptions.center(new LatLng(location.getLatitude(),location.getLongitude()));
+//                mainMap.addCircle(circleOptions);
+                mainMap.moveCamera(CameraUpdateFactory.newLatLng(userLatLong));
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+    }
+
 
     /**
      * Manipulates the map once available.
@@ -129,6 +206,16 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mainMap = googleMap;
+
+        //trackuser
+//        circleOptions = new CircleOptions();
+//        circleOptions.radius(1000);
+//        circleOptions.fillColor(Color.BLUE);
+//        circleOptions.strokeWidth(6);
+        InitalLocation();
+        //circleOptions.center(new LatLng(0,0));
+
+        mainMap.setMyLocationEnabled(true);
 
         // Add listener
         /*
@@ -256,7 +343,7 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         return  responseString;
     }
 
-    private void moveCamera(MarkerOptions pin){
+    private void movecamera(MarkerOptions pin){
         //Log.d(TAG, "moveCamers: moving the camera to: lat " + latLng.latitude + ", lng: " + latLng.longitude);
         //mainMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
 
@@ -283,7 +370,7 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
 
         route.addLocation(marker);
         routeLiveData.setValue(route);
-        moveCamera(pin);
+        movecamera(pin);
     }
 
     private void onRouteChanged(Route route) {
