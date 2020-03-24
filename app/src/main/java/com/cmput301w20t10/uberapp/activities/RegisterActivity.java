@@ -49,8 +49,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void onCancelPress(View view) {
-        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-        startActivity(intent);
+        finish();
     }
 
     public void onRegisterPress(View view) {
@@ -72,7 +71,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Check that the passwords match the requirements
         if (!validatePassword(password)) {
-            Toast.makeText(getApplicationContext(), "Password does not meet requirements:\nMust contain a-z, A-Z and 0-9",
+            Toast.makeText(getApplicationContext(), "Password does not meet requirements:\nMinimum 8 characters long\nMust contain a-z, A-Z and 0-9",
                     Toast.LENGTH_LONG).show();
             return;
         }
@@ -104,6 +103,8 @@ public class RegisterActivity extends AppCompatActivity {
                     lastNameField.getText().toString(),
                     phoneField.getText().toString(),
                     this);
+        Toast.makeText(getApplicationContext(), "Successfully registered", Toast.LENGTH_LONG).show();
+        finish();
     }
 
     /**

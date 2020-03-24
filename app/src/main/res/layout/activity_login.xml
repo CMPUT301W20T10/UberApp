@@ -23,6 +23,7 @@
         android:layout_marginTop="16dp"
         android:ems="10"
         android:hint="@string/username_field_hint"
+        android:text="1"
         android:inputType="text|textEmailAddress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -35,6 +36,8 @@
         android:layout_marginTop="16dp"
         android:ems="10"
         android:hint="@string/password_field_hint"
+        android:text="1"
+
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -82,6 +85,7 @@
     </RadioGroup>
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -114,4 +118,5 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/button_log_in" />
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

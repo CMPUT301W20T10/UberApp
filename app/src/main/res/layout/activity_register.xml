@@ -122,9 +122,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="20dp"
+                android:layout_marginRight="100px"
+                android:layout_marginLeft="100px"
+                android:layout_marginTop="50px"
                 android:orientation="horizontal"
-                android:paddingBottom="100dp"
+                android:paddingBottom="500px"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -135,6 +137,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_marginRight="50px"
                     android:onClick="onRegisterPress"
                     android:text="@string/register_button" />
 

@@ -1,23 +1,35 @@
 package com.cmput301w20t10.uberapp.activities;
 
+
+import android.location.Address;
+import android.location.Geocoder;
+import android.content.Intent;
 import android.os.Bundle;
 
+import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.cmput301w20t10.uberapp.database.viewmodel.RiderViewModel;
+import com.cmput301w20t10.uberapp.Directions.FetchURL;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -26,12 +38,31 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+
+import android.util.Log;
+
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 // todo: editable map markers
 
-public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
+    private static final String TAG = "Test" ;
     // core objects
     private AppBarConfiguration mAppBarConfiguration;
     private GoogleMap mainMap;
@@ -48,27 +79,17 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
     TextInputEditText editTextDestination;
     TextInputEditText editTextPriceOffer;
 
+    private static final float DEFAULT_ZOOM = 15f;
+
+    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+    Polyline currentPolyline;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_rider_main);
-        Toolbar toolbar = findViewById(R.id.toolbar_rider);
-        setSupportActionBar(toolbar);
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
-
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow,
-                R.id.nav_tools, R.id.nav_share, R.id.nav_send)
-                .setDrawerLayout(drawer)
-                .build();
-
-        // on support navigate up
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
+        setContentView(R.layout.content_rider_main);
 
         // map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -79,6 +100,7 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
         editTextStartingPoint = findViewById(R.id.text_starting_point);
         editTextDestination = findViewById(R.id.text_destination);
         editTextPriceOffer = findViewById(R.id.text_price_offer);
+
 
         // this ensures that the data are saved no matter what
         // shenanigans that the android lifecycle throws at us
@@ -94,19 +116,6 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
         buttonNewRide.setOnClickListener(view -> onClick_NewRide());
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.rider_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
-                || super.onSupportNavigateUp();
-    }
 
     /**
      * Manipulates the map once available.
@@ -122,8 +131,10 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
         mainMap = googleMap;
 
         // Add listener
+        /*
         mainMap.setOnMapClickListener(latLng -> {
-            MarkerOptions markerOptions = new MarkerOptions().position(latLng).title("Marker somewhere");
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(latLng);
             Marker marker = mainMap.addMarker(markerOptions);
             mainMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
@@ -131,15 +142,144 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
             route.addLocation(marker);
             routeLiveData.setValue(route);
         });
+        */
     }
 
     private void onClick_NewRide() {
         // todo: implement onclick new ride
+        String startingpoint = editTextStartingPoint.getText().toString();
+        String destination = editTextDestination.getText().toString();
+        String priceOffer = editTextPriceOffer.getText().toString();
+
+        Geocoder geocoder = new Geocoder(RiderMainActivity.this);
+        List<Address> startingPointList = new ArrayList<>();
+        List<Address> destinationList = new ArrayList<>();
+
+        try{
+            startingPointList = geocoder.getFromLocationName(startingpoint, 1);
+        }catch (IOException e){
+            Log.e(TAG, "geoLocate: IOException on start address: "+ e.getMessage());
+        }
+
+        try{
+            destinationList = geocoder.getFromLocationName(destination, 1);
+        }catch (IOException e){
+            Log.e(TAG, "geoLocate: IOException on destination address: "+ e.getMessage());
+        }
+
+        if (startingPointList.size() > 0){
+            Address startingAdddress = startingPointList.get(0);
+            Log.d(TAG, "geoLocate: found a location: " + startingAdddress.toString());
+            //drop pin at sdtarting position
+            dropPin(startingAdddress.getAddressLine(0), new LatLng( startingAdddress.getLatitude(), startingAdddress.getLongitude()));
+        }
+
+        if (destinationList.size() > 0){
+            Address destinationAddress = destinationList.get(0);
+            Log.d(TAG, "geoLocate: found a location: " + destinationAddress.toString());
+
+            //move camera to destination and drop pin
+            //moveCamera(new LatLng( destinationAddress.getLatitude(), destinationAddress.getLongitude()), DEFAULT_ZOOM);
+            dropPin(destinationAddress.getAddressLine(0), new LatLng( destinationAddress.getLatitude(), destinationAddress.getLongitude()));
+        }
+
+        //this part would draw a route if direction API was enabled.. figuring out another way//
+        String url = create_URL();
+        new FetchURL(RiderMainActivity.this).execute(url, "driving");
+    }
+
+    private String create_URL(){
+        //start of rout
+        String origin = "origin=" + route.getStartingPosition().latitude + "," + route.getDestinationPosition().longitude;
+        //end of route
+        String dest = "destination=" + route.getDestinationPosition().latitude + ',' + route.getDestinationPosition().longitude;
+        //mode
+        String mode = "mode=driving";
+        //parameter
+        String parameter = origin + "&" + dest + "&" + mode;
+        //output format
+        String output = "json";
+        //build url
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameter + "&key=" + getString(R.string.google_maps_key);
+        return url;
+    }
+
+    public static String requestDirection(String reqURL) throws IOException {
+        String responseString = "";
+        InputStream inputStream = null;
+        HttpURLConnection httpURLConnection = null;
+        try{
+            URL url = new URL(reqURL);
+            httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.connect();
+
+            //get the response result
+            inputStream = httpURLConnection.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+            StringBuffer stringBuffer = new StringBuffer();
+            String line = "";
+            while ((line = bufferedReader.readLine()) !=null){
+                stringBuffer.append(line);
+            }
+
+            responseString = stringBuffer.toString();
+            bufferedReader.close();
+            inputStreamReader.close();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            if (inputStream !=null){
+                inputStream.close();
+            }
+            httpURLConnection.disconnect();
+        }
+        return  responseString;
+    }
+
+    private void moveCamera(MarkerOptions pin){
+        //Log.d(TAG, "moveCamers: moving the camera to: lat " + latLng.latitude + ", lng: " + latLng.longitude);
+        //mainMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+
+        builder.include(pin.getPosition());
+
+        LatLngBounds bounds = builder.build();
+
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+        int padding = (int) (width * 0.10); // offset from edges of the map 10% of screen
+
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+
+        mainMap.animateCamera(cu);
+
+
+    }
+
+    private void dropPin(String title, LatLng latLng){
+        MarkerOptions pin = new MarkerOptions()
+                .position(latLng)
+                .title(title);
+        Marker marker =mainMap.addMarker(pin);
+
+        route.addLocation(marker);
+        routeLiveData.setValue(route);
+        moveCamera(pin);
     }
 
     private void onRouteChanged(Route route) {
         // todo: improve RiderMainActivity.onRouteChanged
         editTextStartingPoint.setText(route.getStartingPointString());
         editTextDestination.setText(route.getDestinationString());
+    }
+
+    @Override
+    public void onTaskDone(Object... values) {
+        if (currentPolyline !=null){
+            currentPolyline.remove();
+        }
+        currentPolyline = mainMap.addPolyline((PolylineOptions) values[0]);
     }
 }
