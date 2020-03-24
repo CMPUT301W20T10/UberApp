@@ -74,6 +74,7 @@ public class UnpairedRideListDAO {
      * </li>
      */
     public static MutableLiveData<List<RideRequest>> getAllUnpairedRideRequest() {
+
         final GetAllUnpairedRideRequestTask task = new GetAllUnpairedRideRequestTask();
         return task.run();
     }

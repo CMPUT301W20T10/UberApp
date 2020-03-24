@@ -49,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         buttonLogIn = findViewById(R.id.button_log_in);
 
         buttonLogIn.setOnClickListener(view -> onLoginPressed());
-        
+
         this.usernameField = findViewById(R.id.username_field);
         this.passwordField = findViewById(R.id.password_field);
         this.loginTypeField = findViewById(R.id.rider_driver_toggle);

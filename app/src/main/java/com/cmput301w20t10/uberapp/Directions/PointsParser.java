@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -33,6 +34,7 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
         try {
             jObject = new JSONObject(jsonData[0]);
             Log.d("mylog", jsonData[0]);
+
             DataParser parser = new DataParser();
             Log.d("mylog", parser.toString());
 
@@ -53,12 +55,10 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
     protected void onPostExecute(List<List<HashMap<String, String>>> result) {
         ArrayList<LatLng> points;
         PolylineOptions lineOptions = null;
-
         // Traversing through all the routes
         for (int i = 0; i < result.size(); i++) {
             points = new ArrayList<>();
             lineOptions = new PolylineOptions();
-
             // Fetching i-th route
             List<HashMap<String, String>> path = result.get(i);
             // Fetching all the points in i-th route
@@ -71,7 +71,6 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
             }
             lineOptions.addAll(points);
              // Adding all the points in the route to LineOptions
-
             if (directionMode.equalsIgnoreCase("walking")) {
                 lineOptions.width(10);
                 lineOptions.color(Color.MAGENTA);

@@ -22,11 +22,11 @@ import com.google.firebase.firestore.Query;
 
 
 /*
-* This was created based on information from user Alex Mamo : https://stackoverflow.com/users/5246885/alex-mamo
-* from the stackoverflow post : https://stackoverflow.com/a/49277842
-* Alex is a Google Developer Expert for Firebase.
-* His answer help create this activity(SearchProfile.java) by making a recyclerview list update with FirestoreRecycleAdapter in order to create a live list connected to the firestore.
-*/
+ * This was created based on information from user Alex Mamo : https://stackoverflow.com/users/5246885/alex-mamo
+ * from the stackoverflow post : https://stackoverflow.com/a/49277842
+ * Alex is a Google Developer Expert for Firebase.
+ * His answer help create this activity(SearchProfile.java) by making a recyclerview list update with FirestoreRecycleAdapter in order to create a live list connected to the firestore.
+ */
 
 
 // TODO: 2020-03-13 Need to add functionality: Search specific names, click on searched user profile?  to contact that user? 
