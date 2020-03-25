@@ -39,6 +39,21 @@
         <meta-data
             android:name="com.google.android.gms.versions"
             android:value="@integer/google_play_services_version"/>
+
+        <!-- region Message Passing -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_ic_notification" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/select_primary" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:resource="@string/default_notification_channel_id" />
+
+        <!-- endregion Message Passing-->
+
         <activity
             android:name=".activities.RegisterActivity"
             android:screenOrientation="portrait"
@@ -84,6 +99,7 @@
         <activity
             android:name=".activities.EditProfile"
             android:label="EditProfile"/>
+
     </application>
 
 </manifest>
