@@ -7,6 +7,7 @@ public final class Application {
     private static final Application INSTANCE = new Application();
 
     private User user;
+    private String messagingToken;
 
     private Application() {
         this.user = null;
@@ -16,10 +17,12 @@ public final class Application {
         return INSTANCE;
     }
 
-    public User getCurrentUser() throws RuntimeException {
-        if (user == null) {
-            throw new RuntimeException("No current user has been set");
-        }
+    /**
+     * Retrieves the current user data
+     *
+     * @return The current user, if no user has been set, null is returned
+     */
+    public User getCurrentUser() {
         return user;
     }
 
@@ -27,4 +30,11 @@ public final class Application {
         this.user = user;
     }
 
+    public String getMessagingToken() {
+        return messagingToken;
+    }
+
+    public void setMessagingToken(String messagingToken) {
+        this.messagingToken = messagingToken;
+    }
 }
