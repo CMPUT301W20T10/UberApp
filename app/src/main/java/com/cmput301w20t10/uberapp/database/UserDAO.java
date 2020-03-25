@@ -175,9 +175,13 @@ class UserDAO extends DAOBase<UserEntity> {
                     case USER_REFERENCE:
                         value = userEntity.getUserReference();
                         break;
+                    case FCM_TOKEN:
+                        value = userEntity.getFCMToken();
+                        break;
                     case IMAGE:
                         value = userEntity.getImage();
                         break;
+
                     default:
                         break;
                 }
@@ -240,6 +244,9 @@ class UserDAO extends DAOBase<UserEntity> {
                         break;
                     case IMAGE:
                         value = model.getImage();
+                        break;
+                    case FCM_TOKEN:
+                        value = model.getFCMToken();
                         break;
                     default:
                         break;

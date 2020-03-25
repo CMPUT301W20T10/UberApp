@@ -28,6 +28,7 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
         DRIVER_REFERENCE ("driverReference"),
         RIDER_REFERENCE ("riderReference"),
         USER_REFERENCE ("userReference"),
+        FCM_TOKEN ("fcmToken"),
         IMAGE ("image");
 
         private String stringValue;
@@ -52,7 +53,7 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
     private String firstName;
     private String lastName;
     private String image;
-
+    private String FCMToken;
 
     public UserEntity() {}
 
@@ -225,6 +226,14 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
     public void setImage(String image) {
         addDirtyField(Field.IMAGE);
         this.image = image;
+    }
+
+    public String getFCMToken() {
+        return FCMToken;
+    }
+
+    public void setFCMToken(String FCMToken) {
+        this.FCMToken = FCMToken;
     }
     // endregion getters and setters
 }

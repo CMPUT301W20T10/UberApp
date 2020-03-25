@@ -17,6 +17,7 @@ public class User extends EntityModelBase<EnumField> {
     private String firstName;
     private String lastName;
     private String phoneNumber;
+    private String FCMToken;
 
     private int balance;
 
@@ -166,6 +167,15 @@ public class User extends EntityModelBase<EnumField> {
     public void setImage(String image) {
         addDirtyField(EnumField.IMAGE);
         this.image = image;
+    }
+
+    public String getFCMToken() {
+        return FCMToken;
+    }
+
+    public void setFCMToken(String FCMToken) {
+        addDirtyField(EnumField.FCM_TOKEN);
+        this.FCMToken = FCMToken;
     }
     // endregion setter and getter
 }
