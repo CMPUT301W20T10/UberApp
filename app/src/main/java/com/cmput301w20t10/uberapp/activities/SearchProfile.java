@@ -84,8 +84,6 @@ public class SearchProfile extends BaseActivity {
             }
         };
         SearchList.setAdapter(recyclerAdapter);
-
-
     }
 
 
