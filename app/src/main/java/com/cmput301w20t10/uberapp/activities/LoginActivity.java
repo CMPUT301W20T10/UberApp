@@ -21,6 +21,7 @@ import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.Rider;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 /**
  * @author Joshua Mayer
@@ -45,6 +46,18 @@ public class LoginActivity extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
         }
+
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("UBER", task.getException());
+                        return;
+                    }
+                    String token = task.getResult().getToken();
+
+                    Application.getInstance().setMessagingToken(token);
+                    Log.d("UBER", token);
+                });
 
         radioButtonRider = findViewById(R.id.rider_radio_button);
         buttonLogIn = findViewById(R.id.button_log_in);

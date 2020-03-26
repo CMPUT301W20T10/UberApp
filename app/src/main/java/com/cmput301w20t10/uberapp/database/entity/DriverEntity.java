@@ -1,27 +1,30 @@
 package com.cmput301w20t10.uberapp.database.entity;
 
-import android.util.Log;
-
-import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
-import com.cmput301w20t10.uberapp.models.Driver;
-import com.cmput301w20t10.uberapp.models.EnumField;
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static android.content.ContentValues.TAG;
+import static com.cmput301w20t10.uberapp.database.entity.DriverEntity.*;
 
 /**
  * Entity representation for Driver model.
- * Entity objects are the one-to-one representation of objects from the database.
+ * @see EntityBase
  *
  * @author Allan Manuba
+ * @version 1.0.0
  */
-public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
-    public static final String DRIVER_REFERENCE = "driverReference";
+public class DriverEntity extends EntityBase<Field> {
+    // region Fields
+    /**
+     * Fields
+     * version 1.0.0
+     */
 
     private DocumentReference userReference;
     private DocumentReference driverReference;
@@ -30,11 +33,11 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
     private List<DocumentReference> activeRideRequestList;
     private int rating;
 
-    public enum Field {
+    enum Field {
         USER_REFERENCE ("userReference"),
         DRIVER_REFERENCE ("driverReference"),
         RATING ("rating"),
-        PAYMENT_LIST ("paymentList"),
+        PAYMENT_LIST ("transactionList"),
         FINISHED_RIDE_REQUEST_LIST ("finishedRideRequestList"),
         ACTIVE_RIDE_REQUEST_LIST ("activeRideRequestList");
 
@@ -44,71 +47,91 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
             this.stringValue = fieldName;
         }
 
+        @Override
         public String toString() {
             return stringValue;
         }
-    };
+    }
+    // endregion Fields
+
+    // region Constructors
+    /**
+     * Constructors
+     * @version 1.0.0
+     */
 
     public DriverEntity() {
+        super();
         this.rating = 0;
         this.paymentList = new ArrayList<>();
         this.finishedRideRequestList = new ArrayList<>();
         this.activeRideRequestList = new ArrayList<>();
     }
 
-    public DriverEntity(Driver driver) {
-        this.userReference = driver.getUserReference();
-        this.driverReference = driver.getDriverReference();
-        this.paymentList = driver.getTransactionList();
-        this.finishedRideRequestList = driver.getRideRequestList();
-        this.activeRideRequestList = driver.getActiveRideRequestList();
-        this.rating = driver.getRating();
+    // todo (Allan): investigate if still needed
+    public DriverEntity(DocumentReference userReference,
+                        DocumentReference driverReference,
+                        List<DocumentReference> paymentList,
+                        List<DocumentReference> finishedRideRequestList,
+                        List<DocumentReference> activeRideRequestList) {
+        this.userReference = userReference;
+        this.driverReference = driverReference;
+        this.paymentList = paymentList;
+        this.finishedRideRequestList = finishedRideRequestList;
+        this.activeRideRequestList = activeRideRequestList;
+    }
+    // endregion Constructors
 
-        for (EnumField dirtyField :
-                driver.getDirtyFieldSet()) {
+    /**
+     * Should only be used in the database.
+     *
+     * @return a map that can be used to update a Firestore reference
+     *
+     * @author Allan Manuba
+     * @version 1.0.0
+     */
+    @Override
+    @Exclude
+    public Map<String, Object> getDirtyFieldMap() {
+        Map<String, Object> dirtyFieldMap = new HashMap<>();
+
+        for (Field dirtyField :
+                dirtyFieldSet) {
             switch (dirtyField) {
-                case USERNAME:
-                case PASSWORD:
-                case EMAIL:
-                case FIRST_NAME:
-                case LAST_NAME:
-                case PHONE_NUMBER:
-                case IMAGE:
-                case RIDER_REFERENCE:
-                case BALANCE:
-                    // do nothing
-                    break;
                 case USER_REFERENCE:
-                    addDirtyField(Field.USER_REFERENCE);
+                    dirtyFieldMap.put(dirtyField.toString(), getUserReference());
                     break;
                 case DRIVER_REFERENCE:
-                    addDirtyField(Field.DRIVER_REFERENCE);
-                    break;
-                case TRANSACTION_LIST:
-                    addDirtyField(Field.PAYMENT_LIST);
-                    break;
-                case RIDE_REQUEST_LIST:
-                    addDirtyField(Field.FINISHED_RIDE_REQUEST_LIST);
-                    break;
-                case ACTIVE_RIDE_REQUEST_LIST:
-                    addDirtyField(Field.ACTIVE_RIDE_REQUEST_LIST);
+                    dirtyFieldMap.put(dirtyField.toString(), getDriverReference());
                     break;
                 case RATING:
-                    addDirtyField(Field.RATING);
+                    dirtyFieldMap.put(dirtyField.toString(), getRating());
                     break;
-                default:
-                    Log.w(TAG, "DriverEntity: Constructor Unknown field: " + dirtyField.toString());
+                case PAYMENT_LIST:
+                    dirtyFieldMap.put(dirtyField.toString(), getTransactionList());
+                    break;
+                case FINISHED_RIDE_REQUEST_LIST:
+                    dirtyFieldMap.put(dirtyField.toString(), getFinishedRideRequestList());
+                    break;
+                case ACTIVE_RIDE_REQUEST_LIST:
+                    dirtyFieldMap.put(dirtyField.toString(), getActiveRideRequestList());
                     break;
             }
         }
+
+        return dirtyFieldMap;
     }
 
-    @Override
-    @Exclude
-    public Field[] getDirtyFieldSet() {
-        return dirtyFieldSet.toArray(new Field[0]);
-    }
-
+    /**
+     * Downgrades the status of a given ride request such that it is no longer part
+     * of the active ride request list, and it can only be seen in the history from
+     * that point on
+     *
+     * @param rideRequest
+     *
+     * @author Allan Manuba
+     * @version 1.0.0
+     */
     public void deactivateRideRequest(RideRequest rideRequest) {
         activeRideRequestList.remove(rideRequest.getRideRequestReference());
         finishedRideRequestList.add(rideRequest.getRideRequestReference());
@@ -117,6 +140,12 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
     }
 
     // region setters
+    @Override
+    @Exclude
+    public DocumentReference getMainReference() {
+        return getDriverReference();
+    }
+
     public DocumentReference getUserReference() {
         return userReference;
     }
@@ -135,7 +164,7 @@ public class DriverEntity extends EntityModelBase<DriverEntity.Field> {
         this.driverReference = driverReference;
     }
 
-    public List<DocumentReference> getPaymentList() {
+    public List<DocumentReference> getTransactionList() {
         return paymentList;
     }
 

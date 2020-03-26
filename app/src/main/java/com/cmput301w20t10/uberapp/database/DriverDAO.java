@@ -2,25 +2,20 @@ package com.cmput301w20t10.uberapp.database;
 
 import android.util.Log;
 
+import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.entity.DriverEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Driver;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import static android.content.ContentValues.TAG;
 
@@ -30,9 +25,9 @@ import static android.content.ContentValues.TAG;
  *
  * @author Allan Manuba
  */
-public class DriverDAO {
+public class DriverDAO extends DAOBase<DriverEntity, Driver> {
     static final String COLLECTION = "drivers";
-    final static String LOC = "DriverDAO: ";
+    final static String LOC = "Tomate: DriverDAO: ";
 
     DriverDAO() {}
 
@@ -110,90 +105,20 @@ public class DriverDAO {
      * </li>
      */
     public LiveData<Driver> logInAsDriver(String username, String password, LifecycleOwner owner) {
-        MutableLiveData<Driver> driverLiveData = new MutableLiveData<>();
-
-        UserDAO userDAO = new UserDAO();
-        userDAO.logIn(username, password)
-                .observe(owner, userEntity -> {
-                    if (userEntity == null || userEntity.getDriverReference() == null) {
-                        driverLiveData.setValue(null);
-                    } else {
-                        userEntity.getDriverReference()
-                                .get()
-                                .addOnCompleteListener(task -> {
-                                    if (task.isSuccessful() && task.getResult() != null) {
-                                        DriverEntity driverEntity = task.getResult()
-                                                .toObject(DriverEntity.class);
-                                        Driver driver = new Driver(driverEntity, userEntity);
-                                        driverLiveData.setValue(driver);
-                                    } else {
-                                        driverLiveData.setValue(null);
-                                    }
-                                });
-                    }
-                });
-
-        return driverLiveData;
+        LogInAsDriverTask task = new LogInAsDriverTask(owner, username, password);
+        return task.run();
     }
 
-    /**
-     * Saves changes in driverEntity
-     * @param driverEntity
-     * @return
-     * Returns a Task object that can be observed whether it is successful or not.
-     */
-    public Task<Void> save(DriverEntity driverEntity) {
-        final DocumentReference reference = driverEntity.getDriverReference();
-        Task task = null;
-
-        if (reference != null) {
-            final Map<String, Object> dirtyPairMap = new HashMap<>();
-
-            for (DriverEntity.Field field:
-                    driverEntity.getDirtyFieldSet()) {
-                Object value = null;
-
-                switch (field) {
-                    case USER_REFERENCE:
-                        value = driverEntity.getUserReference();
-                        break;
-                    case DRIVER_REFERENCE:
-                        value = driverEntity.getDriverReference();
-                        break;
-                    case RATING:
-                        value = driverEntity.getRating();
-                        break;
-                    case PAYMENT_LIST:
-                        value = driverEntity.getPaymentList();
-                        break;
-                    case FINISHED_RIDE_REQUEST_LIST:
-                        value = driverEntity.getFinishedRideRequestList();
-                        break;
-                    case ACTIVE_RIDE_REQUEST_LIST:
-                        value = driverEntity.getActiveRideRequestList();
-                        break;
-                    default:
-                        break;
-                }
-
-                if (value != null) {
-                    dirtyPairMap.put(field.toString(), value);
-                }
-            }
-
-            driverEntity.clearDirtyStateSet();
-
-            if (dirtyPairMap.size() > 0) {
-                task = reference.update(dirtyPairMap);
-            }
-        }
-
-        return task;
-    }
-
+    @Override
     public MutableLiveData<Boolean> saveModel(Driver driver) {
-        SaveModelTask saveModelTask = new SaveModelTask(driver);
-        return saveModelTask.run();
+        DriverEntity driverEntity = new DriverEntity();
+        driver.transferChanges(driverEntity);
+        return saveEntity(driverEntity);
+    }
+
+    public LiveData<Boolean> saveModel(LifecycleOwner owner, Driver driver) {
+        SaveDriverModelTask saveDriverModelTask = new SaveDriverModelTask(owner, driver);
+        return saveDriverModelTask.run();
     }
 
     public MutableLiveData<Driver> getDriverFromDriverReference(DocumentReference driverReference) {
@@ -207,59 +132,53 @@ public class DriverDAO {
     }
 }
 
-class SaveModelTask extends GetTaskSequencer<Boolean> {
+class SaveDriverModelTask extends GetTaskSequencer<Boolean> {
     final static String LOC = "Tomate: DriverDAO: SaveModel: ";
-    private final Driver driver;
     private final DriverEntity driverEntity;
     private final UserEntity userEntity;
+    private final LifecycleOwner owner;
+    private final Driver driver;
 
-    SaveModelTask(Driver driver) {
+    SaveDriverModelTask(LifecycleOwner owner, Driver driver) {
+        this.owner = owner;
         this.driver = driver;
-        driverEntity = new DriverEntity(driver);
-        userEntity = new UserEntity(driver);
-        driver.clearDirtyStateSet();
+
+        driverEntity = new DriverEntity();
+        userEntity = new UserEntity();
+        driver.transferChanges(driverEntity);
+        driver.clearDirtyFieldSet();
     }
 
     @Override
-    public MutableLiveData<Boolean> run() {
+    public void doFirstTask() {
         updateDriverEntity();
-        return liveData;
     }
 
     private void updateDriverEntity() {
         DriverDAO driverDAO = new DriverDAO();
-        Task driverSaveTask = driverDAO.save(driverEntity);
-        if (driverSaveTask != null) {
-            driverSaveTask.addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.d(TAG, LOC + "updateDriverEntity: ");
-                    updateUserEntity();
-                } else {
-                    Log.e(TAG, LOC + "updateDriverEntity: onComplete: ", task.getException());
-                    liveData.setValue(false);
-                }
-            });
-        } else {
-            liveData.setValue(true);
-        }
+        driverDAO.saveEntity(driverEntity)
+                .observe(owner, aBoolean -> {
+                    if (aBoolean) {
+                        updateUserEntity();
+                    } else {
+                        Log.e(TAG, LOC + "updateDriverEntity: onChanged: ");
+                        postResult(false);
+                    }
+                });
     }
 
     private void updateUserEntity() {
         UserDAO userDAO = new UserDAO();
-        Task saveUserTask = userDAO.saveEntity(userEntity);
-        if (saveUserTask != null) {
-            saveUserTask.addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.d(TAG, LOC + "updateUserEntity: ");
-                    liveData.setValue(true);
-                } else {
-                    Log.e(TAG, LOC + "updateUserEntity: onComplete: ", task.getException());
-                    liveData.setValue(false);
+        userDAO.saveModel(driver)
+        .observe(owner, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (!aBoolean) {
+                    Log.e(TAG, LOC +"onChanged: ");
                 }
-            });
-        } else {
-            liveData.setValue(true);
-        }
+                postResult(false);
+            }
+        });
     }
 }
 
@@ -274,9 +193,8 @@ class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
     }
 
     @Override
-    public MutableLiveData<Driver> run() {
+    public void doFirstTask() {
         getDriverEntity();
-        return liveData;
     }
 
     private void getDriverEntity() {
@@ -293,7 +211,7 @@ class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
                     });
         } else {
             Log.e(TAG, LOC + "getDriverEntity: reference null");
-            liveData.setValue(null);
+            postResult(null);
         }
     }
 
@@ -304,16 +222,28 @@ class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             UserEntity userEntity = task.getResult().toObject(UserEntity.class);
-                            Driver driver = new Driver(driverEntity, userEntity);
-                            liveData.setValue(driver);
+                            Driver driver = new Driver(userEntity.getUserReference(),
+                                    driverEntity.getDriverReference(),
+                                    driverEntity.getTransactionList(),
+                                    driverEntity.getFinishedRideRequestList(),
+                                    driverEntity.getActiveRideRequestList(),
+                                    userEntity.getUsername(),
+                                    userEntity.getPassword(),
+                                    userEntity.getEmail(),
+                                    userEntity.getFirstName(),
+                                    userEntity.getLastName(),
+                                    userEntity.getPhoneNumber(),
+                                    driverEntity.getRating(),
+                                    userEntity.getImage());
+                            postResult(driver);
                         } else {
                             Log.e(TAG, LOC + "getUserEntity: onComplete: ", task.getException());
-                            liveData.setValue(null);
+                            postResult(null);
                         }
                     });
         } else {
             Log.e(TAG, LOC + "getUserEntity: No User Entity");
-            liveData.setValue(null);
+            postResult(null);
         }
     }
 }
@@ -354,9 +284,8 @@ class RegisterDriverTask extends GetTaskSequencer<Driver> {
     }
 
     @Override
-    public MutableLiveData<Driver> run() {
+    public void doFirstTask() {
         createDriverEntity();
-        return liveData;
     }
 
     private void createDriverEntity() {
@@ -369,7 +298,7 @@ class RegisterDriverTask extends GetTaskSequencer<Driver> {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, LOC + "createDriverEntity: onFailure: ", e);
-                    liveData.setValue(null);
+                    postResult(null);
                 });
 
     }
@@ -389,7 +318,7 @@ class RegisterDriverTask extends GetTaskSequencer<Driver> {
                         updateDriverEntity();
                     } else {
                         Log.e(TAG, LOC + "createUser: ");
-                        liveData.setValue(null);
+                        postResult(null);
                     }
                 });
     }
@@ -397,27 +326,111 @@ class RegisterDriverTask extends GetTaskSequencer<Driver> {
     private void updateDriverEntity() {
         driverEntity.setUserReference(userEntity.getUserReference());
         DriverDAO driverDAO = new DriverDAO();
-        driverDAO.save(driverEntity).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                updateUserEntity();
-            } else {
-                Log.e(TAG, LOC + "updateDriverEntity: onComplete: ", task.getException());
-                liveData.setValue(null);
-            }
-        });
+        driverDAO.saveEntity(driverEntity)
+                .observe(owner, aBoolean -> {
+                    if (aBoolean) {
+                        updateUserEntity();
+                    } else {
+                        Log.e(TAG, LOC + "updateDriverEntity: onChanged: ");
+                        postResult(null);
+                    }
+                });
     }
 
     private void updateUserEntity() {
         userEntity.setDriverReference(driverEntity.getDriverReference());
         userDAO.saveEntity(userEntity)
-        .addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Driver driver = new Driver(driverEntity, userEntity);
-                liveData.setValue(driver);
-            } else {
-                Log.e(TAG, LOC + "updateUserEntity: onComplete: ", task.getException());
-                liveData.setValue(null);
-            }
-        });
+                .observe(owner, aBoolean -> {
+                    if (aBoolean) {
+                        Driver driver = new Driver(userEntity.getUserReference(),
+                                driverEntity.getDriverReference(),
+                                driverEntity.getTransactionList(),
+                                driverEntity.getFinishedRideRequestList(),
+                                driverEntity.getActiveRideRequestList(),
+                                userEntity.getUsername(),
+                                userEntity.getPassword(),
+                                userEntity.getEmail(),
+                                userEntity.getFirstName(),
+                                userEntity.getLastName(),
+                                userEntity.getPhoneNumber(),
+                                driverEntity.getRating(),
+                                userEntity.getImage());
+                        postResult(driver);
+                    } else {
+                        Log.e(TAG, LOC + "updateUserEntity: ");
+                        postResult(null);
+                    }
+                });
+    }
+}
+
+class LogInAsDriverTask extends GetTaskSequencer<Driver> {
+    static final String LOC = DriverDAO.LOC + "LogInAsDriverTask";
+
+    private final String password;
+    private final String username;
+    private final LifecycleOwner owner;
+    private UserEntity userEntity;
+    private DriverEntity driverEntity;
+
+    LogInAsDriverTask(LifecycleOwner owner, String username, String password) {
+        this.owner = owner;
+        this.username = username;
+        this.password = password;
+    }
+
+    @Override
+    public void doFirstTask() {
+        userLogin();
+    }
+
+    private void userLogin() {
+        UserDAO userDAO = new UserDAO();
+        userDAO.logIn(username, password)
+                .observe(owner, userEntity -> {
+                    if (userEntity == null || userEntity.getDriverReference() == null) {
+                        Log.e(TAG, LOC + ": userLogin: Failing with username: " + username);
+                        postResult(null);
+                    } else {
+                        this.userEntity = userEntity;
+                        getDriverEntity();
+                    }
+                });
+    }
+
+    private void getDriverEntity() {
+        userEntity.getDriverReference()
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        driverEntity = task.getResult().toObject(DriverEntity.class);
+                        convertToModel();
+                    } else {
+                        Log.e(TAG, LOC +"getDriverEntity: onComplete: ", task.getException());
+                        postResult(null);
+                    }
+                });
+    }
+
+    private void convertToModel() {
+        if (driverEntity == null) {
+            Log.e(TAG, "convertToModel: driverEntity is null");
+            postResult(null);
+        } else {
+            Driver driver = new Driver(userEntity.getUserReference(),
+                    driverEntity.getDriverReference(),
+                    driverEntity.getTransactionList(),
+                    driverEntity.getFinishedRideRequestList(),
+                    driverEntity.getActiveRideRequestList(),
+                    userEntity.getUsername(),
+                    userEntity.getPassword(),
+                    userEntity.getEmail(),
+                    userEntity.getFirstName(),
+                    userEntity.getLastName(),
+                    userEntity.getPhoneNumber(),
+                    driverEntity.getRating(),
+                    userEntity.getImage());
+            postResult(driver);
+        }
     }
 }
