@@ -2,21 +2,30 @@ package com.cmput301w20t10.uberapp.database.entity;
 
 import android.util.Log;
 
-import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
-import com.cmput301w20t10.uberapp.models.Driver;
-import com.cmput301w20t10.uberapp.models.EnumField;
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static android.content.ContentValues.TAG;
+import static com.cmput301w20t10.uberapp.database.entity.UserEntity.*;
 
 /**
  * Entity representation for Driver model.
- * Entity objects are the one-to-one representation of objects from the database.
+ * @see EntityBase
  *
  * @author Allan Manuba
+ * @version 1.0.0
  */
-public class UserEntity extends EntityModelBase<UserEntity.Field> {
+public class UserEntity extends EntityBase<Field> {
+    // region Fields
+    /**
+     * Fields
+     * @version 1.0.0
+     */
+    private static final String LOC = "Tomate: UserEntity: ";
 
     public enum Field {
         USERNAME ("username"),
@@ -54,8 +63,18 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
     private String lastName;
     private String image;
     private String FCMToken;
+    // endregion fields
 
-    public UserEntity() {}
+    // region Constructors
+    /**
+     * Constructors
+     * @version 1.0.0
+     */
+
+    /**
+     * For Firestore deserialization
+     */
+    public UserEntity() { super(); }
 
     public UserEntity(String username,
                       String password,
@@ -64,6 +83,7 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
                       String lastName,
                       String phoneNumber,
                       String image) {
+        super();
         this.username = username;
         this.password = password;
         this.email = email;
@@ -73,71 +93,99 @@ public class UserEntity extends EntityModelBase<UserEntity.Field> {
         this.image = image;
         this.driverReference = null;
         this.riderReference = null;
+        this.userReference = null;
     }
 
-    public UserEntity(Driver driver) {
-        this.userReference = driver.getUserReference();
-        this.driverReference = driver.getDriverReference();
-        this.username = driver.getUsername();
-        this.email = driver.getEmail();
-        this.phoneNumber = driver.getPhoneNumber();
-        this.password = driver.getPassword();
-        this.firstName = driver.getFirstName();
-        this.lastName = driver.getLastName();
-        this.image = driver.getImage();
+    // todo: check out if still needed
+    public UserEntity(DocumentReference userReference,
+                      DocumentReference driverReference,
+                      DocumentReference riderReference,
+                      String username,
+                      String password,
+                      String email,
+                      String firstName,
+                      String lastName,
+                      String phoneNumber,
+                      String image) {
+        super();
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.image = image;
+        this.driverReference = driverReference;
+        this.riderReference = riderReference;
+        this.userReference = userReference;
+    }
+    // endregion Constructors
 
-        for (EnumField dirtyField :
-                driver.getDirtyFieldSet()) {
+    /**
+     * @see EntityBase#addDirtyField(Object)
+     *
+     * @return a map that can be used to update a Firestore reference
+     *
+     * @author Allan Manuba
+     * @version 1.0.
+     *
+     * @version 1.0.1
+     */
+    @Override
+    @Exclude
+    public Map<String, Object> getDirtyFieldMap() {
+        HashMap<String, Object> dirtyFieldMap = new HashMap<>();
+        for (Field dirtyField :
+                dirtyFieldSet) {
             switch (dirtyField) {
-                case USER_REFERENCE:
-                    addDirtyField(Field.USER_REFERENCE);
-                    break;
                 case USERNAME:
-                    addDirtyField(Field.USERNAME);
+                    dirtyFieldMap.put(dirtyField.toString(), getUsername());
                     break;
                 case PASSWORD:
-                    addDirtyField(Field.PASSWORD);
+                    dirtyFieldMap.put(dirtyField.toString(), getPassword());
                     break;
                 case EMAIL:
-                    addDirtyField(Field.EMAIL);
+                    dirtyFieldMap.put(dirtyField.toString(), getEmail());
                     break;
                 case FIRST_NAME:
-                    addDirtyField(Field.FIRST_NAME);
+                    dirtyFieldMap.put(dirtyField.toString(), getFirstName());
                     break;
                 case LAST_NAME:
-                    addDirtyField(Field.LAST_NAME);
+                    dirtyFieldMap.put(dirtyField.toString(), getLastName());
                     break;
                 case PHONE_NUMBER:
-                    addDirtyField(Field.PHONE_NUMBER);
-                    break;
-                case IMAGE:
-                    addDirtyField(Field.IMAGE);
+                    dirtyFieldMap.put(dirtyField.toString(), getPhoneNumber());
                     break;
                 case DRIVER_REFERENCE:
-                    addDirtyField(Field.DRIVER_REFERENCE);
+                    dirtyFieldMap.put(dirtyField.toString(), getDriverReference());
                     break;
-                case TRANSACTION_LIST:
                 case RIDER_REFERENCE:
-                case RIDE_REQUEST_LIST:
-                case ACTIVE_RIDE_REQUEST_LIST:
-                case RATING:
-                case BALANCE:
-                    // do nothing
+                    dirtyFieldMap.put(dirtyField.toString(), getRiderReference());
+                    break;
+                case USER_REFERENCE:
+                    dirtyFieldMap.put(dirtyField.toString(), getUserReference());
+                    break;
+                case FCM_TOKEN:
+                    dirtyFieldMap.put(dirtyField.toString(), getFCMToken());
+                    break;
+                case IMAGE:
+                    dirtyFieldMap.put(dirtyField.toString(), getImage());
                     break;
                 default:
-                    Log.w(TAG, "UserEntity: Constructor: Unknown field: " + dirtyField.toString());
+                    Log.e(TAG, LOC + "getDirtyFieldMap: Unknown field: " + dirtyField.toString());
                     break;
             }
         }
-    }
-
-    @Override
-    @Exclude
-    public Field[] getDirtyFieldSet() {
-        return dirtyFieldSet.toArray(new Field[0]);
+        return  dirtyFieldMap;
     }
 
     // region getters and setters
+    @Override
+    @Exclude
+    public DocumentReference getMainReference() {
+        return getUserReference();
+    }
+
     public DocumentReference getUserReference() {
         return userReference;
     }

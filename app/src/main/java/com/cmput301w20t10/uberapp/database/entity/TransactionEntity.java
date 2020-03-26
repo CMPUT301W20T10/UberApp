@@ -1,6 +1,6 @@
 package com.cmput301w20t10.uberapp.database.entity;
 
-import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.Transaction;
 import com.cmput301w20t10.uberapp.models.Rider;
@@ -9,21 +9,33 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.cmput301w20t10.uberapp.database.entity.TransactionEntity.*;
 
 /**
  * Entity representation for Transaction model.
- * Entity objects are the one-to-one representation of objects from the database.
+ * @see EntityBase
  *
  * @author Allan Manuba
+ * @version 1.0.0
  */
-public class TransactionEntity extends EntityModelBase<TransactionEntity.Field> {
+public class TransactionEntity extends EntityBase<Field> {
+
+    // region Fields
+    /**
+     * Fields
+     * @version 1.0.0
+     */
+
     private DocumentReference transactionReference;
     private Timestamp timestamp;
     private DocumentReference recipient;
     private DocumentReference sender;
     private float value;
 
-    public enum Field {
+    enum Field {
         VALUE ("value"),
         SENDER ("sender"),
         RECIPIENT ("recipient"),
@@ -36,37 +48,71 @@ public class TransactionEntity extends EntityModelBase<TransactionEntity.Field> 
             this.stringValue = fieldName;
         }
 
+        @Override
         public String toString() {
             return stringValue;
         }
     }
+    // endregion Fields
 
-    public TransactionEntity() {}
+    // region Constructors
+    /**
+     * Constructors
+     * @version 1.0.0
+     */
+    public TransactionEntity() { super(); }
 
     public TransactionEntity(Rider sender, Driver recipient, int value) {
+        super();
         this.sender = sender.getUserReference();
         this.recipient = recipient.getUserReference();
         this.timestamp = new Timestamp(new Date());
         this.value = value;
     }
+    // endregion Constructors
 
-    public TransactionEntity(Transaction transaction) {
-        super();
-        this.transactionReference = transaction.getTransactionReference();
-        this.timestamp = new Timestamp(transaction.getTimestamp());
-        this.recipient = transaction.getRecipient().getUserReference();
-        this.sender = transaction.getSender().getUserReference();
-        this.value = transaction.getValue();
-    }
-
+    /**
+     * @see EntityBase#addDirtyField(Object)
+     *
+     * @return a map that can be used to update a Firestore reference
+     *
+     * @author Allan Manuba
+     * @version 1.0.0
+     */
     @Override
     @Exclude
-    public Field[] getDirtyFieldSet() {
-        return dirtyFieldSet.toArray(new Field[0]);
+    public Map<String, Object> getDirtyFieldMap() {
+        Map<String, Object> dirtyFieldMap = new HashMap<>();
+        for (Field dirtyField :
+                dirtyFieldSet) {
+            switch (dirtyField) {
+                case VALUE:
+                    dirtyFieldMap.put(dirtyField.toString(), getValue());
+                    break;
+                case SENDER:
+                    dirtyFieldMap.put(dirtyField.toString(), getSender());
+                    break;
+                case RECIPIENT:
+                    dirtyFieldMap.put(dirtyField.toString(), getRecipient());
+                    break;
+                case TIMESTAMP:
+                    dirtyFieldMap.put(dirtyField.toString(), getTimestamp());
+                    break;
+                case TRANSACTION_REFERENCE:
+                    dirtyFieldMap.put(dirtyField.toString(), getTransactionReference());
+                    break;
+            }
+        }
+        return dirtyFieldMap;
     }
 
+    // region Setters and getters
+    @Override
+    @Exclude
+    public DocumentReference getMainReference() {
+        return getTransactionReference();
+    }
 
-    // region setters and getters
     public DocumentReference getTransactionReference() {
         return transactionReference;
     }
@@ -107,9 +153,9 @@ public class TransactionEntity extends EntityModelBase<TransactionEntity.Field> 
         return value;
     }
 
-    public void setValue(int value) {
+    public void setValue(float value) {
         addDirtyField(Field.VALUE);
         this.value = value;
     }
-    // endregion setters and getters
+    // endregion Setters and getters
 }
