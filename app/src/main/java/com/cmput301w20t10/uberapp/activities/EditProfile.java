@@ -30,7 +30,7 @@ public class EditProfile extends AppCompatActivity {
     Button butCancel;
     Button butSave;
     ImageButton butPicture;
-    private EditText firstNameField, lastNameField, usernameField,emailField,phoneNumberField;
+    private EditText firstNameField, lastNameField,emailField,phoneNumberField;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +39,6 @@ public class EditProfile extends AppCompatActivity {
 
         this.firstNameField = findViewById(R.id.editFname);
         this.lastNameField = findViewById(R.id.editLname);
-        this.usernameField = findViewById(R.id.editUsername);
         this.emailField = findViewById(R.id.editEmail);
         this.phoneNumberField = findViewById(R.id.editPhone);
 
@@ -50,12 +49,9 @@ public class EditProfile extends AppCompatActivity {
 
         firstNameField.setText(user.getFirstName());
         lastNameField.setText(user.getLastName());
-        usernameField.setText(user.getUsername());
         emailField.setText(user.getEmail());
         phoneNumberField.setText(user.getPhoneNumber());
 
-        /*FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference userRef = db.collection("users").document(user.getUserReference().toString());*/
 
 
         butCancel.setOnClickListener(v -> {
@@ -74,138 +70,38 @@ public class EditProfile extends AppCompatActivity {
             //Check that the email is valid
             String firstName = firstNameField.getText().toString();
             String lastName = lastNameField.getText().toString();
-            String username = usernameField.getText().toString();
             String email = emailField.getText().toString();
             String phone = phoneNumberField.getText().toString();
 
             //This should set first name in user to what is inputted in the firstname field.
             user.setFirstName(firstName);
             user.setLastName(lastName);
-            user.setUsername(username);
             user.setEmail(email);
             user.setPhoneNumber(phone);
             UserDAO dao = new UserDAO();
             MutableLiveData<Boolean> result = dao.saveModel(user);
             finish();
         });
-    }
-/*
-            if (firstName.length() >= 1) {
-                userRef
-                        .update("firstName", firstName)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d("testing", "First name successfully updated!");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d("testing", "Error updating first name", e);
-                            }
-                        });
-
-            }
-            if (lastName.length() >=1 ) {
-                userRef
-                        .update("lastName", lastName)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d("testing", "Last name successfully updated!");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d("testing", "Error updating last name", e);
-                            }
-                        });
-            }
-            if (username.length() >= 1) {
-                userRef
-                        .update("username", username)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d("testing", "Username successfully updated!");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d("testing", "Error updating username", e);
-                            }
-                        });
-            }
-
-            if (!validateEmail(email)) {
-                Toast.makeText(getApplicationContext(), "Email entered is not valid",
-                        Toast.LENGTH_LONG).show();
-            }
-            else {
-                userRef
-                        .update("email", email)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d("testing", "Email successfully updated!");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d("testing", "Error updating email", e);
-                            }
-                        });
-            }
-
-            //Check that the phone is valid
-            if (!validatePhone(phone)) {
-                Toast.makeText(getApplicationContext(), "Phone number entered is not valid",
-                        Toast.LENGTH_LONG).show();
-            }
-            else {
-                userRef
-                        .update("phoneNumber", phone)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d("testing", "Phone Number successfully updated!");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d("testing", "Error updating phone number", e);
-                            }
-                        });
-            }
-
-
-            finish();
-        });
 
         butPicture.setOnClickListener(v -> {
-            *//*
+            /*
             This button will be for editing/uploading a new photo.
             Will look at making this work later, but for now it will do nothing.
             No point in skeletal code as need to set it up with the database.
             wait to work on this until after the save button correctly works and saves the profile.
             LOW RISK NOT SUPER IMPORTANT...
-            *//*
+            */
         });
 
 
     }
-    *//**
+    /**
      * Validates that the email is valid
      *
      * @param email - The email to be validated
      *
      * @return - True if the validation succeeds, false otherwise
-     *//*
+     */
     private boolean validateEmail(@NonNull String email) {
         String emailFormat = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w]+$";
         Pattern pattern = Pattern.compile(emailFormat);
@@ -213,15 +109,17 @@ public class EditProfile extends AppCompatActivity {
         return matcher.find();
     }
 
-    *//**
+    /**
      * Validates that the phone number is valid
      * @param phone  - the phone number to be validated
      * @return - True if the validation succeeds, false otherwise.
-     *//*
+     */
     private boolean validatePhone(@NonNull String phone) {
         String phoneFormat = "^[0-9]{10}$";
         Pattern pattern = Pattern.compile(phoneFormat);
         Matcher matcher = pattern.matcher(phone);
         return matcher.find();
-    }*/
+    }
+
+
 }

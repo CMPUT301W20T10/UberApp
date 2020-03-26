@@ -22,7 +22,16 @@ public class ProfilePage extends BaseActivity {
         setContentView(R.layout.profile_page);
         editProfile = findViewById(R.id.butEditProf);
 
-// TODO: 2020-03-13  Need to add functionality - update info based on who is logged in.
+
+        editProfile.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(),EditProfile.class);
+            v.getContext().startActivity(intent);
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         fName = findViewById(R.id.Fname);
         lName = findViewById(R.id.Lname);
         uName = findViewById(R.id.Uname);
@@ -36,14 +45,5 @@ public class ProfilePage extends BaseActivity {
         uName.setText(user.getUsername());
         pNumber.setText(user.getPhoneNumber());
         eMail.setText(user.getEmail());
-
-
-
-        editProfile.setOnClickListener(v -> {
-            Intent intent = new Intent(v.getContext(),EditProfile.class);
-            v.getContext().startActivity(intent);
-        });
     }
-
-
 }
