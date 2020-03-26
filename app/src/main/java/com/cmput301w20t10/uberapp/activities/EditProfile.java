@@ -47,6 +47,13 @@ public class EditProfile extends AppCompatActivity {
         butSave = findViewById(R.id.butSave);
         butPicture = findViewById(R.id.editPicture);
         User user = Application.getInstance().getCurrentUser();
+
+        firstNameField.setText(user.getFirstName());
+        lastNameField.setText(user.getLastName());
+        usernameField.setText(user.getUsername());
+        emailField.setText(user.getEmail());
+        phoneNumberField.setText(user.getPhoneNumber());
+
         /*FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference userRef = db.collection("users").document(user.getUserReference().toString());*/
 
@@ -73,6 +80,10 @@ public class EditProfile extends AppCompatActivity {
 
             //This should set first name in user to what is inputted in the firstname field.
             user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setUsername(username);
+            user.setEmail(email);
+            user.setPhoneNumber(phone);
             UserDAO dao = new UserDAO();
             MutableLiveData<Boolean> result = dao.saveModel(user);
             finish();
