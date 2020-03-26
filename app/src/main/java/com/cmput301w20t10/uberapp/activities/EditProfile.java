@@ -2,10 +2,12 @@ package com.cmput301w20t10.uberapp.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.MutableLiveData;
+
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
+
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -13,6 +15,7 @@ import android.widget.Toast;
 
 import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.database.UserDAO;
 import com.cmput301w20t10.uberapp.models.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -44,8 +47,8 @@ public class EditProfile extends AppCompatActivity {
         butSave = findViewById(R.id.butSave);
         butPicture = findViewById(R.id.editPicture);
         User user = Application.getInstance().getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference userRef = db.collection("users").document(user.getUserReference().toString());
+        /*FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference userRef = db.collection("users").document(user.getUserReference().toString());*/
 
 
         butCancel.setOnClickListener(v -> {
@@ -68,6 +71,13 @@ public class EditProfile extends AppCompatActivity {
             String email = emailField.getText().toString();
             String phone = phoneNumberField.getText().toString();
 
+            //This should set first name in user to what is inputted in the firstname field.
+            user.setFirstName(firstName);
+            UserDAO dao = new UserDAO();
+            MutableLiveData<Boolean> result = dao.saveModel(user);
+        });
+    }
+/*
             if (firstName.length() >= 1) {
                 userRef
                         .update("firstName", firstName)
@@ -166,24 +176,24 @@ public class EditProfile extends AppCompatActivity {
         });
 
         butPicture.setOnClickListener(v -> {
-            /*
+            *//*
             This button will be for editing/uploading a new photo.
             Will look at making this work later, but for now it will do nothing.
             No point in skeletal code as need to set it up with the database.
             wait to work on this until after the save button correctly works and saves the profile.
             LOW RISK NOT SUPER IMPORTANT...
-            */
+            *//*
         });
 
 
     }
-    /**
+    *//**
      * Validates that the email is valid
      *
      * @param email - The email to be validated
      *
      * @return - True if the validation succeeds, false otherwise
-     */
+     *//*
     private boolean validateEmail(@NonNull String email) {
         String emailFormat = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w]+$";
         Pattern pattern = Pattern.compile(emailFormat);
@@ -191,15 +201,15 @@ public class EditProfile extends AppCompatActivity {
         return matcher.find();
     }
 
-    /**
+    *//**
      * Validates that the phone number is valid
      * @param phone  - the phone number to be validated
      * @return - True if the validation succeeds, false otherwise.
-     */
+     *//*
     private boolean validatePhone(@NonNull String phone) {
         String phoneFormat = "^[0-9]{10}$";
         Pattern pattern = Pattern.compile(phoneFormat);
         Matcher matcher = pattern.matcher(phone);
         return matcher.find();
-    }
+    }*/
 }
