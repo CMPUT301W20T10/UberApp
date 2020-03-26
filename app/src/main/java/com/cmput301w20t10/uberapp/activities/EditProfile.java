@@ -75,6 +75,7 @@ public class EditProfile extends AppCompatActivity {
             user.setFirstName(firstName);
             UserDAO dao = new UserDAO();
             MutableLiveData<Boolean> result = dao.saveModel(user);
+            finish();
         });
     }
 /*
