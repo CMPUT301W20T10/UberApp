@@ -161,7 +161,8 @@ public class User extends ModelBase<Field, UserEntity> {
                     }
                     break;
                 case USER_REFERENCE:
-                    userEntity.setUserReference(getUserReference());
+                    // always true for the sake of main reference
+                    // todo: document why this is done
                     break;
                 case USERNAME:
                     userEntity.setUsername(getUsername());
@@ -188,6 +189,8 @@ public class User extends ModelBase<Field, UserEntity> {
                     Log.e(TAG, LOC + "transferChanges: Unknown field: " + dirtyField.toString());
                     break;
             }
+
+            userEntity.setUserReference(getUserReference());
         }
     }
 

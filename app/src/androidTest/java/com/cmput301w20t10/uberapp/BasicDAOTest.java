@@ -24,7 +24,6 @@ import org.junit.runner.RunWith;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -55,6 +54,7 @@ public class BasicDAOTest extends DatabaseTestBase {
         // get data
         final Object syncObject = new Object();
         final AtomicReference<Rider> riderAtomicReference = new AtomicReference<>();
+        final Rider rider = REGISTER_TEST_RIDER1;
 
         Runnable runnable = () -> {
             Observer<Rider> observer = new AssertNotNullObserver<Rider>(syncObject) {
@@ -65,13 +65,13 @@ public class BasicDAOTest extends DatabaseTestBase {
                 }
             };
             MutableLiveData<Rider> liveData = loginRegisterDAO
-                    .registerRider(FAKE_DUCK_RIDER.getUsername(),
-                            FAKE_DUCK_RIDER.getPassword(),
-                            FAKE_DUCK_RIDER.getEmail(),
-                            FAKE_DUCK_RIDER.getFirstName(),
-                            FAKE_DUCK_RIDER.getLastName(),
-                            FAKE_DUCK_RIDER.getPhoneNumber(),
-                            FAKE_DUCK_RIDER.getImage(),
+                    .registerRider(rider.getUsername(),
+                            rider.getPassword(),
+                            rider.getEmail(),
+                            rider.getFirstName(),
+                            rider.getLastName(),
+                            rider.getPhoneNumber(),
+                            rider.getImage(),
                             mainLifecycleOwner);
             liveData.observe(mainLifecycleOwner, observer);
         };
@@ -80,9 +80,10 @@ public class BasicDAOTest extends DatabaseTestBase {
 
         Rider burnerRider = riderAtomicReference.get();
         addUsersToCleanUp(burnerRider);
-        assertRiderEquals(burnerRider, FAKE_DUCK_RIDER);
+        assertRiderEquals(burnerRider, rider);
     }
 
+    // todo: improve to match current set up
     @Test
     public void registerAsDriverTest() throws InterruptedException {
         LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
@@ -100,7 +101,7 @@ public class BasicDAOTest extends DatabaseTestBase {
                 }
             };
             MutableLiveData<Driver> liveData = loginRegisterDAO
-                    .registerDriver("Charlie",
+                    .registerDriver("CharlieTest2",
                             "2:00",
                             "email",
                             "Full",
@@ -114,8 +115,7 @@ public class BasicDAOTest extends DatabaseTestBase {
         liveDataObserver(runnable, syncObject);
 
         Driver driver = atomicReference.get();
-        driver.getDriverReference().delete();
-        driver.getUserReference().delete();
+        addUsersToCleanUp(driver);
     }
 
     /**
@@ -143,8 +143,8 @@ public class BasicDAOTest extends DatabaseTestBase {
             };
             LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
             MutableLiveData<Rider> liveData = loginRegisterDAO
-                    .logInAsRider("HepCat",
-                            "1:00",
+                    .logInAsRider(BASIC_TEST_RIDER1.getUsername(),
+                            BASIC_TEST_RIDER1.getPassword(),
                             mainLifecycleOwner);
             liveData.observe(mainLifecycleOwner, observer);
         };

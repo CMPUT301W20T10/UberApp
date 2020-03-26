@@ -3,8 +3,6 @@ package com.cmput301w20t10.uberapp.database.entity;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.EntityBase;
-import com.cmput301w20t10.uberapp.models.Driver;
-import com.cmput301w20t10.uberapp.models.EnumField;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 

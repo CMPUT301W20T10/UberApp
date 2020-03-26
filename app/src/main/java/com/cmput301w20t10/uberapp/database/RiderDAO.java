@@ -110,8 +110,9 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
 
     @Override
     public MutableLiveData<Boolean> saveModel(Rider rider) {
-        // todo save rider model
-        return null;
+        RiderEntity riderEntity = new RiderEntity();
+        rider.transferChanges(riderEntity);
+        return saveEntity(riderEntity);
     }
 
     MutableLiveData<Rider> getRiderFromRiderReference(DocumentReference riderReference) {
@@ -253,7 +254,7 @@ class RegisterRiderTask extends GetTaskSequencer<Rider> {
 }
 
 class LogInAsRiderTask extends GetTaskSequencer<Rider> {
-    static final String LOC = DriverDAO.LOC + "LogInAsDriverTask";
+    static final String LOC = RiderDAO.LOC + "LogInAsRiderTask: ";
 
     private final String password;
     private final String username;
@@ -276,8 +277,9 @@ class LogInAsRiderTask extends GetTaskSequencer<Rider> {
         UserDAO userDAO = new UserDAO();
         userDAO.logIn(username, password)
                 .observe(owner, userEntity -> {
-                    if (userEntity == null || userEntity.getDriverReference() == null) {
-                        Log.e(TAG, LOC + "userLogin: ");
+                    if (userEntity == null || userEntity.getRiderReference() == null) {
+                        Log.e(TAG, LOC + "userLogin: Fail to login with username: " + username + " / " + password);
+                        Log.e(TAG, LOC + "userLogin: Fail to login with username: UserEntity(" + userEntity + ") || getDriverReference(" + userEntity.getRiderReference() + ")");
                         postResult(null);
                     } else {
                         this.userEntity = userEntity;
@@ -291,7 +293,6 @@ class LogInAsRiderTask extends GetTaskSequencer<Rider> {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        convertToModel();
                         riderEntity = task.getResult().toObject(RiderEntity.class);
                         convertToModel();
                     } else {
@@ -303,7 +304,7 @@ class LogInAsRiderTask extends GetTaskSequencer<Rider> {
 
     private void convertToModel() {
         if (riderEntity == null) {
-            Log.e(TAG, "convertToModel: driverEntity is null");
+            Log.e(TAG, LOC + "convertToModel: riderEntity is null");
             postResult(null);
         } else {
             Rider rider = new Rider(riderEntity.getUserReference(),

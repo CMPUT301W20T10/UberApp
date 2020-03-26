@@ -87,7 +87,8 @@ public class Rider extends User {
                     riderEntity.setUserReference(getUserReference());
                     break;
                 case RIDER_REFERENCE:
-                    riderEntity.setRiderReference(getRiderReference());
+                    // todo: document
+                    // always true
                     break;
                 case TRANSACTION_LIST:
                     riderEntity.setPaymentList(getTransactionList());
@@ -106,6 +107,8 @@ public class Rider extends User {
                     break;
             }
         }
+
+        riderEntity.setRiderReference(getRiderReference());
     }
 
     // region getters and setters

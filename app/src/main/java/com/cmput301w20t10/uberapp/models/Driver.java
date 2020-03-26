@@ -68,7 +68,7 @@ public class Driver extends User {
                     driverEntity.setUserReference(getUserReference());
                     break;
                 case DRIVER_REFERENCE:
-                    driverEntity.setDriverReference(getDriverReference());
+                    // todo: document why this is always done?
                     break;
                 case TRANSACTION_LIST:
                     driverEntity.setPaymentList(getTransactionList());
@@ -87,6 +87,8 @@ public class Driver extends User {
                     break;
             }
         }
+
+        driverEntity.setDriverReference(getDriverReference());
     }
 
     // region getters and setters
