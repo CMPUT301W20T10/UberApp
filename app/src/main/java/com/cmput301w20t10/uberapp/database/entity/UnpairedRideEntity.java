@@ -1,26 +1,34 @@
 package com.cmput301w20t10.uberapp.database.entity;
 
-import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
+import android.util.Log;
+
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
+import static com.cmput301w20t10.uberapp.database.entity.UnpairedRideEntity.*;
+
 /**
  * Entity representation for UnpairedRideEntity model.
- * Entity objects are the one-to-one representation of objects from the database.
+ * @see EntityBase
  *
+ * todo: add timestamp
  * @author Allan Manuba
+ * @version 1.0.0
  */
-public class UnpairedRideEntity extends EntityModelBase<UnpairedRideEntity.Field> {
-    private DocumentReference rideRequestReference;
-
+public class UnpairedRideEntity extends EntityBase<Field> {
+    // region Fields
     /**
-     * Don't remove. This is required during deserialization.
+     * Fields
+     * @version 1.0.0
      */
-    public UnpairedRideEntity() {}
 
-    public UnpairedRideEntity(DocumentReference rideRequestReference) {
-        this.rideRequestReference = rideRequestReference;
-    }
+    private static final String LOC = "UnpairedRideEntity: ";
+    private DocumentReference rideRequestReference;
 
     public enum Field {
         RIDE_REQUEST_REFERENCE ("rideRequestReference");
@@ -35,14 +43,58 @@ public class UnpairedRideEntity extends EntityModelBase<UnpairedRideEntity.Field
             return stringValue;
         }
     }
+    // endregion Fields
 
+    // region Constructors
+    /**
+     * Constructors
+     * @version 1.0.0
+     */
+
+    /**
+     * Don't remove. This is required during deserialization.
+     */
+    public UnpairedRideEntity() {}
+
+    public UnpairedRideEntity(DocumentReference rideRequestReference) {
+        this.rideRequestReference = rideRequestReference;
+    }
+    // endregion Constructors
+
+    /**
+     * @see EntityBase#addDirtyField(Object)
+     *
+     * @return a map that can be used to update a Firestore reference
+     *
+     * @author Allan Manuba
+     * @version 1.0.0
+     */
     @Override
     @Exclude
-    public Field[] getDirtyFieldSet() {
-        return this.dirtyFieldSet.toArray(new Field[0]);
+    public Map<String, Object> getDirtyFieldMap() {
+        Map<String, Object> dirtyFieldMap = new HashMap<>();
+        for (Field dirtyField :
+                dirtyFieldSet) {
+            switch (dirtyField) {
+                case RIDE_REQUEST_REFERENCE:
+                    dirtyFieldMap.put(dirtyField.toString(), getRideRequestReference());
+                    break;
+                default:
+                    Log.e(TAG, LOC + "getDirtyFieldMap: Unknown field: " + dirtyField.toString());
+                    break;
+            }
+        }
+        return dirtyFieldMap;
     }
 
     // region setter and getter
+    @Override
+    @Exclude
+    public DocumentReference getMainReference() {
+        // todo add more warnings here
+        return null;
+    }
+
     public DocumentReference getRideRequestReference() {
         return rideRequestReference;
     }
