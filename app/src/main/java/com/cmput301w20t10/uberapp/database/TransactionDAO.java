@@ -29,6 +29,8 @@ public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
     static final String COLLECTION = "transactions";
     private final static String LOC = "TransactionDAO: ";
 
+    public TransactionDAO() {}
+
     @Deprecated
     public MutableLiveData<Transaction> createTransaction(LifecycleOwner owner,
                                                           Rider sender,

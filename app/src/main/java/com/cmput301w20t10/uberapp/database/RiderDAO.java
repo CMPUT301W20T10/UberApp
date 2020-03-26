@@ -28,7 +28,7 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
     static final String LOC = "Tomate: RiderDAO: ";
     static final String COLLECTION = "riders";
 
-    RiderDAO() {}
+    public RiderDAO() {}
 
     /**
      * Registers a rider

@@ -29,7 +29,7 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
     static final String COLLECTION = "drivers";
     final static String LOC = "Tomate: DriverDAO: ";
 
-    DriverDAO() {}
+    public DriverDAO() {}
 
     /**
      * Registers a driver.

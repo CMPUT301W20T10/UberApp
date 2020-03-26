@@ -26,6 +26,8 @@ class UserDAO extends DAOBase<UserEntity, User> {
     private static final String COLLECTION = "users";
     final static String LOC = "Tomate: UserDAO: ";
 
+    public UserDAO() {}
+
     /**
      * Log the user in
      *

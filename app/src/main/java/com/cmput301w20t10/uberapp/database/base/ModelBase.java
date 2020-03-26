@@ -1,5 +1,7 @@
 package com.cmput301w20t10.uberapp.database.base;
 
+import androidx.lifecycle.MutableLiveData;
+
 /**
  * Base class for Model objects
  *

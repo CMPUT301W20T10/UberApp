@@ -32,6 +32,8 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
     static final String COLLECTION = "rideRequests";
     static final String LOC = "Tomate: RideRequestDAO: ";
 
+    public RideRequestDAO() {}
+
     /**
      * Create a ride request
      *
