@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <!-- region Actual visible layout -->
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".fragments.RiderMainMap"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <!--This is included to add Menu Floating Action Buttons-->
+    <include layout="@layout/float_main" />
+
+    <!-- Clickable true avoids touch events being passed to maps -->
+    <androidx.cardview.widget.CardView
+        android:clickable="true"
+        android:id="@+id/card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:cardCornerRadius="4dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp">
+
+            <ImageView
+                android:id="@+id/card_left_icon"
+                android:layout_width="40dp"
+                android:layout_height="128dp"
+                android:scaleType="fitCenter"
+                app:layout_constraintBottom_toBottomOf="@id/layout_destination"
+                app:layout_constraintEnd_toStartOf="@id/layout_starting_point"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/destination_icon_mockup"
+                android:layout_marginEnd="8dp"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_starting_point"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/layout_destination"
+                app:layout_constraintStart_toEndOf="@id/card_left_icon"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:endIconMode="custom"
+                app:endIconContentDescription="Destination icon"
+                app:endIconDrawable="@drawable/ic_my_location_black_24dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/text_starting_point"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Starting point"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_destination"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="@id/layout_starting_point"
+                app:layout_constraintEnd_toEndOf="@id/layout_starting_point"
+                app:layout_constraintTop_toBottomOf="@id/layout_starting_point"
+                app:layout_constraintBottom_toTopOf="@id/layout_price_offer"
+                app:endIconMode="custom"
+                app:endIconContentDescription="Destination icon"
+                app:endIconDrawable="@drawable/ic_my_location_black_24dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/text_destination"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Destination"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_price_offer"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/layout_destination"
+                app:layout_constraintBottom_toTopOf="@id/button_new_ride"
+                app:startIconContentDescription="Attach money icon"
+                app:startIconDrawable="@drawable/ic_attach_money_black_24dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/text_price_offer"
+                    android:inputType="numberDecimal"
+                    android:hint="Price offer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/button_new_ride"
+                android:text="New ride"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layout_price_offer"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+    <!-- endregion -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>
