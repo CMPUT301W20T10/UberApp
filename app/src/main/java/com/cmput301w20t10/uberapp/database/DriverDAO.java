@@ -29,7 +29,7 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
     static final String COLLECTION = "drivers";
     final static String LOC = "Tomate: DriverDAO: ";
 
-    DriverDAO() {}
+    public DriverDAO() {}
 
     /**
      * Registers a driver.
@@ -111,8 +111,9 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
 
     @Override
     public MutableLiveData<Boolean> saveModel(Driver driver) {
-        // todo: save model driver
-        return null;
+        DriverEntity driverEntity = new DriverEntity();
+        driver.transferChanges(driverEntity);
+        return saveEntity(driverEntity);
     }
 
     public LiveData<Boolean> saveModel(LifecycleOwner owner, Driver driver) {
@@ -388,7 +389,7 @@ class LogInAsDriverTask extends GetTaskSequencer<Driver> {
         userDAO.logIn(username, password)
                 .observe(owner, userEntity -> {
                     if (userEntity == null || userEntity.getDriverReference() == null) {
-                        Log.e(TAG, LOC + "userLogin: ");
+                        Log.e(TAG, LOC + ": userLogin: Failing with username: " + username);
                         postResult(null);
                     } else {
                         this.userEntity = userEntity;
@@ -402,7 +403,6 @@ class LogInAsDriverTask extends GetTaskSequencer<Driver> {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        convertToModel();
                         driverEntity = task.getResult().toObject(DriverEntity.class);
                         convertToModel();
                     } else {

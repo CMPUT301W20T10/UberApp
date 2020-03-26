@@ -86,7 +86,7 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
                     entity.setRiderReference(getTransactionReference());
                     break;
                 case RIDE_REQUEST_REFERENCE:
-                    entity.setRideRequestReference(getRideRequestReference());
+                    // todo: document why this is neeeded
                     break;
                 case ROUTE:
                     Route route = getRoute();
@@ -113,6 +113,8 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
                     break;
             }
         }
+
+        entity.setRideRequestReference(getRideRequestReference());
     }
 
     // region getters and setters

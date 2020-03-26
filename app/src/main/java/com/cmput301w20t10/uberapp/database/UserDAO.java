@@ -26,6 +26,8 @@ class UserDAO extends DAOBase<UserEntity, User> {
     private static final String COLLECTION = "users";
     final static String LOC = "Tomate: UserDAO: ";
 
+    public UserDAO() {}
+
     /**
      * Log the user in
      *
@@ -61,10 +63,11 @@ class UserDAO extends DAOBase<UserEntity, User> {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         if (task.getResult().isEmpty()) {
+                            Log.d(TAG, LOC + "logIn: No matching data");
                             userLiveData.setValue(null);
                         } else {
                             if (task.getResult().size() > 1) {
-                                Log.w(TAG, "onComplete: This should not happen\nMore than one account found");
+                                Log.w(TAG, LOC + "onComplete: This should not happen\nMore than one account found");
                             }
 
                             DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
@@ -72,7 +75,8 @@ class UserDAO extends DAOBase<UserEntity, User> {
                             userLiveData.setValue(userEntity);
                         }
                     } else {
-                        Log.d(TAG, "onComplete: ", task.getException());
+                        Log.d(TAG, LOC + "onComplete: ", task.getException());
+                        userLiveData.setValue(null);
                     }
                 });
 

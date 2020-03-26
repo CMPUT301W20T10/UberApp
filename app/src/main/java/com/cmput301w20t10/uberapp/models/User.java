@@ -22,6 +22,7 @@ public class User extends ModelBase<Field, UserEntity> {
     private String firstName;
     private String lastName;
     private String phoneNumber;
+    private String FCMToken;
 
     private int balance;
 
@@ -43,6 +44,7 @@ public class User extends ModelBase<Field, UserEntity> {
         LAST_NAME("lastName"),
         PHONE_NUMBER("phoneNumber"),
         IMAGE("image"),
+        FCM_TOKEN("FCMToken"),
         // shadowed
         DRIVER_REFERENCE("driverReference"),
         RIDER_REFERENCE("riderReference"),
@@ -144,6 +146,9 @@ public class User extends ModelBase<Field, UserEntity> {
                 case BALANCE:
                     // do nothing
                     break;
+                case FCM_TOKEN:
+                    userEntity.setFCMToken(getFCMToken());
+                    break;
                 case DRIVER_REFERENCE:
                     if (this instanceof Driver) {
                         Driver driver = (Driver) this;
@@ -161,7 +166,8 @@ public class User extends ModelBase<Field, UserEntity> {
                     }
                     break;
                 case USER_REFERENCE:
-                    userEntity.setUserReference(getUserReference());
+                    // always true for the sake of main reference
+                    // todo: document why this is done
                     break;
                 case USERNAME:
                     userEntity.setUsername(getUsername());
@@ -188,6 +194,8 @@ public class User extends ModelBase<Field, UserEntity> {
                     Log.e(TAG, LOC + "transferChanges: Unknown field: " + dirtyField.toString());
                     break;
             }
+
+            userEntity.setUserReference(getUserReference());
         }
     }
 
@@ -262,6 +270,15 @@ public class User extends ModelBase<Field, UserEntity> {
     public void setImage(String image) {
         addDirtyField(Field.IMAGE);
         this.image = image;
+    }
+
+    public String getFCMToken() {
+        return FCMToken;
+    }
+
+    public void setFCMToken(String FCMToken) {
+        addDirtyField(Field.FCM_TOKEN);
+        this.FCMToken = FCMToken;
     }
     // endregion setter and getter
 }

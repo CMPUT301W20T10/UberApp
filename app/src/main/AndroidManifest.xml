@@ -52,6 +52,15 @@
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:resource="@string/default_notification_channel_id" />
 
+        <service
+            android:name=".messaging.FCMReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <!-- endregion Message Passing-->
 
         <activity

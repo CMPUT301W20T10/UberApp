@@ -32,6 +32,8 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
     static final String COLLECTION = "rideRequests";
     static final String LOC = "Tomate: RideRequestDAO: ";
 
+    public RideRequestDAO() {}
+
     /**
      * Create a ride request
      *
@@ -130,10 +132,10 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
                                 rideList.add(new RideRequest(rideRequestEntity));
                                 mutableLiveData.setValue(rideList);
                             } else {
-                                Log.e(TAG, "onComplete: ", task.getException());
+                                Log.e(TAG, LOC + "onComplete: ", task.getException());
                             }
                         } else {
-                            Log.e(TAG, "onComplete: ", task.getException());
+                            Log.e(TAG, LOC + "onComplete: ", task.getException());
                         }
                     });
         }
@@ -153,7 +155,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
 }
 
 class CreateRideRequestTask extends GetTaskSequencer<RideRequest> {
-    private final static String LOC = RideRequestDAO.LOC + "CreateRideRequestTask";
+    private final static String LOC = RideRequestDAO.LOC + "CreateRideRequestTask: ";
 
     private final int fareOffer;
     private final Route route;

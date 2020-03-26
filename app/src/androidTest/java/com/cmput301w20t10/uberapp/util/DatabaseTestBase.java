@@ -26,7 +26,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class DatabaseTestBase {
-    protected static final Rider FAKE_DUCK_RIDER = new Rider(null,
+    // region fake accounts
+    protected static final Rider REGISTER_TEST_RIDER1 = new Rider(null,
             null,
             null,
             null,
@@ -39,6 +40,50 @@ public class DatabaseTestBase {
             "123456789",
             "None.jpeg",
             0f);
+
+    protected static final Driver REGISTER_TEST_DRIVER1 = new Driver(null,
+            null,
+            null,
+            null,
+            null,
+            "PenguinHighway",
+            "BritaWaterFilter",
+            "sundog@gmail.com",
+            "Penguin",
+            "Highway",
+            "126290876",
+            0,
+            "ilovejpg.jpg");
+
+    protected static final Rider BASIC_TEST_RIDER1 = new Rider(null,
+            null,
+            null,
+            null,
+            null,
+            "HepCat",
+            "1:00",
+            "inlovewithaghost@outlook.com",
+            "Hepburn",
+            "Catastrophy",
+            "232323232",
+            "great.png",
+            0f);
+
+
+    protected static final Driver BASIC_TEST_DRIVER1 = new Driver(null,
+            null,
+            null,
+            null,
+            null,
+            "Charlie",
+            "upleftleftdownupright",
+            "jazzy.com",
+            "Charlie",
+            "Sport",
+            "126290876",
+            0,
+            "ilovejpg.jpg");
+    // endregion fake accounts
 
     protected Context mainContext;
     protected LifecycleOwnerMock mainLifecycleOwner;

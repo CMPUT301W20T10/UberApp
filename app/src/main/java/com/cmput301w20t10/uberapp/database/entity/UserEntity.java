@@ -3,8 +3,6 @@ package com.cmput301w20t10.uberapp.database.entity;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.EntityBase;
-import com.cmput301w20t10.uberapp.models.Driver;
-import com.cmput301w20t10.uberapp.models.EnumField;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
@@ -39,6 +37,7 @@ public class UserEntity extends EntityBase<Field> {
         DRIVER_REFERENCE ("driverReference"),
         RIDER_REFERENCE ("riderReference"),
         USER_REFERENCE ("userReference"),
+        FCM_TOKEN ("fcmToken"),
         IMAGE ("image");
 
         private String stringValue;
@@ -63,6 +62,7 @@ public class UserEntity extends EntityBase<Field> {
     private String firstName;
     private String lastName;
     private String image;
+    private String FCMToken;
     // endregion fields
 
     // region Constructors
@@ -127,13 +127,13 @@ public class UserEntity extends EntityBase<Field> {
      * @return a map that can be used to update a Firestore reference
      *
      * @author Allan Manuba
-     * @version 1.0.0
+     * @version 1.0.
+     *
+     * @version 1.0.1
      */
     @Override
     @Exclude
     public Map<String, Object> getDirtyFieldMap() {
-        Log.d(TAG, LOC + "getDirtyFieldMap: Here!");
-        Log.d(TAG, LOC + "getDirtyFieldMap: Set: " + dirtyFieldSet.toString());
         HashMap<String, Object> dirtyFieldMap = new HashMap<>();
         for (Field dirtyField :
                 dirtyFieldSet) {
@@ -165,6 +165,9 @@ public class UserEntity extends EntityBase<Field> {
                 case USER_REFERENCE:
                     dirtyFieldMap.put(dirtyField.toString(), getUserReference());
                     break;
+                case FCM_TOKEN:
+                    dirtyFieldMap.put(dirtyField.toString(), getFCMToken());
+                    break;
                 case IMAGE:
                     dirtyFieldMap.put(dirtyField.toString(), getImage());
                     break;
@@ -173,8 +176,6 @@ public class UserEntity extends EntityBase<Field> {
                     break;
             }
         }
-        Log.d(TAG, LOC + "getDirtyFieldMap: End!");
-        Log.d(TAG, LOC + "getDirtyFieldMap: " + dirtyFieldMap.toString());
         return  dirtyFieldMap;
     }
 
@@ -273,6 +274,14 @@ public class UserEntity extends EntityBase<Field> {
     public void setImage(String image) {
         addDirtyField(Field.IMAGE);
         this.image = image;
+    }
+
+    public String getFCMToken() {
+        return FCMToken;
+    }
+
+    public void setFCMToken(String FCMToken) {
+        this.FCMToken = FCMToken;
     }
     // endregion getters and setters
 }

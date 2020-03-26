@@ -30,6 +30,8 @@ import static android.content.ContentValues.TAG;
 public class UnpairedRideListDAO {
     static final String COLLECTION = "unpairedRideList";
 
+    public UnpairedRideListDAO() {}
+
     /**
      * Adds a ride request allowing searchable ride requests for drivers
      *
