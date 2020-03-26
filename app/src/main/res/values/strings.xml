@@ -50,4 +50,11 @@
     <string name="request_end_dest">End Destination</string>
     <!-- endRide request strings -->
 
+    <!-- region Rating Strings -->
+    <string name="ratingfrag_title">Rate Your Ride:</string>
+    <string name="ratingfrag_driver_subheader">With:</string>
+    <string name="ratingfrag_tripsummary_subheader">From:</string>
+    <string name="ratingfrag_tripsummary_template">STARTLOC to ENDLOC</string>
+    <!-- endregion Rating Strings -->
+
 </resources>
