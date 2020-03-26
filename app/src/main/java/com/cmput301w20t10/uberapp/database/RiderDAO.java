@@ -278,8 +278,6 @@ class LogInAsRiderTask extends GetTaskSequencer<Rider> {
         userDAO.logIn(username, password)
                 .observe(owner, userEntity -> {
                     if (userEntity == null || userEntity.getRiderReference() == null) {
-                        Log.e(TAG, LOC + "userLogin: Fail to login with username: " + username + " / " + password);
-                        Log.e(TAG, LOC + "userLogin: Fail to login with username: UserEntity(" + userEntity + ") || getDriverReference(" + userEntity.getRiderReference() + ")");
                         postResult(null);
                     } else {
                         this.userEntity = userEntity;
