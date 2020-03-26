@@ -76,8 +76,23 @@ public class EditProfile extends AppCompatActivity {
             //This should set first name in user to what is inputted in the firstname field.
             user.setFirstName(firstName);
             user.setLastName(lastName);
-            user.setEmail(email);
-            user.setPhoneNumber(phone);
+            //Check that the email is valid
+            if (!validateEmail(email)) {
+                Toast.makeText(getApplicationContext(), "Email entered is not valid",
+                        Toast.LENGTH_LONG).show();
+            } else {
+                user.setEmail(email);
+            }
+
+            //Check that the phone is valid
+            if (!validatePhone(phone)) {
+                Toast.makeText(getApplicationContext(), "Phone number entered is not valid",
+                        Toast.LENGTH_LONG).show();
+            } else {
+                user.setPhoneNumber(phone);
+            }
+
+
             UserDAO dao = new UserDAO();
             MutableLiveData<Boolean> result = dao.saveModel(user);
             finish();
