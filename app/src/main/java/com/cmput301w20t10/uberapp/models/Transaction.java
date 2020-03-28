@@ -1,7 +1,11 @@
 package com.cmput301w20t10.uberapp.models;
 
-import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
+import android.util.Log;
+
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
+import com.cmput301w20t10.uberapp.database.base.ModelBase;
 import com.cmput301w20t10.uberapp.database.entity.TransactionEntity;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 
 import org.json.JSONException;
@@ -9,14 +13,18 @@ import org.json.JSONObject;
 
 import java.util.Date;
 
-public class Transaction extends EntityModelBase<Transaction.Field> {
-    private DocumentReference transactionReference;
-    private final Date timestamp;
-    private final User recipient;
-    private final User sender;
-    private final float value;
+import static androidx.constraintlayout.widget.Constraints.TAG;
+import static com.cmput301w20t10.uberapp.models.Transaction.*;
 
-    public enum Field {
+public class Transaction extends ModelBase<Field, TransactionEntity> {
+    private static final String LOC = "Transaction";
+    private DocumentReference transactionReference;
+    private Date timestamp;
+    private User recipient;
+    private User sender;
+    private float value;
+
+    enum Field {
         VALUE ("value"),
         SENDER ("sender"),
         RECIPIENT ("recipient"),
@@ -66,8 +74,30 @@ public class Transaction extends EntityModelBase<Transaction.Field> {
     }
 
     @Override
-    public Field[] getDirtyFieldSet() {
-        return dirtyFieldSet.toArray(new Field[0]);
+    public void transferChanges(TransactionEntity entity) {
+        for (Field dirtyField :
+                dirtyFieldSet) {
+            switch (dirtyField) {
+                case VALUE:
+                    entity.setValue(getValue());
+                    break;
+                case SENDER:
+                    entity.setSender(getSender().getUserReference());
+                    break;
+                case RECIPIENT:
+                    entity.setRecipient(getRecipient().getUserReference());
+                    break;
+                case TIMESTAMP:
+                    entity.setTimestamp(new Timestamp(getTimestamp()));
+                    break;
+                case TRANSACTION_REFERENCE:
+                    entity.setTransactionReference(getTransactionReference());
+                    break;
+                default:
+                    Log.e(TAG, LOC + "transferChanges: Unknown field: " + dirtyField.toString());
+                    break;
+            }
+        }
     }
 
     // region getters and setters
@@ -84,8 +114,18 @@ public class Transaction extends EntityModelBase<Transaction.Field> {
         return timestamp;
     }
 
+    public void setTimestamp(Date timestamp) {
+        addDirtyField(Field.TIMESTAMP);
+        this.timestamp = timestamp;
+    }
+
     public User getRecipient() {
         return recipient;
+    }
+
+    public void setRecipient(User recipient) {
+        addDirtyField(Field.RECIPIENT);
+        this.recipient = recipient;
     }
 
     public User getSender() {
@@ -94,6 +134,11 @@ public class Transaction extends EntityModelBase<Transaction.Field> {
 
     public float getValue() {
         return value;
+    }
+
+    public void setValue(float value) {
+        addDirtyField(Field.VALUE);
+        this.value = value;
     }
     // endregion getters and setters
 }
