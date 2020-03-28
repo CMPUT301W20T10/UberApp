@@ -24,7 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-// TODO: 2020-03-13 look at comments in the button onclick listeners. Explains that it needs functionality set up first. Basically a empty activity for right now.
+
 /*Used https://firebase.google.com/docs/firestore/manage-data/add-data official documentation for updating data.*/
 public class EditProfile extends AppCompatActivity {
     Button butCancel;
