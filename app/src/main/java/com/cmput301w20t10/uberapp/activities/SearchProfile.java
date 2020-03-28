@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.models.User;
@@ -32,20 +33,47 @@ public class SearchProfile extends BaseActivity {
     private RecyclerView SearchList;
     private SearchAdapter recyclerAdapter;
     private FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
+    private Query query;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.search_profile);
         SearchField = (SearchView) findViewById(R.id.searchProfile);
-
         setUpSearchList();
+
+        SearchField.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchList(newText);
+                return true;
+            }
+        });
+
+
 
     }
 
 
+    private void searchList(String searchText) {
+        onStop();
+        query = rootRef.collection("users").orderBy("username").startAt(searchText).endAt(searchText + "\uf8ff");
+        FirestoreRecyclerOptions<User> options = new FirestoreRecyclerOptions.Builder<User>()
+                .setQuery(query, User.class)
+                .build();
+        recyclerAdapter = new SearchAdapter(options);
+        SearchList = (RecyclerView) findViewById(R.id.profileList);
+        SearchList.setLayoutManager(new LinearLayoutManager(this));
+        SearchList.setAdapter(recyclerAdapter);
+        onStart();
+    }
     private void setUpSearchList() {
-        Query query = rootRef.collection("users");
+        query = rootRef.collection("users").orderBy("username");
         FirestoreRecyclerOptions<User> options = new FirestoreRecyclerOptions.Builder<User>()
                 .setQuery(query, User.class)
                 .build();
