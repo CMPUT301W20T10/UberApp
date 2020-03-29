@@ -8,13 +8,16 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.content.ContentValues.TAG;
 
@@ -113,6 +116,63 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
         RiderEntity riderEntity = new RiderEntity();
         rider.transferChanges(riderEntity);
         return saveEntity(riderEntity);
+    }
+
+    @Override
+    protected String getCollectionName() {
+        return COLLECTION;
+    }
+
+    @Override
+    protected DAOBase<RiderEntity, Rider> create() {
+        return new RiderDAO();
+    }
+
+    // todo: deprecate class or make task shorter
+    @Override
+    protected MutableLiveData<Rider> createModelFromEntity(RiderEntity riderEntity) {
+        GetRiderFromReferenceTask task = new GetRiderFromReferenceTask(riderEntity.getRiderReference());
+        return task.run();
+    }
+
+    @Override
+    protected RiderEntity createObjectFromSnapshot(DocumentSnapshot snapshot) {
+        return snapshot.toObject(RiderEntity.class);
+    }
+
+    @Override
+    protected void getOtherEntities(MutableLiveData<List<EntityBase>> liveData,
+                                    RiderEntity mainEntity) {
+        GetUserEntity task = new GetUserEntity(liveData, mainEntity);
+        task.run();
+    }
+
+    /**
+     * Using this for it's lifecycle owner so that I won't have to make my own above
+     */
+    private class GetUserEntity extends GetTaskSequencer<UserEntity> {
+        private final DocumentReference reference;
+        private final MutableLiveData<List<EntityBase>> liveData;
+
+        public GetUserEntity(MutableLiveData<List<EntityBase>> liveData, RiderEntity riderEntity) {
+            this.reference = riderEntity.getUserReference();
+            this.liveData = liveData;
+        }
+
+        @Override
+        public void doFirstTask() {
+            UserDAO userDAO = new UserDAO();
+            userDAO.getEntityByReference(reference)
+                    .observe(lifecycleOwner, userEntity -> {
+                        List<EntityBase> entityBaseList = new ArrayList<>();
+
+                        if (userEntity != null) {
+                            entityBaseList.add(userEntity);
+                        }
+
+                        liveData.setValue(entityBaseList);
+                    });
+        }
     }
 
     MutableLiveData<Rider> getRiderFromRiderReference(DocumentReference riderReference) {

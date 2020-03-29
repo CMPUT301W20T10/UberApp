@@ -8,6 +8,7 @@ import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.Map;
 
@@ -116,6 +117,28 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
         return saveEntity(driverEntity);
     }
 
+    @Override
+    protected String getCollectionName() {
+        return COLLECTION;
+    }
+
+    @Override
+    protected DAOBase<DriverEntity, Driver> create() {
+        return new DriverDAO();
+    }
+
+    // todo: deprecate the below task or make the task shorter and not redundant
+    @Override
+    protected MutableLiveData<Driver> createModelFromEntity(DriverEntity driverEntity) {
+        GetDriverFromReferenceTask task = new GetDriverFromReferenceTask(driverEntity.getDriverReference());
+        return task.run();
+    }
+
+    @Override
+    protected DriverEntity createObjectFromSnapshot(DocumentSnapshot snapshot) {
+        return snapshot.toObject(DriverEntity.class);
+    }
+
     public LiveData<Boolean> saveModel(LifecycleOwner owner, Driver driver) {
         SaveDriverModelTask saveDriverModelTask = new SaveDriverModelTask(owner, driver);
         return saveDriverModelTask.run();
@@ -188,8 +211,8 @@ class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
     private final DocumentReference driverReference;
     private DriverEntity driverEntity;
 
-    GetDriverFromReferenceTask(DocumentReference drivereference) {
-        this.driverReference = drivereference;
+    GetDriverFromReferenceTask(DocumentReference driverReference) {
+        this.driverReference = driverReference;
     }
 
     @Override
