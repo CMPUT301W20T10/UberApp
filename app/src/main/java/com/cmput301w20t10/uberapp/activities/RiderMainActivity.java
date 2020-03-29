@@ -18,6 +18,7 @@ import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.cmput301w20t10.uberapp.database.viewmodel.RiderViewModel;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -45,8 +46,14 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -71,6 +78,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 // todo: editable map markers
@@ -79,6 +87,9 @@ import java.util.List;
 public class RiderMainActivity extends BaseActivity implements OnMapReadyCallback, TaskLoadedCallback {
     private static final String TAG = "Test" ;
     SharedPref sharedPref;
+
+    private PlacesClient placesClient;
+
     // core objects
     private AppBarConfiguration mAppBarConfiguration;
     private GoogleMap mainMap;
@@ -91,12 +102,16 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
     private Route route;
     private static final float DEFAULT_ZOOM = 15f;
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
+    Location currentlocation;
     Polyline currentPolyline;
 
     // views
     TextInputEditText editTextStartingPoint;
     TextInputEditText editTextDestination;
     TextInputEditText editTextPriceOffer;
+
+    TextInputLayout layoutStartingPoint;
+    TextInputLayout layoutDestination;
 
     //tracking
     LocationManager locationManager;
@@ -125,11 +140,25 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
 
         //trackuser();
 
+        /**
+         * Initialize Places. For simplicity, the API key is hard-coded. In a production
+         * environment we recommend using a secure mechanism to manage API keys.
+         */
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
+        }
+
+        placesClient = Places.createClient(this);
+
+        autocompleteStartingPoint();
 
         // get reference for the destination and starting point texts
-        editTextStartingPoint = findViewById(R.id.text_starting_point);
+//        editTextStartingPoint = findViewById(R.id.text_starting_point);
         editTextDestination = findViewById(R.id.text_destination);
         editTextPriceOffer = findViewById(R.id.text_price_offer);
+
+        layoutStartingPoint = findViewById(R.id.layout_starting_point);
+        layoutDestination = findViewById(R.id.layout_destination);
 
 
         // this ensures that the data are saved no matter what
@@ -144,6 +173,13 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         // setting up listener for buttons
         Button buttonNewRide = findViewById(R.id.button_new_ride);
         buttonNewRide.setOnClickListener(view -> onClick_NewRide());
+
+        layoutStartingPoint.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                editTextStartingPoint.setText(String.format("%currentlocation);
+            }
+        });
     }
 
     private void InitalLocation(){
@@ -170,6 +206,30 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
            }
        });
     }
+
+    private void autocompleteStartingPoint() {
+        // Initialize the AutocompleteSupportFragment.
+        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+                getSupportFragmentManager().findFragmentById(R.id.fragment_starting_point);
+
+        autocompleteFragment.setHint("Enter Starting Point");
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME));
+
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                // TODO: Get info about the selected place.
+                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+            }
+
+            @Override
+            public void onError(Status status) {
+                // TODO: Handle the error.
+                Log.i(TAG, "An error occurred: " + status);
+            }
+        });
+    }
+
     private void trackuser(){
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener(){
@@ -382,7 +442,7 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
 
     private void onRouteChanged(Route route) {
         // todo: improve RiderMainActivity.onRouteChanged
-        editTextStartingPoint.setText(route.getStartingPointString());
+//        editTextStartingPoint.setText(route.getStartingPointString());
         editTextDestination.setText(route.getDestinationString());
     }
 
