@@ -1,29 +1,30 @@
 package com.cmput301w20t10.uberapp.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.RadioButton;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.MutableLiveData;
+
+import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
-import com.cmput301w20t10.uberapp.models.*;
-import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
-import com.cmput301w20t10.uberapp.database.RiderDAO;
+import com.cmput301w20t10.uberapp.database.UserDAO;
+import com.cmput301w20t10.uberapp.messaging.FCMSender;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.Rider;
+import com.cmput301w20t10.uberapp.models.User;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 /**
  * @author Joshua Mayer
@@ -49,10 +50,22 @@ public class LoginActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
         }
 
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("UBER", task.getException());
+                        return;
+                    }
+                    String token = task.getResult().getToken();
+
+                    Application.getInstance().setMessagingToken(token);
+                    Log.d("UBER FCM", token);
+                });
+
         radioButtonRider = findViewById(R.id.rider_radio_button);
         buttonLogIn = findViewById(R.id.button_log_in);
 
-        buttonLogIn.setOnClickListener(view -> onLoginPressed());
+        buttonLogIn.setOnClickListener(this::onLoginPressed);
         
         this.usernameField = findViewById(R.id.username_field);
         this.passwordField = findViewById(R.id.password_field);
@@ -62,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
         this.loginTypeField.check(R.id.rider_radio_button);
     }
 
-    public void onLoginPressed() {
+    public void onLoginPressed(View view) {
         Log.d("Testing", "Verify Fields");
         // Check for empty fields
         if(usernameField.getText().toString().isEmpty()) {
@@ -79,8 +92,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void verifyLogin() {
-        // todo: proper implementation of sign in
-
         if (radioButtonRider.isChecked()) {
             //login as rider
             Log.d("Testing", "Log in as rider!");
@@ -89,6 +100,8 @@ public class LoginActivity extends AppCompatActivity {
             liveRider.observe(this, rider -> {
                 if (rider != null) {
                     Log.d("Testing", "Login Success");
+                    Application.getInstance().setUser(rider);
+                    updateFCMToken();
                     Intent intent = new Intent(this, RiderMainActivity.class);
                     startActivity(intent);
                 } else {
@@ -103,6 +116,8 @@ public class LoginActivity extends AppCompatActivity {
                 if (driver != null) {
                     Log.d("Testing", "Login Success");
                     Log.d("Testing", "Driver Main Activity not yet in this branch");
+                    Application.getInstance().setUser(driver);
+                    updateFCMToken();
                     Intent intent = new Intent(this, DriverMainActivity.class);
                     startActivity(intent);
                 } else {
@@ -112,7 +127,19 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    public void updateFCMToken() {
+        User user = Application.getInstance().getCurrentUser();
+        user.setFCMToken(Application.getInstance().getMessagingToken());
+        UserDAO dao = new UserDAO();
+        dao.saveModel(user);
+        Application.getInstance().setUser(user);
+        FCMSender.composeMessage(getApplicationContext(), Application.getInstance().getMessagingToken());
+    }
+
     public void onRegisterPressed(View view) {
+
+        // NotificationService.sendNotification("Register Pressed", "You pressed the register button!", getApplicationContext(), RegisterActivity.class);
+
         Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
         String username = usernameField.getText().toString();
         intent.putExtra("USERNAME", username);

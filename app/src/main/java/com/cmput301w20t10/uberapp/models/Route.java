@@ -39,11 +39,20 @@ public class Route {
         }
     }
 
-    public LatLng getStartingPosition(){
-        return markerList.get(0).getPosition();
+    public LatLng getStartingPosition() {
+        if (markerList.size() > 0) {
+            return markerList.get(0).getPosition();
+        } else {
+            return startingPosition;
+        }
     }
-    public LatLng getDestinationPosition(){
-        return markerList.get(1).getPosition();
+
+    public LatLng getDestinationPosition() {
+        if (markerList.size() > 1) {
+            return markerList.get(1).getPosition();
+        } else {
+            return destination;
+        }
     }
 
     public String getStartingPointString() {
@@ -63,22 +72,6 @@ public class Route {
             return destination.toString();
         }
     }
-
-//    public LatLng getStartingPosition() {
-//        if (markerList.size() > 0) {
-//            return markerList.get(0).getPosition();
-//        } else {
-//            return startingPosition;
-//        }
-//    }
-
-//    public LatLng getDestination() {
-//        if (markerList.size() > 1) {
-//            return markerList.get(1).getPosition();
-//        } else {
-//            return destination;
-//        }
-//    }
 
     // todo: add function that converts into something that the database understands
 }
