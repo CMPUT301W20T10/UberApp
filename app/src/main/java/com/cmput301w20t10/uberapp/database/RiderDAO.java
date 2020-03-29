@@ -231,19 +231,7 @@ class RegisterRiderTask extends GetTaskSequencer<Rider> {
         this.riderDAO.saveEntity(riderEntity)
                 .observe(owner, aBoolean -> {
                     if (aBoolean) {
-                        Rider rider = new Rider(riderEntity.getUserReference(),
-                                riderEntity.getRiderReference(),
-                                riderEntity.getTransactionList(),
-                                riderEntity.getFinishedRideRequestList(),
-                                riderEntity.getActiveRideRequestList(),
-                                userEntity.getUsername(),
-                                userEntity.getPassword(),
-                                userEntity.getEmail(),
-                                userEntity.getFirstName(),
-                                userEntity.getLastName(),
-                                userEntity.getPhoneNumber(),
-                                userEntity.getImage(),
-                                riderEntity.getBalance());
+                        Rider rider = new Rider(riderEntity, userEntity);
                         postResult(rider);
                     } else {
                         Log.e(TAG, LOC + "receiveUserEntity: ");
@@ -305,19 +293,7 @@ class LogInAsRiderTask extends GetTaskSequencer<Rider> {
             Log.e(TAG, LOC + "convertToModel: riderEntity is null");
             postResult(null);
         } else {
-            Rider rider = new Rider(riderEntity.getUserReference(),
-                    riderEntity.getRiderReference(),
-                    riderEntity.getTransactionList(),
-                    riderEntity.getFinishedRideRequestList(),
-                    riderEntity.getActiveRideRequestList(),
-                    userEntity.getUsername(),
-                    userEntity.getPassword(),
-                    userEntity.getEmail(),
-                    userEntity.getFirstName(),
-                    userEntity.getLastName(),
-                    userEntity.getPhoneNumber(),
-                    userEntity.getImage(),
-                    riderEntity.getBalance());
+            Rider rider = new Rider(riderEntity, userEntity);
             postResult(rider);
         }
     }

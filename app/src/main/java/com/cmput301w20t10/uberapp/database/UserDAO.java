@@ -2,12 +2,16 @@ package com.cmput301w20t10.uberapp.database;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
+import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -23,7 +27,7 @@ import static android.content.ContentValues.TAG;
  * @author Allan Manuba
  */
 public class UserDAO extends DAOBase<UserEntity, User> {
-    private static final String COLLECTION = "users";
+    static final String COLLECTION = "users";
     final static String LOC = "Tomate: UserDAO: ";
 
     public UserDAO() {}
@@ -149,6 +153,49 @@ public class UserDAO extends DAOBase<UserEntity, User> {
             MutableLiveData<Boolean> liveData = new MutableLiveData<>();
             liveData.setValue(false);
             return liveData;
+        }
+    }
+
+    public MutableLiveData<User> getUserByUserID(String userId) {
+        GetUserByUserIDTask task = new GetUserByUserIDTask(userId);
+        return task.run();
+    }
+}
+
+class GetUserByUserIDTask extends GetTaskSequencer<User> {
+    private final String userId;
+
+    GetUserByUserIDTask(String userId) {
+        this.userId = userId;
+    }
+
+    @Override
+    public void doFirstTask() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference documentReference = db.collection(UserDAO.COLLECTION).document(userId);
+
+        documentReference.get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        convertToUser(task.getResult());
+                    } else {
+                        postResult(null);
+                    }
+                });
+    }
+
+    private void convertToUser(DocumentSnapshot snapshot) {
+        if (snapshot != null) {
+            UserEntity userEntity = snapshot.toObject(UserEntity.class);
+
+            if (userEntity != null) {
+                User user = new User(userEntity);
+                postResult(user);
+            } else {
+                postResult(null);
+            }
+        } else {
+            postResult(null);
         }
     }
 }
