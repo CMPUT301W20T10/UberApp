@@ -8,12 +8,15 @@ import com.cmput301w20t10.uberapp.util.DatabaseTestBase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.concurrent.atomic.AtomicReference;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+@RunWith(AndroidJUnit4.class)
 public class IDToModelTest extends DatabaseTestBase {
     private static final String TAG = "Tomate";
 

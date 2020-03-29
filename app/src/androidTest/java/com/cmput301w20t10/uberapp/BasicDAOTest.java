@@ -127,7 +127,7 @@ public class BasicDAOTest extends DatabaseTestBase {
         loginAsRider();
     }
 
-    private Rider loginAsRider() throws InterruptedException {
+    protected Rider loginAsRider() throws InterruptedException {
         // get data
         final Object syncObject = new Object();
         AtomicReference<Rider> riderAtomicReference = new AtomicReference<>();
@@ -159,7 +159,7 @@ public class BasicDAOTest extends DatabaseTestBase {
         loginAsDriver();
     }
 
-    private Driver loginAsDriver() throws InterruptedException {
+    protected Driver loginAsDriver() throws InterruptedException {
         // get data
         final Object syncObject = new Object();
         AtomicReference<Driver> atomicReference = new AtomicReference<>();

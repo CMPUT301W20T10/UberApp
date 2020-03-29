@@ -4,19 +4,13 @@ import androidx.lifecycle.Observer;
 
 import static org.junit.Assert.assertNotNull;
 
-public class AssertNotNullObserver<Result> implements Observer<Result> {
-    private final Object syncObject;
-
+public class AssertNotNullObserver<Result> extends AssertObserverBase<Result> {
     public AssertNotNullObserver(Object syncObject) {
-        this.syncObject = syncObject;
+        super(syncObject);
     }
 
     @Override
-    public void onChanged(Result result) {
+    public void callAssertion(Result result) {
         assertNotNull(result);
-
-        synchronized (syncObject) {
-            syncObject.notify();
-        }
     }
 }

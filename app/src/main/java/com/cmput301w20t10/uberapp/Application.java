@@ -1,11 +1,17 @@
 package com.cmput301w20t10.uberapp;
 
+import android.content.Context;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
 import com.cmput301w20t10.uberapp.models.User;
 
 public final class Application {
 
     private static final Application INSTANCE = new Application();
 
+    private RequestQueue requestQueue;
     private User user;
     private String messagingToken;
 
@@ -13,7 +19,8 @@ public final class Application {
         this.user = null;
     }
 
-    public static Application getInstance() {
+    // This needs to be sync because multiple threads are active
+    public static synchronized Application getInstance() {
         return INSTANCE;
     }
 
@@ -37,4 +44,16 @@ public final class Application {
     public void setMessagingToken(String messagingToken) {
         this.messagingToken = messagingToken;
     }
+
+    public RequestQueue getRequestQueue(Context context) {
+        if(requestQueue == null) {
+            requestQueue = Volley.newRequestQueue(context.getApplicationContext());
+        }
+        return requestQueue;
+    }
+
+    public <T> void addToRequestQueue(Context context, Request<T> req) {
+        getRequestQueue(context).add(req);
+    }
+
 }
