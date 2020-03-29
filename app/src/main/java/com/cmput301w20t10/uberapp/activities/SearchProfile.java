@@ -65,6 +65,12 @@ public class SearchProfile extends BaseActivity {
         SearchList.setLayoutManager(new LinearLayoutManager(this));
         SearchList.setAdapter(recyclerAdapter);
         onStart();
+        recyclerAdapter.setOnItemClickListener(new SearchAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(DocumentSnapshot documentSnapshot, int position, String username) {
+                ViewProfileFragment.newInstance(documentSnapshot.getId(), username).show(getSupportFragmentManager(),"User");
+            }
+        });
     }
     private void setUpSearchList() {
         query = rootRef.collection("users").orderBy("username");
