@@ -1,5 +1,6 @@
 package com.cmput301w20t10.uberapp.models;
 
+@Deprecated
 public enum EnumField {
 
     USER_REFERENCE("userReference"),
@@ -10,6 +11,7 @@ public enum EnumField {
     LAST_NAME("lastName"),
     PHONE_NUMBER("phoneNumber"),
     IMAGE("image"),
+    FCM_TOKEN("FCMToken"),
     // shadowed
     DRIVER_REFERENCE("driverReference"),
     RIDER_REFERENCE("riderReference"),

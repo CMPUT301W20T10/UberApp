@@ -1,5 +1,7 @@
 package com.cmput301w20t10.uberapp.database;
 
+import android.util.Log;
+
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.Rider;
