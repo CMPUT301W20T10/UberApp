@@ -71,11 +71,6 @@ public class ViewProfileFragment extends DialogFragment {
         liveData.observe(this, user -> {
             if (user != null) {
                 fetchedUser = user;
-                firstName.setText(fetchedUser.getFirstName());
-                lastName.setText(fetchedUser.getLastName());
-                eMail.setText(fetchedUser.getEmail());
-                phoneNumber.setText(fetchedUser.getPhoneNumber());
-
 
 
             } else {
@@ -83,6 +78,11 @@ public class ViewProfileFragment extends DialogFragment {
             }
         });
 
+
+        firstName.setText(fetchedUser.getFirstName());
+        lastName.setText(fetchedUser.getLastName());
+        eMail.setText(fetchedUser.getEmail());
+        phoneNumber.setText(fetchedUser.getPhoneNumber());
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext()); //copied format from previous code written in lab.
         return builder
