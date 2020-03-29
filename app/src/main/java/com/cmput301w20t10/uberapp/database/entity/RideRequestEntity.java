@@ -2,8 +2,7 @@ package com.cmput301w20t10.uberapp.database.entity;
 
 import android.util.Log;
 
-import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
-import com.cmput301w20t10.uberapp.models.RideRequest;
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.google.firebase.Timestamp;
@@ -13,10 +12,13 @@ import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 
 import static android.content.ContentValues.TAG;
+import static com.cmput301w20t10.uberapp.database.entity.RideRequestEntity.*;
 
 
 /**
@@ -24,9 +26,15 @@ import static android.content.ContentValues.TAG;
  * Entity objects are the one-to-one representation of objects from the database.
  *
  * @author Allan Manuba
+ * @version 1.0.0
  */
-public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> {
-    public static final String FIELD_RIDE_REQUEST_REFERENCE = "rideRequestId";
+public class RideRequestEntity extends EntityBase<Field> {
+    // region Fields
+    /**
+     * Fields
+     * @version 1.0.0
+     */
+    private static final String LOC = "RideRequestEntity";
 
     private DocumentReference rideRequestReference;
     private DocumentReference driverReference;
@@ -40,7 +48,7 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
     private float fareOffer;
     private Timestamp timestamp;
 
-    public enum Field {
+    enum Field {
         RIDE_REQUEST_REFERENCE ("rideRequestReference"),
         DRIVER_REFERENCE ("driverReference"),
         RIDER_REFERENCE ("riderReference"),
@@ -58,10 +66,18 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
             this.stringValue = fieldName;
         }
 
+        @Override
         public String toString() {
             return stringValue;
         }
     }
+    // endregion Fields
+
+    // region Constructors
+    /**
+     * Constructors
+     * @version 1.0.0
+     */
 
     /**
      * Required for deserializing
@@ -78,67 +94,68 @@ public class RideRequestEntity extends EntityModelBase<RideRequestEntity.Field> 
         this.fareOffer = fareOffer;
         this.timestamp = new Timestamp(new Date());
     }
+    // endregion
 
-    public RideRequestEntity(RideRequest model) {
-        // get dirty fields
-        for (RideRequest.Field otherField :
-                model.getDirtyFieldSet()) {
-            switch (otherField) {
+    /**
+     * @see EntityBase#addDirtyField(Object)
+     *
+     * @return a map that can be used to update a Firestore reference
+     *
+     * @author Allan Manuba
+     * @version 1.0.0
+     */
+    @Override
+    @Exclude
+    public Map<String, Object> getDirtyFieldMap() {
+        Map<String, Object> dirtyFieldMap = new HashMap<>();
+        for (Field dirtyField :
+                dirtyFieldSet) {
+            switch (dirtyField) {
+                case RIDE_REQUEST_REFERENCE:
+                    dirtyFieldMap.put(dirtyField.toString(), getRideRequestReference());
+                    break;
                 case DRIVER_REFERENCE:
-                    addDirtyField(Field.DRIVER_REFERENCE);
+                    dirtyFieldMap.put(dirtyField.toString(), getDriverReference());
                     break;
                 case RIDER_REFERENCE:
-                    addDirtyField(Field.RIDER_REFERENCE);
+                    dirtyFieldMap.put(dirtyField.toString(), getRiderReference());
                     break;
                 case TRANSACTION_REFERENCE:
-                    addDirtyField(Field.TRANSACTION_REFERENCE);
+                    dirtyFieldMap.put(dirtyField.toString(), getTransactionReference());
                     break;
-                case RIDE_REQUEST_REFERENCE:
-                    addDirtyField(Field.RIDE_REQUEST_REFERENCE);
+                case STARTING_POSITION:
+                    dirtyFieldMap.put(dirtyField.toString(), getStartingPosition());
                     break;
-                case ROUTE:
-                    addDirtyField(Field.STARTING_POSITION);
-                    addDirtyField(Field.DESTINATION);
+                case DESTINATION:
+                    dirtyFieldMap.put(dirtyField.toString(), getDestination());
                     break;
                 case STATE:
-                    addDirtyField(Field.STATE);
-                    break;
-                case TIMESTAMP:
-                    addDirtyField(Field.TIMESTAMP);
+                    dirtyFieldMap.put(dirtyField.toString(), getState());
                     break;
                 case FARE_OFFER:
-                    addDirtyField(Field.FARE_OFFER);
+                    dirtyFieldMap.put(dirtyField.toString(), getFareOffer());
+                    break;
+                case UNPAIRED_REFERENCE:
+                    dirtyFieldMap.put(dirtyField.toString(), getUnpairedReference());
+                    break;
+                case TIMESTAMP:
+                    dirtyFieldMap.put(dirtyField.toString(), getTimestamp());
+                    break;
+                default:
+                    Log.e(TAG, LOC + "getDirtyFieldMap: Unknown field: " + dirtyField.toString());
                     break;
             }
         }
-        model.clearDirtyStateSet();
-
-        // set all fields
-        this.rideRequestReference = model.getRideRequestReference();
-        this.driverReference = model.getDriverReference();
-        this.riderReference = model.getRiderReference();
-        this.transactionReference = model.getTransactionReference();
-
-        LatLng latLngStart = model.getRoute().getStartingPosition();
-
-        LatLng latLngDest = model.getRoute().getDestinationPosition();
-
-        startingPosition = new GeoPoint(latLngStart.latitude, latLngStart.longitude);
-        destination = new GeoPoint(latLngDest.latitude, latLngDest.longitude);
-
-        state = model.getState().ordinal();
-        fareOffer = model.getFareOffer();
-        timestamp = new Timestamp(model.getTimestamp());
-    }
-
-    @Override
-    @Exclude
-    public Field[] getDirtyFieldSet() {
-        Log.d(TAG, "getDirtyFieldSet: save: " + dirtyFieldSet.toString());
-        return this.dirtyFieldSet.toArray(new Field[0]);
+        return dirtyFieldMap;
     }
 
     // region getters and setters
+    @Override
+    @Exclude
+    public DocumentReference getMainReference() {
+        return getRideRequestReference();
+    }
+
     public DocumentReference getRideRequestReference() {
         return rideRequestReference;
     }

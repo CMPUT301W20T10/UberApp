@@ -1,7 +1,5 @@
 package com.cmput301w20t10.uberapp.models;
 
-import android.util.Log;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.firestore.GeoPoint;
@@ -41,14 +39,14 @@ public class Route {
     }
 
     public LatLng getStartingPosition(){
-        if (markerList.size() >= 1 && markerList.get(0) != null) {
+        if (markerList.size() > 0 && markerList.get(0) != null) {
             return markerList.get(0).getPosition();
         } else {
             return startingPosition;
         }
     }
     public LatLng getDestinationPosition(){
-        if (markerList.size() >= 2 && markerList.get(1) != null) {
+        if (markerList.size() > 1 && markerList.get(1) != null) {
             return markerList.get(1).getPosition();
         } else {
             return destination;
@@ -72,22 +70,6 @@ public class Route {
             return destination.toString();
         }
     }
-
-//    public LatLng getStartingPosition() {
-//        if (markerList.size() > 0) {
-//            return markerList.get(0).getPosition();
-//        } else {
-//            return startingPosition;
-//        }
-//    }
-
-//    public LatLng getDestination() {
-//        if (markerList.size() > 1) {
-//            return markerList.get(1).getPosition();
-//        } else {
-//            return destination;
-//        }
-//    }
 
     // todo: add function that converts into something that the database understands
 }

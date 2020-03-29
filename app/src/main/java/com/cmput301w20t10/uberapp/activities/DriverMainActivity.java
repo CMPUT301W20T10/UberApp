@@ -61,7 +61,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -79,7 +79,6 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
     private static final String LAST_NAME = "lastName";
 
     private static final int REQUEST_CODE = 101;
-
     private GoogleMap mainMap;
     private Location currentLocation;
     private boolean locationPermissionGranted;
@@ -237,6 +236,17 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             super.onSaveInstanceState(savedInstanceState);
         }
     }
+
+    // For message passing, the driver must subscribe to a topic
+        FirebaseMessaging.getInstance().subscribeToTopic(Application.getInstance().getCurrentUser().getUsername())
+            .addOnCompleteListener((task) -> {
+        if (task.isSuccessful()) {
+            Toast.makeText(DriverMainActivity.this, "Successfully subscribed", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(DriverMainActivity.this, "Failed to subscribe", Toast.LENGTH_SHORT).show();
+        }
+    });
+
 
     /*
      * toggle() is code from Stack overflow used to toggle expansion of listview item
