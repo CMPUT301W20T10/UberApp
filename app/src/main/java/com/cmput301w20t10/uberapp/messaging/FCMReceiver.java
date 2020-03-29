@@ -46,21 +46,16 @@ public class FCMReceiver extends FirebaseMessagingService {
          */
 
 
-        // The messages sent by our app are data messages with two data elements
-        // header and body, the respective elements for the notification
-        // Todo(Joshua): Determine the correct activity to send the user to
-        Log.d("UBER FCM", "From: " + remoteMessage.getFrom());
-        if (remoteMessage.getData().size() > 0) {
-            Log.d("UBER FCM", "Message data payload: " + remoteMessage.getData());
-            NotificationService.sendNotification(remoteMessage.getData().get("header"), remoteMessage.getData().get("body"),
-                    getApplicationContext(), LoginActivity.class);
+        /*
+         * When a message is received, it is handled here. Here is where you would specify
+         * where the user is sent when the message is received.
+         */
+        // Todo(Joshua): Determine if the application is in the background or not
+        if (remoteMessage.getNotification() != null) {
+            Log.d("UBER FCM", "Message notification body: " + remoteMessage.getNotification().getBody());
+            NotificationService.sendNotification(remoteMessage.getNotification().getTitle(),
+                    remoteMessage.getNotification().getBody(), getApplicationContext(), LoginActivity.class);
         }
-
-//        if (remoteMessage.getNotification() != null) {
-//            Log.d("UBER FCM", "Message notification body: " + remoteMessage.getNotification().getBody());
-//            NotificationService.sendNotification(remoteMessage.getNotification().getTitle(),
-//                    remoteMessage.getNotification().getBody(), getApplicationContext(), LoginActivity.class);
-//        }
 
 
     }

@@ -20,6 +20,7 @@ import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.UserDAO;
+import com.cmput301w20t10.uberapp.messaging.FCMSender;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.User;
@@ -58,7 +59,7 @@ public class LoginActivity extends AppCompatActivity {
                     String token = task.getResult().getToken();
 
                     Application.getInstance().setMessagingToken(token);
-                    Log.d("UBER", token);
+                    Log.d("UBER FCM", token);
                 });
 
         radioButtonRider = findViewById(R.id.rider_radio_button);
@@ -132,6 +133,7 @@ public class LoginActivity extends AppCompatActivity {
         UserDAO dao = new UserDAO();
         dao.saveModel(user);
         Application.getInstance().setUser(user);
+        FCMSender.composeMessage(getApplicationContext(), Application.getInstance().getMessagingToken());
     }
 
     public void onRegisterPressed(View view) {
