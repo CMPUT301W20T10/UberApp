@@ -31,9 +31,11 @@ import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.database.DriverDAO;
 import com.cmput301w20t10.uberapp.database.RideRequestDAO;
 import com.cmput301w20t10.uberapp.database.UnpairedRideListDAO;
 import com.cmput301w20t10.uberapp.database.UserDAO;
+import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RequestList;
 import com.cmput301w20t10.uberapp.models.ResizeAnimation;
 import com.cmput301w20t10.uberapp.models.RideRequest;
@@ -181,32 +183,45 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
 
         requestList.setOnItemClickListener((adapterView, view, i, l) -> {
             toggle(view, i);
-            final RideRequestListContent rideRequest = (RideRequestListContent) adapterView.getItemAtPosition(i);
-            LatLng startDest = rideRequest.getStartDest();
-            LatLng endDest = rideRequest.getEndDest();
+            final RideRequestListContent rideRequestContent = (RideRequestListContent) adapterView.getItemAtPosition(i);
+            LatLng startDest = rideRequestContent.getStartDest();
+            LatLng endDest = rideRequestContent.getEndDest();
             dropPins("Start Destination", startDest, "End Destination",  endDest);
             new FetchURL(DriverMainActivity.this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
             Button acceptButton = view.findViewById(R.id.accept_request_button);
-            DocumentReference rideRequestRef = rideRequest.getRideRequestReference();
+            DocumentReference rideRequestRef = rideRequestContent.getRideRequestReference();
 
             /**
              * Work in progress
              * Not sure how we want to handle accepting and requesting yet
              */
-            acceptButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    System.out.println("MACA: " + rideRequest.getRideRequestReference().getClass().getName());
-                    System.out.println("MACA: " + Application.getInstance().getCurrentUser().getClass().getName());
-                    System.out.println("MACA2: " + rideRequest.getRideRequestReference().getId());
-                    UserDAO dao = new UserDAO();
-//                    MutableLiveData<User> liveData = dao.getUserByUserID()
+            acceptButton.setOnClickListener(view1 -> {
+                System.out.println("MACA: " + rideRequestContent.getRideRequestReference().getClass().getName());
+                System.out.println("MACA: " + Application.getInstance().getCurrentUser().getClass().getName());
+                System.out.println("MACA2: " + rideRequestContent.getRideRequestReference().getId());
+//                System.out.println("APPLICATION: " + Application.getInstance().getCurrentUser().get);
+                DriverDAO thing = new DriverDAO();
+                MutableLiveData<Driver> liveThing = thing.getModelByReference(Application.getInstance().getCurrentUser().getUserReference());
+                liveThing.observe(this, driver -> {
+                    System.out.println("DRIVER: " + driver);
+                    if (driver != null) {
+                        System.out.println("DRIVER: " + driver.getClass().getName());
+                    }
+                });
+
+                RideRequestDAO dao = new RideRequestDAO();
+                MutableLiveData<RideRequest> liveData = dao.getModelByReference(rideRequestContent.getRideRequestReference());
+                liveData.observe(this, rideRequest -> {
+                    if (rideRequest != null) {
+//                        dao.acceptRequest()
+                        System.out.println("RR FOUND: " + rideRequest.getClass().getName());
+                    }
+                });
 
 //                    rideRequest.getRideRequestReference()
 //                            .update("driverReference", "LOL");
 //                    rideRequest.getUnpairedReference()
 //                            .delete();
-                }
             });
 
             ImageButton riderPictureButton = view.findViewById(R.id.profile_picture);
@@ -214,7 +229,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                 @Override
                 public void onClick(View view) {
                     db.collection("users")
-                            .whereEqualTo("username", rideRequest.getUsername())
+                            .whereEqualTo("username", rideRequestContent.getUsername())
                             .get()
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {

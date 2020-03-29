@@ -119,7 +119,9 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
             endDest.setText(getAddress(endLatLng));
 
             dropPins("Start Destination", startLatLng, "End Destination",  endLatLng);
-            new FetchURL(this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
+            if (currentLocation != null) {
+                new FetchURL(this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
+            }
 
             float[] currentStartDistance = new float[1];
             Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(),
@@ -224,14 +226,16 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         // get last know location of device
         client.getLastLocation().addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
-                currentLocation = task.getResult();
-                LatLng currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-                mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 13));
-                CameraPosition cameraPosition = new CameraPosition.Builder()
-                        .target(currentLatLng)      // Sets the center of the map to location user
-                        .zoom(17)                   // Sets the zoom
-                        .build();                   // Creates a CameraPosition from the builder
-                mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                if (mainMap != null) {
+                    currentLocation = task.getResult();
+                    LatLng currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                    mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 13));
+                    CameraPosition cameraPosition = new CameraPosition.Builder()
+                            .target(currentLatLng)      // Sets the center of the map to location user
+                            .zoom(17)                   // Sets the zoom
+                            .build();                   // Creates a CameraPosition from the builder
+                    mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                }
             }
         });
     }

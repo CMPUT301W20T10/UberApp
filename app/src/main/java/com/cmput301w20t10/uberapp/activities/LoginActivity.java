@@ -149,17 +149,17 @@ public class LoginActivity extends OptionsMenu {
                         Log.d("Testing", "Driver Main Activity not yet in this branch");
                         Application.getInstance().setUser(driver);
                         saveUserInfo("driver");
-                        if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0 ) {
-                            Intent intent = new Intent(this, DriverAcceptedActivity.class);
-                            String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
-                            intent.putExtra("ACTIVE", activeRideRequest);
-                            intent.putExtra("PREV_ACTIVITY", "LoginActivity");
-                            startActivity(intent);
-                        } else {
+//                        if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0 ) {
+//                            Intent intent = new Intent(this, DriverAcceptedActivity.class);
+//                            String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
+//                            intent.putExtra("ACTIVE", activeRideRequest);
+//                            intent.putExtra("PREV_ACTIVITY", "LoginActivity");
+//                            startActivity(intent);
+//                        } else {
                             Intent intent = new Intent(this, DriverMainActivity.class);
                             intent.putExtra("PREV_ACTIVITY", "LoginActivity");
                             startActivity(intent);
-                        }
+//                        }
                     } else {
                         Toast.makeText(getApplicationContext(), "Invalid Username/Password", Toast.LENGTH_LONG).show();
                     }
