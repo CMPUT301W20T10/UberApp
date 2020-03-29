@@ -83,6 +83,24 @@ public class UserDAO extends DAOBase<UserEntity, User> {
         return userLiveData;
     }
 
+    public MutableLiveData<Integer> checkForUserCount(String username) {
+        MutableLiveData<Integer> liveData = new MutableLiveData<>();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection(COLLECTION)
+                .whereEqualTo(UserEntity.Field.USERNAME.toString(), username)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        liveData.setValue(task.getResult().size());
+                    } else {
+                        liveData.setValue(null);
+                    }
+                });
+
+        return liveData;
+    }
+
     /**
      * Don't call this on main thread
      *
