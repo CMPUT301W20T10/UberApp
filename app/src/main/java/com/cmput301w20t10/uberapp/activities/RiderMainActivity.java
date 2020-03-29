@@ -1,9 +1,14 @@
 package com.cmput301w20t10.uberapp.activities;
 
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
@@ -11,11 +16,14 @@ import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.cmput301w20t10.uberapp.database.viewmodel.RiderViewModel;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -23,6 +31,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -30,6 +39,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -86,6 +96,11 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
     Polyline currentPolyline;
 
 
+    private Location currentLocation;
+    private FusedLocationProviderClient client;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,6 +110,19 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
+
+        client  = LocationServices.getFusedLocationProviderClient(this);
+        // get last know location of device
+        client.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if (location != null) {
+                    currentLocation = location;
+            }
+            }
+        });
 
         // get reference for the destination and starting point texts
         editTextStartingPoint = findViewById(R.id.text_starting_point);
@@ -143,18 +171,58 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
             routeLiveData.setValue(route);
         });
         */
+
+        googleMap.setMyLocationEnabled(true);
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+
+        if (location != null) {
+            mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
+                    .zoom(17)                   // Sets the zoom
+                    .build();                   // Creates a CameraPosition from the builder
+            mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+            
+        }
+
+
+
+
     }
 
     private void onClick_NewRide() {
         // todo: implement onclick new ride
+
+        if(editTextStartingPoint.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Starting Point Required", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if(editTextDestination.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Destination Required", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if(editTextPriceOffer.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Price Offer Required", Toast.LENGTH_LONG).show();
+            return;
+        }
         String startingpoint = editTextStartingPoint.getText().toString();
         String destination = editTextDestination.getText().toString();
         String priceOffer = editTextPriceOffer.getText().toString();
 
+        drawRoute(startingpoint, destination);
+
+    }
+
+    private void drawRoute(String startingpoint, String destination){
         Geocoder geocoder = new Geocoder(RiderMainActivity.this);
         List<Address> startingPointList = new ArrayList<>();
         List<Address> destinationList = new ArrayList<>();
-
         try{
             startingPointList = geocoder.getFromLocationName(startingpoint, 1);
         }catch (IOException e){
@@ -167,14 +235,12 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
             Log.e(TAG, "geoLocate: IOException on destination address: "+ e.getMessage());
         }
 
-        if (startingPointList.size() > 0){
+        if (startingPointList.size() > 0 && destinationList.size() > 0){
             Address startingAdddress = startingPointList.get(0);
             Log.d(TAG, "geoLocate: found a location: " + startingAdddress.toString());
             //drop pin at sdtarting position
             dropPin(startingAdddress.getAddressLine(0), new LatLng( startingAdddress.getLatitude(), startingAdddress.getLongitude()));
-        }
 
-        if (destinationList.size() > 0){
             Address destinationAddress = destinationList.get(0);
             Log.d(TAG, "geoLocate: found a location: " + destinationAddress.toString());
 
@@ -182,12 +248,14 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
             //moveCamera(new LatLng( destinationAddress.getLatitude(), destinationAddress.getLongitude()), DEFAULT_ZOOM);
             dropPin(destinationAddress.getAddressLine(0), new LatLng( destinationAddress.getLatitude(), destinationAddress.getLongitude()));
         }
-
+        else{
+            Toast.makeText(getApplicationContext(), "Could not find Route", Toast.LENGTH_LONG).show();
+            return;
+        }
         //this part would draw a route if direction API was enabled.. figuring out another way//
         String url = create_URL();
         new FetchURL(RiderMainActivity.this).execute(url, "driving");
     }
-
     private String create_URL(){
         //start of rout
         String origin = "origin=" + route.getStartingPosition().latitude + "," + route.getDestinationPosition().longitude;
