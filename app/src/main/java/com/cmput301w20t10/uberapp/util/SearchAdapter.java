@@ -9,10 +9,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cmput301w20t10.uberapp.R;
-import com.cmput301w20t10.uberapp.activities.SearchProfile;
 import com.cmput301w20t10.uberapp.models.User;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 /*
  * This was created based on information from user Alex Mamo : https://stackoverflow.com/users/5246885/alex-mamo
@@ -21,6 +21,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
  * His answer help create this activity(SearchAdapter.java) and (SearchProfile.java) by making a recyclerview list adapter  with FirestoreRecycleAdapter in order to create a live list connected to the firestore.
  */
 public class SearchAdapter extends FirestoreRecyclerAdapter<User, SearchAdapter.UserViewHolder> {
+    private OnItemClickListener listener;
 
     public SearchAdapter(@NonNull FirestoreRecyclerOptions<User> options) {
         super(options);
@@ -50,6 +51,16 @@ public class SearchAdapter extends FirestoreRecyclerAdapter<User, SearchAdapter.
         UserViewHolder(@NonNull View itemView) {
             super(itemView);
             view = itemView;
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION && listener != null) {
+                        listener.onItemClick(getSnapshots().getSnapshot(position), position);
+                    }
+                }
+            });
         }
 
         void setUserName(String username) {
@@ -58,4 +69,12 @@ public class SearchAdapter extends FirestoreRecyclerAdapter<User, SearchAdapter.
         }
 
     }
+
+    public interface OnItemClickListener{
+        void onItemClick(DocumentSnapshot documentSnapshot, int position);
+    }
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
 }
