@@ -3,6 +3,7 @@ package com.cmput301w20t10.uberapp.models;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.entity.DriverEntity;
+import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.util.List;
@@ -34,6 +35,16 @@ public class Driver extends User {
         this.finishedRideRequestList = finishedRideRequestList;
         this.activeRideRequestList = activeRideRequestList;
         this.rating = rating;
+    }
+
+
+    public Driver(DriverEntity driverEntity, UserEntity userEntity) {
+        super(userEntity);
+        this.driverReference = driverEntity.getDriverReference();
+        this.transactionList = driverEntity.getTransactionList();
+        this.finishedRideRequestList = driverEntity.getFinishedRideRequestList();
+        this.activeRideRequestList = driverEntity.getActiveRideRequestList();
+        this.rating = driverEntity.getRating();
     }
 
     public void addActiveRideRequest(RideRequest rideRequest) {
