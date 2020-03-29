@@ -1,6 +1,7 @@
 package com.cmput301w20t10.uberapp.database.base;
 
 import android.media.midi.MidiDevice;
+import android.util.Log;
 import android.view.Display;
 
 import com.cmput301w20t10.uberapp.database.util.DatabaseLogger;
@@ -53,6 +54,7 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
 
         if (reference != null) {
             final Map<String, Object> dirtyFieldMap = entity.getDirtyFieldMap();
+            Log.d("Potate", "saveEntity: " + dirtyFieldMap.toString());
             reference.update(dirtyFieldMap)
                     .addOnCompleteListener(task -> {
                         final boolean isSuccessful = task.isSuccessful();
