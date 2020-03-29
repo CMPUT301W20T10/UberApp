@@ -49,4 +49,13 @@
     <string name="default_notification_channel_id">fcm_default_channel</string>
     <!-- endregion Message passing strings -->
 
+    <!-- region Rating Strings -->
+    <string name="ratingfrag_title">Rate Your Ride:</string>
+    <string name="ratingfrag_driver_subheader">With:</string>
+    <string name="ratingfrag_tripsummary_subheader">From:</string>
+    <string name="ratingfrag_tripsummary_template">STARTLOC to ENDLOC</string>
+    <string name="ratingfrag_rateup_description">Thumbs Up</string>
+    <string name="ratingfrag_ratedown_description">Thumbs Down</string>
+    <!-- endregion Rating Strings -->
+
 </resources>

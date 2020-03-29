@@ -24,7 +24,7 @@
     <!-- Clickable true avoids touch events being passed to maps -->
     <androidx.cardview.widget.CardView
         android:clickable="true"
-        app:cardElevation="5dp"
+        app:cardElevation="1dp"
         android:id="@+id/card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -141,6 +141,22 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
+
+    <FrameLayout
+        android:visibility="gone"
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:elevation="2dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </FrameLayout>
     <!-- endregion -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

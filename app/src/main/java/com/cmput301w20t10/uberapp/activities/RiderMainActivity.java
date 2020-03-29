@@ -15,6 +15,7 @@ import android.os.Bundle;
 
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.fragments.RideRatingFragment;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.cmput301w20t10.uberapp.database.viewmodel.RiderViewModel;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
@@ -34,6 +35,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
@@ -175,6 +179,12 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         // setting up listener for buttons
         Button buttonNewRide = findViewById(R.id.button_new_ride);
         buttonNewRide.setOnClickListener(view -> onClick_NewRide());
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        RideRatingFragment rideRatingFragment = new RideRatingFragment();
+        fragmentTransaction.add(R.id.fragment_container, rideRatingFragment);
+        fragmentTransaction.commit();
         currentStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -365,6 +375,7 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         String url = create_URL();
         new FetchURL(RiderMainActivity.this).execute(url, "driving");
     }
+
     private String create_URL(){
         //start of rout
         String origin = "origin=" + route.getStartingPosition().latitude + "," + route.getDestinationPosition().longitude;
