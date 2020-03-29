@@ -4,6 +4,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 /**
  * Base class for tasks that are operated using Firestore's sequence of tasks.
@@ -21,7 +22,7 @@ import androidx.lifecycle.MutableLiveData;
 public abstract class GetTaskSequencer<Result> {
     protected FirebaseFirestore db;
     private MutableLiveData<Result> liveData;
-    private GetTaskSequencerLifecycleOwner lifecycleOwner;
+    protected GetTaskSequencerLifecycleOwner lifecycleOwner;
 
     public GetTaskSequencer() {
         lifecycleOwner = new GetTaskSequencerLifecycleOwner();

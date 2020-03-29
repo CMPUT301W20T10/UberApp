@@ -29,7 +29,7 @@ public class SearchAdapter extends FirestoreRecyclerAdapter<User, SearchAdapter.
 
     @Override
     protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
-        holder.setUserName(user.getUsername());
+        holder.setUsername(user.getUsername());
     }
 
 
@@ -47,6 +47,7 @@ public class SearchAdapter extends FirestoreRecyclerAdapter<User, SearchAdapter.
      */
     class UserViewHolder extends RecyclerView.ViewHolder {
         private View view;
+        private String username;
 
         UserViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -57,13 +58,14 @@ public class SearchAdapter extends FirestoreRecyclerAdapter<User, SearchAdapter.
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION && listener != null) {
-                        listener.onItemClick(getSnapshots().getSnapshot(position), position);
+                        listener.onItemClick(getSnapshots().getSnapshot(position), position, username);
                     }
                 }
             });
         }
 
-        void setUserName(String username) {
+        void setUsername(String username) {
+            this.username = username;
             TextView userText = view.findViewById(R.id.uName);
             userText.setText(username);
         }
@@ -71,7 +73,7 @@ public class SearchAdapter extends FirestoreRecyclerAdapter<User, SearchAdapter.
     }
 
     public interface OnItemClickListener{
-        void onItemClick(DocumentSnapshot documentSnapshot, int position);
+        void onItemClick(DocumentSnapshot documentSnapshot, int position, String username);
     }
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;

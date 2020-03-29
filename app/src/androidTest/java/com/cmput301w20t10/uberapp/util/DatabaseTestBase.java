@@ -55,6 +55,7 @@ public class DatabaseTestBase {
             0,
             "ilovejpg.jpg");
 
+    protected static final String BASIC_TEST_RIDER1_ID = "DnD1XshbWPj6szVlzdqG";
     protected static final Rider BASIC_TEST_RIDER1 = new Rider(null,
             null,
             null,
@@ -69,14 +70,14 @@ public class DatabaseTestBase {
             "great.png",
             0f);
 
-
+    protected static final String BASIC_TEST_DRIVER1_ID = "3QvWubCZRMsBl0xHGy9U";
     protected static final Driver BASIC_TEST_DRIVER1 = new Driver(null,
             null,
             null,
             null,
             null,
             "Charlie",
-            "upleftleftdownupright",
+            "2:00",
             "jazzy.com",
             "Charlie",
             "Sport",
@@ -152,7 +153,7 @@ public class DatabaseTestBase {
         assertUserEquals(real, fake);
     }
 
-    private void assertUserEquals(User real, User fake) {
+    protected void assertUserEquals(User real, User fake) {
         assertNotNull(real.getUserReference());
         assertEquals(real.getUsername(), fake.getUsername());
         assertEquals(real.getPassword(), fake.getPassword());

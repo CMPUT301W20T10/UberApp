@@ -10,10 +10,10 @@ import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
@@ -98,6 +98,28 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
         RideRequestEntity entity = new RideRequestEntity();
         rideRequest.transferChanges(entity);
         return saveEntity(entity);
+    }
+
+    @Override
+    protected String getCollectionName() {
+        return COLLECTION;
+    }
+
+    @Override
+    protected DAOBase<RideRequestEntity, RideRequest> create() {
+        return new RideRequestDAO();
+    }
+
+    @Override
+    protected MutableLiveData<RideRequest> createModelFromEntity(RideRequestEntity rideRequestEntity) {
+        MutableLiveData<RideRequest> liveData = new MutableLiveData<>();
+        liveData.setValue(new RideRequest(rideRequestEntity));
+        return liveData;
+    }
+
+    @Override
+    protected RideRequestEntity createObjectFromSnapshot(DocumentSnapshot snapshot) {
+        return snapshot.toObject(RideRequestEntity.class);
     }
 
     public MutableLiveData<Boolean> cancelRequest(final RideRequest rideRequest,

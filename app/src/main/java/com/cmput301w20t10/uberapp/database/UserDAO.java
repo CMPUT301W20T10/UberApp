@@ -2,21 +2,15 @@ package com.cmput301w20t10.uberapp.database;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
-import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.User;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
@@ -25,6 +19,7 @@ import static android.content.ContentValues.TAG;
  * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
+ * @version 1.0.1
  */
 public class UserDAO extends DAOBase<UserEntity, User> {
     static final String COLLECTION = "users";
@@ -156,46 +151,50 @@ public class UserDAO extends DAOBase<UserEntity, User> {
         }
     }
 
-    public MutableLiveData<User> getUserByUserID(String userId) {
-        GetUserByUserIDTask task = new GetUserByUserIDTask(userId);
-        return task.run();
-    }
-}
-
-class GetUserByUserIDTask extends GetTaskSequencer<User> {
-    private final String userId;
-
-    GetUserByUserIDTask(String userId) {
-        this.userId = userId;
+    @Override
+    protected String getCollectionName() {
+        return COLLECTION;
     }
 
     @Override
-    public void doFirstTask() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference documentReference = db.collection(UserDAO.COLLECTION).document(userId);
-
-        documentReference.get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        convertToUser(task.getResult());
-                    } else {
-                        postResult(null);
-                    }
-                });
+    protected DAOBase<UserEntity, User> create() {
+        return new UserDAO();
     }
 
-    private void convertToUser(DocumentSnapshot snapshot) {
-        if (snapshot != null) {
-            UserEntity userEntity = snapshot.toObject(UserEntity.class);
+    @Override
+    protected MutableLiveData<User> createModelFromEntity(UserEntity userEntity) {
+        MutableLiveData<User> liveData = new MutableLiveData<>();
+        liveData.setValue(new User(userEntity));
+        return liveData;
+    }
 
-            if (userEntity != null) {
-                User user = new User(userEntity);
-                postResult(user);
-            } else {
-                postResult(null);
-            }
-        } else {
-            postResult(null);
-        }
+    @Override
+    protected UserEntity createObjectFromSnapshot(DocumentSnapshot snapshot) {
+        return snapshot.toObject(UserEntity.class);
+    }
+
+    /**
+     * Gets a User object using their DocumentID.
+     *
+     * <pre>
+     *     UserDAO dao = new UserDAO();
+     *     MutableLiveData<User> liveData = dao.getUserByUserID(userId);
+     *     liveData.observe(this, user -> {
+     *         if (user != null) {
+     *             // user found
+     *         } else {
+     *             // no internet connection
+     *         }
+     *     });
+     * </pre>
+     *
+     * @param userId    Document ID for the User
+     * @return  User    returns a User object if User was successfully found
+     *          null    returns a null object if User was not found or an error has occurred
+     *
+     * @version 1.0.1
+     */
+    public MutableLiveData<User> getUserByUserID(String userId) {
+        return getModelByID(userId);
     }
 }

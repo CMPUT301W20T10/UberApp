@@ -78,8 +78,8 @@ public class SearchProfile extends BaseActivity {
         SearchList.setAdapter(recyclerAdapter);
         recyclerAdapter.setOnItemClickListener(new SearchAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(DocumentSnapshot documentSnapshot, int position) {
-                ViewProfileFragment.newInstance(documentSnapshot.getId()).show(getSupportFragmentManager(),"User");
+            public void onItemClick(DocumentSnapshot documentSnapshot, int position, String username) {
+                ViewProfileFragment.newInstance(documentSnapshot.getId(), username).show(getSupportFragmentManager(),"User");
             }
         });
     }
