@@ -132,6 +132,7 @@ public class User extends ModelBase<Field, UserEntity> {
         this.lastName = userEntity.getLastName();
         this.phoneNumber = userEntity.getPhoneNumber();
         this.image = userEntity.getImage();
+        this.FCMToken = userEntity.getFCMToken();
     }
 
     @Override

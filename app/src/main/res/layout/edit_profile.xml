@@ -40,33 +40,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="16dp"
-        android:ems="7"
+        android:gravity="center"
+        android:ems="10"
         android:hint="First Name"
         android:inputType="textPersonName"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_image" />
+
 
     <EditText
         android:id="@+id/editLname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        android:ems="7"
-        android:hint="Last Name"
-        android:inputType="textPersonName"
-        app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toBottomOf="@+id/profile_image" />
-
-    <EditText
-        android:id="@+id/editUsername"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:ems="10"
         android:gravity="center"
-        android:hint="Username"
+        android:hint="Last Name"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -84,7 +74,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.51"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editUsername" />
+        app:layout_constraintTop_toBottomOf="@+id/editLname" />
 
     <EditText
         android:id="@+id/editPhone"
@@ -113,7 +103,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="16dp"
         android:text="Cancel"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintTop_toBottomOf="@+id/editPhone" />

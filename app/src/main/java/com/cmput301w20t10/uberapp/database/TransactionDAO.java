@@ -17,8 +17,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 
-import java.util.Map;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
@@ -52,6 +50,27 @@ public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
         TransactionEntity entity = new TransactionEntity();
         transaction.transferChanges(entity);
         return saveEntity(entity);
+    }
+
+    @Override
+    protected String getCollectionName() {
+        return COLLECTION;
+    }
+
+    @Override
+    protected DAOBase<TransactionEntity, Transaction> create() {
+        return new TransactionDAO();
+    }
+
+    @Override
+    protected MutableLiveData<Transaction> createModelFromEntity(TransactionEntity entity) {
+        TransactionEntityToModelTask task = new TransactionEntityToModelTask(entity);
+        return task.run();
+    }
+
+    @Override
+    protected TransactionEntity createObjectFromSnapshot(DocumentSnapshot snapshot) {
+        return snapshot.toObject(TransactionEntity.class);
     }
 
     public MutableLiveData<Transaction> transactionEntityToModel(TransactionEntity entity) {

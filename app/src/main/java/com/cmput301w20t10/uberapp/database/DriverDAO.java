@@ -8,6 +8,7 @@ import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.Map;
 
@@ -116,6 +117,28 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
         return saveEntity(driverEntity);
     }
 
+    @Override
+    protected String getCollectionName() {
+        return COLLECTION;
+    }
+
+    @Override
+    protected DAOBase<DriverEntity, Driver> create() {
+        return new DriverDAO();
+    }
+
+    // todo: deprecate the below task or make the task shorter and not redundant
+    @Override
+    protected MutableLiveData<Driver> createModelFromEntity(DriverEntity driverEntity) {
+        GetDriverFromReferenceTask task = new GetDriverFromReferenceTask(driverEntity.getDriverReference());
+        return task.run();
+    }
+
+    @Override
+    protected DriverEntity createObjectFromSnapshot(DocumentSnapshot snapshot) {
+        return snapshot.toObject(DriverEntity.class);
+    }
+
     public LiveData<Boolean> saveModel(LifecycleOwner owner, Driver driver) {
         SaveDriverModelTask saveDriverModelTask = new SaveDriverModelTask(owner, driver);
         return saveDriverModelTask.run();
@@ -188,8 +211,8 @@ class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
     private final DocumentReference driverReference;
     private DriverEntity driverEntity;
 
-    GetDriverFromReferenceTask(DocumentReference drivereference) {
-        this.driverReference = drivereference;
+    GetDriverFromReferenceTask(DocumentReference driverReference) {
+        this.driverReference = driverReference;
     }
 
     @Override
@@ -222,19 +245,7 @@ class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             UserEntity userEntity = task.getResult().toObject(UserEntity.class);
-                            Driver driver = new Driver(userEntity.getUserReference(),
-                                    driverEntity.getDriverReference(),
-                                    driverEntity.getTransactionList(),
-                                    driverEntity.getFinishedRideRequestList(),
-                                    driverEntity.getActiveRideRequestList(),
-                                    userEntity.getUsername(),
-                                    userEntity.getPassword(),
-                                    userEntity.getEmail(),
-                                    userEntity.getFirstName(),
-                                    userEntity.getLastName(),
-                                    userEntity.getPhoneNumber(),
-                                    driverEntity.getRating(),
-                                    userEntity.getImage());
+                            Driver driver = new Driver(driverEntity, userEntity);
                             postResult(driver);
                         } else {
                             Log.e(TAG, LOC + "getUserEntity: onComplete: ", task.getException());
@@ -342,19 +353,7 @@ class RegisterDriverTask extends GetTaskSequencer<Driver> {
         userDAO.saveEntity(userEntity)
                 .observe(owner, aBoolean -> {
                     if (aBoolean) {
-                        Driver driver = new Driver(userEntity.getUserReference(),
-                                driverEntity.getDriverReference(),
-                                driverEntity.getTransactionList(),
-                                driverEntity.getFinishedRideRequestList(),
-                                driverEntity.getActiveRideRequestList(),
-                                userEntity.getUsername(),
-                                userEntity.getPassword(),
-                                userEntity.getEmail(),
-                                userEntity.getFirstName(),
-                                userEntity.getLastName(),
-                                userEntity.getPhoneNumber(),
-                                driverEntity.getRating(),
-                                userEntity.getImage());
+                        Driver driver = new Driver(driverEntity, userEntity);
                         postResult(driver);
                     } else {
                         Log.e(TAG, LOC + "updateUserEntity: ");
@@ -417,19 +416,7 @@ class LogInAsDriverTask extends GetTaskSequencer<Driver> {
             Log.e(TAG, "convertToModel: driverEntity is null");
             postResult(null);
         } else {
-            Driver driver = new Driver(userEntity.getUserReference(),
-                    driverEntity.getDriverReference(),
-                    driverEntity.getTransactionList(),
-                    driverEntity.getFinishedRideRequestList(),
-                    driverEntity.getActiveRideRequestList(),
-                    userEntity.getUsername(),
-                    userEntity.getPassword(),
-                    userEntity.getEmail(),
-                    userEntity.getFirstName(),
-                    userEntity.getLastName(),
-                    userEntity.getPhoneNumber(),
-                    driverEntity.getRating(),
-                    userEntity.getImage());
+            Driver driver = new Driver(driverEntity, userEntity);
             postResult(driver);
         }
     }
