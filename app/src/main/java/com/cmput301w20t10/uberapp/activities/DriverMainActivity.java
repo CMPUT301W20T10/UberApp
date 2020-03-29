@@ -225,6 +225,15 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                 }
             });
 
+            // For message passing, the driver must subscribe to a topic
+            FirebaseMessaging.getInstance().subscribeToTopic(Application.getInstance().getCurrentUser().getUsername())
+                    .addOnCompleteListener((task) -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(DriverMainActivity.this, "Successfully subscribed", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(DriverMainActivity.this, "Failed to subscribe", Toast.LENGTH_SHORT).show();
+                        }
+                    });
         });
 }
 
@@ -236,17 +245,6 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             super.onSaveInstanceState(savedInstanceState);
         }
     }
-
-    // For message passing, the driver must subscribe to a topic
-        FirebaseMessaging.getInstance().subscribeToTopic(Application.getInstance().getCurrentUser().getUsername())
-            .addOnCompleteListener((task) -> {
-        if (task.isSuccessful()) {
-            Toast.makeText(DriverMainActivity.this, "Successfully subscribed", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(DriverMainActivity.this, "Failed to subscribe", Toast.LENGTH_SHORT).show();
-        }
-    });
-
 
     /*
      * toggle() is code from Stack overflow used to toggle expansion of listview item
