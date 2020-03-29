@@ -94,15 +94,12 @@ public class ViewProfileFragment extends DialogFragment {
         liveData.observe(this, user -> {
             if (user != null) {
                 fetchedUser = user;
-                firstName.setText(fetchedUser.getFirstName());
-                lastName.setText(fetchedUser.getLastName());
-                eMail.setText(fetchedUser.getEmail());
-                phoneNumber.setText(fetchedUser.getPhoneNumber());
-                dialog.setTitle(fetchedUser.getUsername());
+
             } else {
                 // no internet connection
             }
         });
+
     }
 }
 
