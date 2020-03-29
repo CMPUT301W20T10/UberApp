@@ -1,17 +1,14 @@
-package com.cmput301w20t10.uberapp;
+package com.cmput301w20t10.uberapp.database.util;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 
-/**
- * https://androidoverride.wordpress.com/2017/05/27/android-working-with-live-data-and-custom-life-cycle-owners/
- */
-public class LifecycleOwnerMock implements LifecycleOwner {
+public class GetTaskSequencerLifecycleOwner implements LifecycleOwner {
     private LifecycleRegistry lifecycleRegistry;
 
-    public LifecycleOwnerMock() {
+    public GetTaskSequencerLifecycleOwner() {
         lifecycleRegistry = new LifecycleRegistry(this);
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
     }
@@ -25,5 +22,4 @@ public class LifecycleOwnerMock implements LifecycleOwner {
     public Lifecycle getLifecycle() {
         return lifecycleRegistry;
     }
-
 }

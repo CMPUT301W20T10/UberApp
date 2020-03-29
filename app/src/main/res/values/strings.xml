@@ -27,12 +27,11 @@
     <!-- region Driver main screen generated string -->
     <string name="title_activity_driver_main_screen">Driver</string>
     <string name="title_activity_driver_main">DriverMainActivity</string>
-    <string name="current_active_ride_main">Current Active Ride</string>
     <string name="title_activity_driver_main_map">Map</string>
     <string name="current_active_ride">Current active ride</string>
     <!-- endregion Driver main screen generated string -->
 
-    <!-- Ride request strings -->
+    <!-- region Ride request strings -->
     <string name="request_username">Username</string>
     <string name="request_distance">XXkm away</string>
     <string name="request_offer">Offer: $XXX</string>
@@ -44,5 +43,10 @@
     <string name="request_end_dest">End Destination</string>
     <string name="start_end_distance">XXkm</string>
     <!-- endRide request strings -->
+    <!-- endregion Ride request strings -->
+
+    <!-- region Message passing strings -->
+    <string name="default_notification_channel_id">fcm_default_channel</string>
+    <!-- endregion Message passing strings -->
 
 </resources>

@@ -42,10 +42,5 @@
       </value>
     </option>
   </component>
-<<<<<<< HEAD
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
-=======
-
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="JDK" project-jdk-type="JavaSDK" />
->>>>>>> 5180ba95c5fd0023826add4ce43af201ee1e18dc
 </project>

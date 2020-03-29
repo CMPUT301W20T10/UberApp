@@ -5,15 +5,21 @@ import android.util.Log;
 
 import java.util.Date;
 
-import com.cmput301w20t10.uberapp.database.base.EntityModelBase;
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
+import com.cmput301w20t10.uberapp.database.base.ModelBase;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.GeoPoint;
+
+import static com.cmput301w20t10.uberapp.models.RideRequest.*;
 
 
 /**
  * WILL LEARN TO USE - Kevin
  */
-public class RideRequest extends EntityModelBase<RideRequest.Field> {
+public class RideRequest extends ModelBase<Field, RideRequestEntity> {
     private DocumentReference driverReference;
     private DocumentReference riderReference;
     private DocumentReference transactionReference;
@@ -35,7 +41,7 @@ public class RideRequest extends EntityModelBase<RideRequest.Field> {
         Cancelled
     }
 
-    public enum Field {
+    enum Field {
         DRIVER_REFERENCE ("driverReference"),
         RIDER_REFERENCE ("riderReference"),
         TRANSACTION_REFERENCE("transactionReference"),
@@ -70,8 +76,49 @@ public class RideRequest extends EntityModelBase<RideRequest.Field> {
     }
 
     @Override
-    public Field[] getDirtyFieldSet() {
-        return dirtyFieldSet.toArray(new Field[0]);
+    public void transferChanges(RideRequestEntity entity) {
+        for (Field dirtyField :
+                dirtyFieldSet) {
+            switch (dirtyField) {
+                case DRIVER_REFERENCE:
+                    entity.setDriverReference(getDriverReference());
+                    break;
+                case RIDER_REFERENCE:
+                    entity.setRiderReference(getRiderReference());
+                    break;
+                case TRANSACTION_REFERENCE:
+                    entity.setRiderReference(getTransactionReference());
+                    break;
+                case RIDE_REQUEST_REFERENCE:
+                    // todo: document why this is neeeded
+                    break;
+                case ROUTE:
+                    Route route = getRoute();
+                    LatLng latLngStartingPosition = route.getStartingPosition();
+                    LatLng latLngDestination = route.getDestinationPosition();
+                    GeoPoint startingPosition = new GeoPoint(latLngStartingPosition.latitude,
+                            latLngStartingPosition.longitude);
+                    GeoPoint destination = new GeoPoint(latLngDestination.latitude,
+                            latLngDestination.longitude);
+                    entity.setStartingPosition(startingPosition);
+                    entity.setDestination(destination);
+                    break;
+                case STATE:
+                    entity.setState(getState().ordinal());
+                    break;
+                case TIMESTAMP:
+                    entity.setTimestamp(new Timestamp(getTimestamp()));
+                    break;
+                case UNPAIRED_REFERENCE:
+                    entity.setUnpairedReference(getUnpairedReference());
+                    break;
+                case FARE_OFFER:
+                    entity.setFareOffer(getFareOffer());
+                    break;
+            }
+        }
+
+        entity.setRideRequestReference(getRideRequestReference());
     }
 
     // region getters and setters

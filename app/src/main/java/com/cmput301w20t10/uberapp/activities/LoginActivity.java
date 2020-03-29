@@ -5,17 +5,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.MutableLiveData;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.RadioButton;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -25,9 +24,7 @@ import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.Rider;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 /**
  * @author Joshua Mayer
@@ -46,6 +43,8 @@ public class LoginActivity extends OptionsMenu {
 
     private static final int REQUEST_CODE = 101;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,11 +59,23 @@ public class LoginActivity extends OptionsMenu {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
         }
 
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("UBER", task.getException());
+                        return;
+                    }
+                    String token = task.getResult().getToken();
+
+                    Application.getInstance().setMessagingToken(token);
+                    Log.d("UBER", token);
+                });
+
         radioButtonRider = findViewById(R.id.rider_radio_button);
         buttonLogIn = findViewById(R.id.button_log_in);
         rememberBox = findViewById(R.id.remember_box);
 
-        buttonLogIn.setOnClickListener(view -> onLoginPressed());
+        buttonLogIn.setOnClickListener(this::onLoginPressed);
 
         this.usernameField = findViewById(R.id.username_field);
         this.passwordField = findViewById(R.id.password_field);
@@ -93,7 +104,7 @@ public class LoginActivity extends OptionsMenu {
         });
     }
 
-    public void onLoginPressed() {
+    public void onLoginPressed(View view) {
         Log.d("Testing", "Verify Fields");
         // Check for empty fields
         if(usernameField.getText().toString().isEmpty()) {
@@ -138,17 +149,17 @@ public class LoginActivity extends OptionsMenu {
                         Log.d("Testing", "Driver Main Activity not yet in this branch");
                         Application.getInstance().setUser(driver);
                         saveUserInfo("driver");
-//                        if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0 ) {
-//                            Intent intent = new Intent(this, DriverAcceptedActivity.class);
-//                            String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
-//                            intent.putExtra("ACTIVE", activeRideRequest);
-//                            intent.putExtra("PREV_ACTIVITY", "LoginActivity");
-//                            startActivity(intent);
-//                        } else {
+                        if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0 ) {
+                            Intent intent = new Intent(this, DriverAcceptedActivity.class);
+                            String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
+                            intent.putExtra("ACTIVE", activeRideRequest);
+                            intent.putExtra("PREV_ACTIVITY", "LoginActivity");
+                            startActivity(intent);
+                        } else {
                             Intent intent = new Intent(this, DriverMainActivity.class);
                             intent.putExtra("PREV_ACTIVITY", "LoginActivity");
                             startActivity(intent);
-//                        }
+                        }
                     } else {
                         Toast.makeText(getApplicationContext(), "Invalid Username/Password", Toast.LENGTH_LONG).show();
                     }
@@ -161,6 +172,9 @@ public class LoginActivity extends OptionsMenu {
     }
 
     public void onRegisterPressed(View view) {
+
+        // NotificationService.sendNotification("Register Pressed", "You pressed the register button!", getApplicationContext(), RegisterActivity.class);
+
         Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
         String username = usernameField.getText().toString();
         intent.putExtra("USERNAME", username);

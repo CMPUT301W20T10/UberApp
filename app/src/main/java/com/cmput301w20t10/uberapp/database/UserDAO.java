@@ -2,19 +2,15 @@ package com.cmput301w20t10.uberapp.database;
 
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
-import com.cmput301w20t10.uberapp.models.EnumField;
 import com.cmput301w20t10.uberapp.models.User;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
@@ -23,10 +19,13 @@ import static android.content.ContentValues.TAG;
  * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
+ * @version 1.0.1
  */
-public class UserDAO extends DAOBase<UserEntity> {
-    private static final String COLLECTION = "users";
+public class UserDAO extends DAOBase<UserEntity, User> {
+    static final String COLLECTION = "users";
     final static String LOC = "Tomate: UserDAO: ";
+
+    public UserDAO() {}
 
     /**
      * Log the user in
@@ -51,7 +50,8 @@ public class UserDAO extends DAOBase<UserEntity> {
      *     <ul><b>Null:</b> Log in failed.</ul>
      * </li>
      */
-    MutableLiveData<UserEntity> logIn(String username, String password) {
+    // todo: improve
+    LiveData<UserEntity> logIn(String username, String password) {
         MutableLiveData<UserEntity> userLiveData = new MutableLiveData<>();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -64,10 +64,11 @@ public class UserDAO extends DAOBase<UserEntity> {
                     System.out.println("Task: " + task.getResult().getDocuments().get(0).get("userReference"));
                     if (task.isSuccessful()) {
                         if (task.getResult().isEmpty()) {
+                            Log.d(TAG, LOC + "logIn: No matching data");
                             userLiveData.setValue(null);
                         } else {
                             if (task.getResult().size() > 1) {
-                                Log.w(TAG, "onComplete: This should not happen\nMore than one account found");
+                                Log.w(TAG, LOC + "onComplete: This should not happen\nMore than one account found");
                             }
 
                             DocumentSnapshot snapshot = task.getResult().getDocuments().get(0);
@@ -75,7 +76,8 @@ public class UserDAO extends DAOBase<UserEntity> {
                             userLiveData.setValue(userEntity);
                         }
                     } else {
-                        Log.d(TAG, "onComplete: ", task.getException());
+                        Log.d(TAG, LOC + "onComplete: ", task.getException());
+                        userLiveData.setValue(null);
                     }
                 });
 
@@ -93,7 +95,8 @@ public class UserDAO extends DAOBase<UserEntity> {
      * @param phoneNumber
      * @return  null if user already registered
      */
-    public MutableLiveData<UserEntity> registerUser(String username,
+    // todo: improve
+    public LiveData<UserEntity> registerUser(String username,
                                                     String password,
                                                     String email,
                                                     String firstName,
@@ -122,143 +125,78 @@ public class UserDAO extends DAOBase<UserEntity> {
                                 userLiveData.setValue(userEntity);
                             } else {
                                 Log.e(TAG, LOC + "registerUser: Failed to add user");
+                                userLiveData.setValue(null);
                             }
                         }
                 )
-                .addOnFailureListener(e -> Log.w(TAG, "onFailure: ", e));
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "onFailure: ", e);
+                    userLiveData.setValue(null);
+                });
 
         return userLiveData;
     }
 
-    /**
-     * Saves changes in UserEntity
-     *
-     * @param userEntity
-     * @return
-     * Returns a Task object that can be observed whether it is successful or not.
-     */
     @Override
-    public Task<Void> saveEntity(final UserEntity userEntity) {
-        final DocumentReference reference = userEntity.getUserReference();
-        Task task = null;
+    public MutableLiveData<Boolean> saveModel(User model) {
+        final DocumentReference reference = model.getUserReference();
 
         if (reference != null) {
-            final Map<String, Object> dirtyPairMap = new HashMap<>();
-
-            for (UserEntity.Field field:
-                 userEntity.getDirtyFieldSet()) {
-                Object value = null;
-
-                switch (field) {
-                    case USERNAME:
-                        value = userEntity.getUsername();
-                        break;
-                    case PASSWORD:
-                        value = userEntity.getPassword();
-                        break;
-                    case EMAIL:
-                        value = userEntity.getEmail();
-                        break;
-                    case FIRST_NAME:
-                        value = userEntity.getFirstName();
-                        break;
-                    case LAST_NAME:
-                        value = userEntity.getLastName();
-                        break;
-                    case PHONE_NUMBER:
-                        value = userEntity.getPhoneNumber();
-                        break;
-                    case DRIVER_REFERENCE:
-                        value = userEntity.getDriverReference();
-                        break;
-                    case RIDER_REFERENCE:
-                        value = userEntity.getRiderReference();
-                        break;
-                    case USER_REFERENCE:
-                        value = userEntity.getUserReference();
-                        break;
-                    case IMAGE:
-                        value = userEntity.getImage();
-                        break;
-                    default:
-                        break;
-                }
-
-                if (value != null) {
-                    dirtyPairMap.put(field.toString(), value);
-                }
-            }
-
-            userEntity.clearDirtyStateSet();
-
-            if (dirtyPairMap.size() > 0) {
-                task = reference.update(dirtyPairMap);
-            }
+            UserEntity userEntity = new UserEntity();
+            model.transferChanges(userEntity);
+            return saveEntity(userEntity);
+        } else {
+            Log.e(TAG, LOC + "saveModel: Reference is null");
+            MutableLiveData<Boolean> liveData = new MutableLiveData<>();
+            liveData.setValue(false);
+            return liveData;
         }
-
-        return task;
     }
 
-    public Task saveModel(User model,
-                          DocumentReference riderReference,
-                          DocumentReference driverReference) {
-        final DocumentReference reference = model.getUserReference();
-        Task task = null;
+    @Override
+    protected String getCollectionName() {
+        return COLLECTION;
+    }
 
-        if (reference != null) {
-            final Map<String, Object> dirtyPairMap = new HashMap<>();
+    @Override
+    protected DAOBase<UserEntity, User> create() {
+        return new UserDAO();
+    }
 
-            for (EnumField field :
-                    model.getDirtyFieldSet()) {
-                Object value = null;
+    @Override
+    protected MutableLiveData<User> createModelFromEntity(UserEntity userEntity) {
+        MutableLiveData<User> liveData = new MutableLiveData<>();
+        liveData.setValue(new User(userEntity));
+        return liveData;
+    }
 
-                switch (field) {
-                    case USERNAME:
-                        value = model.getUsername();
-                        break;
-                    case PASSWORD:
-                        value = model.getPassword();
-                        break;
-                    case EMAIL:
-                        value = model.getEmail();
-                        break;
-                    case FIRST_NAME:
-                        value = model.getFirstName();
-                        break;
-                    case LAST_NAME:
-                        value = model.getLastName();
-                        break;
-                    case PHONE_NUMBER:
-                        value = model.getPhoneNumber();
-                        break;
-                    case DRIVER_REFERENCE:
-                        value = driverReference;
-                        break;
-                    case RIDER_REFERENCE:
-                        value = riderReference;
-                        break;
-                    case USER_REFERENCE:
-                        value = model.getUserReference();
-                        break;
-                    case IMAGE:
-                        value = model.getImage();
-                        break;
-                    default:
-                        break;
-                }
+    @Override
+    protected UserEntity createObjectFromSnapshot(DocumentSnapshot snapshot) {
+        return snapshot.toObject(UserEntity.class);
+    }
 
-                if (value != null) {
-                    dirtyPairMap.put(field.toString(), value);
-                }
-            }
-
-            if (dirtyPairMap.size() > 0) {
-                task = reference.update(dirtyPairMap);
-            }
-
-            model.clearDirtyStateSet();
-        }
-
-        return task;
+    /**
+     * Gets a User object using their DocumentID.
+     *
+     * <pre>
+     *     UserDAO dao = new UserDAO();
+     *     MutableLiveData<User> liveData = dao.getUserByUserID(userId);
+     *     liveData.observe(this, user -> {
+     *         if (user != null) {
+     *             // user found
+     *         } else {
+     *             // no internet connection
+     *         }
+     *     });
+     * </pre>
+     *
+     * @param userId    Document ID for the User
+     * @return  User    returns a User object if User was successfully found
+     *          null    returns a null object if User was not found or an error has occurred
+     *
+     * @version 1.0.1
+     */
+    public MutableLiveData<User> getUserByUserID(String userId) {
+        return getModelByID(userId);
     }
 }
