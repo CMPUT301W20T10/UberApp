@@ -63,11 +63,15 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.util.Log;
 
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -152,14 +156,12 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
 
         autocompleteStartingPoint();
 
+        ImageButton currentStartButton = findViewById(R.id.start_current_button);
+
         // get reference for the destination and starting point texts
 //        editTextStartingPoint = findViewById(R.id.text_starting_point);
         editTextDestination = findViewById(R.id.text_destination);
         editTextPriceOffer = findViewById(R.id.text_price_offer);
-
-        layoutStartingPoint = findViewById(R.id.layout_starting_point);
-        layoutDestination = findViewById(R.id.layout_destination);
-
 
         // this ensures that the data are saved no matter what
         // shenanigans that the android lifecycle throws at us
@@ -173,16 +175,16 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         // setting up listener for buttons
         Button buttonNewRide = findViewById(R.id.button_new_ride);
         buttonNewRide.setOnClickListener(view -> onClick_NewRide());
-
-        layoutStartingPoint.setEndIconOnClickListener(new View.OnClickListener() {
+        currentStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                editTextStartingPoint.setText(String.format("%currentlocation);
+
             }
         });
+
     }
 
-    private void InitalLocation(){
+    private void InitialLocation(){
        Log.d(TAG, "getDeviceLocation: getting the devices current location");
 
        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -212,6 +214,10 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.fragment_starting_point);
 
+        ImageView ivSearch = autocompleteFragment.getView().findViewById(R.id.places_autocomplete_search_button);
+        ivSearch.setImageResource(R.color.transparent);
+        autocompleteFragment.a.setTextSize(20.0f);
+        autocompleteFragment.a.setHintTextColor(R.attr.editTextColor);
         autocompleteFragment.setHint("Enter Starting Point");
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME));
 
@@ -279,7 +285,7 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
 //        circleOptions.radius(1000);
 //        circleOptions.fillColor(Color.BLUE);
 //        circleOptions.strokeWidth(6);
-        InitalLocation();
+        InitialLocation();
         //circleOptions.center(new LatLng(0,0));
 
         mainMap.setMyLocationEnabled(true);

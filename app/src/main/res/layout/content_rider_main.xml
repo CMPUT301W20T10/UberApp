@@ -40,34 +40,23 @@
             android:layout_height="wrap_content"
             android:layout_margin="16dp">
 
-            <ImageView
-                android:id="@+id/card_left_icon"
-                android:layout_width="40dp"
-                android:layout_height="128dp"
-                android:scaleType="fitCenter"
-                app:layout_constraintBottom_toBottomOf="@id/layout_destination"
-                app:layout_constraintEnd_toStartOf="@id/layout_starting_point"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:src="@drawable/destination_icon_mockup"
-                android:layout_marginEnd="8dp"/>
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/layout_starting_point"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="150px"
                 android:background="?attr/editTextBackgroundColor"
-                android:textColorHint="?attr/textHintColor"
+                android:textColorHint="@color/pink"
                 app:layout_constraintBottom_toTopOf="@id/layout_destination"
-                app:layout_constraintStart_toEndOf="@id/card_left_icon"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <fragment
                     android:id="@+id/fragment_starting_point"
                     android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="match_parent"
+                    android:textColorHint="@color/pink" />
 
                 <!--                <com.google.android.material.textfield.TextInputEditText-->
                 <!--                    android:id="@+id/text_starting_point"-->
@@ -79,21 +68,19 @@
                 <!--                    android:background="?attr/editTextBackgroundColor" />-->
             </com.google.android.material.textfield.TextInputLayout>
 
-
             <ImageButton
+                android:id="@+id/start_current_button"
                 android:layout_width="100px"
                 android:layout_height="100px"
-                android:layout_marginStart="31dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="21dp"
-                android:scaleType="fitCenter"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="11dp"
+                android:layout_marginBottom="8dp"
                 android:background="@color/transparent"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_my_location_black_24dp"
-                app:layout_constraintBottom_toTopOf="@+id/layout_destination"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.91"
-                app:layout_constraintStart_toEndOf="@+id/layout_starting_point"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintBottom_toBottomOf="@+id/layout_starting_point"
+                app:layout_constraintStart_toStartOf="@+id/layout_starting_point"
+                app:layout_constraintTop_toTopOf="@+id/layout_starting_point">
 
             </ImageButton>
 
