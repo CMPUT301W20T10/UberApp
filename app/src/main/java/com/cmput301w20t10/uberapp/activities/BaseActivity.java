@@ -1,8 +1,5 @@
 package com.cmput301w20t10.uberapp.activities;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -11,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.cmput301w20t10.uberapp.LogOut;
 import com.cmput301w20t10.uberapp.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -133,12 +131,13 @@ public class BaseActivity extends AppCompatActivity {
         });
 
         fabExit.setOnClickListener(v -> {
-            sharedPref.eraseContents();
-            Intent intent = getBaseContext().getPackageManager()
-                    .getLaunchIntentForPackage( getBaseContext().getPackageName() );
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
+//            sharedPref.eraseContents();
+//            Intent intent = getBaseContext().getPackageManager()
+//                    .getLaunchIntentForPackage( getBaseContext().getPackageName() );
+//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            startActivity(intent);
+//            finish();
+            LogOut.clearRestart(this);
         });
     }
 

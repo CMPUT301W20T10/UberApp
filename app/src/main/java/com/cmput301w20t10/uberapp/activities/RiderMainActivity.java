@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
 import android.content.Intent;
 import android.location.Location;
@@ -28,6 +29,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -40,6 +42,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -55,6 +58,7 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -128,6 +132,11 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
     CircleOptions circleOptions;
     private FusedLocationProviderClient fusedLocationClient;
 
+    private Location currentLocation;
+    private FusedLocationProviderClient client;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,10 +171,24 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
 
         ImageButton currentStartButton = findViewById(R.id.start_current_button);
 
+
+
+        client  = LocationServices.getFusedLocationProviderClient(this);
+        // get last know location of device
+        client.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if (location != null) {
+                    currentLocation = location;
+                }
+            }
+        });
+
         // get reference for the destination and starting point texts
 //        editTextStartingPoint = findViewById(R.id.text_starting_point);
         editTextDestination = findViewById(R.id.text_destination);
         editTextPriceOffer = findViewById(R.id.text_price_offer);
+
 
         // this ensures that the data are saved no matter what
         // shenanigans that the android lifecycle throws at us
@@ -192,31 +215,6 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
             }
         });
 
-    }
-
-    private void InitialLocation(){
-       Log.d(TAG, "getDeviceLocation: getting the devices current location");
-
-       fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-       final Task location = fusedLocationClient.getLastLocation();
-        Log.d(TAG, "getDeviceLocation: getting the devices current location");
-
-        location.addOnCompleteListener(new OnCompleteListener() {
-           @Override
-           public void onComplete(@NonNull Task task) {
-                if (task.isSuccessful()){
-                    Location currentlocation = (Location) task.getResult();
-                    Log.d(TAG, "onComplete: found location!" + currentlocation.getLatitude() + " " + currentlocation.getLongitude());
-                    userLatLong = new LatLng(currentlocation.getLatitude(), currentlocation.getLongitude());
-//                    circleOptions.center(new LatLng(currentlocation.getLatitude(),currentlocation.getLongitude()));
-//                    mainMap.addCircle(circleOptions);
-                    mainMap.moveCamera(CameraUpdateFactory.newLatLng(userLatLong));
-                }
-                else{
-                    Log.d(TAG, "getDeviceLocation: not found");
-                }
-           }
-       });
     }
 
     private void autocompleteStartingPoint() {
@@ -290,16 +288,6 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mainMap = googleMap;
 
-        //trackuser
-//        circleOptions = new CircleOptions();
-//        circleOptions.radius(1000);
-//        circleOptions.fillColor(Color.BLUE);
-//        circleOptions.strokeWidth(6);
-        InitialLocation();
-        //circleOptions.center(new LatLng(0,0));
-
-        mainMap.setMyLocationEnabled(true);
-
         // Add listener
         /*
         mainMap.setOnMapClickListener(latLng -> {
@@ -313,6 +301,29 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
             routeLiveData.setValue(route);
         });
         */
+
+        googleMap.setMyLocationEnabled(true);
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+
+        if (location != null) {
+            mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
+                    .zoom(17)                   // Sets the zoom
+                    .build();                   // Creates a CameraPosition from the builder
+            mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+
+        }
+
+
+
+
     }
 
     private void onClick_NewRide() {

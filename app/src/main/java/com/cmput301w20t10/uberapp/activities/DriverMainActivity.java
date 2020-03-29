@@ -2,20 +2,15 @@ package com.cmput301w20t10.uberapp.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.health.SystemHealthManager;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.animation.Animation;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -24,7 +19,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.MutableLiveData;
 
@@ -32,17 +26,14 @@ import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
-import com.cmput301w20t10.uberapp.database.DriverDAO;
 import com.cmput301w20t10.uberapp.database.RideRequestDAO;
 import com.cmput301w20t10.uberapp.database.UnpairedRideListDAO;
-import com.cmput301w20t10.uberapp.database.UserDAO;
 import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RequestList;
 import com.cmput301w20t10.uberapp.models.ResizeAnimation;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.RideRequestListContent;
-import com.cmput301w20t10.uberapp.models.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -58,12 +49,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -192,14 +179,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             new FetchURL(DriverMainActivity.this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
             Button acceptButton = view.findViewById(R.id.accept_request_button);
 
-            /**
-             * Work in progress
-             * Not sure how we want to handle accepting and requesting yet
-             */
             acceptButton.setOnClickListener(view1 -> {
-                System.out.println("MACA: " + rideRequestContent.getRideRequestReference().getClass().getName());
-                System.out.println("MACA: " + Application.getInstance().getCurrentUser().getClass().getName());
-                System.out.println("MACA2: " + rideRequestContent.getRideRequestReference().getId());
                 Driver driver = (Driver) Application.getInstance().getCurrentUser();
                 RideRequestDAO dao = new RideRequestDAO();
                 MutableLiveData<RideRequest> liveData = dao.getModelByReference(rideRequestContent.getRideRequestReference());
@@ -255,11 +235,12 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
      * URL of question: https://stackoverflow.com/questions/12522348
      * Asked by: Ethan Allen, https://stackoverflow.com/users/546509/ethan-allen
      * Answered by: Leonardo Cardoso, https://stackoverflow.com/users/1255990/leonardo-cardoso
-     * Answer: https://stackoverflow.com/a/22160822
+     * URL of answer: https://stackoverflow.com/a/22160822
      */
     private void toggle(View view, final int position) {
         RideRequestListContent rideRequest = requestDataList.get(position);
         rideRequest.getHolder().setTextViewWrap((LinearLayout) view);
+        TextView tapProfileHint = view.findViewById(R.id.tap_profile_hint);
 
         int fromHeight = 0;
         int toHeight = 0;
@@ -267,9 +248,11 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         if (rideRequest.isOpen()) {
             fromHeight = rideRequest.getExpandedHeight();
             toHeight = rideRequest.getCollapsedHeight();
+            tapProfileHint.setVisibility(View.INVISIBLE);
         } else {
             fromHeight = rideRequest.getCollapsedHeight();
             toHeight = rideRequest.getExpandedHeight();
+            tapProfileHint.setVisibility(View.VISIBLE);
 
             // This closes all item before the selected one opens
             if (accordion) {
@@ -284,6 +267,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
      * URL of question: https://stackoverflow.com/questions/12522348
      * Asked by: Ethan Allen, https://stackoverflow.com/users/546509/ethan-allen
      * Answered by: Leonardo Cardoso, https://stackoverflow.com/users/1255990/leonardo-cardoso
+     * URL of answer: https://stackoverflow.com/a/22160822
      */
     private void closeAll() {
         int i = 0;
@@ -300,6 +284,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
      * URL of question: https://stackoverflow.com/questions/12522348
      * Asked by: Ethan Allen, https://stackoverflow.com/users/546509/ethan-allen
      * Answered by: Leonardo Cardoso, https://stackoverflow.com/users/1255990/leonardo-cardoso
+     * URL of answer: https://stackoverflow.com/a/22160822
      */
     private void toggleAnimation(final RideRequestListContent rideRequest, final int position, final int fromHeight, final int toHeight, final boolean goToItem) {
         ResizeAnimation resizeAnimation = new ResizeAnimation(requestAdapter, rideRequest, 0, fromHeight, 0, toHeight);
@@ -330,6 +315,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
      * URL of question: https://stackoverflow.com/questions/12522348
      * Asked by: Ethan Allen, https://stackoverflow.com/users/546509/ethan-allen
      * Answered by: Leonardo Cardoso, https://stackoverflow.com/users/1255990/leonardo-cardoso
+     * URL of answer: https://stackoverflow.com/a/22160822
      */
     private void goToItem(final int position) {
         requestList.post(new Runnable() {
