@@ -19,8 +19,10 @@ import androidx.lifecycle.MutableLiveData;
 import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
+import com.cmput301w20t10.uberapp.database.UserDAO;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.Rider;
+import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 /**
@@ -89,8 +91,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void verifyLogin() {
-        // todo: proper implementation of sign in
-
         if (radioButtonRider.isChecked()) {
             //login as rider
             Log.d("Testing", "Log in as rider!");
@@ -100,6 +100,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (rider != null) {
                     Log.d("Testing", "Login Success");
                     Application.getInstance().setUser(rider);
+                    updateFCMToken();
                     Intent intent = new Intent(this, RiderMainActivity.class);
                     startActivity(intent);
                 } else {
@@ -115,6 +116,7 @@ public class LoginActivity extends AppCompatActivity {
                     Log.d("Testing", "Login Success");
                     Log.d("Testing", "Driver Main Activity not yet in this branch");
                     Application.getInstance().setUser(driver);
+                    updateFCMToken();
                     Intent intent = new Intent(this, DriverMainActivity.class);
                     startActivity(intent);
                 } else {
@@ -122,6 +124,14 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    public void updateFCMToken() {
+        User user = Application.getInstance().getCurrentUser();
+        user.setFCMToken(Application.getInstance().getMessagingToken());
+        UserDAO dao = new UserDAO();
+        dao.saveModel(user);
+        Application.getInstance().setUser(user);
     }
 
     public void onRegisterPressed(View view) {

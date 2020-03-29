@@ -20,7 +20,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
-import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.models.RequestList;
 import com.cmput301w20t10.uberapp.models.ResizeAnimation;
@@ -38,12 +37,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -110,47 +107,38 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         DocumentReference requestReference = (DocumentReference) document.get("rideRequestReference");
-                        requestReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                            @Override
-                            public void onSuccess(DocumentSnapshot rideRequestSnapshot) {
-                                if (rideRequestSnapshot.exists()) {
-                                    DocumentReference ridersReference = (DocumentReference) rideRequestSnapshot.get("riderReference");
-                                    GeoPoint geoPoint = rideRequestSnapshot.getGeoPoint("destination");
-                                    double lat = geoPoint.getLatitude();
-                                    double lng = geoPoint.getLongitude();
-                                    float[] distance = new float[1];
-                                    Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), lat, lng, distance);
-                                    float offer = (long) rideRequestSnapshot.get("fareOffer");
-                                    ridersReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onSuccess(DocumentSnapshot riderSnapshot) {
-                                            if (riderSnapshot.exists()) {
-                                                DocumentReference usersReference = (DocumentReference) riderSnapshot.get("userReference");
-                                                usersReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                                    @Override
-                                                    public void onSuccess(DocumentSnapshot usersSnapshot) {
-                                                        if (usersSnapshot.exists()) {
-                                                            String username = (String) usersSnapshot.get("username");
-                                                            String firstName = (String) usersSnapshot.get("firstName");
-                                                            String lastName = (String) usersSnapshot.get("lastName");
-                                                            requestDataList.add((new RideRequest_old(username, distance[0] / 1000, offer, usersReference, firstName, lastName,
-                                                                    collapsedHeight, collapsedHeight, expandedHeight)));
-                                                            Collections.sort(requestDataList);
-                                                            requestAdapter = new RequestList(DriverMainActivity.this, requestDataList);
-                                                            requestList.setAdapter(requestAdapter);
-                                                        } else {
-                                                            Toast.makeText(DriverMainActivity.this, "Document does not exist", Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    }
-                                                });
+                        requestReference.get().addOnSuccessListener(rideRequestSnapshot -> {
+                            if (rideRequestSnapshot.exists()) {
+                                DocumentReference ridersReference = (DocumentReference) rideRequestSnapshot.get("riderReference");
+                                GeoPoint geoPoint = rideRequestSnapshot.getGeoPoint("destination");
+                                double lat = geoPoint.getLatitude();
+                                double lng = geoPoint.getLongitude();
+                                float[] distance = new float[1];
+                                Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), lat, lng, distance);
+                                float offer = (long) rideRequestSnapshot.get("fareOffer");
+                                ridersReference.get().addOnSuccessListener(riderSnapshot -> {
+                                    if (riderSnapshot.exists()) {
+                                        DocumentReference usersReference = (DocumentReference) riderSnapshot.get("userReference");
+                                        usersReference.get().addOnSuccessListener(usersSnapshot -> {
+                                            if (usersSnapshot.exists()) {
+                                                String username = (String) usersSnapshot.get("username");
+                                                String firstName = (String) usersSnapshot.get("firstName");
+                                                String lastName = (String) usersSnapshot.get("lastName");
+                                                requestDataList.add((new RideRequest_old(username, distance[0] / 1000, offer, usersReference, firstName, lastName,
+                                                        collapsedHeight, collapsedHeight, expandedHeight)));
+                                                Collections.sort(requestDataList);
+                                                requestAdapter = new RequestList(DriverMainActivity.this, requestDataList);
+                                                requestList.setAdapter(requestAdapter);
                                             } else {
                                                 Toast.makeText(DriverMainActivity.this, "Document does not exist", Toast.LENGTH_SHORT).show();
                                             }
-                                        }
-                                    });
-                                } else {
-                                    Toast.makeText(DriverMainActivity.this, "Document does not exist", Toast.LENGTH_SHORT).show();
-                                }
+                                        });
+                                    } else {
+                                        Toast.makeText(DriverMainActivity.this, "Document does not exist", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            } else {
+                                Toast.makeText(DriverMainActivity.this, "Document does not exist", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -160,24 +148,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             }
         });
 
-        requestList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                toggle(view, i);
-            }
-        });
-
-        // For message passing, the driver must subscribe to a topic
-        FirebaseMessaging.getInstance().subscribeToTopic(Application.getInstance().getCurrentUser().getUsername())
-                .addOnCompleteListener((task) -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(DriverMainActivity.this, "Successfully subscribed", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(DriverMainActivity.this, "Failed to subscribe", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-
+        requestList.setOnItemClickListener((adapterView, view, i, l) -> toggle(view, i));
 
     }
 
