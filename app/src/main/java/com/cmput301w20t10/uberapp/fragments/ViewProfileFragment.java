@@ -38,14 +38,16 @@ public class ViewProfileFragment extends DialogFragment {
     private Query query;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private User fetchedUser;
+    private Dialog dialog;
 
     public ViewProfileFragment() {
     }
 
-    public static ViewProfileFragment newInstance(String userID) {
+    public static ViewProfileFragment newInstance(String userID, String username) {
         ViewProfileFragment frag = new ViewProfileFragment();
         Bundle args = new Bundle();
         args.putString("userID",userID);
+        args.putString("username",username);
         frag.setArguments(args);
         return frag;
     }
@@ -56,15 +58,36 @@ public class ViewProfileFragment extends DialogFragment {
         //inflate the layout for this fragment
         super.onCreate(savedInstanceState);
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_view_profile,null);
+
         firstName = view.findViewById(R.id.view_first_name);
         lastName = view.findViewById(R.id.view_last_name);
         eMail = view.findViewById(R.id.view_email);
         phoneNumber = view.findViewById(R.id.view_phonenumber);
 
+        String username = getArguments().getString("username");
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext()); //copied format from previous code written in lab.
+        this.dialog = builder
+                .setView(view)
+                .setTitle(username)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        dialog.dismiss();
+                    }
+                }).create();
+        return this.dialog;
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         String userID = getArguments().getString("userID");
-
 
         UserDAO dao = new UserDAO();
         MutableLiveData<User> liveData = dao.getUserByUserID(userID);
@@ -75,31 +98,12 @@ public class ViewProfileFragment extends DialogFragment {
                 lastName.setText(fetchedUser.getLastName());
                 eMail.setText(fetchedUser.getEmail());
                 phoneNumber.setText(fetchedUser.getPhoneNumber());
-
-
-
+                dialog.setTitle(fetchedUser.getUsername());
             } else {
                 // no internet connection
             }
         });
-
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext()); //copied format from previous code written in lab.
-        return builder
-                .setView(view)
-                .setTitle(fetchedUser.getUsername())
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        dialog.dismiss();
-                    }
-                }).create();
-
     }
-
-
-
-
 }
 
 
