@@ -93,16 +93,15 @@ public class ViewProfileFragment extends DialogFragment {
         MutableLiveData<User> liveData = dao.getUserByUserID(userID);
         liveData.observe(this, user -> {
             if (user != null) {
-                fetchedUser = user;
-                firstName.setText(fetchedUser.getFirstName());
-                lastName.setText(fetchedUser.getLastName());
-                eMail.setText(fetchedUser.getEmail());
-                phoneNumber.setText(fetchedUser.getPhoneNumber());
-                dialog.setTitle(fetchedUser.getUsername());
+                firstName.setText(user.getFirstName());
+                lastName.setText(user.getLastName());
+                eMail.setText(user.getEmail());
+                phoneNumber.setText(user.getPhoneNumber());
             } else {
                 // no internet connection
             }
         });
+
     }
 }
 
