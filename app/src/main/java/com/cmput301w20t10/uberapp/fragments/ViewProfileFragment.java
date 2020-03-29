@@ -93,8 +93,10 @@ public class ViewProfileFragment extends DialogFragment {
         MutableLiveData<User> liveData = dao.getUserByUserID(userID);
         liveData.observe(this, user -> {
             if (user != null) {
-                fetchedUser = user;
-
+                firstName.setText(user.getFirstName());
+                lastName.setText(user.getLastName());
+                eMail.setText(user.getEmail());
+                phoneNumber.setText(user.getPhoneNumber());
             } else {
                 // no internet connection
             }
