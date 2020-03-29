@@ -39,7 +39,7 @@
     <string name="title_activity_driver_main_map">Map</string>
     <!-- endregion Driver main screen generated string -->
 
-    <!-- Ride request strings -->
+    <!-- region Ride request strings -->
     <string name="request_username">Username</string>
     <string name="request_distance">XXkm away</string>
     <string name="request_offer">Offer: $XXX</string>
@@ -48,7 +48,11 @@
     <string name="request_last_name">Lastname</string>
     <string name="request_start_dest">Start Destination</string>
     <string name="request_end_dest">End Destination</string>
-    <!-- endRide request strings -->
+    <!-- endregion Ride request strings -->
+
+    <!-- region Message passing strings -->
+    <string name="default_notification_channel_id">fcm_default_channel</string>
+    <!-- endregion Message passing strings -->
 
     <!-- region Rating Strings -->
     <string name="ratingfrag_title">Rate Your Ride:</string>
