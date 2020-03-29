@@ -26,11 +26,13 @@
                 android:src="@drawable/ic_person_black_24dp"></ImageButton>
 
             <TextView
+                android:id="@+id/tap_profile_hint"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:clickable="false"
                 android:gravity="center"
+                android:visibility="invisible"
                 android:text="Tap to view\nprofile"
                 android:textColor="#83FF0000">
             </TextView>

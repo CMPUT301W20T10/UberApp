@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -35,6 +36,7 @@ import com.cmput301w20t10.uberapp.database.DriverDAO;
 import com.cmput301w20t10.uberapp.database.RideRequestDAO;
 import com.cmput301w20t10.uberapp.database.UnpairedRideListDAO;
 import com.cmput301w20t10.uberapp.database.UserDAO;
+import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RequestList;
 import com.cmput301w20t10.uberapp.models.ResizeAnimation;
@@ -189,7 +191,6 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             dropPins("Start Destination", startDest, "End Destination",  endDest);
             new FetchURL(DriverMainActivity.this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
             Button acceptButton = view.findViewById(R.id.accept_request_button);
-            DocumentReference rideRequestRef = rideRequestContent.getRideRequestReference();
 
             /**
              * Work in progress
@@ -199,29 +200,14 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                 System.out.println("MACA: " + rideRequestContent.getRideRequestReference().getClass().getName());
                 System.out.println("MACA: " + Application.getInstance().getCurrentUser().getClass().getName());
                 System.out.println("MACA2: " + rideRequestContent.getRideRequestReference().getId());
-//                System.out.println("APPLICATION: " + Application.getInstance().getCurrentUser().get);
-                DriverDAO thing = new DriverDAO();
-                MutableLiveData<Driver> liveThing = thing.getModelByReference(Application.getInstance().getCurrentUser().getUserReference());
-                liveThing.observe(this, driver -> {
-                    System.out.println("DRIVER: " + driver);
-                    if (driver != null) {
-                        System.out.println("DRIVER: " + driver.getClass().getName());
-                    }
-                });
-
+                Driver driver = (Driver) Application.getInstance().getCurrentUser();
                 RideRequestDAO dao = new RideRequestDAO();
                 MutableLiveData<RideRequest> liveData = dao.getModelByReference(rideRequestContent.getRideRequestReference());
                 liveData.observe(this, rideRequest -> {
                     if (rideRequest != null) {
-//                        dao.acceptRequest()
-                        System.out.println("RR FOUND: " + rideRequest.getClass().getName());
+                        dao.acceptRequest(rideRequest, driver, this);
                     }
                 });
-
-//                    rideRequest.getRideRequestReference()
-//                            .update("driverReference", "LOL");
-//                    rideRequest.getUnpairedReference()
-//                            .delete();
             });
 
             ImageButton riderPictureButton = view.findViewById(R.id.profile_picture);
@@ -233,8 +219,11 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                             .get()
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
-                                    QuerySnapshot thing = task.getResult();
-                                    System.out.println("MACA10: " + thing.getDocuments().get(0));
+                                    QuerySnapshot userSnapshot = task.getResult();
+                                    System.out.println("MACA10: " + userSnapshot.getDocuments().get(0).getId());
+                                    String userID = userSnapshot.getDocuments().get(0).getId();
+                                    String username = rideRequestContent.getUsername();
+                                    ViewProfileFragment.newInstance(userID, username) .show(getSupportFragmentManager(),"User");
                                 }
                             });
                 }

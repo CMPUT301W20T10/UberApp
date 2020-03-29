@@ -133,7 +133,6 @@ public class BaseActivity extends AppCompatActivity {
         });
 
         fabExit.setOnClickListener(v -> {
-            System.out.println("MIZKIF: " + sharedPref.loadNightModeState());
             sharedPref.eraseContents();
             Intent intent = getBaseContext().getPackageManager()
                     .getLaunchIntentForPackage( getBaseContext().getPackageName() );
