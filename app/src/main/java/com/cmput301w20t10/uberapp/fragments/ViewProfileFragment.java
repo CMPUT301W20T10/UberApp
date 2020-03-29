@@ -37,7 +37,7 @@ public class ViewProfileFragment extends DialogFragment {
     private TextView phoneNumber;
     private Query query;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private User user;
+    private User fetchedUser;
 
     public ViewProfileFragment() {
     }
@@ -66,36 +66,39 @@ public class ViewProfileFragment extends DialogFragment {
         String userID = getArguments().getString("userID");
 
 
-/*        UserDAO dao = new UserDAO();
-        MutableLiveData<User> liveData = dao.getUserByUserID(userId);
+        UserDAO dao = new UserDAO();
+        MutableLiveData<User> liveData = dao.getUserByUserID(userID);
         liveData.observe(this, user -> {
             if (user != null) {
-                // user found
+                fetchedUser = user;
+                firstName.setText(fetchedUser.getFirstName());
+                lastName.setText(fetchedUser.getLastName());
+                eMail.setText(fetchedUser.getEmail());
+                phoneNumber.setText(fetchedUser.getPhoneNumber());
+
+
+
             } else {
                 // no internet connection
             }
-        });*/
-
-
-
-        firstName.setText(user.getFirstName());
-        lastName.setText(user.getLastName());
-        eMail.setText(user.getEmail());
-        phoneNumber.setText(user.getPhoneNumber());
-
+        });
 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext()); //copied format from previous code written in lab.
-            return builder
-                    .setView(view)
-                    .setTitle(user.getUsername())
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int i) {
-                            dialog.dismiss();
-                        }
-                    }).create();
-        }
+        return builder
+                .setView(view)
+                .setTitle(fetchedUser.getUsername())
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        dialog.dismiss();
+                    }
+                }).create();
+
+    }
+
+
+
 
 }
 
