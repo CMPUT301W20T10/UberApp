@@ -118,9 +118,12 @@ public class DriverDAO {
                     if (userEntity == null || userEntity.getDriverReference() == null) {
                         driverLiveData.setValue(null);
                     } else {
+                        System.out.println("what: " + userEntity);
                         userEntity.getDriverReference()
                                 .get()
                                 .addOnCompleteListener(task -> {
+                                    System.out.println("what4: " + task.getClass().getName());
+
                                     if (task.isSuccessful() && task.getResult() != null) {
                                         DriverEntity driverEntity = task.getResult()
                                                 .toObject(DriverEntity.class);
@@ -196,7 +199,7 @@ public class DriverDAO {
         return saveModelTask.run();
     }
 
-    public MutableLiveData<Driver> getDriverFromDriverReference(DocumentReference driverReference) {
+    public static MutableLiveData<Driver> getDriverFromDriverReference(DocumentReference driverReference) {
         GetDriverFromReferenceTask task = new GetDriverFromReferenceTask(driverReference);
         return task.run();
     }

@@ -185,7 +185,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity> {
         return task.run();
     }
 
-    public MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Driver driver) {
+    public static MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Driver driver) {
         MutableLiveData<List<RideRequest>> mutableLiveData = new MutableLiveData<>();
         List<RideRequest> rideList = new ArrayList<>();
         mutableLiveData.setValue(rideList);

@@ -6,15 +6,38 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="backgroundColor">@color/white</item>
+        <item name="textColor">@color/black</item>
+        <item name="textHintColor">@color/colorPrimary</item>
+        <item name="editTextBackgroundColor">@color/colorBackground</item>
+        <item name="buttonColor">@color/colorPrimaryDark</item>
+        <item name="buttonText">@color/white</item>
+        <item name="requestPictureBorder">@mipmap/image_border_light</item>
+        <item name="themePicture">@mipmap/darkmode</item>
+        <item name="listViewDivider">@color/colorPrimaryDark</item>
+
+    </style>
+
+    <style name="DarkTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="backgroundColor">@color/colorPrimaryDark</item>
+        <item name="textColor">@color/white</item>
+        <item name="textHintColor">#75FFFFFF</item>
+        <item name="editTextBackgroundColor">@color/colorPrimary</item>
+        <item name="buttonColor">@color/colorBackground</item>
+        <item name="buttonText">@color/colorPrimaryDark</item>
+        <item name="requestPictureBorder">@mipmap/image_border_dark</item>
+        <item name="themePicture">@mipmap/lightmode</item>
+        <item name="listViewDivider">@color/colorBackground</item>
+
     </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

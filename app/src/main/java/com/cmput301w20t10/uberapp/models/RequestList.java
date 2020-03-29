@@ -4,6 +4,7 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
@@ -29,6 +31,10 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
 
     private ArrayList<RideRequestListContent> rideRequests;
     private Context context;
+    private boolean addressesEqual;
+    private String addressLine;
+    private String addressKnownName;
+
 
     public RequestList(Context context, ArrayList<RideRequestListContent> rideRequests) {
         super(context,0,rideRequests);
@@ -63,6 +69,7 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
             TextView startEndDist = view.findViewById(R.id.start_end_distance);
             ImageView profilePicture = view.findViewById(R.id.profile_picture);
             Button acceptButton = view.findViewById(R.id.accept_request_button);
+            acceptButton.setVisibility(View.VISIBLE);
 
             holder = new rideRequestHolder(textViewWrap, username, distance, offer, firstName, lastName,
                     startDest, endDest, startEndDist ,profilePicture, acceptButton);
@@ -73,17 +80,18 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
 
         holder.getTextViewWrap().setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, rideRequest.getCurrentHeight()));
 
-        Geocoder geocoder;
-        Address startAddress = null;
-        Address endAddress = null;
-        geocoder = new Geocoder(getContext(), Locale.getDefault());
-        try {
-            startAddress = geocoder.getFromLocation(rideRequest.getStartDest().latitude, rideRequest.getStartDest().longitude, 1)
-                    .get(0);
-            endAddress = geocoder.getFromLocation(rideRequest.getEndDest().latitude, rideRequest.getEndDest().longitude, 1)
-                    .get(0);
-        } catch (IOException e) {
-            e.printStackTrace();
+        getAddress(rideRequest.getStartDest().latitude, rideRequest.getStartDest().longitude);
+        if (addressesEqual) {
+            holder.getStartDest().setText(addressLine);
+        } else {
+            holder.getStartDest().setText(addressKnownName + ", "  + addressLine);
+        }
+
+        getAddress(rideRequest.getEndDest().latitude, rideRequest.getEndDest().longitude);
+        if (addressesEqual) {
+            holder.getEndDest().setText(addressLine);
+        } else {
+            holder.getEndDest().setText(addressKnownName + ", "  + addressLine);
         }
 
         holder.getUsername().setText(rideRequest.getUsername());
@@ -99,40 +107,6 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
                 endDest.latitude,endDest.longitude, startEndDist);
         holder.getStartEndDist().setText(String.format("%.2fkm", startEndDist[0]/1000));
 
-        String startAddressLine = startAddress.getAddressLine(0);
-        String startKnownName = startAddress.getFeatureName();
-        String[] startAddressLineArr = startAddressLine.split("[\\s,]");
-        String[] startKnownNameArr =startKnownName.split("[\\s,]");
-        boolean startsEqual = true;
-        for (int i=0; i < startKnownNameArr.length; i++) {
-            if (!startKnownNameArr[i].equals(startAddressLineArr[i])) {
-                startsEqual = false;
-                break;
-            }
-        }
-        if (startsEqual) {
-            holder.getStartDest().setText(startAddressLine);
-        } else {
-            holder.getStartDest().setText(startKnownName + ", "  + startAddressLine);
-        }
-
-        String endAddressLine = endAddress.getAddressLine(0);
-        String endKnownName = endAddress.getFeatureName();
-        String[] endAddressLineArr = endAddressLine.split("[\\s,]");
-        String[] endKnownNameArr =endKnownName.split("[\\s,]");
-        boolean endsEqual = true;
-        for (int i=0; i < endKnownNameArr.length; i++) {
-            if (!endKnownNameArr[i].equals(endAddressLineArr[i])) {
-                endsEqual = false;
-                break;
-            }
-        }
-        if (endsEqual) {
-            holder.getEndDest().setText(endAddressLine);
-        } else {
-            holder.getEndDest().setText(endKnownName + ", "  + endAddressLine);
-        }
-
         Glide.with(view)
                 .load(rideRequest.getImageURL())
                 .into(holder.getProfilePic());
@@ -142,5 +116,26 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
         rideRequest.setHolder(holder);
 
         return view;
+    }
+    public void getAddress(double latitude, double longitude) {
+        Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+        addressesEqual = true;
+        try {
+            Address address = geocoder.getFromLocation(latitude, longitude, 1).get(0);
+            addressLine = address.getAddressLine(0);
+            addressKnownName = address.getFeatureName();
+            String[] addressLineArr = addressLine.split("[\\s,]");
+            String[] knownNameArr = addressKnownName.split("[\\s,]");
+            for (int i=0; i < knownNameArr.length; i++) {
+                if (!knownNameArr[i].equals(addressLineArr[i])) {
+                    addressesEqual = false;
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+            Log.e("Index Error: ", "IndexOutOfBoundsException");
+        }
     }
 }

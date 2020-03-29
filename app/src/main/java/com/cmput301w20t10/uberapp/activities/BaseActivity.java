@@ -1,8 +1,13 @@
 package com.cmput301w20t10.uberapp.activities;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.view.Gravity;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -26,23 +31,28 @@ public class BaseActivity extends AppCompatActivity {
     private FloatingActionButton fabHome;
     private FloatingActionButton fabSearch;
     private FloatingActionButton fabProfile;
+    private FloatingActionButton fabDarkMode;
     private FloatingActionButton fabExit;
     private FloatingActionButton fabHistory;
 
     private boolean isOpen = false;
 
+    SharedPref sharedPref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.float_main);
-
-
     }
 
     @Override
     public void onBackPressed() {
         if (!isOpen) {
-            super.onBackPressed();
+            if (getIntent().getExtras().getString("PREV_ACTIVITY").equals("LoginActivity")) {
+                return;
+            } else {
+                super.onBackPressed();
+            }
         } else {
             closeMenu();
         }
@@ -54,18 +64,18 @@ public class BaseActivity extends AppCompatActivity {
         fabMenu = findViewById(R.id.floatButton);
         fabHome = findViewById(R.id.floatButtonHome);
         fabProfile = findViewById(R.id.floatButtonProfile);
+        fabDarkMode = findViewById(R.id.floatButtonSettings);
         fabExit = findViewById(R.id.floatButtonLogout);
         fabSearch = findViewById(R.id.floatButtonSearch);
         fabHistory = findViewById(R.id.floatButtonHistory);
 
-        fabMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!isOpen) {
-                    openMenu();
-                } else {
-                    closeMenu();
-                }
+        sharedPref = new SharedPref(this);
+
+        fabMenu.setOnClickListener(v -> {
+            if (!isOpen) {
+                openMenu();
+            } else {
+                closeMenu();
             }
         });
     }
@@ -78,6 +88,7 @@ public class BaseActivity extends AppCompatActivity {
         isOpen = false;
         fabHome.animate().translationY(0);
         fabProfile.animate().translationY(0);
+        fabDarkMode.animate().translationY(0);
         fabHistory.animate().translationY(0);
         fabSearch.animate().translationY(0);
         fabExit.animate().translationY(0);
@@ -93,7 +104,8 @@ public class BaseActivity extends AppCompatActivity {
         fabProfile.animate().translationY(350);
         fabHistory.animate().translationY(500);
         fabSearch.animate().translationY(650);
-        fabExit.animate().translationY(800);
+        fabDarkMode.animate().translationY(800);
+        fabExit.animate().translationY(950);
 
         //Begin onclickListeners for each fab button, each sends to new activity. This activity should extend baseactivity so it can also have Menu.
         fabProfile.setOnClickListener(v -> {
@@ -111,7 +123,30 @@ public class BaseActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        fabDarkMode.setOnClickListener(v -> {
+            if (sharedPref.loadNightModeState() == true) {
+                sharedPref.setNightModeState(false);
+            } else {
+                sharedPref.setNightModeState(true);
+            }
+            notifyRestart();
+        });
+
+        fabExit.setOnClickListener(v -> {
+            System.out.println("MIZKIF: " + sharedPref.loadNightModeState());
+            sharedPref.eraseContents();
+            Intent intent = getBaseContext().getPackageManager()
+                    .getLaunchIntentForPackage( getBaseContext().getPackageName() );
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
     }
 
-
+    public void notifyRestart() {
+        Toast toast = Toast.makeText(this, "DARK MODE TOGGLED\nRESTART REQUIRED", Toast.LENGTH_SHORT);
+        TextView textView = toast.getView().findViewById(android.R.id.message);
+        textView.setGravity(Gravity.CENTER);
+        toast.show();
+    }
 }

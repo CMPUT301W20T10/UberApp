@@ -260,11 +260,7 @@ public class BasicDAOTest {
                 }
             };
             UnpairedRideListDAO dao = new UnpairedRideListDAO();
-<<<<<<< HEAD
             MutableLiveData<List<RideRequest>> liveData = UnpairedRideListDAO.getAllUnpairedRideRequest();
-=======
-            MutableLiveData<List<RideRequest>> liveData = dao.getAllUnpairedRideRequest();
->>>>>>> 5180ba95c5fd0023826add4ce43af201ee1e18dc
             liveData.observe(lifecycleOwner, observer);
         };
 
@@ -387,7 +383,7 @@ public class BasicDAOTest {
                 }
             };
             RideRequestDAO dao = databaseManager.getRideRequestDAO();
-            MutableLiveData<List<RideRequest>> liveData = dao.getAllActiveRideRequest(driver);
+            MutableLiveData<List<RideRequest>> liveData = RideRequestDAO.getAllActiveRideRequest(driver);
             liveData.observe(lifecycleOwner, observer);
         };
 
@@ -501,11 +497,7 @@ public class BasicDAOTest {
                     super.onChanged(aBoolean);
                 }
             };
-<<<<<<< HEAD
             DriverDAO driverDAO = DatabaseManager.getInstance().getDriverDAO();
-=======
-            DriverDAO driverDAO = databaseManager.getInstance().getDriverDAO();
->>>>>>> 5180ba95c5fd0023826add4ce43af201ee1e18dc
             int increment = 1;
             MutableLiveData<Boolean> liveData = driverDAO.rateDriver(driver, increment);
             liveData.observe(lifecycleOwner, observer);

@@ -61,8 +61,9 @@ import java.util.List;
 // todo: editable map markers
 
 
-public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
+public class RiderMainActivity extends BaseActivity implements OnMapReadyCallback, TaskLoadedCallback {
     private static final String TAG = "Test" ;
+    SharedPref sharedPref;
     // core objects
     private AppBarConfiguration mAppBarConfiguration;
     private GoogleMap mainMap;
@@ -89,6 +90,12 @@ public class RiderMainActivity extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sharedPref = new SharedPref(this);
+        if (sharedPref.loadNightModeState() == true) {
+            setTheme(R.style.DarkTheme);
+        } else { setTheme(R.style.AppTheme); }
+
         setContentView(R.layout.content_rider_main);
 
         // map

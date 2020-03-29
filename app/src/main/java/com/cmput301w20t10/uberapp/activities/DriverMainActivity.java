@@ -2,32 +2,43 @@ package com.cmput301w20t10.uberapp.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.health.SystemHealthManager;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.animation.Animation;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.MutableLiveData;
 
+import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.database.RideRequestDAO;
 import com.cmput301w20t10.uberapp.database.UnpairedRideListDAO;
+import com.cmput301w20t10.uberapp.database.UserDAO;
 import com.cmput301w20t10.uberapp.models.RequestList;
 import com.cmput301w20t10.uberapp.models.ResizeAnimation;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.RideRequestListContent;
-import com.cmput301w20t10.uberapp.models.Route;
+import com.cmput301w20t10.uberapp.models.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -43,9 +54,14 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,24 +70,27 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DriverMainActivity extends BaseActivity implements OnMapReadyCallback, TaskLoadedCallback {
 
-    private String USER_REFERENCE = "userReference";
-    private String USERNAME = "username";
-    private String IMAGE = "image";
-    private String FIRST_NAME = "firstName";
-    private String LAST_NAME = "lastName";
+    private static final String LAST_LOCATION_KEY = "location";
+    private static final String CAMERA_DIRECTION_KEY = "camera_direction";
+    private static final String USER_REFERENCE = "userReference";
+    private static final String USERNAME = "username";
+    private static final String IMAGE = "image";
+    private static final String FIRST_NAME = "firstName";
+    private static final String LAST_NAME = "lastName";
 
     private static final int REQUEST_CODE = 101;
-    private boolean locationPermissionGranted;
 
     private GoogleMap mainMap;
     private Location currentLocation;
-    private Location lastKnownLocation;
+    private boolean locationPermissionGranted;
     private FusedLocationProviderClient client;
 
     Polyline currentPolyline;
 
     private MarkerOptions startPin;
     private MarkerOptions endPin;
+
+    SharedPref sharedPref;
 
     ListView requestList;
     ArrayAdapter<RideRequestListContent> requestAdapter;
@@ -85,7 +104,18 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.content_driver_main);
+
+        client = LocationServices.getFusedLocationProviderClient(this);
+
+        requestLocationPermission();
+
+        db = FirebaseFirestore.getInstance();
+
+        // Retrieve location and camera direction from savedInstanceState
+        if (savedInstanceState != null) {
+            currentLocation = savedInstanceState.getParcelable(LAST_LOCATION_KEY);
+            CameraPosition cameraPosition = savedInstanceState.getParcelable(CAMERA_DIRECTION_KEY);
+        }
 
         Display display = this.getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -94,17 +124,23 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         final int collapsedHeight = 320;
         final int expandedHeight = height / 2;
 
+        sharedPref = new SharedPref(this);
+        System.out.println("SHARED: " + sharedPref);
+        if (sharedPref.loadNightModeState() == true) {
+            setTheme(R.style.DarkTheme);
+        } else { setTheme(R.style.AppTheme); }
+
+        setContentView(R.layout.content_driver_main);
+
         // map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        client = LocationServices.getFusedLocationProviderClient(this);
 
         requestList = findViewById(R.id.ride_request_list);
         requestDataList = new ArrayList<>();
 
-        db = FirebaseFirestore.getInstance();
         MutableLiveData<List<RideRequest>> liveRideRequest = UnpairedRideListDAO.getAllUnpairedRideRequest();
         AtomicInteger counter = new AtomicInteger(0);
         liveRideRequest.observe(this, rideRequests -> {
@@ -126,8 +162,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                                 String firstName = (String) userSnapshot.get(FIRST_NAME);
                                 String lastName = (String) userSnapshot.get(LAST_NAME);
                                 float[] distance = new float[1];
-                                Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(),
-                                        startDest.latitude, startDest.longitude, distance);
+                                Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), startDest.latitude, startDest.longitude, distance);
                                 RideRequestListContent rideRequest = new RideRequestListContent(username, distance[0] / 1000, offer,
                                         imageURL, firstName, lastName, startDest, endDest,
                                         rideRequestReference, unpairedReference);
@@ -153,35 +188,62 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             dropPins("Start Destination", startDest, "End Destination",  endDest);
             new FetchURL(DriverMainActivity.this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
             Button acceptButton = view.findViewById(R.id.accept_request_button);
+            DocumentReference rideRequestRef = rideRequest.getRideRequestReference();
+
             /**
              * Work in progress
              * Not sure how we want to handle accepting and requesting yet
              */
-//            acceptButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
+            acceptButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    System.out.println("MACA: " + rideRequest.getRideRequestReference().getClass().getName());
+                    System.out.println("MACA: " + Application.getInstance().getCurrentUser().getClass().getName());
+                    System.out.println("MACA2: " + rideRequest.getRideRequestReference().getId());
+                    UserDAO dao = new UserDAO();
+//                    MutableLiveData<User> liveData = dao.getUserByUserID()
+
 //                    rideRequest.getRideRequestReference()
 //                            .update("driverReference", "LOL");
 //                    rideRequest.getUnpairedReference()
 //                            .delete();
-//                }
-//            });
+                }
+            });
+
+            ImageButton riderPictureButton = view.findViewById(R.id.profile_picture);
+            riderPictureButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    db.collection("users")
+                            .whereEqualTo("username", rideRequest.getUsername())
+                            .get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    QuerySnapshot thing = task.getResult();
+                                    System.out.println("MACA10: " + thing.getDocuments().get(0));
+                                }
+                            });
+                }
+            });
+
         });
+}
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        if (mainMap != null) {
+            savedInstanceState.putParcelable(CAMERA_DIRECTION_KEY, mainMap.getCameraPosition());
+            savedInstanceState.putParcelable(LAST_LOCATION_KEY, currentLocation);
+            super.onSaveInstanceState(savedInstanceState);
+        }
     }
-
-    public void onPicturePressed(View view) {
-        /**
-         * GOTO USER PROFILE
-         */
-    }
-
-
 
     /*
      * toggle() is code from Stack overflow used to toggle expansion of listview item
      * URL of question: https://stackoverflow.com/questions/12522348
      * Asked by: Ethan Allen, https://stackoverflow.com/users/546509/ethan-allen
      * Answered by: Leonardo Cardoso, https://stackoverflow.com/users/1255990/leonardo-cardoso
+     * Answer: https://stackoverflow.com/a/22160822
      */
     private void toggle(View view, final int position) {
         RideRequestListContent rideRequest = requestDataList.get(position);
@@ -274,10 +336,11 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationPermissionGranted = true;
         } else {
+            Toast.makeText(getApplicationContext(), "Location permission required", Toast.LENGTH_LONG).show();
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
+            finish();
         }
     }
-
 
     /**
      * Manipulates the map once available.
@@ -291,9 +354,10 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mainMap = googleMap;
-        googleMap.setMyLocationEnabled(true);
-        requestLocationPermission();
         getCurrentLocation();
+        if (locationPermissionGranted) {
+            googleMap.setMyLocationEnabled(true);
+        }
     }
 
     private String createUrl(LatLng startDest, LatLng endDest) {
@@ -321,28 +385,20 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
          * URL: https://www.youtube.com/watch?v=boyyLhXAZAQ
          */
         // get last know location of device
-        client.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    currentLocation = location;
-
-//                    currentMarker.setVisible(false);
-                    mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
-                    CameraPosition cameraPosition = new CameraPosition.Builder()
-                            .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
-                            .zoom(17)                   // Sets the zoom
-                            .build();                   // Creates a CameraPosition from the builder
-                    mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                }
+        client.getLastLocation().addOnSuccessListener(this, location -> {
+            if (location != null) {
+                currentLocation = location;
+                mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
+                CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
+                        .zoom(17)                   // Sets the zoom
+                        .build();                   // Creates a CameraPosition from the builder
+                mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
         });
     }
 
     private void moveCamera(Marker startMarker, Marker endMarker){
-        //Log.d(TAG, "moveCamers: moving the camera to: lat " + latLng.latitude + ", lng: " + latLng.longitude);
-        //mainMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
         builder.include(startMarker.getPosition());

@@ -24,7 +24,7 @@ import static android.content.ContentValues.TAG;
  *
  * @author Allan Manuba
  */
-class UserDAO extends DAOBase<UserEntity> {
+public class UserDAO extends DAOBase<UserEntity> {
     private static final String COLLECTION = "users";
     final static String LOC = "Tomate: UserDAO: ";
 
@@ -55,11 +55,13 @@ class UserDAO extends DAOBase<UserEntity> {
         MutableLiveData<UserEntity> userLiveData = new MutableLiveData<>();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        System.out.println("Username: " + username);
         db.collection(COLLECTION)
                 .whereEqualTo(UserEntity.Field.USERNAME.toString(), username)
                 .whereEqualTo(UserEntity.Field.PASSWORD.toString(), password)
                 .get()
                 .addOnCompleteListener(task -> {
+                    System.out.println("Task: " + task.getResult().getDocuments().get(0).get("userReference"));
                     if (task.isSuccessful()) {
                         if (task.getResult().isEmpty()) {
                             userLiveData.setValue(null);

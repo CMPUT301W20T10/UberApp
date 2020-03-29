@@ -37,6 +37,8 @@ public class RideRequestListContent implements Comparable<RideRequestListContent
         this.isOpen = false;
     }
 
+
+
     public String getUsername() {
         return username;
     }

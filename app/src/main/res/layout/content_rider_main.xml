@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+
     <!-- region Actual visible layout -->
     <fragment
         android:id="@+id/map"
@@ -19,15 +20,17 @@
         app:layout_constraintRight_toRightOf="parent"/>
 
     <!--This is included to add Menu Floating Action Buttons-->
-    <include layout="@layout/float_main" />
+    <include layout="@layout/float_main"/>
 
     <!-- Clickable true avoids touch events being passed to maps -->
     <androidx.cardview.widget.CardView
         android:clickable="true"
+        app:cardElevation="5dp"
         android:id="@+id/card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        app:cardBackgroundColor="?attr/backgroundColor"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -56,6 +59,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="parent"
+                android:textColorHint="?attr/textHintColor"
                 app:layout_constraintBottom_toTopOf="@id/layout_destination"
                 app:layout_constraintStart_toEndOf="@id/card_left_icon"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -68,7 +72,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Starting point"
-                    android:inputType="text" />
+                    android:textColor="?attr/textColor"
+                    android:inputType="text"
+                    android:background="?attr/editTextBackgroundColor" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -76,6 +82,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:textColorHint="?attr/textHintColor"
                 app:layout_constraintStart_toStartOf="@id/layout_starting_point"
                 app:layout_constraintEnd_toEndOf="@id/layout_starting_point"
                 app:layout_constraintTop_toBottomOf="@id/layout_starting_point"
@@ -89,7 +96,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Destination"
-                    android:inputType="text" />
+                    android:textColor="?attr/textColor"
+                    android:inputType="text"
+                    android:background="?attr/editTextBackgroundColor"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -97,6 +106,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColorHint="?attr/textHintColor"
                 app:layout_constraintTop_toBottomOf="@id/layout_destination"
                 app:layout_constraintBottom_toTopOf="@id/button_new_ride"
                 app:startIconContentDescription="Attach money icon"
@@ -105,8 +115,10 @@
                     android:id="@+id/text_price_offer"
                     android:inputType="numberDecimal"
                     android:hint="Price offer"
+                    android:textColor="?attr/textColor"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:background="?attr/editTextBackgroundColor"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button
