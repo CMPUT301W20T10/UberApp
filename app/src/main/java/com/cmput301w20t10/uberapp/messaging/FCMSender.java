@@ -1,29 +1,17 @@
 package com.cmput301w20t10.uberapp.messaging;
 
-import android.content.Context;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.android.volley.Response;
-import com.android.volley.toolbox.JsonObjectRequest;
-
-import org.json.JSONObject;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
 public class FCMSender {
 
-    private static final String FCM_API = "https://fcm.googleapis.com/fcm/send";
-    private static final String SERVER_KEY = "key=" + "";
-    private static final String CONTENT_TYPE = "application/json";
+    public static void sendMessage(String destinationToken) {
+        RemoteMessage message = new RemoteMessage.Builder(destinationToken)
+                .addData("header", "Ride complete")
+                .addData("body", "Your ride has been completed!")
+                .build();
 
-
-    private void sendNotification(Context context, JSONObject notification) {
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(FCM_API, notification,
-                response -> Log.d("UBER FCM", "onResponse: " + response.toString()),
-                (error) -> {
-                    Toast.makeText(context, "Request error", Toast.LENGTH_LONG).show();
-                    Log.e("UBER FCM", "onErrorResponse: Didn't work");
-                });
+        FirebaseMessaging.getInstance().send(message);
     }
-
 
 }

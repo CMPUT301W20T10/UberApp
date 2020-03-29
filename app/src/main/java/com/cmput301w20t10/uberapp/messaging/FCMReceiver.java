@@ -18,7 +18,6 @@ public class FCMReceiver extends FirebaseMessagingService {
     public void onNewToken(String token) {
         Log.d("UBER FCM", "Refreshed token: " + token);
         Application.getInstance().setMessagingToken(token);
-        // Todo(Joshua): Save the user's token in the database
     }
 
 
@@ -46,16 +45,22 @@ public class FCMReceiver extends FirebaseMessagingService {
          *
          */
 
+
+        // The messages sent by our app are data messages with two data elements
+        // header and body, the respective elements for the notification
+        // Todo(Joshua): Determine the correct activity to send the user to
         Log.d("UBER FCM", "From: " + remoteMessage.getFrom());
         if (remoteMessage.getData().size() > 0) {
             Log.d("UBER FCM", "Message data payload: " + remoteMessage.getData());
+            NotificationService.sendNotification(remoteMessage.getData().get("header"), remoteMessage.getData().get("body"),
+                    getApplicationContext(), LoginActivity.class);
         }
 
-        if (remoteMessage.getNotification() != null) {
-            Log.d("UBER FCM", "Message notification body: " + remoteMessage.getNotification().getBody());
-            NotificationService.sendNotification(remoteMessage.getNotification().getTitle(),
-                    remoteMessage.getNotification().getBody(), getApplicationContext(), LoginActivity.class);
-        }
+//        if (remoteMessage.getNotification() != null) {
+//            Log.d("UBER FCM", "Message notification body: " + remoteMessage.getNotification().getBody());
+//            NotificationService.sendNotification(remoteMessage.getNotification().getTitle(),
+//                    remoteMessage.getNotification().getBody(), getApplicationContext(), LoginActivity.class);
+//        }
 
 
     }

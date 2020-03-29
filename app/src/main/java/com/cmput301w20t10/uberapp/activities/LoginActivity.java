@@ -100,8 +100,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (rider != null) {
                     Log.d("Testing", "Login Success");
                     Application.getInstance().setUser(rider);
-                    Thread thread = new Thread(this::updateFCMToken);
-                    thread.start();
+                    updateFCMToken();
                     Intent intent = new Intent(this, RiderMainActivity.class);
                     startActivity(intent);
                 } else {
@@ -117,8 +116,7 @@ public class LoginActivity extends AppCompatActivity {
                     Log.d("Testing", "Login Success");
                     Log.d("Testing", "Driver Main Activity not yet in this branch");
                     Application.getInstance().setUser(driver);
-                    Thread thread = new Thread(this::updateFCMToken);
-                    thread.start();
+                    updateFCMToken();
                     Intent intent = new Intent(this, DriverMainActivity.class);
                     startActivity(intent);
                 } else {
