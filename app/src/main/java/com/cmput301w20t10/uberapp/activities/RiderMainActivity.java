@@ -188,10 +188,11 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
                     .build();                   // Creates a CameraPosition from the builder
             mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
-            
+            editTextStartingPoint.setText(" ");
+            editTextDestination.setText(" ");
+
+
         }
-
-
 
 
     }
