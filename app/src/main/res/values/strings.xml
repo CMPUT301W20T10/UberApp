@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">UberApp</string>
 
+    <string name="dark_mode">Dark Mode</string>
+
     <!-- region Login screen -->
     <string name="email_field_hint">E-mail</string>
     <string name="password_field_hint">Password</string>
@@ -8,7 +10,9 @@
     <string name="radio_button_driver">Driver</string>
     <string name="login_button">Log In</string>
     <string name="register_button">Register</string>
+    <string name="remember_box">Remember me</string>
     <!-- endregion Login screen -->
+
     <!-- region Register screen -->
     <string name="first_name_field_hint">First name</string>
     <string name="last_name_field_hint">Last name</string>
@@ -23,20 +27,8 @@
     <!-- region Driver main screen generated string -->
     <string name="title_activity_driver_main_screen">Driver</string>
     <string name="title_activity_driver_main">DriverMainActivity</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
-
-    <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
-    <string name="menu_tools">Tools</string>
-    <string name="menu_share">Share</string>
-    <string name="menu_send">Send</string>
     <string name="title_activity_driver_main_map">Map</string>
+    <string name="current_active_ride">Current active ride</string>
     <!-- endregion Driver main screen generated string -->
 
     <!-- region Ride request strings -->
@@ -44,14 +36,26 @@
     <string name="request_distance">XXkm away</string>
     <string name="request_offer">Offer: $XXX</string>
     <string name="request_accept">Accept</string>
+    <string name="request_cancel">Cancel</string>
     <string name="request_first_name">Firstname</string>
     <string name="request_last_name">Lastname</string>
     <string name="request_start_dest">Start Destination</string>
     <string name="request_end_dest">End Destination</string>
+    <string name="start_end_distance">XXkm</string>
+    <!-- endRide request strings -->
     <!-- endregion Ride request strings -->
 
     <!-- region Message passing strings -->
     <string name="default_notification_channel_id">fcm_default_channel</string>
     <!-- endregion Message passing strings -->
+
+    <!-- region Rating Strings -->
+    <string name="ratingfrag_title">Rate Your Ride:</string>
+    <string name="ratingfrag_driver_subheader">With:</string>
+    <string name="ratingfrag_tripsummary_subheader">From:</string>
+    <string name="ratingfrag_tripsummary_template">STARTLOC to ENDLOC</string>
+    <string name="ratingfrag_rateup_description">Thumbs Up</string>
+    <string name="ratingfrag_ratedown_description">Thumbs Down</string>
+    <!-- endregion Rating Strings -->
 
 </resources>

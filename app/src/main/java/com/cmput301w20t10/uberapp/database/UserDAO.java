@@ -55,11 +55,13 @@ public class UserDAO extends DAOBase<UserEntity, User> {
         MutableLiveData<UserEntity> userLiveData = new MutableLiveData<>();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        System.out.println("Username: " + username);
         db.collection(COLLECTION)
                 .whereEqualTo(UserEntity.Field.USERNAME.toString(), username)
                 .whereEqualTo(UserEntity.Field.PASSWORD.toString(), password)
                 .get()
                 .addOnCompleteListener(task -> {
+                    System.out.println("Task: " + task.getResult().getDocuments().get(0).get("userReference"));
                     if (task.isSuccessful()) {
                         if (task.getResult().isEmpty()) {
                             Log.d(TAG, LOC + "logIn: No matching data");
@@ -80,6 +82,24 @@ public class UserDAO extends DAOBase<UserEntity, User> {
                 });
 
         return userLiveData;
+    }
+
+    public MutableLiveData<Integer> checkForUserCount(String username) {
+        MutableLiveData<Integer> liveData = new MutableLiveData<>();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection(COLLECTION)
+                .whereEqualTo(UserEntity.Field.USERNAME.toString(), username)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        liveData.setValue(task.getResult().size());
+                    } else {
+                        liveData.setValue(null);
+                    }
+                });
+
+        return liveData;
     }
 
     /**

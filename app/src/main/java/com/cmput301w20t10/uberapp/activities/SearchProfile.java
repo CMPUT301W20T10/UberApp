@@ -17,7 +17,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 
-
+/*
+ * This was created based on information from user Alex Mamo : https://stackoverflow.com/users/5246885/alex-mamo
+ * from the stackoverflow post : https://stackoverflow.com/a/49277842
+ * Alex is a Google Developer Expert for Firebase.
+ * His answer help create this activity(SearchProfile.java) by making a recyclerview list update with FirestoreRecycleAdapter in order to create a live list connected to the firestore.
+ */
 
 
 // TODO: 2020-03-13 Need to add functionality: Search specific names, click on searched user profile?  to contact that user? 
@@ -29,9 +34,17 @@ public class SearchProfile extends BaseActivity {
     private FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
     private Query query;
 
+    SharedPref sharedPref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sharedPref = new SharedPref(this);
+        if (sharedPref.loadNightModeState() == true) {
+            setTheme(R.style.DarkTheme);
+        } else { setTheme(R.style.AppTheme); }
+
         setContentView(R.layout.search_profile);
         SearchField = (SearchView) findViewById(R.id.searchProfile);
         setUpSearchList();
