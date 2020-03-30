@@ -17,10 +17,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 
+/*
+ * This was created based on information from user Alex Mamo : https://stackoverflow.com/users/5246885/alex-mamo
+ * from the stackoverflow post : https://stackoverflow.com/a/49277842
+ * Alex is a Google Developer Expert for Firebase.
+ * His answer help create this activity(SearchProfile.java) by making a recyclerview list update with FirestoreRecycleAdapter in order to create a live list connected to the firestore.
+ */
 
 
-
-// TODO: 2020-03-13 Need to add functionality: Search specific names, click on searched user profile?  to contact that user? 
 public class SearchProfile extends BaseActivity {
 
     private SearchView SearchField;
@@ -29,9 +33,17 @@ public class SearchProfile extends BaseActivity {
     private FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
     private Query query;
 
+    SharedPref sharedPref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sharedPref = new SharedPref(this);
+        if (sharedPref.loadNightModeState() == true) {
+            setTheme(R.style.DarkTheme);
+        } else { setTheme(R.style.AppTheme); }
+
         setContentView(R.layout.search_profile);
         SearchField = (SearchView) findViewById(R.id.searchProfile);
         setUpSearchList();
@@ -54,6 +66,10 @@ public class SearchProfile extends BaseActivity {
     }
 
 
+    /**
+     * Call to populate recyclerlist with adapter filled from database based on query.
+     * @param searchText - the text of username in which you want to search for.
+     */
     private void searchList(String searchText) {
         onStop();
         query = rootRef.collection("users").orderBy("username").startAt(searchText).endAt(searchText + "\uf8ff");
@@ -72,6 +88,10 @@ public class SearchProfile extends BaseActivity {
             }
         });
     }
+
+    /**
+     * Called to setup a searchlist with no search query. Just populates a search adapter with data from the DB.
+     */
     private void setUpSearchList() {
         query = rootRef.collection("users").orderBy("username");
         FirestoreRecyclerOptions<User> options = new FirestoreRecyclerOptions.Builder<User>()

@@ -1,6 +1,7 @@
 package com.cmput301w20t10.uberapp.models;
 
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,9 +18,15 @@ public class rideRequestHolder {
     private TextView offer;
     private TextView firstName;
     private TextView lastName;
+    private TextView startDest;
+    private TextView endDest;
+    private TextView startEndDist;
+    private ImageView profilePic;
     private Button acceptButton;
 
-    public rideRequestHolder(LinearLayout textViewWrap, TextView username, TextView distance, TextView offer, TextView firstName, TextView lastName, Button acceptButton) {
+    public rideRequestHolder(LinearLayout textViewWrap, TextView username, TextView distance, TextView offer,
+                             TextView firstName, TextView lastName, TextView startDest, TextView endDest, TextView startEndDist,
+                             ImageView profilePic, Button acceptButton) {
         super();
         this.textViewWrap = textViewWrap;
         this.username = username;
@@ -27,6 +34,10 @@ public class rideRequestHolder {
         this.offer = offer;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.startDest = startDest;
+        this.endDest = endDest;
+        this.startEndDist = startEndDist;
+        this.profilePic = profilePic;
         this.acceptButton = acceptButton;
     }
 
@@ -68,6 +79,38 @@ public class rideRequestHolder {
 
     public void setLastName(TextView lastName) {
         this.lastName = lastName;
+    }
+
+    public TextView getStartDest() {
+        return startDest;
+    }
+
+    public void setStartDest(TextView startDest) {
+        this.startDest = startDest;
+    }
+
+    public TextView getEndDest() {
+        return endDest;
+    }
+
+    public void setEndDest(TextView endDest) {
+        this.endDest = endDest;
+    }
+
+    public TextView getStartEndDist() {
+        return startEndDist;
+    }
+
+    public void setStartEndDist(TextView startEndDist) {
+        this.startEndDist = startEndDist;
+    }
+
+    public ImageView getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(ImageView profilePic) {
+        this.profilePic = profilePic;
     }
 
     public Button getAcceptButton() {

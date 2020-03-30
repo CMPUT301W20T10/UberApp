@@ -23,6 +23,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 public class SearchAdapter extends FirestoreRecyclerAdapter<User, SearchAdapter.UserViewHolder> {
     private OnItemClickListener listener;
 
+    /**
+     * Supers the options - updates the searchAdapter with new options.
+     * @param options -query options.
+     */
     public SearchAdapter(@NonNull FirestoreRecyclerOptions<User> options) {
         super(options);
     }
@@ -33,6 +37,11 @@ public class SearchAdapter extends FirestoreRecyclerAdapter<User, SearchAdapter.
     }
 
 
+    /**
+     * @param parent -The current layout you're on
+     * @param viewType -
+     * @return - view holder (view on how the data should be displayed)
+     */
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

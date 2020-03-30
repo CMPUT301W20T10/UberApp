@@ -74,7 +74,7 @@ public class UnpairedRideListDAO {
      *     <ul><b>Null:</b> Search was unsuccessful.</ul>
      * </li>
      */
-    public MutableLiveData<List<RideRequest>> getAllUnpairedRideRequest() {
+    public static MutableLiveData<List<RideRequest>> getAllUnpairedRideRequest() {
         final GetAllUnpairedRideRequestTask task = new GetAllUnpairedRideRequestTask();
         return task.run();
     }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/text_wrap"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -21,18 +22,26 @@
                 android:layout_width="320px"
                 android:layout_height="320px"
                 android:background="@null"
-                android:onClick="onPicturePressed"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_person_black_24dp"></ImageButton>
 
             <TextView
+                android:id="@+id/tap_profile_hint"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:clickable="false"
                 android:gravity="center"
+                android:visibility="invisible"
                 android:text="Tap to view\nprofile"
-                android:textColor="#83FF0000"></TextView>
+                android:textColor="#83FF0000">
+            </TextView>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:srcCompat="?attr/requestPictureBorder"></ImageView>
+
         </FrameLayout>
 
         <LinearLayout
@@ -50,18 +59,17 @@
                     android:layout_height="wrap_content"
                     android:textSize="80px"
                     android:paddingRight="20px"
-                    android:textColor="@android:color/black"
-                    android:text="@string/request_first_name">
-
+                    android:text="@string/request_first_name"
+                    android:textColor="?attr/textColor">
                 </TextView>
+
                 <TextView
                     android:id="@+id/request_last_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="80px"
-                    android:textColor="@android:color/black"
+                    android:textColor="?attr/textColor"
                     android:text="@string/request_last_name">
-
                 </TextView>
             </LinearLayout>
 
@@ -70,20 +78,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/request_distance"
-                android:textColor="@android:color/black"
+                android:textColor="?attr/textColor"
                 android:textSize="80px"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/request_username" />
+                app:layout_constraintTop_toBottomOf="@+id/request_username">
+            </TextView>
 
             <TextView
                 android:id="@+id/request_offer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/request_offer"
-                android:textColor="@android:color/black"
+                android:textColor="?attr/textColor"
                 android:textSize="80px"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/request_distance" />
+                app:layout_constraintTop_toBottomOf="@+id/request_distance">
+            </TextView>
+
         </LinearLayout>
 
     </LinearLayout>
@@ -93,51 +104,132 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/request_username"
-        android:textColor="@android:color/black"
-        android:textSize="70px"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
-
-    </TextView>
-
-    <TextView
-        android:id="@+id/request_start_dest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/request_start_dest"
-        android:textColor="@android:color/black"
-        android:textSize="70px"
-        android:background="@drawable/border"
-        android:layout_marginBottom="10px"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
-    </TextView>
-    <TextView
-        android:id="@+id/request_end_dest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/request_end_dest"
-        android:textColor="@android:color/black"
-        android:textSize="70px"
-        android:background="@drawable/border"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
+        android:textColor="?attr/textColor"
+        android:textSize="70px">
 
     </TextView>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center">
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="-15px"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="80px"
+                android:layout_height="80px"
+                android:layout_gravity="center_vertical"
+                android:paddingHorizontal="10px"
+                app:srcCompat="@mipmap/startpos">
+            </ImageView>
+
+            <EditText
+                android:id="@+id/request_start_dest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/request_start_dest"
+                android:backgroundTint="?attr/editTextBackgroundColor"
+                android:textColor="?attr/textColor"
+                android:singleLine="true"
+                android:inputType="textNoSuggestions"
+                android:textSize="70px"
+                android:layout_marginRight="20px"
+                android:background="@drawable/start_border">
+            </EditText>
+
+        </LinearLayout>
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30px"
+            app:srcCompat="@mipmap/ellipses">
+        </ImageView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-15px"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="80px"
+                android:layout_height="80px"
+                android:layout_gravity="center_vertical"
+                android:paddingHorizontal="10px"
+                app:srcCompat="@mipmap/destination"></ImageView>
+
+            <EditText
+                android:id="@+id/request_end_dest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/request_end_dest"
+                android:textColor="?attr/textColor"
+                android:backgroundTint="?attr/editTextBackgroundColor"
+                android:singleLine="true"
+                android:inputType="textNoSuggestions"
+                android:textSize="70px"
+                android:layout_marginRight="20px"
+                android:background="@drawable/dest_border">
+            </EditText>
+        </LinearLayout>
+    </LinearLayout>
+
+
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:id="@+id/cancel_request_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel_button"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        </Button>
+
+        <TextView
+            android:id="@+id/start_end_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:text="@string/start_end_distance"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="40px"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.956"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        </TextView>
 
         <Button
             android:id="@+id/accept_request_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/request_accept">
-        </Button>
+            android:text="@string/request_accept"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/start_end_distance"></Button>
 
-    </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
 
 </LinearLayout>

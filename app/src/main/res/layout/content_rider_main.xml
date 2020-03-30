@@ -19,7 +19,6 @@
         app:layout_constraintRight_toRightOf="parent"/>
 
     <!--This is included to add Menu Floating Action Buttons-->
-
     <include layout="@layout/float_main" />
 
     <!-- Clickable true avoids touch events being passed to maps -->
@@ -29,6 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        app:cardBackgroundColor="?attr/backgroundColor"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -56,6 +56,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:textColorHint="?attr/textHintColor"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toTopOf="@id/layout_destination"
                 app:layout_constraintStart_toEndOf="@id/card_left_icon"
@@ -68,6 +69,8 @@
                     android:id="@+id/text_starting_point"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="?attr/editTextBackgroundColor"
+                    android:textColor="?attr/textColor"
                     android:hint="Starting point"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -77,6 +80,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:textColorHint="?attr/textHintColor"
                 app:layout_constraintStart_toStartOf="@id/layout_starting_point"
                 app:layout_constraintEnd_toEndOf="@id/layout_starting_point"
                 app:layout_constraintTop_toBottomOf="@id/layout_starting_point"
@@ -89,6 +93,8 @@
                     android:id="@+id/text_destination"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="?attr/editTextBackgroundColor"
+                    android:textColor="?attr/textColor"
                     android:hint="Destination"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -98,6 +104,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColorHint="?attr/textHintColor"
                 app:layout_constraintTop_toBottomOf="@id/layout_destination"
                 app:layout_constraintBottom_toTopOf="@id/button_new_ride"
                 app:startIconContentDescription="Attach money icon"
@@ -105,6 +112,8 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/text_price_offer"
                     android:inputType="numberDecimal"
+                    android:background="?attr/editTextBackgroundColor"
+                    android:textColor="?attr/textColor"
                     android:hint="Price offer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
@@ -123,21 +132,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
-
-    <FrameLayout
-        android:id="@+id/fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:elevation="2dp"
-        android:clickable="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-    </FrameLayout>
     <!-- endregion -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
