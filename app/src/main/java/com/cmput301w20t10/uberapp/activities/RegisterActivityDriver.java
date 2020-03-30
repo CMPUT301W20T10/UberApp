@@ -48,11 +48,19 @@ public class RegisterActivityDriver extends AppCompatActivity {
 
     }
 
+    /**
+     * Returns back to login screen
+     * @param view - current view
+     */
     public void onCancelPress(View view) {
         Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
         startActivity(intent);
     }
 
+    /**
+     * Handles registering an account. verifys information is correct and unique username and also inputs into database. If everything passes, returns to  login screen.
+     * @param view - current view
+     */
     public void onRegisterPress(View view) {
         String password = passwordField.getText().toString();
         String conPassword = confirmPasswordField.getText().toString();
@@ -125,16 +133,6 @@ public class RegisterActivityDriver extends AppCompatActivity {
             }
         });
 
-        // Submit info to database
-        // Todo(Joshua): Verify this is the proper way to add user to DB
-/*        DatabaseManager.getInstance().registerRider(
-                usernameField.getText().toString(),
-                    passwordField.getText().toString(),
-                    emailField.getText().toString(),
-                    firstNameField.getText().toString(),
-                    lastNameField.getText().toString(),
-                    phoneField.getText().toString(),
-                    this);*/
     }
 
     /**

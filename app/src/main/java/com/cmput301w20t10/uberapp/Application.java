@@ -7,6 +7,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.cmput301w20t10.uberapp.models.User;
 
+/**
+ * This singleton was made to hold the information of the current user logged into the application.
+ */
 public final class Application {
 
     private static final Application INSTANCE = new Application();

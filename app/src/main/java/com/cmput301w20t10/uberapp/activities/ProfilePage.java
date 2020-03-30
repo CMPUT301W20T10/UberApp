@@ -29,6 +29,9 @@ public class ProfilePage extends BaseActivity {
         });
     }
 
+    /**
+     * When activity opens, gather info from Database based on currentuser supplied from Application singleton.
+     */
     @Override
     protected void onResume() {
         super.onResume();

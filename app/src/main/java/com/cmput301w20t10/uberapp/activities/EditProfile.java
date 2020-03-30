@@ -60,13 +60,6 @@ public class EditProfile extends AppCompatActivity {
         });
 
         butSave.setOnClickListener(v -> {
-            /*
-            need to save all values/changed values/appropriate values
-            then need to access the USER/profile/Driver/Rider Class
-            using getters/setters, compare and save the updated values from EditProfile activity
-            save to firestore database?
-            use finish(); to return back to previous activity - the ProfilePage
-            */
             //Check that the email is valid
             String firstName = firstNameField.getText().toString();
             String lastName = lastNameField.getText().toString();

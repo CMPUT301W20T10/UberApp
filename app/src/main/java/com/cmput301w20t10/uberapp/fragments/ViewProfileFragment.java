@@ -40,9 +40,17 @@ public class ViewProfileFragment extends DialogFragment {
     private User fetchedUser;
     private Dialog dialog;
 
+    /**
+     * Empty constructor needed for fragments.
+     */
     public ViewProfileFragment() {
     }
 
+    /**
+     * @param userID  - users unique Document ID
+     * @param username - Users unique username.
+     * @return The fragment to be used/created.
+     */
     public static ViewProfileFragment newInstance(String userID, String username) {
         ViewProfileFragment frag = new ViewProfileFragment();
         Bundle args = new Bundle();
@@ -84,6 +92,9 @@ public class ViewProfileFragment extends DialogFragment {
         super.onStart();
     }
 
+    /**
+     * When it opens, begin to gather the information through livedata to populate a User.
+     */
     @Override
     public void onResume() {
         super.onResume();
