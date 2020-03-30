@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class BasicDAOTest extends DatabaseTestBase {
-    private static final String TAG = "Tomate";
+    private static final String TAG = "Tomate: ";
 
     @Before
     public void initialize() {
@@ -266,7 +266,7 @@ public class BasicDAOTest extends DatabaseTestBase {
             Observer<List<RideRequest>> observer = new AssertNotNullObserver<List<RideRequest>>(syncObject) {
                 @Override
                 public void onChanged(List<RideRequest> rideRequests) {
-                    if (rideRequests.size() > 1) {
+                    if (rideRequests.size() >= 1) {
                         super.onChanged(rideRequests);
                     }
                 }
