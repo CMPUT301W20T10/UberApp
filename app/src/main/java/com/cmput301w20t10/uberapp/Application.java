@@ -6,6 +6,7 @@ import android.content.Context;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.firestore.DocumentReference;
 
@@ -20,7 +21,7 @@ public final class Application {
     private volatile User user;
     private volatile String messagingToken;
 
-    private volatile DocumentReference currentRideDocument;
+    private volatile RideRequest selectedHistoryRequest;
 
     private Application() {
         this.user = null;
@@ -52,12 +53,12 @@ public final class Application {
         this.messagingToken = messagingToken;
     }
 
-    public void setCurrentRideDocument(DocumentReference currentRideDocument) {
-        this.currentRideDocument = currentRideDocument;
+    public void setSelectedHistoryRequest(RideRequest request) {
+        selectedHistoryRequest = request;
     }
 
-    public DocumentReference getCurrentRideDocument() {
-        return this.currentRideDocument;
+    public RideRequest getSelectedHistoryRequest() {
+        return selectedHistoryRequest;
     }
 
     public synchronized boolean isInBackground() {
