@@ -141,14 +141,13 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
      * Usage:
      * <pre>
      RideRequestDAO dao = new RideRequestDAO();
-     MutableLiveData<List<RideRequest>> liveData = dao.getAllActiveRideRequest(rider);
+     MutableLiveData<List<RideRequest>> liveData = dao.getAllActiveRideRequest(driver);
      liveData.observe(mainLifecycleOwner, rideList -> {
          // getAllActive sends an empty list knowing there's an internet connection
          // then updates for every item, increasing the size of the list
          // during these updates, when we lose connection, we get null instead
          if (rideList != null && rideList.size() >= 1) {
             RideRequest rideRequest = rideList.get(0);
-
             // do stuff with ride request
          } else if (rideList == null) {
             // no internet connection
@@ -161,6 +160,60 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
      */
     public MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Driver driver) {
         GetAllActiveRideRequestTask task = new GetAllActiveRideRequestTask(driver);
+        return task.run();
+    }
+
+    /**
+     * Gets ride history for driver.<p>
+     * Usage:
+     * <pre>
+     RideRequestDAO dao = new RideRequestDAO();
+     MutableLiveData<List<RideRequest>> liveData = dao.getRideHistory(driver);
+     liveData.observe(mainLifecycleOwner, rideList -> {
+         // getAllActive sends an empty list knowing there's an internet connection
+         // then updates for every item, increasing the size of the list
+         // during these updates, when we lose connection, we get null instead
+         if (rideList != null && rideList.size() >= 1) {
+            RideRequest rideRequest = rideList.get(0);
+            // do stuff with ride request
+         } else if (rideList == null) {
+            // no internet connection
+         }
+     });
+     * </pre>
+     *
+     * @param   driver
+     * @return  MutableLiveData which returns a List<RideRequest> or null when there's an error
+     */
+    public MutableLiveData<List<RideRequest>> getRideHistory(Driver driver) {
+        GetRideRequestHistory task = new GetRideRequestHistory(driver);
+        return task.run();
+    }
+
+    /**
+     * Gets ride history for rider.<p>
+     * Usage:
+     * <pre>
+     RideRequestDAO dao = new RideRequestDAO();
+     MutableLiveData<List<RideRequest>> liveData = dao.getRideHistory(rider);
+     liveData.observe(mainLifecycleOwner, rideList -> {
+         // getAllActive sends an empty list knowing there's an internet connection
+         // then updates for every item, increasing the size of the list
+         // during these updates, when we lose connection, we get null instead
+         if (rideList != null && rideList.size() >= 1) {
+            RideRequest rideRequest = rideList.get(0);
+            // do stuff with ride request
+         } else if (rideList == null) {
+            // no internet connection
+         }
+     });
+     * </pre>
+     *
+     * @param   rider
+     * @return  MutableLiveData which returns a List<RideRequest> or null when there's an error
+     */
+    public MutableLiveData<List<RideRequest>> getRideHistory(Rider rider) {
+        GetRideRequestHistory task = new GetRideRequestHistory(rider);
         return task.run();
     }
 
@@ -196,23 +249,55 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.2.2
+ * Generalized GetAllActiveRideRequestTask to GetAllRideRequest to make it usable with
+ * GetRideRequestHistoryTask
+ *
  * @version 1.1.1
  */
-class GetAllActiveRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
-    private final static String LOC = RideRequestDAO.LOC + "GetAllActiveRideRequestTask: ";
+class GetAllActiveRideRequestTask extends GetAllRideRequestTask {
+    GetAllActiveRideRequestTask(Rider rider) {
+        super(rider.getTransactionList());
+    }
+
+    GetAllActiveRideRequestTask(Driver driver) {
+        super(driver.getActiveRideRequestList());
+    }
+}
+
+/**
+ * Sequence of functions required to get ride history
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.2.1
+ */
+class GetRideRequestHistory extends GetAllRideRequestTask {
+    GetRideRequestHistory(Rider rider) {
+        super(rider.getFinishedRideRequestList());
+    }
+
+    GetRideRequestHistory(Driver driver) {
+        super(driver.getFinishedRideRequestList());
+    }
+}
+
+/**
+ * Sequence of functions required to get all ride requests of a given list of document references
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.2.1
+ */
+class GetAllRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
+    private final static String LOC = RideRequestDAO.LOC + "GetAllRideRequestTask: ";
 
     private final int finalSize;
     private final List<DocumentReference> referenceList;
     private final List<RideRequest> rideRequestList;
 
-    GetAllActiveRideRequestTask(Rider rider) {
-        this.referenceList = rider.getActiveRideRequestList();
-        this.finalSize = this.referenceList.size();
-        this.rideRequestList = new ArrayList<>();
-    }
-
-    GetAllActiveRideRequestTask(Driver driver) {
-        this.referenceList = driver.getActiveRideRequestList();
+    GetAllRideRequestTask(List<DocumentReference> referenceList) {
+        this.referenceList = referenceList;
         this.finalSize = this.referenceList.size();
         this.rideRequestList = new ArrayList<>();
     }
