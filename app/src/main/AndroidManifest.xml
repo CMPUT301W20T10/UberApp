@@ -68,7 +68,13 @@
         <!-- endregion Message Passing-->
 
         <activity
-            android:name=".activities.RegisterActivity"
+            android:name=".activities.RegisterActivityRider"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity"
+            android:windowSoftInputMode="adjustPan">
+        </activity>
+        <activity
+            android:name=".activities.RegisterActivityDriver"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity"
             android:windowSoftInputMode="adjustPan">

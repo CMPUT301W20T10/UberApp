@@ -138,6 +138,18 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
         return task.run();
     }
 
+    /**
+     * Sends an empty list knowing there's an internet connection.
+     * For every subsequent update, the list increases in size.
+     * During these updates, when we lose connection, we get null instead of a list.
+     * The updates stop as soon as the list in the database is exhausted or when we lose connection
+     * i.e. we receive a null object instead of a list
+     *
+     * @param   driver
+     * @return              List<RideRequest> or null
+     *
+     * @version 1.1.1.1
+     */
     public MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Driver driver) {
         MutableLiveData<List<RideRequest>> mutableLiveData = new MutableLiveData<>();
         List<RideRequest> rideList = new ArrayList<>();

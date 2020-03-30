@@ -139,11 +139,18 @@ public class LoginActivity extends AppCompatActivity {
     public void onRegisterPressed(View view) {
 
         // NotificationService.sendNotification("Register Pressed", "You pressed the register button!", getApplicationContext(), RegisterActivity.class);
-
-        Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
-        String username = usernameField.getText().toString();
-        intent.putExtra("USERNAME", username);
-        startActivity(intent);
+        if (radioButtonRider.isChecked()) {
+            Intent intent = new Intent(getApplicationContext(), RegisterActivityRider.class);
+            String username = usernameField.getText().toString();
+            intent.putExtra("USERNAME", username);
+            startActivity(intent);
+        } else {
+            //driver register
+            Intent intent = new Intent(getApplicationContext(), RegisterActivityDriver.class);
+            String username = usernameField.getText().toString();
+            intent.putExtra("USERNAME", username);
+            startActivity(intent);
+        }
     }
 
 
