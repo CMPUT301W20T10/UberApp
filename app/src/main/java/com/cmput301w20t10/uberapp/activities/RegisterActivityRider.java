@@ -2,8 +2,10 @@ package com.cmput301w20t10.uberapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -26,6 +28,8 @@ import java.util.regex.Pattern;
  */
 public class RegisterActivityRider extends AppCompatActivity {
 
+    SharedPref sharedPref;
+
     private EditText firstNameField;
     private EditText lastNameField;
     private EditText usernameField;
@@ -37,6 +41,12 @@ public class RegisterActivityRider extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sharedPref = new SharedPref(this);
+        if (sharedPref.loadNightModeState() == true) {
+            setTheme(R.style.DarkTheme);
+        } else { setTheme(R.style.AppTheme); }
+
         setContentView(R.layout.activity_register);
 
         this.firstNameField = findViewById(R.id.first_name_field);
@@ -54,8 +64,7 @@ public class RegisterActivityRider extends AppCompatActivity {
     }
 
     public void onCancelPress(View view) {
-        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-        startActivity(intent);
+        finish();
     }
 
     public void onRegisterPress(View view) {
@@ -77,8 +86,11 @@ public class RegisterActivityRider extends AppCompatActivity {
 
         // Check that the passwords match the requirements
         if (!validatePassword(password)) {
-            Toast.makeText(getApplicationContext(), "Password does not meet requirements:\nMust contain a-z, A-Z and 0-9",
-                    Toast.LENGTH_LONG).show();
+            Toast toast = Toast.makeText(getApplicationContext(), "Password does not meet requirements:\nMinimum 8 characters long\nMust contain a-z, A-Z and 0-9",
+                    Toast.LENGTH_LONG);
+            TextView textView = toast.getView().findViewById(android.R.id.message);
+            textView.setGravity(Gravity.CENTER);
+            toast.show();
             return;
         }
 

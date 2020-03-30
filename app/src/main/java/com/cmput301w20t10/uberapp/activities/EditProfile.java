@@ -27,6 +27,9 @@ import java.util.regex.Pattern;
 
 /*Used https://firebase.google.com/docs/firestore/manage-data/add-data official documentation for updating data.*/
 public class EditProfile extends AppCompatActivity {
+
+    SharedPref sharedPref;
+
     Button butCancel;
     Button butSave;
     ImageButton butPicture;
@@ -35,6 +38,12 @@ public class EditProfile extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sharedPref = new SharedPref(this);
+        if (sharedPref.loadNightModeState() == true) {
+            setTheme(R.style.DarkTheme);
+        } else { setTheme(R.style.AppTheme); }
+
         setContentView(R.layout.edit_profile);
 
         this.firstNameField = findViewById(R.id.editFname);

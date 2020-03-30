@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:screenOrientation="portrait"
+    android:background="?attr/backgroundColor"
     tools:context=".activities.RegisterActivityRider">
 
     <ImageView
@@ -43,6 +44,8 @@
                 android:layout_marginLeft="50dp"
                 android:layout_marginRight="50dp"
                 android:ems="10"
+                android:textColor="?attr/textColor"
+                android:textColorHint="?attr/textHintColor"
                 android:hint="@string/first_name_field_hint"
                 android:inputType="textPersonName"
                 android:paddingTop="20dp" />
@@ -55,7 +58,9 @@
                 android:layout_marginRight="50dp"
                 android:autofillHints=""
                 android:ems="10"
+                android:textColor="?attr/textColor"
                 android:hint="@string/last_name_field_hint"
+                android:textColorHint="?attr/textHintColor"
                 android:inputType="textPersonName"
                 android:paddingTop="20dp" />
 
@@ -67,7 +72,9 @@
                 android:layout_marginLeft="50dp"
                 android:layout_marginRight="50dp"
                 android:ems="10"
+                android:textColor="?attr/textColor"
                 android:hint="@string/email_field_hint"
+                android:textColorHint="?attr/textHintColor"
                 android:inputType="textEmailAddress"
                 android:paddingTop="20dp" />
 
@@ -79,7 +86,9 @@
                 android:layout_marginLeft="50dp"
                 android:layout_marginRight="50dp"
                 android:ems="10"
+                android:textColor="?attr/textColor"
                 android:hint="@string/username_field_hint"
+                android:textColorHint="?attr/textHintColor"
                 android:inputType="textPersonName"
                 android:paddingTop="20dp" />
 
@@ -91,7 +100,9 @@
                 android:layout_marginLeft="50dp"
                 android:layout_marginRight="50dp"
                 android:ems="10"
+                android:textColor="?attr/textColor"
                 android:hint="@string/phone_field_hint"
+                android:textColorHint="?attr/textHintColor"
                 android:inputType="phone"
                 android:paddingTop="20dp" />
 
@@ -103,7 +114,9 @@
                 android:layout_marginLeft="50dp"
                 android:layout_marginRight="50dp"
                 android:ems="10"
+                android:textColor="?attr/textColor"
                 android:hint="@string/password_field_hint"
+                android:textColorHint="?attr/textHintColor"
                 android:inputType="textPassword"
                 android:paddingTop="20dp" />
 
@@ -115,7 +128,9 @@
                 android:layout_marginLeft="50dp"
                 android:layout_marginRight="50dp"
                 android:ems="10"
+                android:textColor="?attr/textColor"
                 android:hint="@string/confirm_password_field_hint"
+                android:textColorHint="?attr/textHintColor"
                 android:inputType="textPassword"
                 android:paddingTop="20dp" />
 

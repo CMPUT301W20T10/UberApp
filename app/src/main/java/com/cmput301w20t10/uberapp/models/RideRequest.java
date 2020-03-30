@@ -1,5 +1,8 @@
 package com.cmput301w20t10.uberapp.models;
 
+import android.location.Location;
+import android.util.Log;
+
 import java.util.Date;
 
 import com.cmput301w20t10.uberapp.database.base.EntityBase;
@@ -25,8 +28,9 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
     private DocumentReference rideRequestReference;
     private Route route;
     private State state;
-    private int fareOffer;
+    private float fareOffer;
     private Date timestamp;
+
 
     public enum State {
         Active,
@@ -171,7 +175,7 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
         this.state = state;
     }
 
-    public int getFareOffer() {
+    public float getFareOffer() {
         return fareOffer;
     }
 
@@ -198,5 +202,5 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
         addDirtyField(Field.UNPAIRED_REFERENCE);
         this.unpairedReference = unpairedReference;
     }
-    // endregion getters and setters
+
 }

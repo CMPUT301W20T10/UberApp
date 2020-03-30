@@ -144,7 +144,7 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
         return saveDriverModelTask.run();
     }
 
-    public MutableLiveData<Driver> getDriverFromDriverReference(DocumentReference driverReference) {
+    public static MutableLiveData<Driver> getDriverFromDriverReference(DocumentReference driverReference) {
         GetDriverFromReferenceTask task = new GetDriverFromReferenceTask(driverReference);
         return task.run();
     }

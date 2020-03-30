@@ -5,7 +5,8 @@
     android:id="@+id/searchLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="?attr/backgroundColor">
 
 
     <androidx.recyclerview.widget.RecyclerView
@@ -26,6 +27,9 @@
         android:layout_marginStart="60dp"
         android:layout_marginEnd="0dp"
         android:iconifiedByDefault="false"
+        android:background="?attr/editTextBackgroundColor"
+        android:searchIcon="@drawable/ic_search_black_24dp"
+        android:closeIcon="@drawable/ic_clear_black_24dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
