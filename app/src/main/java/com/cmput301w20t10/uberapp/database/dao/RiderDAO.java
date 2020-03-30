@@ -1,4 +1,4 @@
-package com.cmput301w20t10.uberapp.database;
+package com.cmput301w20t10.uberapp.database.dao;
 
 import android.util.Log;
 
@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
 import com.cmput301w20t10.uberapp.database.base.EntityBase;
+import com.cmput301w20t10.uberapp.database.base.ModelBase;
 import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
@@ -26,6 +27,7 @@ import static android.content.ContentValues.TAG;
  * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
+ * @version 1.1.1
  */
 public class RiderDAO extends DAOBase<RiderEntity, Rider> {
     static final String LOC = "Tomate: RiderDAO: ";
@@ -111,6 +113,12 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
         return task.run();
     }
 
+    /**
+     * @see DAOBase#saveModel(ModelBase)
+     *
+     * @param rider
+     * @return
+     */
     @Override
     public MutableLiveData<Boolean> saveModel(Rider rider) {
         RiderEntity riderEntity = new RiderEntity();
@@ -128,6 +136,12 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
         return new RiderDAO();
     }
 
+    /**
+     * @see DAOBase#createModelFromEntity(EntityBase)
+     *
+     * @param riderEntity
+     * @return
+     */
     // todo: deprecate class or make task shorter
     @Override
     protected MutableLiveData<Rider> createModelFromEntity(RiderEntity riderEntity) {
@@ -140,6 +154,14 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
         return snapshot.toObject(RiderEntity.class);
     }
 
+    /**
+     * Rider requires RiderEntity and UserEntity so another sequence of functions is required
+     *
+     * @see DAOBase#getOtherEntities(MutableLiveData, EntityBase)
+     *
+     * @param liveData
+     * @param mainEntity
+     */
     @Override
     protected void getOtherEntities(MutableLiveData<List<EntityBase>> liveData,
                                     RiderEntity mainEntity) {
@@ -149,6 +171,8 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
 
     /**
      * Using this for it's lifecycle owner so that I won't have to make my own above
+     *
+     * @version 1.1.1.1
      */
     private class GetUserEntity extends GetTaskSequencer<UserEntity> {
         private final DocumentReference reference;
@@ -175,12 +199,24 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
         }
     }
 
+    /**
+     * Gets a rider object given a DocumentReference pointing to a document under the collection
+     * riders in Firestore
+     *
+     * @param riderReference
+     * @return
+     */
     MutableLiveData<Rider> getRiderFromRiderReference(DocumentReference riderReference) {
         GetRiderFromReferenceTask task = new GetRiderFromReferenceTask(riderReference);
         return task.run();
     }
 }
 
+/**
+ * Sequence of functions to register rider
+ * @see GetTaskSequencer
+ * @vesrion 1.1.1
+ */
 class RegisterRiderTask extends GetTaskSequencer<Rider> {
     private static final String LOC = RiderDAO.LOC + "RegisterRiderTask: ";
     private String username;
@@ -301,6 +337,11 @@ class RegisterRiderTask extends GetTaskSequencer<Rider> {
     }
 }
 
+/**
+ * Sequence of functions to log in as rider
+ * @see GetTaskSequencer
+ * @vesrion 1.1.1
+ */
 class LogInAsRiderTask extends GetTaskSequencer<Rider> {
     static final String LOC = RiderDAO.LOC + "LogInAsRiderTask: ";
 
@@ -359,6 +400,11 @@ class LogInAsRiderTask extends GetTaskSequencer<Rider> {
     }
 }
 
+/**
+ * Sequence of functions to get Rider model based on a DocumentReference
+ * @see GetTaskSequencer
+ * @vesrion 1.1.1
+ */
 class GetRiderFromReferenceTask extends GetTaskSequencer<Rider> {
     static final String LOC = "RiderDAO: GetRiderFromReferenceTask: ";
     private final DocumentReference riderReference;

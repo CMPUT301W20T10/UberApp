@@ -26,8 +26,8 @@ import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
-import com.cmput301w20t10.uberapp.database.RideRequestDAO;
-import com.cmput301w20t10.uberapp.database.UnpairedRideListDAO;
+import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
+import com.cmput301w20t10.uberapp.database.dao.UnpairedRideListDAO;
 import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RequestList;
@@ -132,7 +132,8 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         requestList = findViewById(R.id.ride_request_list);
         requestDataList = new ArrayList<>();
 
-        MutableLiveData<List<RideRequest>> liveRideRequest = UnpairedRideListDAO.getAllUnpairedRideRequest();
+        UnpairedRideListDAO dao = new UnpairedRideListDAO();
+        MutableLiveData<List<RideRequest>> liveRideRequest = dao.getAllUnpairedRideRequest();
         AtomicInteger counter = new AtomicInteger(0);
         liveRideRequest.observe(this, rideRequests -> {
             if (!rideRequests.isEmpty()) {
@@ -182,11 +183,11 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
 
             acceptButton.setOnClickListener(view1 -> {
                 Driver driver = (Driver) Application.getInstance().getCurrentUser();
-                RideRequestDAO dao = new RideRequestDAO();
-                MutableLiveData<RideRequest> liveData = dao.getModelByReference(rideRequestContent.getRideRequestReference());
+                RideRequestDAO rideRequestDAO = new RideRequestDAO();
+                MutableLiveData<RideRequest> liveData = rideRequestDAO.getModelByReference(rideRequestContent.getRideRequestReference());
                 liveData.observe(this, rideRequest -> {
                     if (rideRequest != null) {
-                        dao.acceptRequest(rideRequest, driver, this);
+                        rideRequestDAO.acceptRequest(rideRequest, driver, this);
                     }
                 });
             });

@@ -16,17 +16,12 @@ import static com.cmput301w20t10.uberapp.database.entity.UnpairedRideEntity.*;
  * Entity representation for UnpairedRideEntity model.
  * @see EntityBase
  *
- * todo: add timestamp
  * @author Allan Manuba
- * @version 1.0.0
+ * @version 1.1.1.1
  */
+// todo: add timestamp
 public class UnpairedRideEntity extends EntityBase<Field> {
     // region Fields
-    /**
-     * Fields
-     * @version 1.0.0
-     */
-
     private static final String LOC = "UnpairedRideEntity: ";
     private DocumentReference rideRequestReference;
 
@@ -46,10 +41,6 @@ public class UnpairedRideEntity extends EntityBase<Field> {
     // endregion Fields
 
     // region Constructors
-    /**
-     * Constructors
-     * @version 1.0.0
-     */
 
     /**
      * Don't remove. This is required during deserialization.
@@ -66,8 +57,7 @@ public class UnpairedRideEntity extends EntityBase<Field> {
      *
      * @return a map that can be used to update a Firestore reference
      *
-     * @author Allan Manuba
-     * @version 1.0.0
+     * @version 1.1.1.1
      */
     @Override
     @Exclude

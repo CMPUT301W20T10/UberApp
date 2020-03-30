@@ -22,7 +22,7 @@ import android.widget.Toast;
 import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
-import com.cmput301w20t10.uberapp.database.UserDAO;
+import com.cmput301w20t10.uberapp.database.dao.UserDAO;
 import com.cmput301w20t10.uberapp.messaging.FCMSender;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.Rider;

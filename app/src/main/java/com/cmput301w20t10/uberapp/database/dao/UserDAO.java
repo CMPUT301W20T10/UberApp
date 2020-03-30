@@ -1,4 +1,4 @@
-package com.cmput301w20t10.uberapp.database;
+package com.cmput301w20t10.uberapp.database.dao;
 
 import android.util.Log;
 
@@ -6,6 +6,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
+import com.cmput301w20t10.uberapp.database.base.ModelBase;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.firestore.DocumentReference;
@@ -19,7 +21,7 @@ import static android.content.ContentValues.TAG;
  * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
- * @version 1.0.1
+ * @version 1.1.1
  */
 public class UserDAO extends DAOBase<UserEntity, User> {
     static final String COLLECTION = "users";
@@ -84,6 +86,28 @@ public class UserDAO extends DAOBase<UserEntity, User> {
         return userLiveData;
     }
 
+    /**
+     * Checks for how many users have the same given username. Usage:
+     * <pre>
+     UserDAO dao = new UserDAO();
+     MutableLiveData<Integer> liveData = dao.checkForUserCount("usernameHere");
+     liveData.observe(this, count -> {
+         if (count == null) {
+            // no internet connection
+         } else if (count == 0) {
+            // not yet made
+         } else if (count == 1) {
+            // one account made with username
+         } else { // count > 1
+            // two or more accounts with the same username
+         }
+     });
+     * </pre>
+     *
+     * @param username
+     * @return MutableLiveData which returns an Integer indicating the count of users with the
+     * same username or null indicating an error has occurred somewhere, likely connection loss
+     */
     public MutableLiveData<Integer> checkForUserCount(String username) {
         MutableLiveData<Integer> liveData = new MutableLiveData<>();
 
@@ -103,7 +127,7 @@ public class UserDAO extends DAOBase<UserEntity, User> {
     }
 
     /**
-     * Don't call this on main thread
+     * Registers a user
      *
      * @param username
      * @param password
@@ -155,6 +179,11 @@ public class UserDAO extends DAOBase<UserEntity, User> {
         return userLiveData;
     }
 
+    /**
+     * @see DAOBase#saveModel(ModelBase)
+     * @param   model   Model to update
+     * @return
+     */
     @Override
     public MutableLiveData<Boolean> saveModel(User model) {
         final DocumentReference reference = model.getUserReference();
@@ -181,6 +210,11 @@ public class UserDAO extends DAOBase<UserEntity, User> {
         return new UserDAO();
     }
 
+    /**
+     * @see DAOBase#createModelFromEntity(EntityBase)
+     * @param userEntity
+     * @return
+     */
     @Override
     protected MutableLiveData<User> createModelFromEntity(UserEntity userEntity) {
         MutableLiveData<User> liveData = new MutableLiveData<>();
@@ -211,8 +245,6 @@ public class UserDAO extends DAOBase<UserEntity, User> {
      * @param userId    Document ID for the User
      * @return  User    returns a User object if User was successfully found
      *          null    returns a null object if User was not found or an error has occurred
-     *
-     * @version 1.0.1
      */
     public MutableLiveData<User> getUserByUserID(String userId) {
         return getModelByID(userId);

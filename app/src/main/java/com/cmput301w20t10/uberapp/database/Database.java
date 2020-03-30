@@ -6,6 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.json.JSONObject;
 
+@Deprecated
 public class Database {
 
     private static final Database INSTANCE = new Database();

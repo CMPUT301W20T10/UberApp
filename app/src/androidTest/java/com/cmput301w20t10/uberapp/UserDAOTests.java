@@ -1,6 +1,6 @@
 package com.cmput301w20t10.uberapp;
 
-import com.cmput301w20t10.uberapp.database.UserDAO;
+import com.cmput301w20t10.uberapp.database.dao.UserDAO;
 import com.cmput301w20t10.uberapp.models.User;
 import com.cmput301w20t10.uberapp.util.AssertTrueObserver;
 

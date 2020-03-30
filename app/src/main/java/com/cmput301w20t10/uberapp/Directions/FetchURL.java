@@ -30,7 +30,6 @@ public class FetchURL extends AsyncTask<String, Void, String> {
             // Fetching the data from web service
             ResponseString = downloadUrl(strings[0]);
             Log.d("mylog", "Background task data " + ResponseString);
-
         } catch (Exception e) {
             Log.d("Background Task", e.toString());
         }
@@ -64,7 +63,6 @@ public class FetchURL extends AsyncTask<String, Void, String> {
             }
             data = sb.toString();
             Log.d("mylog", "Downloaded URL: " + data);
-
             br.close();
         } catch (Exception e) {
             Log.d("mylog", "Exception downloading URL: " + e.toString());

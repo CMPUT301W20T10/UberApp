@@ -16,7 +16,7 @@ import java.util.Set;
  *     it should represent the database columns or fields in Firestore
  *
  * @author Allan Manuba
- * @version 1.0.1
+ * @version 1.1.1
  */
 public abstract class DatabaseObjectBase<Field> {
     /**
