@@ -49,6 +49,7 @@ public class RideRatingFragment extends Fragment {
 
         if (request != null) {
             DriverDAO driverDAO = DatabaseManager.getInstance().getDriverDAO();
+            RideRequestDAO rideRequestDAO = DatabaseManager.getInstance().getRideRequestDAO();
             MutableLiveData<Driver> liveDriver = driverDAO.getDriverFromDriverReference(request.getDriverReference());
 
             liveDriver.observe(this, driver -> {
@@ -60,15 +61,14 @@ public class RideRatingFragment extends Fragment {
                     driverUnameView.setText(driver.getUsername());
                     driverRatingView.setText(String.valueOf(driver.getRating()));
 
-                    if (request.isRated()) {
-                        hasVoted = true;
-                    }
+                    Log.d("Testing", "Rated Yet?: " + String.valueOf(request.isRated()));
 
                     if (!hasVoted) {
                         upButton.setOnClickListener(v -> {
                             if (!hasVoted) {
                                 hasVoted = true;
                                 driverDAO.rateDriver(driver, 1);
+                                rideRequestDAO.rateRide(request);
                                 close();
                             }
                         });
@@ -77,6 +77,7 @@ public class RideRatingFragment extends Fragment {
                             if (!hasVoted) {
                                 hasVoted = true;
                                 driverDAO.rateDriver(driver, -1);
+                                rideRequestDAO.rateRide(request);
                                 close();
                             }
                         });

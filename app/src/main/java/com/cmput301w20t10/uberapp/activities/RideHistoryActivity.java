@@ -19,14 +19,11 @@ import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.User;
 import com.cmput301w20t10.uberapp.util.HistoryAdapter;
-import com.cmput301w20t10.uberapp.util.SearchAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class RideHistoryActivity extends BaseActivity {
     private ListView historyList;
-    private SearchAdapter searchAdapter;
     private RideRequestDAO rrDAO;
 
 
@@ -69,6 +66,8 @@ public class RideHistoryActivity extends BaseActivity {
                         RideRatingFragment rateFrag = new RideRatingFragment();
                         fragTransaction.add(R.id.rating_container, rateFrag);
                         fragTransaction.commit();
+
+                        populateHistory(); // refresh list
                     });
                 }
             });
