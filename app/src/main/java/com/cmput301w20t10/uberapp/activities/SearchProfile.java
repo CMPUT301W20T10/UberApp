@@ -17,7 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 
-/*
+/**
  * This was created based on information from user Alex Mamo : https://stackoverflow.com/users/5246885/alex-mamo
  * from the stackoverflow post : https://stackoverflow.com/a/49277842
  * Alex is a Google Developer Expert for Firebase.
