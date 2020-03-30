@@ -11,11 +11,18 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 
+import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.database.Database;
+import com.cmput301w20t10.uberapp.database.DatabaseManager;
+import com.cmput301w20t10.uberapp.database.RideRequestDAO;
+import com.cmput301w20t10.uberapp.database.RiderDAO;
+import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.cmput301w20t10.uberapp.database.viewmodel.RiderViewModel;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
+import com.cmput301w20t10.uberapp.models.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -42,6 +49,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.DocumentReference;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -215,8 +223,25 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         String startingpoint = editTextStartingPoint.getText().toString();
         String destination = editTextDestination.getText().toString();
         String priceOffer = editTextPriceOffer.getText().toString();
+        int PriceOffer = Integer.parseInt(priceOffer);
+
+        //get user
+        DatabaseManager db = DatabaseManager.getInstance();
+        RideRequestDAO dao = db.getRideRequestDAO();
+        User user = Application.getInstance().getCurrentUser();
+        //pass data
+        if (user instanceof Rider){
+            Log.d(TAG, "if condition passed");
+            Rider rider = (Rider) user;
+            dao.createRideRequest(rider,route,PriceOffer,this);
+        }
+        else{
+            Log.d(TAG, "if condition did not pass");
+        }
 
         drawRoute(startingpoint, destination);
+
+
 
     }
 
