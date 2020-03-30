@@ -32,7 +32,7 @@ public class IDToModelTest extends DatabaseTestBase {
 
     @Test
     public void userIdToModelTest() throws InterruptedException {
-        userIdToModelTestHelper(BASIC_TEST_RIDER1, BASIC_TEST_RIDER1_ID);
+        userIdToModelTestHelper(BASIC_TEST_RIDER2, BASIC_TEST_RIDER2_ID);
         userIdToModelTestHelper(BASIC_TEST_DRIVER1, BASIC_TEST_DRIVER1_ID);
     }
 

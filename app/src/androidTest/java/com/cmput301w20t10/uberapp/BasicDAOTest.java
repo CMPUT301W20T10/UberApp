@@ -143,8 +143,8 @@ public class BasicDAOTest extends DatabaseTestBase {
             };
             LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
             MutableLiveData<Rider> liveData = loginRegisterDAO
-                    .logInAsRider(BASIC_TEST_RIDER1.getUsername(),
-                            BASIC_TEST_RIDER1.getPassword(),
+                    .logInAsRider(BASIC_TEST_RIDER2.getUsername(),
+                            BASIC_TEST_RIDER2.getPassword(),
                             mainLifecycleOwner);
             liveData.observe(mainLifecycleOwner, observer);
         };
