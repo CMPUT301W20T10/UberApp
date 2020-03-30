@@ -51,7 +51,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (!isOpen) {
-            if (getIntent().getExtras().getString("PREV_ACTIVITY").equals("LoginActivity")) {
+            if (getIntent().getExtras().getString("PREV_ACTIVITY").equals("activities.LoginActivity")) {
                 return;
             } else {
                 super.onBackPressed();
@@ -112,36 +112,49 @@ public class BaseActivity extends AppCompatActivity {
 
         //Begin onclickListeners for each fab button, each sends to new activity. This activity should extend baseactivity so it can also have Menu.
         fabProfile.setOnClickListener(v -> {
-//            if (getIntent().getStringExtra("PREV_ACTIVITY").equals(this.getLocalClassName()))
+            if (getIntent().getStringExtra("PREV_ACTIVITY").equals("activities.ProfilePage") ||
+                    getIntent().getStringExtra("PREV_ACTIVITY").equals(sharedPref.loadHomeActivity())) {
+                return;
+            }
             Intent intent = new Intent(BaseActivity.this, ProfilePage.class);
-//            intent.putExtra("PREV_ACTIVITY", "")
+            intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
             startActivity(intent);
+            closeMenu();
         });
 
         fabSearch.setOnClickListener(v -> {
             Intent intent = new Intent(BaseActivity.this, SearchProfile.class);
             intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
             startActivity(intent);
+            closeMenu();
         });
 
         fabHome.setOnClickListener(v -> {
-            if (sharedPref.loadUserType().equals("rider")) {
-                Intent intent = new Intent(BaseActivity.this, RiderMainActivity.class);
-                intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
-                startActivity(intent);
+            System.out.println("LABEL: " + getIntent().getStringExtra("PREV_ACTIVITY"));
+            if (sharedPref.loadHomeActivity().equals(this.getLocalClassName())) {
+                return;
             } else {
-                Driver driver = (Driver) Application.getInstance().getCurrentUser();
-                if (driver != null) {
-                    if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0) {
-                        Intent intent = new Intent(BaseActivity.this, DriverAcceptedActivity.class);
-                        String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
-                        intent.putExtra("ACTIVE", activeRideRequest);
-                        intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
-                        startActivity(intent);
-                    } else {
-                        Intent intent = new Intent(BaseActivity.this, DriverMainActivity.class);
-                        intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
-                        startActivity(intent);
+                if (sharedPref.loadUserType().equals("rider")) {
+                    Intent intent = new Intent(BaseActivity.this, RiderMainActivity.class);
+                    intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
+                    startActivity(intent);
+                    closeMenu();
+                } else {
+                    Driver driver = (Driver) Application.getInstance().getCurrentUser();
+                    if (driver != null) {
+                        if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0) {
+                            Intent intent = new Intent(BaseActivity.this, DriverAcceptedActivity.class);
+                            String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
+                            intent.putExtra("ACTIVE", activeRideRequest);
+                            intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
+                            startActivity(intent);
+                            closeMenu();
+                        } else {
+                            Intent intent = new Intent(BaseActivity.this, DriverMainActivity.class);
+                            intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
+                            startActivity(intent);
+                            closeMenu();
+                        }
                     }
                 }
             }
@@ -161,15 +174,10 @@ public class BaseActivity extends AppCompatActivity {
                 textView.setGravity(Gravity.CENTER);
                 toast.show();
             }
+            closeMenu();
         });
 
         fabExit.setOnClickListener(v -> {
-//            sharedPref.eraseContents();
-//            Intent intent = getBaseContext().getPackageManager()
-//                    .getLaunchIntentForPackage( getBaseContext().getPackageName() );
-//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//            startActivity(intent);
-//            finish();
             LogOut.clearRestart(this);
         });
     }

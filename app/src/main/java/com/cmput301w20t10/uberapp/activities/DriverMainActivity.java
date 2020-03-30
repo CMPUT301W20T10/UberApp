@@ -120,14 +120,14 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             setTheme(R.style.DarkTheme);
         } else { setTheme(R.style.AppTheme); }
 
+        sharedPref.setHomeActivity(this.getLocalClassName());
+
         setContentView(R.layout.content_driver_main);
 
         // map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        System.out.println("NAME: " + this.getLocalClassName());
 
         requestList = findViewById(R.id.ride_request_list);
         requestDataList = new ArrayList<>();

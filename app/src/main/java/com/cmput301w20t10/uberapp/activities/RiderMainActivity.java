@@ -111,6 +111,8 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
             setTheme(R.style.DarkTheme);
         } else { setTheme(R.style.AppTheme); }
 
+        sharedPref.setHomeActivity(this.getLocalClassName());
+
         setContentView(R.layout.content_rider_main);
 
         // map

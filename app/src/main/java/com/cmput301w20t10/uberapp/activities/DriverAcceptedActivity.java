@@ -17,12 +17,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.MutableLiveData;
 
 import com.bumptech.glide.Glide;
 import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.database.RideRequestDAO;
+import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
+import com.cmput301w20t10.uberapp.models.Driver;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -44,6 +49,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -55,6 +61,8 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
     private static final int REQUEST_CODE = 101;
 
     SharedPref sharedPref;
+
+    String riderUsername;
 
     private FirebaseFirestore db;
 
@@ -88,9 +96,17 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
             setTheme(R.style.DarkTheme);
         } else { setTheme(R.style.AppTheme); }
 
+        sharedPref.setHomeActivity(this.getLocalClassName());
+
         setContentView(R.layout.driver_accepted);
 
         db = FirebaseFirestore.getInstance();
+
+        // Retrieve location and camera direction from savedInstanceState
+        if (savedInstanceState != null) {
+            currentLocation = savedInstanceState.getParcelable(LAST_LOCATION_KEY);
+            CameraPosition cameraPosition = savedInstanceState.getParcelable(CAMERA_DIRECTION_KEY);
+        }
 
         // map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -105,55 +121,90 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         TextView startDest = findViewById(R.id.request_start_dest);
         TextView endDest = findViewById(R.id.request_end_dest);
         TextView startEndDistance = findViewById(R.id.start_end_distance);
-        ImageView profilePicture = findViewById(R.id.profile_picture);
+        ImageView riderPictureButton = findViewById(R.id.profile_picture);
         Button cancelButton = findViewById(R.id.cancel_request_button);
         cancelButton.setVisibility(View.VISIBLE);
+        TextView tapProfileHint = findViewById(R.id.tap_profile_hint);
+        tapProfileHint.setVisibility(View.VISIBLE);
 
-        System.out.println("NAME: " + this.getLocalClassName());
 
         String activeRideRequest = getIntent().getStringExtra("ACTIVE");
+        System.out.println("ACTIVE: " + activeRideRequest);
 
-        db.document(activeRideRequest).get().addOnSuccessListener(rideRequestSnapshot -> {
-            GeoPoint startGeoPoint = (GeoPoint) rideRequestSnapshot.get("startingPosition");
-            LatLng startLatLng = new LatLng(startGeoPoint.getLatitude(), startGeoPoint.getLongitude());
-            startDest.setText(getAddress(startLatLng));
-            GeoPoint endGeoPoint = (GeoPoint) rideRequestSnapshot.get("destination");
-            LatLng endLatLng = new LatLng(endGeoPoint.getLatitude(), endGeoPoint.getLongitude());
-            endDest.setText(getAddress(endLatLng));
+        DocumentReference rideRequestReference = db.document(activeRideRequest);
 
-            dropPins("Start Destination", startLatLng, "End Destination",  endLatLng);
+        rideRequestReference.get().addOnSuccessListener(rideRequestSnapshot -> {
             if (currentLocation != null) {
-                new FetchURL(this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
-            }
+                GeoPoint startGeoPoint = (GeoPoint) rideRequestSnapshot.get("startingPosition");
+                LatLng startLatLng = new LatLng(startGeoPoint.getLatitude(), startGeoPoint.getLongitude());
+                startDest.setText(getAddress(startLatLng));
+                GeoPoint endGeoPoint = (GeoPoint) rideRequestSnapshot.get("destination");
+                LatLng endLatLng = new LatLng(endGeoPoint.getLatitude(), endGeoPoint.getLongitude());
+                endDest.setText(getAddress(endLatLng));
 
-            float[] currentStartDistance = new float[1];
-            Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(),
-                    startLatLng.latitude, startLatLng.longitude, currentStartDistance);
-            distance.setText(String.format("%.2fkm", currentStartDistance[0]/1000));
+                dropPins("Start Destination", startLatLng, "End Destination",  endLatLng);
+                    new FetchURL(this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
 
-            float[] startEndDist = new float[1];
-            Location.distanceBetween(startLatLng.latitude,startLatLng.longitude,
-                    endLatLng.latitude,endLatLng.longitude, startEndDist);
-            startEndDistance.setText(String.format("%.2fkm", startEndDist[0]/1000));
+                float[] currentStartDistance = new float[1];
+                Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(),
+                        startLatLng.latitude, startLatLng.longitude, currentStartDistance);
+                distance.setText(String.format("%.2fkm", currentStartDistance[0]/1000));
 
-            float fareOffer = (long) rideRequestSnapshot.get("fareOffer");
-            offer.setText("Offer: $" + String.format("%.2f", fareOffer));
+                float[] startEndDist = new float[1];
+                Location.distanceBetween(startLatLng.latitude,startLatLng.longitude,
+                        endLatLng.latitude,endLatLng.longitude, startEndDist);
+                startEndDistance.setText(String.format("%.2fkm", startEndDist[0]/1000));
 
-            DocumentReference riderReference =  (DocumentReference) rideRequestSnapshot.get("riderReference");
-            System.out.println("PATH: " + riderReference.getPath());
-            riderReference.get().addOnSuccessListener(riderSnapshot -> {
-                DocumentReference userReference =  (DocumentReference) riderSnapshot.get("userReference");
-                userReference.get().addOnSuccessListener(userSnapshot -> {
-                    username.setText(userSnapshot.get("username").toString());
-                    firstName.setText(userSnapshot.get("firstName").toString());
-                    lastName.setText(userSnapshot.get("lastName").toString());
-                    Glide.with(this)
-                            .load(userSnapshot.get("image"))
-                            .into(profilePicture);
+                float fareOffer = (long) rideRequestSnapshot.get("fareOffer");
+                offer.setText("Offer: $" + String.format("%.2f", fareOffer));
+
+                DocumentReference riderReference =  (DocumentReference) rideRequestSnapshot.get("riderReference");
+                riderReference.get().addOnSuccessListener(riderSnapshot -> {
+                    DocumentReference userReference =  (DocumentReference) riderSnapshot.get("userReference");
+                    userReference.get().addOnSuccessListener(userSnapshot -> {
+                        riderUsername = userSnapshot.get("username").toString();
+                        username.setText(riderUsername);
+                        firstName.setText(userSnapshot.get("firstName").toString());
+                        lastName.setText(userSnapshot.get("lastName").toString());
+                        Glide.with(this)
+                                .load(userSnapshot.get("image"))
+                                .into(riderPictureButton);
+                    });
                 });
-            });
-
+            }
         });
+
+        riderPictureButton.setOnClickListener(view -> db.collection("users")
+                .whereEqualTo("username", riderUsername)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot userSnapshot = task.getResult();
+                        String userID = userSnapshot.getDocuments().get(0).getId();
+                        ViewProfileFragment.newInstance(userID, riderUsername) .show(getSupportFragmentManager(),"User");
+                    }
+                })
+        );
+
+        cancelButton.setOnClickListener(view -> {
+            Driver driver = (Driver) Application.getInstance().getCurrentUser();
+            RideRequestDAO dao = new RideRequestDAO();
+            MutableLiveData<RideRequest> liveData = dao.getModelByReference(rideRequestReference);
+            liveData.observe(this, rideRequest -> {
+                if (rideRequest != null) {
+                    dao.cancelRequest(rideRequest, this);
+                }
+            });
+        });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        if (mainMap != null) {
+            savedInstanceState.putParcelable(CAMERA_DIRECTION_KEY, mainMap.getCameraPosition());
+            savedInstanceState.putParcelable(LAST_LOCATION_KEY, currentLocation);
+            super.onSaveInstanceState(savedInstanceState);
+        }
     }
 
     public String getAddress(LatLng latLng) {

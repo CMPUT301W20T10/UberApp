@@ -154,11 +154,10 @@ public class LoginActivity extends OptionsMenu {
                         updateFCMToken();
                         saveUserInfo("driver");
                         if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0 ) {
-                            System.out.println("NAME: " + this.getLocalClassName());
                             Intent intent = new Intent(this, DriverAcceptedActivity.class);
                             String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
                             intent.putExtra("ACTIVE", activeRideRequest);
-                            intent.putExtra("PREV_ACTIVITY", "LoginActivity");
+                            intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
                             startActivity(intent);
                         } else {
                             Intent intent = new Intent(this, DriverMainActivity.class);
