@@ -7,6 +7,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.cmput301w20t10.uberapp.models.User;
+import com.google.firebase.firestore.DocumentReference;
 
 /**
  * This singleton was made to hold the information of the current user logged into the application.
@@ -18,6 +19,8 @@ public final class Application {
     private volatile RequestQueue requestQueue;
     private volatile User user;
     private volatile String messagingToken;
+
+    private volatile DocumentReference currentRideDocument;
 
     private Application() {
         this.user = null;
@@ -47,6 +50,14 @@ public final class Application {
 
     public void setMessagingToken(String messagingToken) {
         this.messagingToken = messagingToken;
+    }
+
+    public void setCurrentRideDocument(DocumentReference currentRideDocument) {
+        this.currentRideDocument = currentRideDocument;
+    }
+
+    public DocumentReference getCurrentRideDocument() {
+        return this.currentRideDocument;
     }
 
     public synchronized boolean isInBackground() {
