@@ -24,7 +24,7 @@ import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
-import com.cmput301w20t10.uberapp.database.RideRequestDAO;
+import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
 import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;

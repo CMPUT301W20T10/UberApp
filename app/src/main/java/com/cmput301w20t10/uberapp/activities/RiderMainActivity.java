@@ -17,14 +17,14 @@ import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.Database;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
-import com.cmput301w20t10.uberapp.database.RideRequestDAO;
-import com.cmput301w20t10.uberapp.database.RiderDAO;
+import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
 import com.cmput301w20t10.uberapp.fragments.RideRatingFragment;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.cmput301w20t10.uberapp.database.viewmodel.RiderViewModel;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.models.User;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -51,10 +51,16 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.maps.android.SphericalUtil;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
+import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
@@ -112,6 +118,7 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
     private static final float DEFAULT_ZOOM = 15f;
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
     private Location currentLocation;
+    private LatLng currentLocLatLng;
     Polyline currentPolyline;
 
     // views
@@ -172,6 +179,7 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
             public void onSuccess(Location location) {
                 if (location != null) {
                     currentLocation = location;
+                    currentLocLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
                 }
             }
         });
@@ -204,18 +212,25 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         currentStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String currentAddress = getAddress(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                String currentAddress = getAddress(currentLocLatLng);
                 autocompleteFragment.setText(currentAddress);
             }
         });
     }
-
     private void autocompleteStartingPoint() {
         ImageView ivSearch = autocompleteFragment.getView().findViewById(R.id.places_autocomplete_search_button);
         ivSearch.setImageResource(R.color.transparent);
         autocompleteFragment.a.setTextSize(20.0f);
         autocompleteFragment.a.setHintTextColor(R.attr.editTextColor);
         autocompleteFragment.setHint("Enter Starting Point");
+        LatLng boundNE = SphericalUtil.computeOffset(currentLocLatLng, 30*1000, 45);
+        LatLng boundSW = SphericalUtil.computeOffset(currentLocLatLng, 30*1000, 45);
+        System.out.println("OFFSET: " + boundNE + " " + boundSW);
+        RectangularBounds bounds = RectangularBounds.newInstance(
+                new LatLng(53.365394, -113.788809),
+                new LatLng(53.728144, -113.149580));
+        autocompleteFragment.setLocationBias(bounds);
+
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME));
 
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
@@ -322,19 +337,19 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         String priceOffer = editTextPriceOffer.getText().toString();
         int PriceOffer = Integer.parseInt(priceOffer);
 
-        //get user
-        DatabaseManager db = DatabaseManager.getInstance();
-        RideRequestDAO dao = db.getRideRequestDAO();
-        User user = Application.getInstance().getCurrentUser();
-        //pass data
-        if (user instanceof Rider){
-            Log.d(TAG, "if condition passed");
-            Rider rider = (Rider) user;
-            dao.createRideRequest(rider,route,PriceOffer,this);
-        }
-        else{
-            Log.d(TAG, "if condition did not pass");
-        }
+//        //get user
+//        DatabaseManager db = DatabaseManager.getInstance();
+//        RideRequestDAO dao = db.getRideRequestDAO();
+//        User user = Application.getInstance().getCurrentUser();
+//        //pass data
+//        if (user instanceof Rider){
+//            Log.d(TAG, "if condition passed");
+//            Rider rider = (Rider) user;
+//            dao.createRideRequest(rider,route,PriceOffer,this);
+//        }
+//        else{
+//            Log.d(TAG, "if condition did not pass");
+//        }
 
         drawRoute(startingPoint, destination);
 
@@ -342,13 +357,13 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
 
     private void drawRoute(String startingpoint, String destination){
         Geocoder geocoder = new Geocoder(RiderMainActivity.this);
-        List<Address> startingPointList = new ArrayList<>();
+//        List<Address> startingPointList = new ArrayList<>();
         List<Address> destinationList = new ArrayList<>();
-        try{
-            startingPointList = geocoder.getFromLocationName(startingpoint, 1);
-        }catch (IOException e){
-            Log.e(TAG, "geoLocate: IOException on start address: "+ e.getMessage());
-        }
+//        try{
+//            startingPointList = geocoder.getFromLocationName(startingpoint, 1);
+//        }catch (IOException e){
+//            Log.e(TAG, "geoLocate: IOException on start address: "+ e.getMessage());
+//        }
 //
         try{
             destinationList = geocoder.getFromLocationName(destination, 1);
@@ -356,12 +371,13 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
             Log.e(TAG, "geoLocate: IOException on destination address: "+ e.getMessage());
         }
 
-        if (startingPointList.size() > 0 && destinationList.size() > 0){
-            Address startingAdddress = startingPointList.get(0);
-            Log.d(TAG, "geoLocate: found a location: " + startingAdddress.toString());
+//        if (startingPointList.size() > 0 && destinationList.size() > 0){
+//            Address startingAdddress = startingPointList.get(0);
+//            Log.d(TAG, "geoLocate: found a location: " + startingAdddress.toString());
 //            drop pin at sdtarting position
-            dropPin(startingAdddress.getAddressLine(0), new LatLng( startingAdddress.getLatitude(), startingAdddress.getLongitude()));
+//            dropPin(startingAdddress.getAddressLine(0), new LatLng( startingAdddress.getLatitude(), startingAdddress.getLongitude()));
 
+        if (destinationList.size() > 0){
             Address destinationAddress = destinationList.get(0);
             Log.d(TAG, "geoLocate: found a location: " + destinationAddress.toString());
 

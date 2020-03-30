@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData;
 
 
 import android.os.Bundle;
-import android.util.Log;
 
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,12 +14,8 @@ import android.widget.Toast;
 
 import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.R;
-import com.cmput301w20t10.uberapp.database.UserDAO;
+import com.cmput301w20t10.uberapp.database.dao.UserDAO;
 import com.cmput301w20t10.uberapp.models.User;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

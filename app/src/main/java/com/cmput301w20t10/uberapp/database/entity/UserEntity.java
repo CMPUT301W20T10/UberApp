@@ -17,14 +17,10 @@ import static com.cmput301w20t10.uberapp.database.entity.UserEntity.*;
  * @see EntityBase
  *
  * @author Allan Manuba
- * @version 1.0.0
+ * @version 1.1.1
  */
 public class UserEntity extends EntityBase<Field> {
     // region Fields
-    /**
-     * Fields
-     * @version 1.0.0
-     */
     private static final String LOC = "Tomate: UserEntity: ";
 
     public enum Field {
@@ -66,10 +62,6 @@ public class UserEntity extends EntityBase<Field> {
     // endregion fields
 
     // region Constructors
-    /**
-     * Constructors
-     * @version 1.0.0
-     */
 
     /**
      * For Firestore deserialization
@@ -125,11 +117,6 @@ public class UserEntity extends EntityBase<Field> {
      * @see EntityBase#addDirtyField(Object)
      *
      * @return a map that can be used to update a Firestore reference
-     *
-     * @author Allan Manuba
-     * @version 1.0.
-     *
-     * @version 1.0.1
      */
     @Override
     @Exclude

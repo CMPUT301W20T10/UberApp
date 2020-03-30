@@ -1,8 +1,9 @@
-package com.cmput301w20t10.uberapp.database;
+package com.cmput301w20t10.uberapp.database.dao;
 
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
+import com.cmput301w20t10.uberapp.database.base.ModelBase;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Driver;
@@ -27,6 +28,10 @@ import static android.content.ContentValues.TAG;
  * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
+ * @version 1.1.2
+ * Change the update interval for GetAllRideRequest and make a generic Task class to process this
+ *
+ * @version 1.1.1
  */
 public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
     static final String COLLECTION = "rideRequests";
@@ -66,33 +71,21 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
         return task.run();
     }
 
+    /**
+     * @param rider
+     * @return
+     */
     public MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Rider rider) {
-        MutableLiveData<List<RideRequest>> mutableLiveData = new MutableLiveData<>();
-        List<RideRequest> rideList = new ArrayList<>();
-        mutableLiveData.setValue(rideList);
-
-        for (DocumentReference reference :
-                rider.getActiveRideRequestList()) {
-            reference.get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
-
-                            if (rideRequestEntity != null) {
-                                rideList.add(new RideRequest(rideRequestEntity));
-                                mutableLiveData.setValue(rideList);
-                            } else {
-                                Log.e(TAG, "onComplete: ", task.getException());
-                            }
-                        } else {
-                            Log.e(TAG, "onComplete: ", task.getException());
-                        }
-                    });
-        }
-
-        return mutableLiveData;
+        GetAllActiveRideRequestTask task = new GetAllActiveRideRequestTask(rider);
+        return task.run();
     }
 
+    /**
+     * @see DAOBase#saveModel(ModelBase)
+     *
+     * @param rideRequest
+     * @return
+     */
     @Override
     public MutableLiveData<Boolean> saveModel(RideRequest rideRequest) {
         RideRequestEntity entity = new RideRequestEntity();
@@ -110,6 +103,11 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
         return new RideRequestDAO();
     }
 
+    /**
+     *
+     * @param rideRequestEntity
+     * @return
+     */
     @Override
     protected MutableLiveData<RideRequest> createModelFromEntity(RideRequestEntity rideRequestEntity) {
         MutableLiveData<RideRequest> liveData = new MutableLiveData<>();
@@ -139,55 +137,124 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
     }
 
     /**
-     * Sends an empty list knowing there's an internet connection.
-     * For every subsequent update, the list increases in size.
-     * During these updates, when we lose connection, we get null instead of a list.
-     * The updates stop as soon as the list in the database is exhausted or when we lose connection
-     * i.e. we receive a null object instead of a list
+     * Gets all active ride request from rider.<p>
+     * Usage:
+     * <pre>
+     RideRequestDAO dao = new RideRequestDAO();
+     MutableLiveData<List<RideRequest>> liveData = dao.getAllActiveRideRequest(rider);
+     liveData.observe(mainLifecycleOwner, rideList -> {
+         // getAllActive sends an empty list knowing there's an internet connection
+         // then updates for every item, increasing the size of the list
+         // during these updates, when we lose connection, we get null instead
+         if (rideList != null && rideList.size() >= 1) {
+            RideRequest rideRequest = rideList.get(0);
+
+            // do stuff with ride request
+         } else if (rideList == null) {
+            // no internet connection
+         }
+     });
+     * </pre>
      *
      * @param   driver
-     * @return              List<RideRequest> or null
-     *
-     * @version 1.1.1.1
+     * @return  MutableLiveData which returns a List<RideRequest> or null when there's an error
      */
     public MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Driver driver) {
-        MutableLiveData<List<RideRequest>> mutableLiveData = new MutableLiveData<>();
-        List<RideRequest> rideList = new ArrayList<>();
-        mutableLiveData.setValue(rideList);
-
-        for (DocumentReference reference :
-                driver.getActiveRideRequestList()) {
-            reference.get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
-
-                            if (rideRequestEntity != null) {
-                                rideList.add(new RideRequest(rideRequestEntity));
-                                mutableLiveData.setValue(rideList);
-                            } else {
-                                Log.e(TAG, LOC + "onComplete: ", task.getException());
-                            }
-                        } else {
-                            Log.e(TAG, LOC + "onComplete: ", task.getException());
-                        }
-                    });
-        }
-
-        return mutableLiveData;
+        GetAllActiveRideRequestTask task = new GetAllActiveRideRequestTask(driver);
+        return task.run();
     }
 
+    /**
+     * Updates the needed data to acknowledge that the driver has accepted the ride
+     *
+     * @param rideRequest
+     * @param rider
+     * @param owner
+     * @return MutableLiveData which returns a Boolean which indicates whether the task was successful
+     */
     public MutableLiveData<Boolean> acceptRideFromDriver(RideRequest rideRequest, Rider rider, LifecycleOwner owner) {
         RiderAcceptsRideFromDriverTask task = new RiderAcceptsRideFromDriverTask(rideRequest, rider, owner);
         return task.run();
     }
 
+    /**
+     * Updates the needed data to acknowledge that the ride was completed
+     *
+     * @param rideRequest
+     * @param rider
+     * @param owner
+     * @return MutableLiveData which returns a Boolean indicating whether the task was successful
+     */
     public MutableLiveData<Boolean> confirmRideCompletion(RideRequest rideRequest, Rider rider, LifecycleOwner owner) {
         RiderConfirmsCompletionTask task = new RiderConfirmsCompletionTask(rider, rideRequest, owner);
         return task.run();
     }
 }
 
+/**
+ * Sequence of functions required to get all active ride requests
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
+class GetAllActiveRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
+    private final static String LOC = RideRequestDAO.LOC + "GetAllActiveRideRequestTask: ";
+
+    private final int finalSize;
+    private final List<DocumentReference> referenceList;
+    private final List<RideRequest> rideRequestList;
+
+    GetAllActiveRideRequestTask(Rider rider) {
+        this.referenceList = rider.getActiveRideRequestList();
+        this.finalSize = this.referenceList.size();
+        this.rideRequestList = new ArrayList<>();
+    }
+
+    GetAllActiveRideRequestTask(Driver driver) {
+        this.referenceList = driver.getActiveRideRequestList();
+        this.finalSize = this.referenceList.size();
+        this.rideRequestList = new ArrayList<>();
+    }
+
+    @Override
+    public void doFirstTask() {
+        for (DocumentReference reference : referenceList) {
+            reference.get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
+
+                            if (rideRequestEntity != null) {
+                                addRideRequest(rideRequestEntity);
+                            } else {
+                                Log.e(TAG, LOC + "onComplete: ", task.getException());
+                                postResult(null);
+                            }
+                        } else {
+                            Log.e(TAG, LOC + "onComplete: ", task.getException());
+                            postResult(null);
+                        }
+                    });
+        }
+    }
+
+    // todo put a timeout here to prevent issues later on
+    private void addRideRequest(RideRequestEntity rideRequestEntity) {
+        rideRequestList.add(new RideRequest(rideRequestEntity));
+        if (rideRequestList.size() == finalSize) {
+            postResult(rideRequestList);
+        }
+    }
+}
+
+/**
+ * Sequence of functions required to create a ride request
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 class CreateRideRequestTask extends GetTaskSequencer<RideRequest> {
     private final static String LOC = RideRequestDAO.LOC + "CreateRideRequestTask: ";
 
@@ -270,6 +337,13 @@ class CreateRideRequestTask extends GetTaskSequencer<RideRequest> {
     }
 }
 
+/**
+ * Sequence of functions required to cancel a ride request
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 class CancelRideRequestTask extends GetTaskSequencer<Boolean> {
     static final String LOC = "Tomate: RideRequestDAO: CancelRideRequestTask: ";
     private final RideRequest rideRequest;
@@ -317,6 +391,13 @@ class CancelRideRequestTask extends GetTaskSequencer<Boolean> {
     }
 }
 
+/**
+ * Sequence of functions required to acknowledge that a driver has accepted a request
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 class DriverAcceptRequestTask extends GetTaskSequencer<Boolean> {
     final static String LOC = "Tomate: RideRequestDAO: DriverAcceptRequestTask: ";
     private final RideRequest rideRequest;
@@ -381,6 +462,13 @@ class DriverAcceptRequestTask extends GetTaskSequencer<Boolean> {
     }
 }
 
+/**
+ * Sequence of functions required to acknowledge that a driver has accepted a request
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 class RiderAcceptsRideFromDriverTask extends GetTaskSequencer<Boolean> {
     final static String LOC = "Tomate: RideRequestDAO: RiderAcceptsRideFromDriverTask: ";
 
@@ -418,6 +506,13 @@ class RiderAcceptsRideFromDriverTask extends GetTaskSequencer<Boolean> {
     }
 }
 
+/**
+ * Sequence of functions required to acknowledge that a rider has confirmed ride completion
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 class RiderConfirmsCompletionTask extends GetTaskSequencer<Boolean> {
     final static String LOC = "Tomate: RideRequestDAO: RiderConfirmsCompletionTask: ";
     private final RideRequest rideRequest;

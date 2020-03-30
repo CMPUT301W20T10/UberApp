@@ -2,12 +2,11 @@ package com.cmput301w20t10.uberapp;
 
 import android.util.Log;
 
-import com.cmput301w20t10.uberapp.database.DatabaseManager;
-import com.cmput301w20t10.uberapp.database.DriverDAO;
-import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
-import com.cmput301w20t10.uberapp.database.RideRequestDAO;
-import com.cmput301w20t10.uberapp.database.TransactionDAO;
-import com.cmput301w20t10.uberapp.database.UnpairedRideListDAO;
+import com.cmput301w20t10.uberapp.database.dao.DriverDAO;
+import com.cmput301w20t10.uberapp.database.dao.LoginRegisterDAO;
+import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
+import com.cmput301w20t10.uberapp.database.dao.TransactionDAO;
+import com.cmput301w20t10.uberapp.database.dao.UnpairedRideListDAO;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
@@ -36,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class BasicDAOTest extends DatabaseTestBase {
-    private static final String TAG = "Tomate";
+    private static final String TAG = "Tomate: ";
 
     @Before
     public void initialize() {
@@ -125,10 +124,10 @@ public class BasicDAOTest extends DatabaseTestBase {
      */
     @Test
     public void loginAsRiderTest() throws InterruptedException {
-        loginAsRider();
+        loginAsDefaultRider();
     }
 
-    protected Rider loginAsRider() throws InterruptedException {
+    private Rider logInAsRider(Rider rider) throws InterruptedException {
         // get data
         final Object syncObject = new Object();
         AtomicReference<Rider> riderAtomicReference = new AtomicReference<>();
@@ -144,8 +143,8 @@ public class BasicDAOTest extends DatabaseTestBase {
             };
             LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
             MutableLiveData<Rider> liveData = loginRegisterDAO
-                    .logInAsRider(BASIC_TEST_RIDER1.getUsername(),
-                            BASIC_TEST_RIDER1.getPassword(),
+                    .logInAsRider(rider.getUsername(),
+                            rider.getPassword(),
                             mainLifecycleOwner);
             liveData.observe(mainLifecycleOwner, observer);
         };
@@ -153,6 +152,10 @@ public class BasicDAOTest extends DatabaseTestBase {
         liveDataObserver(runnable, syncObject);
 
         return riderAtomicReference.get();
+    }
+
+    protected Rider loginAsDefaultRider() throws InterruptedException {
+        return logInAsRider(BASIC_TEST_RIDER2);
     }
 
     @Test
@@ -195,9 +198,36 @@ public class BasicDAOTest extends DatabaseTestBase {
         createRideRequest();
     }
 
+    //@Test
+    public void createRideRequestForHepCat() throws InterruptedException {
+        // Initialize
+        Rider rider = logInAsRider(BASIC_TEST_RIDER1);
+        assertNotNull(rider);
+        AtomicReference<RideRequest> rideRequestAtomicReference = new AtomicReference<>();
+
+        // get data
+        final Object syncObject = new Object();
+
+        Runnable runnable = () -> {
+            Observer<RideRequest> observer = new AssertNotNullObserver<RideRequest>(syncObject) {
+                @Override
+                public void onChanged(RideRequest rideRequest) {
+                    rideRequestAtomicReference.set(rideRequest);
+                    super.onChanged(rideRequest);
+                }
+            };
+            Route route = new Route(new GeoPoint(0,0), new GeoPoint(10, 10));
+            RideRequestDAO dao = databaseManager.getRideRequestDAO();
+            MutableLiveData<RideRequest> liveData = dao.createRideRequest(rider, route, 10, mainLifecycleOwner);
+            liveData.observe(mainLifecycleOwner, observer);
+        };
+
+        liveDataObserver(runnable, syncObject);
+    }
+
     private RideRequest createRideRequest() throws InterruptedException {
         // Initialize
-        Rider rider = loginAsRider();
+        Rider rider = loginAsDefaultRider();
         assertNotNull(rider);
         AtomicReference<RideRequest> rideRequestAtomicReference = new AtomicReference<>();
 
@@ -245,7 +275,7 @@ public class BasicDAOTest extends DatabaseTestBase {
                 }
             };
             UnpairedRideListDAO dao = new UnpairedRideListDAO();
-            MutableLiveData<List<RideRequest>> liveData = UnpairedRideListDAO.getAllUnpairedRideRequest();
+            MutableLiveData<List<RideRequest>> liveData = dao.getAllUnpairedRideRequest();
             liveData.observe(mainLifecycleOwner, observer);
         };
 
@@ -258,7 +288,7 @@ public class BasicDAOTest extends DatabaseTestBase {
     @Test
     public void getAllActiveRideRequestForRiderTest() throws InterruptedException {
         // Initialize
-        Rider rider = loginAsRider();
+        Rider rider = loginAsDefaultRider();
 
         // get data
         final Object syncObject = new Object();
@@ -267,7 +297,7 @@ public class BasicDAOTest extends DatabaseTestBase {
             Observer<List<RideRequest>> observer = new AssertNotNullObserver<List<RideRequest>>(syncObject) {
                 @Override
                 public void onChanged(List<RideRequest> rideRequests) {
-                    if (rideRequests.size() > 1) {
+                    if (rideRequests.size() >= 1) {
                         super.onChanged(rideRequests);
                     }
                 }
@@ -386,7 +416,7 @@ public class BasicDAOTest extends DatabaseTestBase {
 
     public RideRequest riderAcceptsDriver() throws InterruptedException {
         RideRequest rideRequest = driverAcceptsRequest();
-        Rider rider = loginAsRider();
+        Rider rider = loginAsDefaultRider();
 
         // get data
         final Object syncObject = new Object();
@@ -416,7 +446,7 @@ public class BasicDAOTest extends DatabaseTestBase {
     public RideRequest riderConfirmCompletion() throws InterruptedException {
         RideRequest rideRequest = riderAcceptsDriver();
 
-        Rider rider = loginAsRider();
+        Rider rider = loginAsDefaultRider();
 
         // get data
         final Object syncObject = new Object();
@@ -438,7 +468,7 @@ public class BasicDAOTest extends DatabaseTestBase {
         RideRequest rideRequest = riderConfirmCompletion();
 
         // todo: change to get user instead of logging in
-        Rider rider = loginAsRider();
+        Rider rider = loginAsDefaultRider();
         Driver driver = loginAsDriver();
         AtomicReference<Transaction> transactionAtomicReference = new AtomicReference<>();
 
@@ -482,7 +512,7 @@ public class BasicDAOTest extends DatabaseTestBase {
                     super.onChanged(aBoolean);
                 }
             };
-            DriverDAO driverDAO = DatabaseManager.getInstance().getDriverDAO();
+            DriverDAO driverDAO = databaseManager.getInstance().getDriverDAO();
             int increment = 1;
             MutableLiveData<Boolean> liveData = driverDAO.rateDriver(driver, increment);
             liveData.observe(mainLifecycleOwner, observer);

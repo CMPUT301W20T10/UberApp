@@ -4,9 +4,13 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.EntityBase;
+import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.MutableLiveData;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 import static com.cmput301w20t10.uberapp.database.entity.RiderEntity.*;
@@ -23,13 +29,13 @@ import static com.cmput301w20t10.uberapp.database.entity.RiderEntity.*;
  * @see EntityBase
  *
  * @author Allan Manuba
- * @version 1.0.0
+ * @version 1.1.1
  */
 public class RiderEntity extends EntityBase<Field> {
     // region Fields
     /**
      * Fields
-     * @version 1.0.0
+     * @version 1.1.1
      */
 
     private DocumentReference userReference;
@@ -62,7 +68,7 @@ public class RiderEntity extends EntityBase<Field> {
 
     /**
      * Constructors
-     * @version 1.0.0
+     * @version 1.1.1
      */
     public RiderEntity() {
         transactionList = new ArrayList<>();
@@ -74,9 +80,6 @@ public class RiderEntity extends EntityBase<Field> {
      * @see EntityBase#addDirtyField(Object)
      *
      * @return a map that can be used to update a Firestore reference
-     *
-     * @author Allan Manuba
-     * @version 1.0.0
      */
     @Override
     @Exclude
@@ -119,9 +122,6 @@ public class RiderEntity extends EntityBase<Field> {
      * that point on
      *
      * @param rideRequest
-     *
-     * @author Allan Manuba
-     * @version 1.0.0
      */
     public void deactivateRideRequest(RideRequest rideRequest) {
         activeRideRequestList.remove(rideRequest.getRideRequestReference());

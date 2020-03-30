@@ -1,6 +1,6 @@
 package com.cmput301w20t10.uberapp;
 
-import com.cmput301w20t10.uberapp.database.UserDAO;
+import com.cmput301w20t10.uberapp.database.dao.UserDAO;
 import com.cmput301w20t10.uberapp.models.User;
 import com.cmput301w20t10.uberapp.util.AssertNotNullObserver;
 import com.cmput301w20t10.uberapp.util.DatabaseTestBase;
@@ -32,7 +32,7 @@ public class IDToModelTest extends DatabaseTestBase {
 
     @Test
     public void userIdToModelTest() throws InterruptedException {
-        userIdToModelTestHelper(BASIC_TEST_RIDER1, BASIC_TEST_RIDER1_ID);
+        userIdToModelTestHelper(BASIC_TEST_RIDER2, BASIC_TEST_RIDER2_ID);
         userIdToModelTestHelper(BASIC_TEST_DRIVER1, BASIC_TEST_DRIVER1_ID);
     }
 

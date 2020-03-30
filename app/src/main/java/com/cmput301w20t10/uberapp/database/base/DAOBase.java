@@ -1,8 +1,6 @@
 package com.cmput301w20t10.uberapp.database.base;
 
-import android.media.midi.MidiDevice;
 import android.util.Log;
-import android.view.Display;
 
 import com.cmput301w20t10.uberapp.database.util.DatabaseLogger;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
@@ -13,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 /**
@@ -37,16 +33,14 @@ import androidx.lifecycle.MutableLiveData;
 public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase> {
     /**
      * Saves all dirty fields for a given entity. Dirty fields in an entity are unsaved fields.
-     * DatabaseObjectBase detects these changes. It is not encouraged to use this.
+     * DatabaseObjectBase detects these changes.
+     * It is not encouraged to use this in classes outside the database folder.
      * <p>
-     *
-     * @param   entity    Entity to update
-     * @return  MutableLiveData that views can observe to know whether saving was successful or not
      *
      * @see DatabaseObjectBase
      *
-     * @author Allan Manuba
-     * @version 1.1.1.1
+     * @param   entity    Entity to update
+     * @return  MutableLiveData that views can observe to know whether saving was successful or not
      */
     public MutableLiveData<Boolean> saveEntity(Entity entity) {
         final DocumentReference reference = entity.getMainReference();
@@ -54,7 +48,6 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
 
         if (reference != null) {
             final Map<String, Object> dirtyFieldMap = entity.getDirtyFieldMap();
-            Log.d("Potate", "saveEntity: " + dirtyFieldMap.toString());
             reference.update(dirtyFieldMap)
                     .addOnCompleteListener(task -> {
                         final boolean isSuccessful = task.isSuccessful();
@@ -106,39 +99,111 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
     public abstract MutableLiveData<Boolean> saveModel(Model model);
 
     /**
-     * Get Firestore Collection name associated with the DAO
+     * Get Firestore Collection name associated with the DAO. This is used for a code in DAOBAse.
+     * On the subclass, simply put:
+     * <pre>
+     *     protected String getCollectionName() {
+     *         return COLLECTION; // where COLLECTION is a static final String
+     *     }
+     * </pre>
      *
-     * @return Collection name
+     * @return COLLECTION   String representing the collection name in Firestore
      */
     protected abstract String getCollectionName();
 
+    /**
+     * Gets the Model object equivalent for a given String docId.
+     * <p>
+     * Usage:
+     * <pre>
+     *     // UserDao extends DaoBase<User>
+     *     UserDAO dao = new UserDAO();
+     *     MutableLiveData<User> liveData = dao.getModelbyId(docId);
+     *     liveData.observe(this, user -> {
+     *         if (user != null) {
+     *             // do something with model
+     *         } else {
+     *             // no internet connection; handle this case here
+     *         }
+     *     });
+     * </pre>
+     *
+     * @param   docId       String object representing the path or document ID of the data in Firestore
+     * @return  liveData    MutableLiveData that may receive a Model equivalent object or a null object
+     *                      when something went wrong
+     */
     public MutableLiveData<Model> getModelByID(String docId) {
             GetModelByReferenceTask task = new GetModelByReferenceTask(docId);
         return task.run();
     }
 
+    /**
+     * Gets the Model object equivalent for a given .
+     * <p>
+     * Usage:
+     * <pre>
+     *     // UserDao extends DaoBase<User>
+     *     UserDAO dao = new UserDAO();
+     *     MutableLiveData<User> liveData = dao.getModelbyId(documentReference);
+     *     liveData.observe(this, user -> {
+     *         if (user != null) {
+     *             // do something with model
+     *         } else {
+     *             // no internet connection; handle this case here
+     *         }
+     *     });
+     * </pre>
+     *
+     * @param   documentReference       DocumentReference referencing a document in Firestore
+     * @return  liveData    MutableLiveData that may receive a Model equivalent object or a null object
+     *                      when something went wrong
+     */
     public MutableLiveData<Model> getModelByReference(DocumentReference documentReference) {
         GetModelByReferenceTask task = new GetModelByReferenceTask(documentReference);
         return task.run();
     }
 
+    /**
+     * Gets the Entity object equivalent for a given String docId. This is not recommended for usage
+     * for classes not in the database folder.
+     *
+     * @param   docId       String object representing the path or document ID of the data in Firestore
+     * @return  liveData    MutableLiveData that may receive an Entity equivalent object or a null object
+     *                      when something went wrong
+     */
     public MutableLiveData<Entity> getEntityByID(String docId) {
         GetEntityByReferenceTask task = new GetEntityByReferenceTask(docId);
         return task.run();
     }
 
+    /**
+     * Gets the Entity object equivalent for a given String docId. This is not recommended for usage
+     * for classes not in the database folder.
+     *
+     * @param   documentReference       DocumentReference for the document in Firestore
+     * @return  liveData    MutableLiveData that may receive an Entity equivalent object or a null object
+     *                      when something went wrong
+     */
     public MutableLiveData<Entity> getEntityByReference(DocumentReference documentReference) {
         GetEntityByReferenceTask task = new GetEntityByReferenceTask(documentReference);
         return task.run();
     }
 
     /**
+     * Template code needed for code in DAOBase. Override with:
+     * <pre>
+     *     // UserDAO extends DAOBase<UserEntity, User>
+     *     return new UserDAO();
+     * </pre>
+     *
      * @return  DAOBase initialized using new under its subclass
      */
     protected abstract DAOBase<Entity, Model> create();
 
     /**
-     * It's in here because it follows the generic pattern
+     * Class for keeping a sequence of functions that are required to get the Entity equivalent of
+     * a given String documentId or DocumentReference.
+     * It's in here because it follows the generic pattern.
      *
      * @version 1.1.3.1
      */
@@ -148,8 +213,8 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
 
         /**
          * Using a String of the document ID
-         *
          * @param docId
+         * @version 1.1.3.1
          */
         GetEntityByReferenceTask(String docId) {
             this.docId = docId;
@@ -158,8 +223,8 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
 
         /**
          * Using a DocumentReference
-         *
          * @param documentReference
+         * @version 1.1.3.1
          */
         GetEntityByReferenceTask(DocumentReference documentReference) {
             this.docId = null;
@@ -209,7 +274,9 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
     }
 
     /**
-     * It's in here because it follows the generic pattern
+     * Class for keeping a sequence of functions that are required to get the Model equivalent of
+     * a given String documentId or DocumentReference.
+     * It's in here because it follows the generic pattern.
      *
      * @version 1.1.3.1
      */
@@ -275,30 +342,23 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
      *
      * @param   entity             Entity
      * @return  Model
-     *
-     * @version 1.1.3.1
      */
     protected abstract MutableLiveData<Model> createModelFromEntity(Entity entity);
 
     /**
-     * Follows that pattern:
+     * Follows the pattern:
      * <pre>snapshot.toObject(Entity.class)</pre>
      *
      * @param   snapshot
      * @return  Entity
-     *
-     * @version 1.1.3.1
      */
     protected abstract Entity createObjectFromSnapshot(DocumentSnapshot snapshot);
 
     /**
-     * If model does not require additional entities,.
-     * <pre>liveData.setValue(new ArrayList<>()</>);</pre>
+     * Override only if Model requires more than one Entity.
      *
      * @param liveData
      * @param mainEntity
-     *
-     * @version 1.1.3.1
      */
     protected void getOtherEntities(MutableLiveData<List<EntityBase>> liveData, Entity mainEntity) {
         liveData.setValue(new ArrayList<>());

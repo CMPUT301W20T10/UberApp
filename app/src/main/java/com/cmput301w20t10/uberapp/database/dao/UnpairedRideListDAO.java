@@ -1,4 +1,4 @@
-package com.cmput301w20t10.uberapp.database;
+package com.cmput301w20t10.uberapp.database.dao;
 
 import android.util.Log;
 
@@ -14,7 +14,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
@@ -29,6 +31,7 @@ import static android.content.ContentValues.TAG;
  */
 public class UnpairedRideListDAO {
     static final String COLLECTION = "unpairedRideList";
+    static final String LOC = "Tomate: UnpairedRideListDAO: ";
 
     public UnpairedRideListDAO() {}
 
@@ -50,7 +53,9 @@ public class UnpairedRideListDAO {
                 RideRequestDAO dao = new RideRequestDAO();
                 dao.saveEntity(requestEntity);
             })
-            .addOnFailureListener(e -> Log.e(TAG, "onFailure: ", e));
+            .addOnFailureListener(e -> {
+                Log.e(TAG, LOC + "onFailure: ", e);
+            });
     }
 
     /**
@@ -74,7 +79,7 @@ public class UnpairedRideListDAO {
      *     <ul><b>Null:</b> Search was unsuccessful.</ul>
      * </li>
      */
-    public static MutableLiveData<List<RideRequest>> getAllUnpairedRideRequest() {
+    public MutableLiveData<List<RideRequest>> getAllUnpairedRideRequest() {
         final GetAllUnpairedRideRequestTask task = new GetAllUnpairedRideRequestTask();
         return task.run();
     }
@@ -90,8 +95,18 @@ public class UnpairedRideListDAO {
     }
 }
 
+/**
+ * Sequence of function required to get all unpaired ride requests
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.2
+ * Put additional postResults to prevent an infinite wait
+ *
+ * @version 1.1.1
+ */
 class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
-    final static String LOC = "UnpairedRideListDAO: GetAllUnpairedRideRequestTask: ";
+    final static String LOC = UnpairedRideListDAO.LOC + "GetAllUnpairedRideRequestTask: ";
 
     private List<DocumentSnapshot> snapshotList;
 
@@ -101,7 +116,6 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
     }
 
     private void getUnpairedCollection() {
-        final MutableLiveData<List<RideRequest>> rideRequestMutableLiveData = new MutableLiveData<>();
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection(UnpairedRideListDAO.COLLECTION)
                 .get()
@@ -110,7 +124,7 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
                         snapshotList = task.getResult().getDocuments();
                         convertToRideRequestList();
                     } else {
-                        Log.e(TAG, "onComplete: ", task.getException());
+                        Log.e(TAG, LOC + "onComplete: ", task.getException());
                         postResult(null);
                     }
                 });
@@ -124,7 +138,7 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
             UnpairedRideEntity unpairedRideEntity = snapshot.toObject(UnpairedRideEntity.class);
 
             if (unpairedRideEntity == null) {
-                Log.e(TAG, "convertToRideRequestList: UnpairedEntity is null");
+                Log.e(TAG, LOC + "convertToRideRequestList: UnpairedEntity is null");
                 continue;
             }
 
@@ -132,23 +146,46 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            if (task.getResult().getData() != null) { //TEMP FIX DELETE LATER
-                                Log.d(TAG, LOC + "convertToRideRequestList: " + task.getResult().getData().toString());
-                                RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
-                                assert rideRequestEntity != null;
+                            DocumentSnapshot documentSnapshot =  task.getResult();
+                            RideRequestEntity rideRequestEntity = null;
+                            if (documentSnapshot != null) {
+                                rideRequestEntity = documentSnapshot.toObject(RideRequestEntity.class);
+                            }
+
+                            if (rideRequestEntity != null) {
                                 rideRequestList.add(new RideRequest(rideRequestEntity));
                                 postResult(rideRequestList);
+                            } else if (documentSnapshot != null) {
+                                Log.e(TAG, LOC + "convertToRideRequestList: Invalid ride request format found.");
+
+                                Map map =  documentSnapshot.getData();
+                                if (map != null) {
+                                    Log.e(TAG, LOC + "convertToRideRequestList: " + map.toString());
+                                } else {
+                                    Log.e(TAG, "convertToRideRequestList: map is null");
+                                }
+                            } else {
+                                Log.e(TAG, "convertToRideRequestList: result is null");
                             }
                         } else {
-                            Log.e(TAG, "onComplete: ", task.getException());
+                            Log.e(TAG, LOC + "onComplete: ", task.getException());
+                            postResult(null);
                         }
                     });
         }
     }
 }
 
+
+/**
+ * Sequence of function required to remove a ride request from unpaired ride requests
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
-    static final String LOC = "Tomate: UnpairedRideListDAO: RemoveRiderRequestTask: ";
+    static final String LOC = UnpairedRideListDAO.LOC + "RemoveRiderRequestTask: ";
 
     private final RideRequest rideRequest;
     private final LifecycleOwner owner;
