@@ -273,9 +273,10 @@ class RateRideTask extends GetTaskSequencer<Boolean> {
         rideRequestDAO.saveModel(rideRequest)
                 .observe(lifecycleOwner, aBoolean -> {
                     if (aBoolean) {
-
+                        postResult(true);
                     } else {
                         Log.e(TAG, LOC + "doFirstTask: Saving ride request was unsuccessful");
+                        postResult(false);
                     }
                 });
     }
