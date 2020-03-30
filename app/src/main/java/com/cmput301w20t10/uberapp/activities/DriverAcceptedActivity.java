@@ -78,6 +78,7 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
 
         // Retrieve location and camera direction from savedInstanceState
         if (savedInstanceState != null) {
+            System.out.println("IS THIS GOING THROUGH?? " + currentLocation);
             currentLocation = savedInstanceState.getParcelable(LAST_LOCATION_KEY);
             CameraPosition cameraPosition = savedInstanceState.getParcelable(CAMERA_DIRECTION_KEY);
         }
@@ -107,6 +108,8 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         ImageView profilePicture = findViewById(R.id.profile_picture);
         Button cancelButton = findViewById(R.id.cancel_request_button);
         cancelButton.setVisibility(View.VISIBLE);
+
+        System.out.println("NAME: " + this.getLocalClassName());
 
         String activeRideRequest = getIntent().getStringExtra("ACTIVE");
 

@@ -40,6 +40,16 @@ public class SharedPref {
         return mySharedPref.getString("UserType", "");
     }
 
+    public void setHomeActivity(String homeActivity) {
+        SharedPreferences.Editor editor = mySharedPref.edit();
+        editor.putString("HomeActivity", homeActivity);
+        editor.commit();
+    }
+
+    public String loadHomeActivity() {
+        return mySharedPref.getString("HomeActivity", "");
+    }
+
     public void setNightModeState(Boolean state) {
         SharedPreferences.Editor editor = mySharedPref.edit();
         editor.putBoolean("NightMode", state);

@@ -127,6 +127,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        System.out.println("NAME: " + this.getLocalClassName());
 
         requestList = findViewById(R.id.ride_request_list);
         requestDataList = new ArrayList<>();

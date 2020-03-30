@@ -2,29 +2,25 @@ package com.cmput301w20t10.uberapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.MutableLiveData;
 
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
+import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
+import com.cmput301w20t10.uberapp.database.UserDAO;
+import com.cmput301w20t10.uberapp.models.Driver;
+import com.cmput301w20t10.uberapp.models.Rider;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @author Joshua Mayer
- * @version 1.0.3
- */
-public class RegisterActivity extends AppCompatActivity {
-
-    SharedPref sharedPref;
-
+public class RegisterActivityDriver extends AppCompatActivity {
     private EditText firstNameField;
     private EditText lastNameField;
     private EditText usernameField;
@@ -32,6 +28,8 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText passwordField;
     private EditText confirmPasswordField;
     private EditText phoneField;
+
+    SharedPref sharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +39,7 @@ public class RegisterActivity extends AppCompatActivity {
         if (sharedPref.loadNightModeState() == true) {
             setTheme(R.style.DarkTheme);
         } else { setTheme(R.style.AppTheme); }
+        setContentView(R.layout.activity_login);
 
         setContentView(R.layout.activity_register);
 
@@ -59,7 +58,8 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void onCancelPress(View view) {
-        finish();
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        startActivity(intent);
     }
 
     public void onRegisterPress(View view) {
@@ -81,11 +81,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Check that the passwords match the requirements
         if (!validatePassword(password)) {
-            Toast toast = Toast.makeText(getApplicationContext(), "Password does not meet requirements:\nMinimum 8 characters long\nMust contain a-z, A-Z and 0-9",
-                    Toast.LENGTH_LONG);
-            TextView textView = toast.getView().findViewById(android.R.id.message);
-            textView.setGravity(Gravity.CENTER);
-            toast.show();
+            Toast.makeText(getApplicationContext(), "Password does not meet requirements:\nMust contain a-z, A-Z and 0-9",
+                    Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -104,20 +101,49 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         // Check that the user doesn't already have info in database
-
+        UserDAO dao = new UserDAO();
+        MutableLiveData<Integer> liveData = dao.checkForUserCount(usernameField.getText().toString());
+        liveData.observe(this, count -> {
+            if (count == null) {
+                // no internet connection
+            } else if (count == 0) {
+                // not yet made
+                DatabaseManager db = DatabaseManager.getInstance();
+                LoginRegisterDAO daoRegister = db.getLoginRegisterDAO();
+                MutableLiveData<Driver> driver = daoRegister.registerDriver(
+                        usernameField.getText().toString(),
+                        passwordField.getText().toString(),
+                        emailField.getText().toString(),
+                        firstNameField.getText().toString(),
+                        lastNameField.getText().toString(),
+                        phoneField.getText().toString(),
+                        "",
+                        this
+                );
+                driver.observe(this, newDriver -> {
+                    if (newDriver != null) {
+                        finish();
+                    }
+                });
+            } else if (count == 1) {
+                // one account made with username
+                Toast.makeText(getApplicationContext(), "Username taken! try a new one.", Toast.LENGTH_LONG).show();
+            } else {// count > 1
+                // two or more accounts with the same username
+                Toast.makeText(getApplicationContext(), "Username taken! try a new one.", Toast.LENGTH_LONG).show();
+            }
+        });
 
         // Submit info to database
         // Todo(Joshua): Verify this is the proper way to add user to DB
-        DatabaseManager.getInstance().registerRider(
+/*        DatabaseManager.getInstance().registerRider(
                 usernameField.getText().toString(),
                     passwordField.getText().toString(),
                     emailField.getText().toString(),
                     firstNameField.getText().toString(),
                     lastNameField.getText().toString(),
                     phoneField.getText().toString(),
-                    this);
-        Toast.makeText(getApplicationContext(), "Successfully registered", Toast.LENGTH_LONG).show();
-        finish();
+                    this);*/
     }
 
     /**
@@ -207,3 +233,4 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
 }
+

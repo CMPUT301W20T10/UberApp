@@ -22,8 +22,11 @@ import android.widget.Toast;
 import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
+import com.cmput301w20t10.uberapp.database.UserDAO;
+import com.cmput301w20t10.uberapp.messaging.FCMSender;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.Rider;
+import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 /**
@@ -43,8 +46,6 @@ public class LoginActivity extends OptionsMenu {
 
     private static final int REQUEST_CODE = 101;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +54,7 @@ public class LoginActivity extends OptionsMenu {
         if (sharedPref.loadNightModeState() == true) {
             setTheme(R.style.DarkTheme);
         } else { setTheme(R.style.AppTheme); }
+
         setContentView(R.layout.activity_login);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -68,7 +70,7 @@ public class LoginActivity extends OptionsMenu {
                     String token = task.getResult().getToken();
 
                     Application.getInstance().setMessagingToken(token);
-                    Log.d("UBER", token);
+                    Log.d("UBER FCM", token);
                 });
 
         radioButtonRider = findViewById(R.id.rider_radio_button);
@@ -132,6 +134,7 @@ public class LoginActivity extends OptionsMenu {
                     if (rider != null) {
                         Log.d("Testing", "Login Success");
                         Application.getInstance().setUser(rider);
+                        updateFCMToken();
                         saveUserInfo("rider");
                         Intent intent = new Intent(this, RiderMainActivity.class);
                         startActivity(intent);
@@ -148,18 +151,20 @@ public class LoginActivity extends OptionsMenu {
                         Log.d("Testing", "Login Success");
                         Log.d("Testing", "Driver Main Activity not yet in this branch");
                         Application.getInstance().setUser(driver);
+                        updateFCMToken();
                         saveUserInfo("driver");
-//                        if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0 ) {
-//                            Intent intent = new Intent(this, DriverAcceptedActivity.class);
-//                            String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
-//                            intent.putExtra("ACTIVE", activeRideRequest);
-//                            intent.putExtra("PREV_ACTIVITY", "LoginActivity");
-//                            startActivity(intent);
-//                        } else {
+                        if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0 ) {
+                            System.out.println("NAME: " + this.getLocalClassName());
+                            Intent intent = new Intent(this, DriverAcceptedActivity.class);
+                            String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
+                            intent.putExtra("ACTIVE", activeRideRequest);
+                            intent.putExtra("PREV_ACTIVITY", "LoginActivity");
+                            startActivity(intent);
+                        } else {
                             Intent intent = new Intent(this, DriverMainActivity.class);
                             intent.putExtra("PREV_ACTIVITY", "LoginActivity");
                             startActivity(intent);
-//                        }
+                        }
                     } else {
                         Toast.makeText(getApplicationContext(), "Invalid Username/Password", Toast.LENGTH_LONG).show();
                     }
@@ -171,14 +176,30 @@ public class LoginActivity extends OptionsMenu {
         }
     }
 
+    public void updateFCMToken() {
+        User user = Application.getInstance().getCurrentUser();
+        user.setFCMToken(Application.getInstance().getMessagingToken());
+        UserDAO dao = new UserDAO();
+        dao.saveModel(user);
+        Application.getInstance().setUser(user);
+        FCMSender.composeMessage(getApplicationContext(), Application.getInstance().getMessagingToken());
+    }
+
     public void onRegisterPressed(View view) {
 
         // NotificationService.sendNotification("Register Pressed", "You pressed the register button!", getApplicationContext(), RegisterActivity.class);
-
-        Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
-        String username = usernameField.getText().toString();
-        intent.putExtra("USERNAME", username);
-        startActivity(intent);
+        if (radioButtonRider.isChecked()) {
+            Intent intent = new Intent(getApplicationContext(), RegisterActivityRider.class);
+            String username = usernameField.getText().toString();
+            intent.putExtra("USERNAME", username);
+            startActivity(intent);
+        } else {
+            //driver register
+            Intent intent = new Intent(getApplicationContext(), RegisterActivityDriver.class);
+            String username = usernameField.getText().toString();
+            intent.putExtra("USERNAME", username);
+            startActivity(intent);
+        }
     }
 
     public void saveUserInfo(String userType) {

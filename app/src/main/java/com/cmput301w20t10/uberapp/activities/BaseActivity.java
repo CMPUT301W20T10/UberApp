@@ -2,14 +2,19 @@ package com.cmput301w20t10.uberapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.MutableLiveData;
 
+import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.LogOut;
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.database.DatabaseManager;
+import com.cmput301w20t10.uberapp.models.Driver;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 /*
@@ -107,27 +112,55 @@ public class BaseActivity extends AppCompatActivity {
 
         //Begin onclickListeners for each fab button, each sends to new activity. This activity should extend baseactivity so it can also have Menu.
         fabProfile.setOnClickListener(v -> {
+//            if (getIntent().getStringExtra("PREV_ACTIVITY").equals(this.getLocalClassName()))
             Intent intent = new Intent(BaseActivity.this, ProfilePage.class);
+//            intent.putExtra("PREV_ACTIVITY", "")
             startActivity(intent);
         });
 
         fabSearch.setOnClickListener(v -> {
             Intent intent = new Intent(BaseActivity.this, SearchProfile.class);
+            intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
             startActivity(intent);
         });
 
         fabHome.setOnClickListener(v -> {
-            Intent intent = new Intent(BaseActivity.this, RiderMainActivity.class);
-            startActivity(intent);
+            if (sharedPref.loadUserType().equals("rider")) {
+                Intent intent = new Intent(BaseActivity.this, RiderMainActivity.class);
+                intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
+                startActivity(intent);
+            } else {
+                Driver driver = (Driver) Application.getInstance().getCurrentUser();
+                if (driver != null) {
+                    if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0) {
+                        Intent intent = new Intent(BaseActivity.this, DriverAcceptedActivity.class);
+                        String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
+                        intent.putExtra("ACTIVE", activeRideRequest);
+                        intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent(BaseActivity.this, DriverMainActivity.class);
+                        intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
+                        startActivity(intent);
+                    }
+                }
+            }
         });
 
         fabDarkMode.setOnClickListener(v -> {
             if (sharedPref.loadNightModeState() == true) {
                 sharedPref.setNightModeState(false);
+                Toast toast = Toast.makeText(this, "DARK MODE DISABLED\nRESTART REQUIRED", Toast.LENGTH_SHORT);
+                TextView textView = toast.getView().findViewById(android.R.id.message);
+                textView.setGravity(Gravity.CENTER);
+                toast.show();
             } else {
                 sharedPref.setNightModeState(true);
+                Toast toast = Toast.makeText(this, "DARK MODE ENABLED\nRESTART REQUIRED", Toast.LENGTH_SHORT);
+                TextView textView = toast.getView().findViewById(android.R.id.message);
+                textView.setGravity(Gravity.CENTER);
+                toast.show();
             }
-            notifyRestart();
         });
 
         fabExit.setOnClickListener(v -> {
@@ -139,12 +172,5 @@ public class BaseActivity extends AppCompatActivity {
 //            finish();
             LogOut.clearRestart(this);
         });
-    }
-
-    public void notifyRestart() {
-        Toast toast = Toast.makeText(this, "DARK MODE TOGGLED\nRESTART REQUIRED", Toast.LENGTH_SHORT);
-        TextView textView = toast.getView().findViewById(android.R.id.message);
-        textView.setGravity(Gravity.CENTER);
-        toast.show();
     }
 }

@@ -34,9 +34,17 @@ public class SearchProfile extends BaseActivity {
     private FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
     private Query query;
 
+    SharedPref sharedPref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sharedPref = new SharedPref(this);
+        if (sharedPref.loadNightModeState() == true) {
+            setTheme(R.style.DarkTheme);
+        } else { setTheme(R.style.AppTheme); }
+
         setContentView(R.layout.search_profile);
         SearchField = (SearchView) findViewById(R.id.searchProfile);
         setUpSearchList();
@@ -70,6 +78,12 @@ public class SearchProfile extends BaseActivity {
         SearchList.setLayoutManager(new LinearLayoutManager(this));
         SearchList.setAdapter(recyclerAdapter);
         onStart();
+        recyclerAdapter.setOnItemClickListener(new SearchAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(DocumentSnapshot documentSnapshot, int position, String username) {
+                ViewProfileFragment.newInstance(documentSnapshot.getId(), username).show(getSupportFragmentManager(),"User");
+            }
+        });
     }
     private void setUpSearchList() {
         query = rootRef.collection("users").orderBy("username");
