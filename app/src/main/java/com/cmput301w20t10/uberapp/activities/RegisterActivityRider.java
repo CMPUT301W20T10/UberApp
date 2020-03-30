@@ -15,8 +15,8 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
-import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
-import com.cmput301w20t10.uberapp.database.UserDAO;
+import com.cmput301w20t10.uberapp.database.dao.LoginRegisterDAO;
+import com.cmput301w20t10.uberapp.database.dao.UserDAO;
 import com.cmput301w20t10.uberapp.models.Rider;
 
 import java.util.regex.Matcher;

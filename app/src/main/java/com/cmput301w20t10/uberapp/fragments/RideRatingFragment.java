@@ -14,12 +14,10 @@ import androidx.lifecycle.MutableLiveData;
 import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
-import com.cmput301w20t10.uberapp.database.DriverDAO;
-import com.cmput301w20t10.uberapp.database.RideRequestDAO;
+import com.cmput301w20t10.uberapp.database.dao.DriverDAO;
+import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
-import com.cmput301w20t10.uberapp.models.Rider;
-import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.util.List;

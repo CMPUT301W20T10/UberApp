@@ -50,6 +50,7 @@ public class DatabaseTestBase {
             0,
             "ilovejpg.jpg");
 
+    // reserved for Alex's debugging
     protected static final String BASIC_TEST_RIDER1_ID = "DnD1XshbWPj6szVlzdqG";
     protected static final Rider BASIC_TEST_RIDER1 = new Rider(null,
             null,
@@ -57,6 +58,21 @@ public class DatabaseTestBase {
             null,
             null,
             "HepCat",
+            "1:00",
+            "inlovewithaghost@outlook.com",
+            "Hepburn",
+            "Catastrophy",
+            "232323232",
+            "great.png",
+            0f);
+
+    protected static final String BASIC_TEST_RIDER2_ID = "iyILZHG3OQEjuP17VCWj";
+    protected static final Rider BASIC_TEST_RIDER2 = new Rider(null,
+            null,
+            null,
+            null,
+            null,
+            "HepCat999",
             "1:00",
             "inlovewithaghost@outlook.com",
             "Hepburn",

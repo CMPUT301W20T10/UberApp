@@ -4,6 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.cmput301w20t10.uberapp.database.dao.DriverDAO;
+import com.cmput301w20t10.uberapp.database.dao.LoginRegisterDAO;
+import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
+import com.cmput301w20t10.uberapp.database.dao.RiderDAO;
+import com.cmput301w20t10.uberapp.database.dao.TransactionDAO;
+import com.cmput301w20t10.uberapp.database.dao.UnpairedRideListDAO;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.User;
@@ -21,6 +27,8 @@ import static androidx.constraintlayout.widget.Constraints.TAG;
  * Decides what Data Access Object (DAO) can be access at the time
  *
  * @author Allan Manuba
+ *
+ * @version 1.1.1
  */
 public class DatabaseManager  {
     private static final String PREF_FILE_KEY =

@@ -1,13 +1,9 @@
 package com.cmput301w20t10.uberapp.database.base;
 
-import android.util.Log;
-
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Base class for all Entity and Model classes.
@@ -19,13 +15,16 @@ import java.util.Set;
  *     It should override Object.toString(), returning camel case version of these fields.
  *
  * @author Allan Manuba
- * @version 1.0.3
+ * @version 1.1.4
+ * Remove redundant clearDirtyFieldSet();
+ *
+ * @version 1.1.3
  * Add abstract getMainReference for DAOBase usage in saveEntity
  *
- * @version 1.0.2
+ * @version 1.1.2
  * Remove dirtyFieldSet that shadows the dirtyFieldSet in DatabaseObjectBase
  *
- * @version 1.0.1
+ * @version 1.1.1
  */
 public abstract class EntityBase<Field> extends DatabaseObjectBase<Field> {
     /**
@@ -44,11 +43,4 @@ public abstract class EntityBase<Field> extends DatabaseObjectBase<Field> {
      */
     @Exclude
     public abstract Map<String, Object> getDirtyFieldMap();
-
-    /**
-     * Clears the set of dirty states
-     */
-    public void clearDirtyFieldSet() {
-        this.dirtyFieldSet.clear();
-    }
 }

@@ -12,7 +12,7 @@ import androidx.lifecycle.MutableLiveData;
  *     This is the entity equivalent of this model object.
  *
  * @author Allan Manuba
- * @version 1.0.0
+ * @version 1.1.1
  */
 public abstract class ModelBase<Field, Entity extends EntityBase> extends DatabaseObjectBase<Field> {
     /**
@@ -22,7 +22,6 @@ public abstract class ModelBase<Field, Entity extends EntityBase> extends Databa
      * @param entity
      *
      * @author Allan Manuba
-     * @version 1.0.0
      */
     public abstract void transferChanges(Entity entity);
 }
