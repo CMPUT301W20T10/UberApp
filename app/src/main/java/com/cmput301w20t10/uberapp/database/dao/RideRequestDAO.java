@@ -245,6 +245,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
 
     public MutableLiveData<Boolean> rateRide(RideRequest rideRequest) {
         rideRequest.setRating(1);
+        rideRequest.setRated(true);
         RideRequestDAO dao = new RideRequestDAO();
         return dao.saveModel(rideRequest);
     }
