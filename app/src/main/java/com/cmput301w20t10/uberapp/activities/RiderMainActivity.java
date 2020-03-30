@@ -18,6 +18,8 @@ import com.cmput301w20t10.uberapp.database.Database;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.RideRequestDAO;
 import com.cmput301w20t10.uberapp.database.RiderDAO;
+import com.cmput301w20t10.uberapp.fragments.RideRatingFragment;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.cmput301w20t10.uberapp.database.viewmodel.RiderViewModel;
@@ -39,6 +41,8 @@ import com.google.android.gms.maps.model.Polyline;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -240,16 +244,47 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         if (user instanceof Rider){
             Log.d(TAG, "if condition passed");
             Rider rider = (Rider) user;
-            dao.createRideRequest(rider,route,PriceOffer,this);
+
+            MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,route,PriceOffer,this);
+            createdRequest.observe(this, request -> {
+                if (request != null) {
+                    Log.d("Testing", "Request is observed");
+
+                    DocumentReference dr = request.getRideRequestReference();
+                    dr.addSnapshotListener((snapshot, e) -> {
+                       if (snapshot != null) {
+                           MutableLiveData<RideRequest> liveRequest = dao.getModelByReference(snapshot.getReference());
+                           liveRequest.observe(this, checkRequest -> {
+                               if (checkRequest != null) {
+                                   Log.d("Testing", "Request is observed");
+                                   Log.d("Testing", "State: " + String.valueOf(checkRequest.getState()));
+
+                                   if (checkRequest.getState() == RideRequest.State.RideCompleted) {
+                                       Application.getInstance().setCurrentRideDocument(dr);
+
+                                       FragmentManager fragManager = getSupportFragmentManager();
+                                       FragmentTransaction fragTransaction = fragManager.beginTransaction();
+                                       RideRatingFragment rateFrag = new RideRatingFragment();
+                                       fragTransaction.add(R.id.fragment_container, rateFrag);
+                                       fragTransaction.commit();
+                                   }
+                               }
+                           });
+                       }
+                    });
+
+                } else {
+                    Log.d("Testing", "Ride Request received as null.");
+                }
+            });
+
+
         }
         else{
             Log.d(TAG, "if condition did not pass");
         }
 
         drawRoute(startingpoint, destination);
-
-
-
     }
 
     private void drawRoute(String startingpoint, String destination){

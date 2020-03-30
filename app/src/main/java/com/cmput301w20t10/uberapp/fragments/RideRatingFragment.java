@@ -20,6 +20,7 @@ import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.User;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.util.List;
 
@@ -44,68 +45,52 @@ public class RideRatingFragment extends Fragment {
 
         Log.d("Testing", "Fragment view created");
 
-        User user = Application.getInstance().getCurrentUser();
-        Rider rider;
-        if (user instanceof Rider) {
-            rider = (Rider) user;
-            Log.d("Testing", "Look for active rides of rider: "+rider.getUsername());
-            DatabaseManager db = DatabaseManager.getInstance();
-            RideRequestDAO rideRequestDAO = db.getRideRequestDAO();
-            DriverDAO driverDAO = db.getDriverDAO();
+        DocumentReference dr = Application.getInstance().getCurrentRideDocument();
+        dr.addSnapshotListener(((documentSnapshot, e) -> {
+            if (documentSnapshot != null) {
+                RideRequestDAO requestDao = new RideRequestDAO();
+                MutableLiveData<RideRequest> liveRequest = requestDao.getModelByReference(documentSnapshot.getReference());
+                liveRequest.observe(this, request -> {
+                    if (request != null) {
+                        DatabaseManager db = DatabaseManager.getInstance();
+                        DriverDAO driverDAO = db.getDriverDAO();
+                        MutableLiveData<Driver> liveDriver = driverDAO.getModelByReference(request.getDriverReference());
+                        liveDriver.observe(this, driver -> {
+                            TextView driverRatingView = view.findViewById(R.id.sPosRate);
+                            TextView driverUnameView = view.findViewById(R.id.uName);
+                            driverUnameView.setText(driver.getUsername());
+                            driverRatingView.setText(String.valueOf(driver.getRating()));
 
-            MutableLiveData<List<RideRequest>> liveData = rideRequestDAO.getAllActiveRideRequest(rider);
-            liveData.observe(this, rideList -> {
-                if (rideList == null) {
-                    Log.d("Testing", "Ride List is null :(");
-                } else {
-                    Log.d("Testing", "Ride list contains " + String.valueOf(rideList.size()) + " Rides");
-                }
-                if (rideList != null && rideList.size() >= 1) {
-                    RideRequest rideRequest = rideList.get(0);
+                            upButton.setOnClickListener(v -> {
+                                if (!hasVoted) {
+                                    hasVoted = true;
+                                    driverDAO.rateDriver(driver, 1);
+                                    close();
+                                }
+                            });
 
-                    MutableLiveData<Driver> liveDriver = driverDAO.getDriverFromDriverReference(rideRequest.getDriverReference());
-                    liveDriver.observe(this, driver -> {
-                        TextView driverRatingView = view.findViewById(R.id.sPosRate);
-                        TextView driverUnameView = view.findViewById(R.id.uName);
-                        driverUnameView.setText(driver.getUsername());
-                        driverRatingView.setText(String.valueOf(driver.getRating()));
-
-                        upButton.setOnClickListener(v -> {
-                            if (!hasVoted) {
-                                hasVoted = true;
-                                driverDAO.rateDriver(driver, 1);
-                            }
+                            downButton.setOnClickListener(v -> {
+                                if (!hasVoted) {
+                                    hasVoted = true;
+                                    driverDAO.rateDriver(driver, -1);
+                                    close();
+                                }
+                            });
                         });
-
-                        downButton.setOnClickListener(v -> {
-                            if (!hasVoted) {
-                                hasVoted = true;
-                                driverDAO.rateDriver(driver, -1);
-                            }
-                        });
-                    });
+                    }
+                });
+            }
+        }));
 
 
-                } else if (rideList != null && rideList.size() == 0) {
-                    Log.d("Testing", "No active rides");
-                    this.close();
-                } else if (rideList == null) {
-                    // no internet connection
-                    this.close();
-                }
-            });
-        } else {
-            Log.d("Testing", "User not rider");
-            this.close();
-        }
 
-        // https://stackoverflow.com/questions/5901298/how-to-get-a-fragment-to-remove-itself-i-e-its-equivalent-of-finish
         closeButton.setOnClickListener(v -> {
             this.close();
         });
     }
 
     private void close() {
+        // https://stackoverflow.com/questions/5901298/how-to-get-a-fragment-to-remove-itself-i-e-its-equivalent-of-finish
         getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
     }
 }
