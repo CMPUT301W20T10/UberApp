@@ -242,6 +242,43 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
         RiderConfirmsCompletionTask task = new RiderConfirmsCompletionTask(rider, rideRequest, owner);
         return task.run();
     }
+
+    public MutableLiveData<Boolean> rateRide(RideRequest rideRequest) {
+        rideRequest.setRating(1);
+        RideRequestDAO dao = new RideRequestDAO();
+        return dao.saveModel(rideRequest);
+    }
+
+    public MutableLiveData<Boolean> rateRide(RideRequest rideRequest, int increment) {
+        return null;
+    }
+}
+
+class RateRideTask extends GetTaskSequencer<Boolean> {
+    static final String LOC = "";
+
+    private final RideRequest rideRequest;
+    private final int increment;
+
+    RateRideTask(RideRequest rideRequest, int increment) {
+        this.rideRequest = rideRequest;
+        this.increment = increment;
+    }
+
+    @Override
+    public void doFirstTask() {
+        // rate ride
+        rideRequest.setRating(increment);
+        RideRequestDAO rideRequestDAO = new RideRequestDAO();
+        rideRequestDAO.saveModel(rideRequest)
+                .observe(lifecycleOwner, aBoolean -> {
+                    if (aBoolean) {
+
+                    } else {
+                        Log.e(TAG, LOC + "doFirstTask: Saving ride request was unsuccessful");
+                    }
+                });
+    }
 }
 
 /**
