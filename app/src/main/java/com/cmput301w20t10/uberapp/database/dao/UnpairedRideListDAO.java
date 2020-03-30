@@ -8,6 +8,7 @@ import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.entity.UnpairedRideEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.RideRequest;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 
@@ -253,7 +255,6 @@ class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
         rideRequest.getRiderReference()
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    Log.d(TAG, LOC + "deactivateRequestFromRider: onSuccess:");
                     RiderEntity riderEntity = documentSnapshot.toObject(RiderEntity.class);
                     deactivateRequestFromRider(riderEntity);
                 })
@@ -284,12 +285,10 @@ class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
     private void getDriverReference() {
         // remove request from driver active
         // put request in driver history
-        Log.d(TAG, LOC + "getDriverReference: We are here");
         DocumentReference driverReference = rideRequest.getDriverReference();
         if (driverReference != null) {
             driverReference.get()
                     .addOnSuccessListener(documentSnapshot -> {
-                        Log.d(TAG, LOC + "getDriverReference: ");
                         DriverEntity driver = documentSnapshot.toObject(DriverEntity.class);
                         deactivateRequestFromDriver(driver);
                     })
@@ -325,7 +324,10 @@ class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
     private void deleteRequest() {
         documentReference.delete()
         .addOnSuccessListener(aVoid -> postResult(true)).addOnFailureListener(e -> {
-            Log.e(TAG, LOC + "deleteRequest: onFailure: ");
+            postResult(true);
+        })
+        .addOnFailureListener(e -> {
+            Log.e(TAG, "onFailure: ", e);
             postResult(false);
         });
     }
