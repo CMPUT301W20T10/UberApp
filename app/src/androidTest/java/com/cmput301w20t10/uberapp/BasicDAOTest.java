@@ -198,7 +198,7 @@ public class BasicDAOTest extends DatabaseTestBase {
         createRideRequest();
     }
 
-    @Test
+    //@Test
     public void createRideRequestForHepCat() throws InterruptedException {
         // Initialize
         Rider rider = logInAsRider(BASIC_TEST_RIDER1);

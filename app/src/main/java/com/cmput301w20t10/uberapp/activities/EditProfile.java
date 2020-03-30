@@ -22,6 +22,9 @@ import java.util.regex.Pattern;
 
 /*Used https://firebase.google.com/docs/firestore/manage-data/add-data official documentation for updating data.*/
 public class EditProfile extends AppCompatActivity {
+
+    SharedPref sharedPref;
+
     Button butCancel;
     Button butSave;
     ImageButton butPicture;
@@ -30,6 +33,12 @@ public class EditProfile extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sharedPref = new SharedPref(this);
+        if (sharedPref.loadNightModeState() == true) {
+            setTheme(R.style.DarkTheme);
+        } else { setTheme(R.style.AppTheme); }
+
         setContentView(R.layout.edit_profile);
 
         this.firstNameField = findViewById(R.id.editFname);
@@ -55,13 +64,6 @@ public class EditProfile extends AppCompatActivity {
         });
 
         butSave.setOnClickListener(v -> {
-            /*
-            need to save all values/changed values/appropriate values
-            then need to access the USER/profile/Driver/Rider Class
-            using getters/setters, compare and save the updated values from EditProfile activity
-            save to firestore database?
-            use finish(); to return back to previous activity - the ProfilePage
-            */
             //Check that the email is valid
             String firstName = firstNameField.getText().toString();
             String lastName = lastNameField.getText().toString();

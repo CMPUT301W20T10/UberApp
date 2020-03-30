@@ -137,8 +137,8 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
     // todo: deprecate the below task or make the task shorter and not redundant
 
     /**
-     * @see DAOBase#createModelFromEntity(EntityBase) 
-     * 
+     * @see DAOBase#createModelFromEntity(EntityBase)
+     *
      * @param driverEntity DriverEntity
      * @return
      */
@@ -150,7 +150,7 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
 
     /**
      * @see DAOBase#createObjectFromSnapshot(DocumentSnapshot)
-     * 
+     *
      * @param   snapshot DocumentSnapshot
      * @return
      */

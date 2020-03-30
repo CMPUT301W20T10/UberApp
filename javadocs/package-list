@@ -1,0 +1,13 @@
+com.cmput301w20t10.uberapp
+com.cmput301w20t10.uberapp.Directions
+com.cmput301w20t10.uberapp.activities
+com.cmput301w20t10.uberapp.database
+com.cmput301w20t10.uberapp.database.base
+com.cmput301w20t10.uberapp.database.entity
+com.cmput301w20t10.uberapp.database.util
+com.cmput301w20t10.uberapp.database.viewmodel
+com.cmput301w20t10.uberapp.fragments
+com.cmput301w20t10.uberapp.messaging
+com.cmput301w20t10.uberapp.models
+com.cmput301w20t10.uberapp.qrcode
+com.cmput301w20t10.uberapp.util

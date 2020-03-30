@@ -290,15 +290,15 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
     private void getDriverObject() {
         driverDAO = new DriverDAO();
         driverDAO.getDriverFromDriverReference(rideRequest.getDriverReference())
-        .observe(owner, driver -> {
-            if (driver != null) {
-                recipient = driver;
-                createTransaction();
-            } else {
-                Log.e(TAG, LOC + "onChanged: driver null");
-                postResult(null);
-            }
-        });
+            .observe(owner, driver -> {
+                if (driver != null) {
+                    recipient = driver;
+                    createTransaction();
+                } else {
+                    Log.e(TAG, LOC + "onChanged: driver null");
+                    postResult(null);
+                }
+            });
     }
 
     private void createTransaction() {
