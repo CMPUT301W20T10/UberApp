@@ -3,7 +3,7 @@ package com.cmput301w20t10.uberapp.messaging;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.Application;
-import com.cmput301w20t10.uberapp.activities.LoginActivity;
+import com.cmput301w20t10.uberapp.activities.RiderMainActivity;
 import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -21,6 +21,7 @@ public class FCMReceiver extends FirebaseMessagingService {
     /**
      * Determines what to do when a message is received. This can be set manually or ignored if
      * no function is set
+     *
      * @param callback - The function to be called when a message is received
      */
     public static synchronized void setOnMessageReceivedCallback(OnMessageReceivedCallback callback) {
@@ -43,8 +44,8 @@ public class FCMReceiver extends FirebaseMessagingService {
 
 
     /**
-     * Called when a message is received. If the app is running in the background, a push notification
-     * is sent to the user
+     * This is called when a message is received. If the app is in the foreground, it will call the
+     * callback function. If no callback function is called, nothing happens.
      *
      * @param remoteMessage - Object representing the message received from Firebase Cloud Messaging
      */
@@ -54,9 +55,12 @@ public class FCMReceiver extends FirebaseMessagingService {
          * When a message is received, it is handled here. Here is where you would specify
          * where the user is sent when the message is received.
          */
-        // Todo(Joshua): Determine if the application is in the background or not
-        if (remoteMessage.getNotification() != null) {
-            if(onMessageReceivedCallback != null) {
+
+        if (Application.getInstance().isInBackground()) {
+            NotificationService.sendNotification("UberApp", "You have reached your destination",
+                    getApplicationContext(), RiderMainActivity.class);
+        } else {
+            if (remoteMessage.getNotification() != null && onMessageReceivedCallback != null) {
                 onMessageReceivedCallback.onMessageReceived();
             }
         }
