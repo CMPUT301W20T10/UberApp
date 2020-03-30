@@ -19,14 +19,14 @@ import static com.cmput301w20t10.uberapp.database.entity.TransactionEntity.*;
  * @see EntityBase
  *
  * @author Allan Manuba
- * @version 1.0.0
+ * @version 1.1.1
  */
 public class TransactionEntity extends EntityBase<Field> {
 
     // region Fields
     /**
      * Fields
-     * @version 1.0.0
+     * @version 1.1.1.1
      */
 
     private DocumentReference transactionReference;
@@ -58,7 +58,11 @@ public class TransactionEntity extends EntityBase<Field> {
     // region Constructors
     /**
      * Constructors
-     * @version 1.0.0
+     * @version 1.1.1
+     */
+
+    /**
+     * Required for deserialization
      */
     public TransactionEntity() { super(); }
 
@@ -76,8 +80,7 @@ public class TransactionEntity extends EntityBase<Field> {
      *
      * @return a map that can be used to update a Firestore reference
      *
-     * @author Allan Manuba
-     * @version 1.0.0
+     * @version 1.1.1.1
      */
     @Override
     @Exclude

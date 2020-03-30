@@ -26,13 +26,13 @@ import static com.cmput301w20t10.uberapp.database.entity.RideRequestEntity.*;
  * Entity objects are the one-to-one representation of objects from the database.
  *
  * @author Allan Manuba
- * @version 1.0.0
+ * @version 1.1.1
  */
 public class RideRequestEntity extends EntityBase<Field> {
     // region Fields
     /**
      * Fields
-     * @version 1.0.0
+     * @version 1.1.1.1
      */
     private static final String LOC = "RideRequestEntity";
 
@@ -75,11 +75,6 @@ public class RideRequestEntity extends EntityBase<Field> {
 
     // region Constructors
     /**
-     * Constructors
-     * @version 1.0.0
-     */
-
-    /**
      * Required for deserializing
      */
     public RideRequestEntity() {}
@@ -101,8 +96,7 @@ public class RideRequestEntity extends EntityBase<Field> {
      *
      * @return a map that can be used to update a Firestore reference
      *
-     * @author Allan Manuba
-     * @version 1.0.0
+     * @version 1.1.1.1
      */
     @Override
     @Exclude
@@ -242,7 +236,6 @@ public class RideRequestEntity extends EntityBase<Field> {
     }
 
     public void setUnpairedReference(DocumentReference unpairedReference) {
-        Log.e(TAG, "setUnpairedReference: 4");
         addDirtyField(Field.UNPAIRED_REFERENCE);
         this.unpairedReference = unpairedReference;
     }

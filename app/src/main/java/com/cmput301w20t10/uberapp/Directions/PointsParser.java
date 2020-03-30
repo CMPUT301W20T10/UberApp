@@ -34,7 +34,6 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
         try {
             jObject = new JSONObject(jsonData[0]);
             Log.d("mylog", jsonData[0]);
-
             DataParser parser = new DataParser();
             Log.d("mylog", parser.toString());
 
@@ -69,8 +68,8 @@ public class PointsParser extends AsyncTask<String, Integer, List<List<HashMap<S
                 LatLng position = new LatLng(lat, lng);
                 points.add(position);
             }
+            // Adding all the points in the route to LineOptions
             lineOptions.addAll(points);
-             // Adding all the points in the route to LineOptions
             if (directionMode.equalsIgnoreCase("walking")) {
                 lineOptions.width(10);
                 lineOptions.color(Color.MAGENTA);

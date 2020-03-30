@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
  *  Link: stackoverflow.com/a/5916374
  *
  * @author Allan Manuba
- * @version 1.0.1
+ * @version 1.1.1
  */
 public class DatabaseLogger {
 
@@ -20,8 +20,6 @@ public class DatabaseLogger {
      *
      * @param exception should always be new Exception()
      * @param message   additional message
-     *
-     * @version 1.0.1
      */
     public static void error(Exception exception, String message, @Nullable Exception error) {
         StackTraceElement element = exception.getStackTrace()[0];

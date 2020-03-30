@@ -17,15 +17,13 @@ import static com.cmput301w20t10.uberapp.database.entity.DriverEntity.*;
  * @see EntityBase
  *
  * @author Allan Manuba
- * @version 1.0.0
+ * @version 1.1.2
+ * Remove unneeded constructor
+ *
+ * @version 1.1.1
  */
 public class DriverEntity extends EntityBase<Field> {
     // region Fields
-    /**
-     * Fields
-     * version 1.0.0
-     */
-
     private DocumentReference userReference;
     private DocumentReference driverReference;
     private List<DocumentReference> paymentList;
@@ -55,11 +53,6 @@ public class DriverEntity extends EntityBase<Field> {
     // endregion Fields
 
     // region Constructors
-    /**
-     * Constructors
-     * @version 1.0.0
-     */
-
     public DriverEntity() {
         super();
         this.rating = 0;
@@ -67,28 +60,12 @@ public class DriverEntity extends EntityBase<Field> {
         this.finishedRideRequestList = new ArrayList<>();
         this.activeRideRequestList = new ArrayList<>();
     }
-
-    // todo (Allan): investigate if still needed
-    public DriverEntity(DocumentReference userReference,
-                        DocumentReference driverReference,
-                        List<DocumentReference> paymentList,
-                        List<DocumentReference> finishedRideRequestList,
-                        List<DocumentReference> activeRideRequestList) {
-        this.userReference = userReference;
-        this.driverReference = driverReference;
-        this.paymentList = paymentList;
-        this.finishedRideRequestList = finishedRideRequestList;
-        this.activeRideRequestList = activeRideRequestList;
-    }
     // endregion Constructors
 
     /**
      * Should only be used in the database.
      *
      * @return a map that can be used to update a Firestore reference
-     *
-     * @author Allan Manuba
-     * @version 1.0.0
      */
     @Override
     @Exclude
@@ -128,9 +105,6 @@ public class DriverEntity extends EntityBase<Field> {
      * that point on
      *
      * @param rideRequest
-     *
-     * @author Allan Manuba
-     * @version 1.0.0
      */
     public void deactivateRideRequest(RideRequest rideRequest) {
         activeRideRequestList.remove(rideRequest.getRideRequestReference());
