@@ -43,7 +43,8 @@ public class FCMReceiver extends FirebaseMessagingService {
 
 
     /**
-     * Called when a message is received
+     * Called when a message is received. If the app is running in the background, a push notification
+     * is sent to the user
      *
      * @param remoteMessage - Object representing the message received from Firebase Cloud Messaging
      */
