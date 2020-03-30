@@ -1,9 +1,11 @@
-package com.cmput301w20t10.uberapp.database;
+package com.cmput301w20t10.uberapp.database.dao;
 
 
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
+import com.cmput301w20t10.uberapp.database.base.ModelBase;
 import com.cmput301w20t10.uberapp.database.entity.TransactionEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
@@ -23,6 +25,13 @@ import androidx.lifecycle.MutableLiveData;
 
 import static android.content.ContentValues.TAG;
 
+/**
+ * Data Access Object (DAO) for Transaction model.
+ * DAO contains specific operations that are concerned with the model they are associated with.
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
     static final String COLLECTION = "transactions";
     private final static String LOC = "TransactionDAO: ";
@@ -38,6 +47,15 @@ public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
         return task.run();
     }
 
+    /**
+     * Creates a Transaction
+     *
+     * @param owner
+     * @param rideRequest
+     * @param value
+     * @return MutableLiveData that receives either a Transaction model object or a null
+     * object indicating an error has happened somewhere in-between, likely due to connection loss
+     */
     public MutableLiveData<Transaction> createTransaction(LifecycleOwner owner,
                                                           RideRequest rideRequest,
                                                           int value) {
@@ -45,6 +63,11 @@ public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
         return task.run();
     }
 
+    /**
+     * @see DAOBase#saveModel(ModelBase)
+     * @param transaction
+     * @return
+     */
     @Override
     public MutableLiveData<Boolean> saveModel(Transaction transaction) {
         TransactionEntity entity = new TransactionEntity();
@@ -62,6 +85,11 @@ public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
         return new TransactionDAO();
     }
 
+    /**
+     * @see DAOBase#createModelFromEntity(EntityBase)
+     * @param   entity             Entity
+     * @return
+     */
     @Override
     protected MutableLiveData<Transaction> createModelFromEntity(TransactionEntity entity) {
         TransactionEntityToModelTask task = new TransactionEntityToModelTask(entity);
@@ -73,12 +101,24 @@ public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
         return snapshot.toObject(TransactionEntity.class);
     }
 
+    /**
+     * @see DAOBase#createModelFromEntity(EntityBase)
+     * @param entity
+     * @return
+     */
     public MutableLiveData<Transaction> transactionEntityToModel(TransactionEntity entity) {
         TransactionEntityToModelTask task = new TransactionEntityToModelTask(entity);
         return task.run();
     }
 }
 
+/**
+ * Sequence of function required to convert an entity to a model
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 class TransactionEntityToModelTask extends GetTaskSequencer<Transaction> {
     static final String LOC = "PaymentDAO: PaymentEntityToModelTask: ";
 
@@ -131,6 +171,13 @@ class TransactionEntityToModelTask extends GetTaskSequencer<Transaction> {
     }
 }
 
+/**
+ * Sequence of function required to create a Transaction model object
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 class CreateTransactionTask extends GetTaskSequencer<Transaction> {
     static final String LOC = "Toamte: TransactionDAO: CreateTransactionTask: ";
 
@@ -195,6 +242,13 @@ class CreateTransactionTask extends GetTaskSequencer<Transaction> {
     }
 }
 
+/**
+ * Sequence of function required to create a transaction for a ride
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
     final static String LOC = "Tomate: TransactionDAO: CreateTransactionForRideTask: ";
 

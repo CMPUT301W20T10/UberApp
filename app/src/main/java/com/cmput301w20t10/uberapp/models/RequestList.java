@@ -44,7 +44,7 @@ public class RequestList extends ArrayAdapter<RideRequest_old> {
             LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = vi.inflate(R.layout.ride_request_content,null);
 
-            LinearLayout textViewWrap = (LinearLayout) view.findViewById(R.id.text_wrap);
+            LinearLayout textViewWrap = view.findViewById(R.id.text_wrap);
             TextView username = view.findViewById(R.id.request_username);
             TextView distance = view.findViewById(R.id.request_distance);
             TextView offer = view.findViewById(R.id.request_offer);

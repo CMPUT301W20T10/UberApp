@@ -1,4 +1,4 @@
-package com.cmput301w20t10.uberapp.database;
+package com.cmput301w20t10.uberapp.database.dao;
 
 import android.util.Log;
 
@@ -90,6 +90,13 @@ public class UnpairedRideListDAO {
     }
 }
 
+/**
+ * Sequence of function required to get all unpaired ride requests
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
     final static String LOC = "UnpairedRideListDAO: GetAllUnpairedRideRequestTask: ";
 
@@ -145,6 +152,14 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
     }
 }
 
+
+/**
+ * Sequence of function required to remove a ride request from unpaired ride requests
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
     static final String LOC = "Tomate: UnpairedRideListDAO: RemoveRiderRequestTask: ";
 

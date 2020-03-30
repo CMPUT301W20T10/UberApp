@@ -1,16 +1,16 @@
-package com.cmput301w20t10.uberapp.database;
+package com.cmput301w20t10.uberapp.database.dao;
 
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
+import com.cmput301w20t10.uberapp.database.base.ModelBase;
 import com.cmput301w20t10.uberapp.database.entity.DriverEntity;
 import com.cmput301w20t10.uberapp.database.entity.UserEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-
-import java.util.Map;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
@@ -25,6 +25,7 @@ import static android.content.ContentValues.TAG;
  * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
+ * @version 1.1.1
  */
 public class DriverDAO extends DAOBase<DriverEntity, Driver> {
     static final String COLLECTION = "drivers";
@@ -110,6 +111,12 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
         return task.run();
     }
 
+    /**
+     * @see DAOBase#saveModel(ModelBase)
+     *
+     * @param driver
+     * @return
+     */
     @Override
     public MutableLiveData<Boolean> saveModel(Driver driver) {
         DriverEntity driverEntity = new DriverEntity();
@@ -128,33 +135,74 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
     }
 
     // todo: deprecate the below task or make the task shorter and not redundant
+
+    /**
+     * @see DAOBase#createModelFromEntity(EntityBase) 
+     * 
+     * @param driverEntity DriverEntity
+     * @return
+     */
     @Override
     protected MutableLiveData<Driver> createModelFromEntity(DriverEntity driverEntity) {
         GetDriverFromReferenceTask task = new GetDriverFromReferenceTask(driverEntity.getDriverReference());
         return task.run();
     }
 
+    /**
+     * @see DAOBase#createObjectFromSnapshot(DocumentSnapshot)
+     * 
+     * @param   snapshot DocumentSnapshot
+     * @return
+     */
     @Override
     protected DriverEntity createObjectFromSnapshot(DocumentSnapshot snapshot) {
         return snapshot.toObject(DriverEntity.class);
     }
 
+    /**
+     * @see DAOBase#saveModel(ModelBase)
+     *
+     * @param owner
+     * @param driver
+     * @return
+     */
     public LiveData<Boolean> saveModel(LifecycleOwner owner, Driver driver) {
         SaveDriverModelTask saveDriverModelTask = new SaveDriverModelTask(owner, driver);
         return saveDriverModelTask.run();
     }
 
+    /**
+     * @see DAOBase#getModelByReference(DocumentReference)
+     *
+     * @param driverReference
+     * @return
+     */
     public MutableLiveData<Driver> getDriverFromDriverReference(DocumentReference driverReference) {
         GetDriverFromReferenceTask task = new GetDriverFromReferenceTask(driverReference);
         return task.run();
     }
 
+    /**
+     * Rates the driver, and increments their rating in the server.
+     *
+     * @param driver    Driver
+     * @param increment int
+     * @return  MutableLiveData<Boolean> which may receive a boolean indicating whether the
+     * rating was properly saved into the server
+     */
     public MutableLiveData<Boolean> rateDriver(Driver driver, int increment) {
         driver.incrementRating(increment);
         return saveModel(driver);
     }
 }
 
+/**
+ * Sequence of function required to update the driver model's data in the server
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 class SaveDriverModelTask extends GetTaskSequencer<Boolean> {
     final static String LOC = "Tomate: DriverDAO: SaveModel: ";
     private final DriverEntity driverEntity;
@@ -205,6 +253,13 @@ class SaveDriverModelTask extends GetTaskSequencer<Boolean> {
     }
 }
 
+/**
+ * Sequence of function required to get the driver model given only a DocumentReference
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
     static final String LOC = DriverDAO.LOC + "GetDriverFromReferenceTask: ";
 
@@ -259,6 +314,13 @@ class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
     }
 }
 
+/**
+ * Sequence of function required to register a new driver
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 class RegisterDriverTask extends GetTaskSequencer<Driver> {
     static final String LOC = "Tomate: RegisterDriverTask: ";
 
@@ -363,6 +425,13 @@ class RegisterDriverTask extends GetTaskSequencer<Driver> {
     }
 }
 
+/**
+ * Sequence of function required to log in as a driver
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.1.1
+ */
 class LogInAsDriverTask extends GetTaskSequencer<Driver> {
     static final String LOC = DriverDAO.LOC + "LogInAsDriverTask";
 

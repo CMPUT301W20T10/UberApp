@@ -14,10 +14,10 @@ import androidx.lifecycle.Observer;
  * @param <Result>   Object type of the live data to be observed
  *
  * @author Allan Manuba
- * @version 1.0.2
+ * @version 1.1.2
  * Add lifecycle handler
  *
- * @version 1.0.1
+ * @version 1.1.1
  */
 public abstract class GetTaskSequencer<Result> {
     protected FirebaseFirestore db;
@@ -37,15 +37,16 @@ public abstract class GetTaskSequencer<Result> {
      * GetTaskSequencer subclasses.
      *
      * @return  Live data to observed
-     *
-     * @author Allan Manuba
-     * @version 1.0.2
      */
     public MutableLiveData<Result> run() {
         doFirstTask();
         return liveData;
     }
 
+    /**
+     * Handles posting to the live data and it also sets the lifecycleowner on a destroyed state
+     * @param result
+     */
     protected void postResult(Result result) {
         liveData.setValue(result);
         lifecycleOwner.callEvent(Lifecycle.Event.ON_DESTROY);

@@ -29,7 +29,7 @@ public class FetchURL extends AsyncTask<String, Void, String> {
         try {
             // Fetching the data from web service
             ResponseString = downloadUrl(strings[0]);
-            Log.d("mylog", "Background task data " +  ResponseString.toString());
+            Log.d("mylog", "Background task data " + ResponseString);
         } catch (Exception e) {
             Log.d("Background Task", e.toString());
         }
@@ -62,7 +62,7 @@ public class FetchURL extends AsyncTask<String, Void, String> {
                 sb.append(line);
             }
             data = sb.toString();
-            Log.d("mylog", "Downloaded URL: " + data.toString());
+            Log.d("mylog", "Downloaded URL: " + data);
             br.close();
         } catch (Exception e) {
             Log.d("mylog", "Exception downloading URL: " + e.toString());

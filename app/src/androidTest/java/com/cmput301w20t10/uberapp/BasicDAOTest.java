@@ -2,11 +2,11 @@ package com.cmput301w20t10.uberapp;
 
 import android.util.Log;
 
-import com.cmput301w20t10.uberapp.database.DriverDAO;
-import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
-import com.cmput301w20t10.uberapp.database.RideRequestDAO;
-import com.cmput301w20t10.uberapp.database.TransactionDAO;
-import com.cmput301w20t10.uberapp.database.UnpairedRideListDAO;
+import com.cmput301w20t10.uberapp.database.dao.DriverDAO;
+import com.cmput301w20t10.uberapp.database.dao.LoginRegisterDAO;
+import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
+import com.cmput301w20t10.uberapp.database.dao.TransactionDAO;
+import com.cmput301w20t10.uberapp.database.dao.UnpairedRideListDAO;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;

@@ -1,6 +1,4 @@
-package com.cmput301w20t10.uberapp.database;
-
-import android.util.Log;
+package com.cmput301w20t10.uberapp.database.dao;
 
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.models.Driver;
@@ -14,6 +12,7 @@ import androidx.lifecycle.MutableLiveData;
  * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
+ * @version 1.1.1
  */
 public class LoginRegisterDAO {
     //region rider related
