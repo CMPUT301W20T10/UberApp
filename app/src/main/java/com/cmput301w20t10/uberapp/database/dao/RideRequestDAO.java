@@ -256,8 +256,10 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
  * @version 1.1.1
  */
 class GetAllActiveRideRequestTask extends GetAllRideRequestTask {
+    private final static String LOC = RideRequestDAO.LOC + "GetAllActiveRideRequestTask: ";
+
     GetAllActiveRideRequestTask(Rider rider) {
-        super(rider.getTransactionList());
+        super(rider.getActiveRideRequestList());
     }
 
     GetAllActiveRideRequestTask(Driver driver) {
@@ -297,6 +299,7 @@ class GetAllRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
     private final List<RideRequest> rideRequestList;
 
     GetAllRideRequestTask(List<DocumentReference> referenceList) {
+        Log.d(TAG, LOC + "GetAllRideRequestTask: ");
         this.referenceList = referenceList;
         this.finalSize = this.referenceList.size();
         this.rideRequestList = new ArrayList<>();
@@ -520,7 +523,6 @@ class DriverAcceptRequestTask extends GetTaskSequencer<Boolean> {
         driverDAO.saveModel(driver)
             .observe(owner, aBoolean -> {
                 if (aBoolean) {
-                    Log.d(TAG, LOC + "updateDriver: ");
                     removeRequestFromUnpaired();
                 } else {
                     Log.e(TAG, LOC + "updateDriver: onChanged: ");
@@ -532,16 +534,12 @@ class DriverAcceptRequestTask extends GetTaskSequencer<Boolean> {
     private void removeRequestFromUnpaired() {
         UnpairedRideListDAO unpairedRideListDAO = new UnpairedRideListDAO();
         unpairedRideListDAO.removeRideRequest(rideRequest, owner)
-        .observe(owner, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                if (aBoolean) {
-                    Log.d(TAG, LOC + "onChanged: ");
-                    postResult(true);
-                } else {
-                    Log.e(TAG, LOC + "removeRequestFromUnpaired: onChanged: ");
-                    postResult(false);
-                }
+        .observe(owner, aBoolean -> {
+            if (aBoolean) {
+                postResult(true);
+            } else {
+                Log.e(TAG, LOC + "removeRequestFromUnpaired: onChanged: ");
+                postResult(false);
             }
         });
     }

@@ -306,7 +306,6 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
         db.collection(TransactionDAO.COLLECTION)
                 .add(transactionEntity)
                 .addOnSuccessListener(documentReference -> {
-                    Log.d(TAG, LOC + "createTransaction: ");
                     updateTransactionEntity(documentReference);
                 })
                 .addOnFailureListener(e -> {
@@ -321,7 +320,6 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
         transactionDAO.saveEntity(transactionEntity)
                 .observe(owner, aBoolean -> {
                     if (aBoolean) {
-                        Log.d(TAG, LOC + "updateTransactionEntity: ");
                         updateRideRequest();
                     } else {
                         Log.e(TAG, LOC + "updateTransactionEntity: onComplete: ");
@@ -348,7 +346,6 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
         riderDAO.saveModel(sender)
                 .observe(owner, aBoolean -> {
                     if (aBoolean) {
-                        Log.d(TAG, "updateRider: saveComplete: ");
                         updateDriver();
                     } else {
                         Log.e(TAG, LOC + "updateRider: onComplete: Fail to update rider");
