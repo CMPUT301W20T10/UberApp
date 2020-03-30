@@ -25,8 +25,7 @@ public class Route {
         if (startingPosition != null) {
             this.startingPosition = new LatLng(startingPosition.getLatitude(), startingPosition.getLongitude());
         }
-
-        if (startingPosition != null) {
+        if (destination != null) {
             this.destination = new LatLng(destination.getLatitude(), destination.getLongitude());
         }
     }
@@ -39,16 +38,15 @@ public class Route {
         }
     }
 
-    public LatLng getStartingPosition() {
-        if (markerList.size() > 0) {
+    public LatLng getStartingPosition(){
+        if (markerList.size() > 0 && markerList.get(0) != null) {
             return markerList.get(0).getPosition();
         } else {
             return startingPosition;
         }
     }
-
-    public LatLng getDestinationPosition() {
-        if (markerList.size() > 1) {
+    public LatLng getDestinationPosition(){
+        if (markerList.size() > 1 && markerList.get(1) != null) {
             return markerList.get(1).getPosition();
         } else {
             return destination;

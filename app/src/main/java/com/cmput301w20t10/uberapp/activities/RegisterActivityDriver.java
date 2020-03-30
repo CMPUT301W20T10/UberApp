@@ -29,9 +29,18 @@ public class RegisterActivityDriver extends AppCompatActivity {
     private EditText confirmPasswordField;
     private EditText phoneField;
 
+    SharedPref sharedPref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sharedPref = new SharedPref(this);
+        if (sharedPref.loadNightModeState() == true) {
+            setTheme(R.style.DarkTheme);
+        } else { setTheme(R.style.AppTheme); }
+        setContentView(R.layout.activity_login);
+
         setContentView(R.layout.activity_register);
 
         this.firstNameField = findViewById(R.id.first_name_field);
