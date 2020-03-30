@@ -4,6 +4,7 @@ package com.cmput301w20t10.uberapp;
  * This is a data holder class intended to hold the data regarding a user. Drawbacks to this class
  *  involve the security risk of storing the password in a String format
  */
+@Deprecated
 public class User {
 
     private String userName;

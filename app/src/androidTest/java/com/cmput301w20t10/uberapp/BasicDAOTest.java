@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class BasicDAOTest extends DatabaseTestBase {
-    private static final String TAG = "Tomate";
+    private static final String TAG = "Tomate: ";
 
     @Before
     public void initialize() {
@@ -127,7 +127,7 @@ public class BasicDAOTest extends DatabaseTestBase {
         loginAsRider();
     }
 
-    private Rider loginAsRider() throws InterruptedException {
+    protected Rider loginAsRider() throws InterruptedException {
         // get data
         final Object syncObject = new Object();
         AtomicReference<Rider> riderAtomicReference = new AtomicReference<>();
@@ -159,7 +159,7 @@ public class BasicDAOTest extends DatabaseTestBase {
         loginAsDriver();
     }
 
-    private Driver loginAsDriver() throws InterruptedException {
+    protected Driver loginAsDriver() throws InterruptedException {
         // get data
         final Object syncObject = new Object();
         AtomicReference<Driver> atomicReference = new AtomicReference<>();
@@ -266,7 +266,7 @@ public class BasicDAOTest extends DatabaseTestBase {
             Observer<List<RideRequest>> observer = new AssertNotNullObserver<List<RideRequest>>(syncObject) {
                 @Override
                 public void onChanged(List<RideRequest> rideRequests) {
-                    if (rideRequests.size() > 1) {
+                    if (rideRequests.size() >= 1) {
                         super.onChanged(rideRequests);
                     }
                 }

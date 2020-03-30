@@ -10,10 +10,10 @@ import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
@@ -66,31 +66,16 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
         return task.run();
     }
 
+    /**
+     *
+     * @param rider
+     * @return
+     *
+     * @version 1.1.2.2
+     */
     public MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Rider rider) {
-        MutableLiveData<List<RideRequest>> mutableLiveData = new MutableLiveData<>();
-        List<RideRequest> rideList = new ArrayList<>();
-        mutableLiveData.setValue(rideList);
-
-        for (DocumentReference reference :
-                rider.getActiveRideRequestList()) {
-            reference.get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
-
-                            if (rideRequestEntity != null) {
-                                rideList.add(new RideRequest(rideRequestEntity));
-                                mutableLiveData.setValue(rideList);
-                            } else {
-                                Log.e(TAG, "onComplete: ", task.getException());
-                            }
-                        } else {
-                            Log.e(TAG, "onComplete: ", task.getException());
-                        }
-                    });
-        }
-
-        return mutableLiveData;
+        GetAllActiveRideRequestTask task = new GetAllActiveRideRequestTask(rider);
+        return task.run();
     }
 
     @Override
@@ -98,6 +83,28 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
         RideRequestEntity entity = new RideRequestEntity();
         rideRequest.transferChanges(entity);
         return saveEntity(entity);
+    }
+
+    @Override
+    protected String getCollectionName() {
+        return COLLECTION;
+    }
+
+    @Override
+    protected DAOBase<RideRequestEntity, RideRequest> create() {
+        return new RideRequestDAO();
+    }
+
+    @Override
+    protected MutableLiveData<RideRequest> createModelFromEntity(RideRequestEntity rideRequestEntity) {
+        MutableLiveData<RideRequest> liveData = new MutableLiveData<>();
+        liveData.setValue(new RideRequest(rideRequestEntity));
+        return liveData;
+    }
+
+    @Override
+    protected RideRequestEntity createObjectFromSnapshot(DocumentSnapshot snapshot) {
+        return snapshot.toObject(RideRequestEntity.class);
     }
 
     public MutableLiveData<Boolean> cancelRequest(final RideRequest rideRequest,
@@ -116,31 +123,23 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
         return task.run();
     }
 
+    /**
+     * @param   driver
+     * @return              List<RideRequest> or null
+     *
+     * @version 1.1.2.2
+     * Sends a complete list or a null object
+     *
+     * @version 1.1.1.1
+     * Sends an empty list knowing there's an internet connection.
+     * For every subsequent update, the list increases in size.
+     * During these updates, when we lose connection, we get null instead of a list.
+     * The updates stop as soon as the list in the database is exhausted or when we lose connection
+     * i.e. we receive a null object instead of a list
+     */
     public MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Driver driver) {
-        MutableLiveData<List<RideRequest>> mutableLiveData = new MutableLiveData<>();
-        List<RideRequest> rideList = new ArrayList<>();
-        mutableLiveData.setValue(rideList);
-
-        for (DocumentReference reference :
-                driver.getActiveRideRequestList()) {
-            reference.get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
-
-                            if (rideRequestEntity != null) {
-                                rideList.add(new RideRequest(rideRequestEntity));
-                                mutableLiveData.setValue(rideList);
-                            } else {
-                                Log.e(TAG, LOC + "onComplete: ", task.getException());
-                            }
-                        } else {
-                            Log.e(TAG, LOC + "onComplete: ", task.getException());
-                        }
-                    });
-        }
-
-        return mutableLiveData;
+        GetAllActiveRideRequestTask task = new GetAllActiveRideRequestTask(driver);
+        return task.run();
     }
 
     public MutableLiveData<Boolean> acceptRideFromDriver(RideRequest rideRequest, Rider rider, LifecycleOwner owner) {
@@ -151,6 +150,56 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
     public MutableLiveData<Boolean> confirmRideCompletion(RideRequest rideRequest, Rider rider, LifecycleOwner owner) {
         RiderConfirmsCompletionTask task = new RiderConfirmsCompletionTask(rider, rideRequest, owner);
         return task.run();
+    }
+}
+
+class GetAllActiveRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
+    private final static String LOC = RideRequestDAO.LOC + "GetAllActiveRideRequestTask: ";
+
+    private final int finalSize;
+    private final List<DocumentReference> referenceList;
+    private final List<RideRequest> rideRequestList;
+
+    GetAllActiveRideRequestTask(Rider rider) {
+        this.referenceList = rider.getActiveRideRequestList();
+        this.finalSize = this.referenceList.size();
+        this.rideRequestList = new ArrayList<>();
+    }
+
+    GetAllActiveRideRequestTask(Driver driver) {
+        this.referenceList = driver.getActiveRideRequestList();
+        this.finalSize = this.referenceList.size();
+        this.rideRequestList = new ArrayList<>();
+    }
+
+    @Override
+    public void doFirstTask() {
+        for (DocumentReference reference : referenceList) {
+            reference.get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
+
+                            if (rideRequestEntity != null) {
+                                addRideRequest(rideRequestEntity);
+                            } else {
+                                Log.e(TAG, LOC + "onComplete: ", task.getException());
+                                postResult(null);
+                            }
+                        } else {
+                            Log.e(TAG, LOC + "onComplete: ", task.getException());
+                            postResult(null);
+                        }
+                    });
+        }
+    }
+
+    // todo put a timeout here to prevent issues later on
+    private void addRideRequest(RideRequestEntity rideRequestEntity) {
+        rideRequestList.add(new RideRequest(rideRequestEntity));
+        if (rideRequestList.size() == finalSize) {
+            postResult(rideRequestList);
+        }
     }
 }
 

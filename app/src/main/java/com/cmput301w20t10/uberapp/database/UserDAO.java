@@ -12,8 +12,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Map;
-
 import static android.content.ContentValues.TAG;
 
 /**
@@ -21,9 +19,10 @@ import static android.content.ContentValues.TAG;
  * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
+ * @version 1.0.1
  */
 public class UserDAO extends DAOBase<UserEntity, User> {
-    private static final String COLLECTION = "users";
+    static final String COLLECTION = "users";
     final static String LOC = "Tomate: UserDAO: ";
 
     public UserDAO() {}
@@ -81,6 +80,24 @@ public class UserDAO extends DAOBase<UserEntity, User> {
                 });
 
         return userLiveData;
+    }
+
+    public MutableLiveData<Integer> checkForUserCount(String username) {
+        MutableLiveData<Integer> liveData = new MutableLiveData<>();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection(COLLECTION)
+                .whereEqualTo(UserEntity.Field.USERNAME.toString(), username)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        liveData.setValue(task.getResult().size());
+                    } else {
+                        liveData.setValue(null);
+                    }
+                });
+
+        return liveData;
     }
 
     /**
@@ -150,5 +167,52 @@ public class UserDAO extends DAOBase<UserEntity, User> {
             liveData.setValue(false);
             return liveData;
         }
+    }
+
+    @Override
+    protected String getCollectionName() {
+        return COLLECTION;
+    }
+
+    @Override
+    protected DAOBase<UserEntity, User> create() {
+        return new UserDAO();
+    }
+
+    @Override
+    protected MutableLiveData<User> createModelFromEntity(UserEntity userEntity) {
+        MutableLiveData<User> liveData = new MutableLiveData<>();
+        liveData.setValue(new User(userEntity));
+        return liveData;
+    }
+
+    @Override
+    protected UserEntity createObjectFromSnapshot(DocumentSnapshot snapshot) {
+        return snapshot.toObject(UserEntity.class);
+    }
+
+    /**
+     * Gets a User object using their DocumentID.
+     *
+     * <pre>
+     *     UserDAO dao = new UserDAO();
+     *     MutableLiveData<User> liveData = dao.getUserByUserID(userId);
+     *     liveData.observe(this, user -> {
+     *         if (user != null) {
+     *             // user found
+     *         } else {
+     *             // no internet connection
+     *         }
+     *     });
+     * </pre>
+     *
+     * @param userId    Document ID for the User
+     * @return  User    returns a User object if User was successfully found
+     *          null    returns a null object if User was not found or an error has occurred
+     *
+     * @version 1.0.1
+     */
+    public MutableLiveData<User> getUserByUserID(String userId) {
+        return getModelByID(userId);
     }
 }

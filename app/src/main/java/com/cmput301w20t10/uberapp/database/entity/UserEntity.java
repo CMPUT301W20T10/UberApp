@@ -281,6 +281,7 @@ public class UserEntity extends EntityBase<Field> {
     }
 
     public void setFCMToken(String FCMToken) {
+        addDirtyField(Field.FCM_TOKEN);
         this.FCMToken = FCMToken;
     }
     // endregion getters and setters
