@@ -226,4 +226,10 @@ public class LoginActivity extends OptionsMenu {
                 connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED;
     }
 
+    @Override
+    public void onBackPressed() {
+        return;
+    }
+
 }
+

@@ -1,5 +1,7 @@
 package com.cmput301w20t10.uberapp.activities;
 
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -60,9 +62,6 @@ public class SearchProfile extends BaseActivity {
                 return true;
             }
         });
-
-
-
     }
 
 
@@ -78,6 +77,7 @@ public class SearchProfile extends BaseActivity {
                 .build();
         recyclerAdapter = new SearchAdapter(options);
         SearchList = (RecyclerView) findViewById(R.id.profileList);
+
         SearchList.setLayoutManager(new LinearLayoutManager(this));
         SearchList.setAdapter(recyclerAdapter);
         onStart();

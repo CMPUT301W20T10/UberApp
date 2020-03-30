@@ -9,6 +9,7 @@ import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.widget.ArrayAdapter;
@@ -178,9 +179,9 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             LatLng endDest = rideRequestContent.getEndDest();
             dropPins("Start Destination", startDest, "End Destination",  endDest);
             new FetchURL(DriverMainActivity.this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
-            Button acceptButton = view.findViewById(R.id.accept_request_button);
 
-            acceptButton.setOnClickListener(view1 -> {
+            Button acceptButton = view.findViewById(R.id.accept_request_button);
+            acceptButton.setOnClickListener(acceptView -> {
                 Driver driver = (Driver) Application.getInstance().getCurrentUser();
                 RideRequestDAO dao = new RideRequestDAO();
                 MutableLiveData<RideRequest> liveData = dao.getModelByReference(rideRequestContent.getRideRequestReference());
@@ -192,23 +193,19 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             });
 
             ImageButton riderPictureButton = view.findViewById(R.id.profile_picture);
-            riderPictureButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    db.collection("users")
-                            .whereEqualTo("username", rideRequestContent.getUsername())
-                            .get()
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    QuerySnapshot userSnapshot = task.getResult();
-                                    System.out.println("MACA10: " + userSnapshot.getDocuments().get(0).getId());
-                                    String userID = userSnapshot.getDocuments().get(0).getId();
-                                    String username = rideRequestContent.getUsername();
-                                    ViewProfileFragment.newInstance(userID, username) .show(getSupportFragmentManager(),"User");
-                                }
-                            });
-                }
-            });
+            riderPictureButton.setOnClickListener(pictureView -> db.collection("users")
+                    .whereEqualTo("username", rideRequestContent.getUsername())
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            QuerySnapshot userSnapshot = task.getResult();
+                            System.out.println("MACA10: " + userSnapshot.getDocuments().get(0).getId());
+                            String userID = userSnapshot.getDocuments().get(0).getId();
+                            String username = rideRequestContent.getUsername();
+                            ViewProfileFragment.newInstance(userID, username) .show(getSupportFragmentManager(),"User");
+                        }
+                    })
+            );
 
             // For message passing, the driver must subscribe to a topic
             FirebaseMessaging.getInstance().subscribeToTopic(Application.getInstance().getCurrentUser().getUsername())
@@ -220,7 +217,12 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                         }
                     });
         });
-}
+    }
+
+    @Override
+    public void onBackPressed() {
+        this.getParent().onBackPressed();
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {

@@ -127,8 +127,7 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
+        
 
         client  = LocationServices.getFusedLocationProviderClient(this);
         // get last know location of device

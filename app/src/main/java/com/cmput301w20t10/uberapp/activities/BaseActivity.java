@@ -51,10 +51,14 @@ public class BaseActivity extends AppCompatActivity {
      */
     @Override
     public void onBackPressed() {
+        System.out.println("isOpen: " + !isOpen);
         if (!isOpen) {
+            System.out.println("Extra: " + getIntent().getExtras().getString("PREV_ACTIVITY").equals("activities.LoginActivity"));
             if (getIntent().getExtras().getString("PREV_ACTIVITY").equals("activities.LoginActivity")) {
+                System.out.println("HELLLLOOOOO??" + true);
                 return;
             } else {
+                System.out.println("HELLLLOOOOO??" + false);
                 super.onBackPressed();
             }
         } else {
@@ -117,8 +121,7 @@ public class BaseActivity extends AppCompatActivity {
 
         //Begin onclickListeners for each fab button, each sends to new activity. This activity should extend baseactivity so it can also have Menu.
         fabProfile.setOnClickListener(v -> {
-            if (getIntent().getStringExtra("PREV_ACTIVITY").equals("activities.ProfilePage") ||
-                    getIntent().getStringExtra("PREV_ACTIVITY").equals(sharedPref.loadHomeActivity())) {
+            if (getIntent().getStringExtra("PREV_ACTIVITY").equals("activities.ProfilePage") ) {
                 return;
             }
             Intent intent = new Intent(BaseActivity.this, ProfilePage.class);
@@ -135,7 +138,6 @@ public class BaseActivity extends AppCompatActivity {
         });
 
         fabHome.setOnClickListener(v -> {
-            System.out.println("LABEL: " + getIntent().getStringExtra("PREV_ACTIVITY"));
             if (sharedPref.loadHomeActivity().equals(this.getLocalClassName())) {
                 return;
             } else {
