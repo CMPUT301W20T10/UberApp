@@ -6,6 +6,7 @@
     </shared>
   </component>
   <component name="AndroidLogFilters">
+    <option name="TOOL_WINDOW_CUSTOM_FILTER" value="Testing" />
     <option name="TOOL_WINDOW_LOG_LEVEL" value="debug" />
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
@@ -13,10 +14,13 @@
     <list default="true" id="067f7ea1-d091-4bb1-997f-723cecd5fbb1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/cmput301w20t10/uberapp/activities/LoginActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/cmput301w20t10/uberapp/activities/LoginActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/cmput301w20t10/uberapp/messaging/FCMReceiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/cmput301w20t10/uberapp/messaging/FCMReceiver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/cmput301w20t10/uberapp/messaging/FCMSender.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/cmput301w20t10/uberapp/messaging/FCMSender.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/app.iml" beforeDir="false" afterPath="$PROJECT_DIR$/app/app.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/cmput301w20t10/uberapp/fragments/RideRatingFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/cmput301w20t10/uberapp/fragments/RideRatingFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/float_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/float_main.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-hdpi/user.PNG" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/mipmap-hdpi/user.PNG" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/local.properties" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -24,7 +28,7 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="99141FFAZ0028N" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="3447394c50583398" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -35,7 +39,12 @@
       <state>
         <projects_view>
           <tree_state>
-            <expand />
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="UberApp" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
             <select />
           </tree_state>
         </projects_view>
@@ -238,9 +247,11 @@
     <option name="LAST_COMMIT_MESSAGE" value="Message sending and receiving" />
   </component>
   <component name="WindowStateProjectService">
-    <state width="222" height="473" key="Git.Branch.Popup" />
+    <state width="224" height="475" key="Git.Branch.Popup" />
     <state width="222" height="473" key="Git.Branch.Popup/1600.900" />
+    <state width="224" height="475" key="Git.Branch.Popup/1920.1080/1920.1080" />
     <state width="222" height="473" key="Git.Branch.Popup@1600.900" />
+    <state width="224" height="475" key="Git.Branch.Popup@1920.1080" />
   </component>
   <component name="masterDetails">
     <states>
