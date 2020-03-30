@@ -98,7 +98,7 @@ public class UnpairedRideListDAO {
  * @version 1.1.1
  */
 class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
-    final static String LOC = "UnpairedRideListDAO: GetAllUnpairedRideRequestTask: ";
+    final static String LOC = "Tomate: UnpairedRideListDAO: GetAllUnpairedRideRequestTask: ";
 
     private List<DocumentSnapshot> snapshotList;
 
@@ -108,7 +108,6 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
     }
 
     private void getUnpairedCollection() {
-        final MutableLiveData<List<RideRequest>> rideRequestMutableLiveData = new MutableLiveData<>();
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection(UnpairedRideListDAO.COLLECTION)
                 .get()
@@ -139,11 +138,15 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, LOC + "convertToRideRequestList: " + task.getResult().getData().toString());
                             RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
-                            assert rideRequestEntity != null;
-                            rideRequestList.add(new RideRequest(rideRequestEntity));
-                            postResult(rideRequestList);
+
+                            if (rideRequestEntity != null) {
+                                rideRequestList.add(new RideRequest(rideRequestEntity));
+                                postResult(rideRequestList);
+                            } else {
+                                Log.e(TAG, LOC + "convertToRideRequestList: Invalid ride request detected");
+                                Log.e(TAG, "convertToRideRequestList: " + task.getResult().getData().toString());
+                            }
                         } else {
                             Log.e(TAG, "onComplete: ", task.getException());
                         }
