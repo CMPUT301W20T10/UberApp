@@ -16,13 +16,11 @@ import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-/*
+/**
  * Based on Youtube Video By: AnionCode - https://www.youtube.com/channel/UCseP9k1DwSAqzZ-iyeAlTvg
  * Video: https://www.youtube.com/watch?v=pThlcmRUi_s "Android Studio- #Tip1 Floating Action Button Toturial /Source code"
  * For details about floating buttons and creating XML and setting up the buttons/vertical translation
- */
-
+*/
 
 /**
  * BaseActivity is used to extend to activities that need the menu floating action button functionality.
@@ -48,6 +46,9 @@ public class BaseActivity extends AppCompatActivity {
         setContentView(R.layout.float_main);
     }
 
+    /**
+     * Overrides backpressed to close menu.
+     */
     @Override
     public void onBackPressed() {
         if (!isOpen) {
@@ -61,6 +62,10 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Finds all the buttons and calls whether or not to open the menu or close it.
+     * @param layout - the layout xml of the current page
+     */
     @Override
     public void setContentView(int layout) {
         super.setContentView(layout);
