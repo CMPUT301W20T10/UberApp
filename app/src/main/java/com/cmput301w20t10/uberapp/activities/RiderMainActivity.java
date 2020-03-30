@@ -81,6 +81,7 @@ import java.util.List;
 
 public class RiderMainActivity extends BaseActivity implements OnMapReadyCallback, TaskLoadedCallback {
     private static final String TAG = "Test" ;
+    SharedPref sharedPref;
     // core objects
     private AppBarConfiguration mAppBarConfiguration;
     private GoogleMap mainMap;
@@ -112,6 +113,12 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sharedPref = new SharedPref(this);
+        if (sharedPref.loadNightModeState() == true) {
+            setTheme(R.style.DarkTheme);
+        } else { setTheme(R.style.AppTheme); }
+
         setContentView(R.layout.content_rider_main);
 
         // map
@@ -128,7 +135,7 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
             public void onSuccess(Location location) {
                 if (location != null) {
                     currentLocation = location;
-            }
+                }
             }
         });
 

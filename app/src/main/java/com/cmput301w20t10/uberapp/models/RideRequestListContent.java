@@ -1,36 +1,43 @@
 package com.cmput301w20t10.uberapp.models;
 
 
-import android.widget.ImageView;
-
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.DocumentReference;
 
-public class RideRequest_old implements Comparable<RideRequest_old> {
+public class RideRequestListContent implements Comparable<RideRequestListContent> {
     private String username;
     private Float distance;
     private Float offer;
     private String firstName;
     private String lastName;
-    private ImageView profilePic;
-    private DocumentReference userReference;
+    private LatLng startDest;
+    private LatLng endDest;
+    private String imageURL;
+    private DocumentReference rideRequestReference;
+    private DocumentReference unpairedReference;
 
     private int collapsedHeight, currentHeight, expandedHeight;
     private boolean isOpen;
     private rideRequestHolder holder;
 
-    public RideRequest_old(String username, Float distance, Float offer, DocumentReference userReference, String firstName, String lastName,
-                           int collapsedHeight, int currentHeight, int expandedHeight) {
+
+    public RideRequestListContent(String username, Float distance, Float offer, String imageURL,
+                                  String firstName, String lastName, LatLng startDest, LatLng endDest,
+                                  DocumentReference rideRequestReference, DocumentReference unpairedReference) {
         this.username = username;
         this.distance = distance;
         this.offer = offer;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.userReference = userReference;
-        this.collapsedHeight = collapsedHeight;
-        this.currentHeight = currentHeight;
-        this.expandedHeight = expandedHeight;
+        this.startDest = startDest;
+        this.endDest = endDest;
+        this.imageURL = imageURL;
+        this.rideRequestReference = rideRequestReference;
+        this.unpairedReference = unpairedReference;
         this.isOpen = false;
     }
+
+
 
     public String getUsername() {
         return username;
@@ -56,22 +63,6 @@ public class RideRequest_old implements Comparable<RideRequest_old> {
         this.offer = offer;
     }
 
-    public ImageView getProfilePic() {
-        return profilePic;
-    }
-
-    public void setProfilePic(ImageView profilePic) {
-        this.profilePic = profilePic;
-    }
-
-    public DocumentReference getUserReference() {
-        return userReference;
-    }
-
-    public void setUserReference(DocumentReference userReference) {
-        this.userReference = userReference;
-    }
-
     public String getFirstName() {
         return firstName;
     }
@@ -86,6 +77,46 @@ public class RideRequest_old implements Comparable<RideRequest_old> {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public LatLng getStartDest() {
+        return startDest;
+    }
+
+    public void setStartDest(LatLng startDest) {
+        this.startDest = startDest;
+    }
+
+    public LatLng getEndDest() {
+        return endDest;
+    }
+
+    public void setEndDest(LatLng endDest) {
+        this.endDest = endDest;
+    }
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+
+    public DocumentReference getRideRequestReference() {
+        return rideRequestReference;
+    }
+
+    public void setRideRequestReference(DocumentReference rideRequestReference) {
+        this.rideRequestReference = rideRequestReference;
+    }
+
+    public DocumentReference getUnpairedReference() {
+        return unpairedReference;
+    }
+
+    public void setUnpairedReference(DocumentReference unpairedReference) {
+        this.unpairedReference = unpairedReference;
     }
 
     public int getCollapsedHeight() {
@@ -108,9 +139,7 @@ public class RideRequest_old implements Comparable<RideRequest_old> {
         return expandedHeight;
     }
 
-    public void setExpandedHeight(int expandedHeight) {
-        this.expandedHeight = expandedHeight;
-    }
+    public void setExpandedHeight(int expandedHeight) { this.expandedHeight = expandedHeight; }
 
     public boolean isOpen() {
         return isOpen;
@@ -128,7 +157,7 @@ public class RideRequest_old implements Comparable<RideRequest_old> {
         this.holder = holder;
     }
 
-    public int compareTo(RideRequest_old rideRequest) {
+    public int compareTo(RideRequestListContent rideRequest) {
         return distance.compareTo(rideRequest.distance);
     }
 }

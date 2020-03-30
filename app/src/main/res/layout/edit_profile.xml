@@ -5,6 +5,7 @@
     android:id="@+id/linearLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/backgroundColor"
     android:orientation="vertical">
 
 
@@ -21,7 +22,7 @@
         android:layout_height="147dp"
         android:layout_marginTop="64dp"
         android:src="@mipmap/user"
-        app:civ_border_color="#FF000000"
+        app:civ_border_color="?attr/backgroundColor"
         app:civ_border_width="2dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -44,6 +45,8 @@
         android:ems="10"
         android:hint="First Name"
         android:inputType="textPersonName"
+        android:textColor="?attr/textColor"
+        android:textColorHint="?attr/textHintColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_image" />
@@ -58,6 +61,8 @@
         android:gravity="center"
         android:hint="Last Name"
         android:inputType="textPersonName"
+        android:textColor="?attr/textColor"
+        android:textColorHint="?attr/textHintColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editFname" />
@@ -71,6 +76,8 @@
         android:gravity="center"
         android:hint="Email"
         android:inputType="textEmailAddress"
+        android:textColor="?attr/textColor"
+        android:textColorHint="?attr/textHintColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.51"
         app:layout_constraintStart_toStartOf="parent"
@@ -85,6 +92,8 @@
         android:gravity="center"
         android:hint="Phone Number"
         android:inputType="phone"
+        android:textColor="?attr/textColor"
+        android:textColorHint="?attr/textHintColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editEmail" />

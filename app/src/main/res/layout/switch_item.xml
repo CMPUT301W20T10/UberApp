@@ -1,0 +1,14 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageButton
+        android:id="@+id/switch_id"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="?attr/themePicture"
+        android:scaleType="fitCenter"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"/>
+</RelativeLayout>
