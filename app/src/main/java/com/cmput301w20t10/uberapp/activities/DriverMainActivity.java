@@ -385,13 +385,15 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         // get last know location of device
         client.getLastLocation().addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
-                currentLocation = task.getResult();
-                mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 13));
-                CameraPosition cameraPosition = new CameraPosition.Builder()
-                        .target(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))      // Sets the center of the map to location user
-                        .zoom(17)                   // Sets the zoom
-                        .build();                   // Creates a CameraPosition from the builder
-                mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                if (mainMap != null) {
+                    currentLocation = task.getResult();
+                    mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 13));
+                    CameraPosition cameraPosition = new CameraPosition.Builder()
+                            .target(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))      // Sets the center of the map to location user
+                            .zoom(17)                   // Sets the zoom
+                            .build();                   // Creates a CameraPosition from the builder
+                    mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                }
             }
         });
     }
