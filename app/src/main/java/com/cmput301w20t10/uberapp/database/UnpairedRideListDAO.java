@@ -132,11 +132,13 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, LOC + "convertToRideRequestList: " + task.getResult().getData().toString());
-                            RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
-                            assert rideRequestEntity != null;
-                            rideRequestList.add(new RideRequest(rideRequestEntity));
-                            postResult(rideRequestList);
+                            if (task.getResult().getData() != null) { //TEMP FIX DELETE LATER
+                                Log.d(TAG, LOC + "convertToRideRequestList: " + task.getResult().getData().toString());
+                                RideRequestEntity rideRequestEntity = task.getResult().toObject(RideRequestEntity.class);
+                                assert rideRequestEntity != null;
+                                rideRequestList.add(new RideRequest(rideRequestEntity));
+                                postResult(rideRequestList);
+                            }
                         } else {
                             Log.e(TAG, "onComplete: ", task.getException());
                         }

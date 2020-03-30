@@ -18,7 +18,7 @@ public class SharedPref {
 
     public String loadUsername() {
         return mySharedPref.getString("Username", "");
-    };
+    }
 
     public void setPassword(String password) {
         SharedPreferences.Editor editor = mySharedPref.edit();

@@ -2,6 +2,7 @@ package com.cmput301w20t10.uberapp;
 
 import android.util.Log;
 
+import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.DriverDAO;
 import com.cmput301w20t10.uberapp.database.LoginRegisterDAO;
 import com.cmput301w20t10.uberapp.database.RideRequestDAO;
@@ -244,7 +245,7 @@ public class BasicDAOTest extends DatabaseTestBase {
                 }
             };
             UnpairedRideListDAO dao = new UnpairedRideListDAO();
-            MutableLiveData<List<RideRequest>> liveData = dao.getAllUnpairedRideRequest();
+            MutableLiveData<List<RideRequest>> liveData = UnpairedRideListDAO.getAllUnpairedRideRequest();
             liveData.observe(mainLifecycleOwner, observer);
         };
 
@@ -481,7 +482,7 @@ public class BasicDAOTest extends DatabaseTestBase {
                     super.onChanged(aBoolean);
                 }
             };
-            DriverDAO driverDAO = databaseManager.getInstance().getDriverDAO();
+            DriverDAO driverDAO = DatabaseManager.getInstance().getDriverDAO();
             int increment = 1;
             MutableLiveData<Boolean> liveData = driverDAO.rateDriver(driver, increment);
             liveData.observe(mainLifecycleOwner, observer);

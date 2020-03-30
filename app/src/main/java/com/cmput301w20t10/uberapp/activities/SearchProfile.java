@@ -47,7 +47,7 @@ public class SearchProfile extends BaseActivity {
         } else { setTheme(R.style.AppTheme); }
 
         setContentView(R.layout.search_profile);
-        SearchField = (SearchView) findViewById(R.id.searchProfile);
+        SearchField = findViewById(R.id.searchProfile);
         setUpSearchList();
 
         SearchField.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
@@ -76,7 +76,7 @@ public class SearchProfile extends BaseActivity {
                 .setQuery(query, User.class)
                 .build();
         recyclerAdapter = new SearchAdapter(options);
-        SearchList = (RecyclerView) findViewById(R.id.profileList);
+        SearchList = findViewById(R.id.profileList);
 
         SearchList.setLayoutManager(new LinearLayoutManager(this));
         SearchList.setAdapter(recyclerAdapter);
@@ -99,7 +99,7 @@ public class SearchProfile extends BaseActivity {
                 .build();
         recyclerAdapter = new SearchAdapter(options);
 
-        SearchList = (RecyclerView) findViewById(R.id.profileList);
+        SearchList = findViewById(R.id.profileList);
         SearchList.setLayoutManager(new LinearLayoutManager(this));
         SearchList.setAdapter(recyclerAdapter);
         recyclerAdapter.setOnItemClickListener(new SearchAdapter.OnItemClickListener() {

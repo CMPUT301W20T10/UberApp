@@ -9,7 +9,6 @@ import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.Display;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.widget.ArrayAdapter;
@@ -217,11 +216,6 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                         }
                     });
         });
-    }
-
-    @Override
-    public void onBackPressed() {
-        this.getParent().onBackPressed();
     }
 
     @Override
