@@ -51,7 +51,7 @@ public class LoginActivity extends OptionsMenu {
         super.onCreate(savedInstanceState);
 
         sharedPref = new SharedPref(this);
-        if (sharedPref.loadNightModeState() == true) {
+        if (sharedPref.loadNightModeState()) {
             setTheme(R.style.DarkTheme);
         } else { setTheme(R.style.AppTheme); }
 
@@ -106,6 +106,10 @@ public class LoginActivity extends OptionsMenu {
         });
     }
 
+    /**
+     * Checks if username and password are inputted, if so call verifyLogin().
+     * @param view - current view
+     */
     public void onLoginPressed(View view) {
         Log.d("Testing", "Verify Fields");
         // Check for empty fields
@@ -122,6 +126,9 @@ public class LoginActivity extends OptionsMenu {
         verifyLogin();
     }
 
+    /**
+     * Verifies the entered username and password are contained in the database. Also handles whether you're logging in as driver or rider.
+     */
     private void verifyLogin() {
         // todo: proper implementation of sign in
         if (hasNetwork()) {
@@ -184,6 +191,10 @@ public class LoginActivity extends OptionsMenu {
         FCMSender.composeMessage(getApplicationContext(), Application.getInstance().getMessagingToken());
     }
 
+    /**
+     * Checks to see if the radioButton is set as rider or driver, register page based on which account you want to make.
+     * @param view - current view.
+     */
     public void onRegisterPressed(View view) {
 
         // NotificationService.sendNotification("Register Pressed", "You pressed the register button!", getApplicationContext(), RegisterActivity.class);

@@ -92,7 +92,7 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         }
 
         sharedPref = new SharedPref(this);
-        if (sharedPref.loadNightModeState() == true) {
+        if (sharedPref.loadNightModeState()) {
             setTheme(R.style.DarkTheme);
         } else { setTheme(R.style.AppTheme); }
 

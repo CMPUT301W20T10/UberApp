@@ -47,6 +47,8 @@ captures/
 .idea/assetWizardSettings.xml
 .idea/dictionaries
 .idea/libraries
+.idea/
+.gradle/
 # Android Studio 3 in .gitignore file.
 .idea/caches
 .idea/modules.xml
@@ -90,3 +92,6 @@ lint/tmp/
 # key values
 # app/src/debug/res/values/google_maps_api.xml
 # app/src/release/res/values/google_maps_api.xml
+/.idea/codeStyles/Project.xml
+/.idea/runConfigurations.xml
+/.idea/misc.xml
