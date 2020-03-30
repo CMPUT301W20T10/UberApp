@@ -1,5 +1,6 @@
 package com.cmput301w20t10.uberapp;
 
+import android.app.ActivityManager;
 import android.content.Context;
 
 import com.android.volley.Request;
@@ -17,7 +18,6 @@ public final class Application {
     private volatile RequestQueue requestQueue;
     private volatile User user;
     private volatile String messagingToken;
-    private volatile boolean inBackground;
 
     private Application() {
         this.user = null;
@@ -49,17 +49,15 @@ public final class Application {
         this.messagingToken = messagingToken;
     }
 
-    public boolean isInBackground() {
-        return inBackground;
-    }
-
-    public void setInBackground(boolean inBackground) {
-        this.inBackground = inBackground;
+    public synchronized boolean isInBackground() {
+        ActivityManager.RunningAppProcessInfo process = new ActivityManager.RunningAppProcessInfo();
+        ActivityManager.getMyMemoryState(process);
+        return process.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
     }
 
     // Todo(Joshua): This should be moved to FCMSender
     private RequestQueue getRequestQueue(Context context) {
-        if(requestQueue == null) {
+        if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(context.getApplicationContext());
         }
         return requestQueue;
