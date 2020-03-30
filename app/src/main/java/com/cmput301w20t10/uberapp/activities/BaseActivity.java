@@ -129,6 +129,12 @@ public class BaseActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        fabHistory.setOnClickListener(v -> {
+            Intent intent = new Intent(BaseActivity.this, RideHistoryActivity.class);
+            intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
+            startActivity(intent);
+        });
+
         fabHome.setOnClickListener(v -> {
             if (sharedPref.loadUserType().equals("rider")) {
                 Intent intent = new Intent(BaseActivity.this, RiderMainActivity.class);
