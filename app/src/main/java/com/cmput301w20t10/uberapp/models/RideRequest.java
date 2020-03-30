@@ -30,7 +30,7 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
     private State state;
     private float fareOffer;
     private Date timestamp;
-
+    private boolean isRated;
 
     public enum State {
         Active,
@@ -50,6 +50,7 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
         STATE ("state"),
         TIMESTAMP ("timestamp"),
         UNPAIRED_REFERENCE ("unpairedReference"),
+        IS_RATED("isRated"),
         FARE_OFFER ("fareOffer");
 
         private String stringValue;
@@ -73,6 +74,7 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
         this.timestamp = entity.getTimestamp().toDate();
         this.fareOffer = entity.getFareOffer();
         this.unpairedReference = entity.getUnpairedReference();
+        this.isRated = entity.isRated();
     }
 
     @Override
@@ -111,6 +113,9 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
                     break;
                 case UNPAIRED_REFERENCE:
                     entity.setUnpairedReference(getUnpairedReference());
+                    break;
+                case IS_RATED:
+                    entity.setRated(isRated());
                     break;
                 case FARE_OFFER:
                     entity.setFareOffer(getFareOffer());
@@ -203,4 +208,12 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
         this.unpairedReference = unpairedReference;
     }
 
+    public boolean isRated() {
+        return isRated;
+    }
+
+    public void setRated(boolean rated) {
+        addDirtyField(Field.IS_RATED);
+        isRated = rated;
+    }
 }
