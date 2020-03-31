@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RadioGroup;
 
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -25,8 +26,9 @@ import java.util.List;
 
 public class RideHistoryActivity extends BaseActivity {
     private ListView historyListView;
+    private RadioGroup toggle;
+    private boolean displayActives = true;
     private volatile List<RideRequest> historyList;
-    private RideRequestDAO rrDAO;
 
 
     @Override
@@ -42,14 +44,25 @@ public class RideHistoryActivity extends BaseActivity {
 
         historyListView = findViewById(R.id.historyList);
 
-        rrDAO = DatabaseManager.getInstance().getRideRequestDAO();
+        populateHistory(displayActives); // pull the inital list
 
-        populateHistory();
-
+        // set up update button listener to refresh list
         Button updateButton = findViewById(R.id.history_update_button);
         updateButton.setOnClickListener(v -> {
-            populateHistory();
+            populateHistory(displayActives);
         });
+
+        // set up toggle listener to update list
+        toggle = findViewById(R.id.active_old_toggle);
+        toggle.setOnCheckedChangeListener(((group, checkedId) -> {
+            if (checkedId == R.id.active_button) {
+                displayActives = true;
+            } else {
+                displayActives = false;
+            }
+
+            populateHistory(displayActives);
+        }));
     }
 
     private void updateView() {
@@ -64,41 +77,36 @@ public class RideHistoryActivity extends BaseActivity {
             fragTransaction.add(R.id.rating_container, rateFrag);
             fragTransaction.commit();
 
-            populateHistory(); // refresh list
+            populateHistory(displayActives); // refresh list
         });
     }
 
-    private void populateHistory() {
+    private void populateHistory(boolean active) {
         User user = Application.getInstance().getCurrentUser();
         historyList = new ArrayList<RideRequest>();
+        RideRequestDAO rrDAO = DatabaseManager.getInstance().getRideRequestDAO();
 
         if (user instanceof Rider) {
             Rider rider = (Rider) user;
             Log.d("Testing", "Get ride history of rider: " + rider.getUsername());
 
-            MutableLiveData<List<RideRequest>> liveHistory = rrDAO.getRideHistory(rider);
-            liveHistory.observe(this, list -> {
+            MutableLiveData<List<RideRequest>> liveRides;
+            if (active) {
+                Log.d("Testing", "Retrieving active rides");
+                liveRides = rrDAO.getAllActiveRideRequest(rider);
+            } else {
+                Log.d("Testing", "Retrieving historic rides");
+                liveRides = rrDAO.getRideHistory(rider);
+            }
+
+            liveRides.observe(this, list -> {
                 if (list != null) {
                     Log.d("Testing", "Ride history length: " + list.size());
                     historyList.addAll(list); // Append to end
-                    updateView();
                 } else {
                     Log.d("Testing", "Past Rides NULL");
                 }
-            });
-
-
-            MutableLiveData<List<RideRequest>> liveActive = rrDAO.getAllActiveRideRequest(rider);
-            liveActive.observe(this, actives -> {
-                if (actives != null) {
-                    Log.d("Testing", "Active rides length: " + actives.size());
-                    historyList.addAll(0, actives); // append to beginning
-                    updateView();
-                } else {
-                    Log.d("Testing", "Active Rides NULL");
-                }
-
-
+                updateView();
             });
 
         } else {
