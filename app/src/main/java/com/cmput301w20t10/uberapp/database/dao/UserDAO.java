@@ -143,16 +143,16 @@ public class UserDAO extends DAOBase<UserEntity, User> {
      * @param firstName
      * @param lastName
      * @param phoneNumber
-     * @return  null if user already registered
+     * @return null if user already registered
      */
     // todo: improve
     public LiveData<UserEntity> registerUser(String username,
-                                                    String password,
-                                                    String email,
-                                                    String firstName,
-                                                    String lastName,
-                                                    String phoneNumber,
-                                                    String image) {
+                                             String password,
+                                             String email,
+                                             String firstName,
+                                             String lastName,
+                                             String phoneNumber,
+                                             String image) {
         MutableLiveData<UserEntity> userLiveData = new MutableLiveData<>();
 
         // todo: validate if user was already registered
