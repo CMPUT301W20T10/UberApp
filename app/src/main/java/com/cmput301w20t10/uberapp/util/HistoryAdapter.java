@@ -11,6 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.MutableLiveData;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.RequestOptions;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.activities.RideHistoryActivity;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
@@ -24,12 +27,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class HistoryAdapter extends BaseAdapter {
     Context context;
     private List<RideRequest> rideHistory;
+    private final RequestManager glide;
 
-    public HistoryAdapter(Context context, List<RideRequest> rideHistory) {
+    public HistoryAdapter(Context context, RequestManager glide, List<RideRequest> rideHistory) {
         this.context = context;
+        this.glide = glide;
         this.rideHistory = rideHistory;
     }
 
@@ -64,10 +71,13 @@ public class HistoryAdapter extends BaseAdapter {
         TextView fareView = view.findViewById(R.id.rideFare);
         TextView uNameView = view.findViewById(R.id.driverUsername);
         TextView dateView = view.findViewById(R.id.rideDate);
+        TextView statusText = view.findViewById(R.id.statusText);
+        CircleImageView profilePicture = view.findViewById(R.id.driver_profile_picture);
 
         DateFormat dateFormat = new SimpleDateFormat("yy-MM-dd hh:mm a");
         dateView.setText(dateFormat.format(time));
         fareView.setText("$"+String.format("%.2f", offer));
+        statusText.setText(String.valueOf(request.getState()));
 
         DriverDAO driverDAO = DatabaseManager.getInstance().getDriverDAO();
         MutableLiveData<Driver> liveDriver = driverDAO.getDriverFromDriverReference(request.getDriverReference());
@@ -75,6 +85,11 @@ public class HistoryAdapter extends BaseAdapter {
         liveDriver.observe((AppCompatActivity) context, driver -> {
             if (driver != null) {
                 uNameView.setText(driver.getUsername());
+                if (driver.getImage() != "") {
+                    glide.load(driver.getImage())
+                            .apply(RequestOptions.circleCropTransform())
+                            .into(profilePicture);
+                }
             } else {
                 uNameView.setText("No Driver Assigned");
             }
