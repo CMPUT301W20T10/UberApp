@@ -27,6 +27,7 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
     private float fareOffer;
     private Date timestamp;
     private int rating;
+    private boolean isRated;
 
     public enum State {
         Active,
@@ -47,6 +48,7 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
         TIMESTAMP ("timestamp"),
         UNPAIRED_REFERENCE ("unpairedReference"),
         RATING("rating"),
+        IS_RATED("isRated"),
         FARE_OFFER ("fareOffer");
 
         private String stringValue;
@@ -205,12 +207,12 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
     }
 
     public boolean isRated() {
-        return this.rating != 0;
+        return this.isRated;
     }
 
-    @Deprecated
-    public void setRated(boolean rated) {
-        setRating(1);
+    public void setRated(boolean isRated) {
+        addDirtyField(Field.IS_RATED);
+        this.isRated = isRated;
     }
 
     public int getRating() {

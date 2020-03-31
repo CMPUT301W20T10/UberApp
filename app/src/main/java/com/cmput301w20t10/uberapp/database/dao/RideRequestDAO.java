@@ -245,6 +245,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
 
     public MutableLiveData<Boolean> rateRide(RideRequest rideRequest) {
         rideRequest.setRating(1);
+        rideRequest.setRated(true);
         RideRequestDAO dao = new RideRequestDAO();
         return dao.saveModel(rideRequest);
     }
@@ -273,9 +274,10 @@ class RateRideTask extends GetTaskSequencer<Boolean> {
         rideRequestDAO.saveModel(rideRequest)
                 .observe(lifecycleOwner, aBoolean -> {
                     if (aBoolean) {
-
+                        postResult(true);
                     } else {
                         Log.e(TAG, LOC + "doFirstTask: Saving ride request was unsuccessful");
+                        postResult(false);
                     }
                 });
     }

@@ -1,5 +1,6 @@
 package com.cmput301w20t10.uberapp.database.entity;
 
+import android.provider.Telephony;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.EntityBase;
@@ -51,6 +52,7 @@ public class RideRequestEntity extends EntityBase<Field> {
     private Timestamp timestamp;
     /* IntelliJ forcing me to use isAdjective pattern so it's not named wasRated */
     private int rating;
+    private boolean isRated;
 
     enum Field {
         RIDE_REQUEST_REFERENCE ("rideRequestReference"),
@@ -63,6 +65,7 @@ public class RideRequestEntity extends EntityBase<Field> {
         FARE_OFFER ("fareOffer"),
         UNPAIRED_REFERENCE ("unpairedReference"),
         RATING("rating"),
+        IS_RATED("is_rated"),
         TIMESTAMP ("timestamp");
 
         private String stringValue;
@@ -251,14 +254,13 @@ public class RideRequestEntity extends EntityBase<Field> {
         this.unpairedReference = unpairedReference;
     }
 
-
     public boolean isRated() {
-        return this.rating != 0;
+        return this.isRated;
     }
 
-    @Deprecated
     public void setRated(boolean rated) {
-        setRating(1);
+        addDirtyField(Field.IS_RATED);
+        this.isRated = isRated;
     }
 
     @Exclude
