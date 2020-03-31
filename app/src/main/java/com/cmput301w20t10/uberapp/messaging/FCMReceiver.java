@@ -36,8 +36,10 @@ public class FCMReceiver extends FirebaseMessagingService {
     @Override
     public void onNewToken(String token) {
         Log.d("UBER FCM", "Refreshed token: " + token);
-        Application.getInstance().setMessagingToken(token);
         User user = Application.getInstance().getCurrentUser();
+        if(user == null) return;
+
+        Application.getInstance().setMessagingToken(token);
         user.setFCMToken(token);
         Application.getInstance().setUser(user);
     }
