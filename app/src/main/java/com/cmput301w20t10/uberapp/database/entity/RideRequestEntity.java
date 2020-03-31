@@ -1,5 +1,6 @@
 package com.cmput301w20t10.uberapp.database.entity;
 
+import android.provider.Telephony;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.EntityBase;
@@ -50,6 +51,7 @@ public class RideRequestEntity extends EntityBase<Field> {
     private float fareOffer;
     private Timestamp timestamp;
     /* IntelliJ forcing me to use isAdjective pattern so it's not named wasRated */
+    private int rating;
     private boolean isRated;
 
     enum Field {
@@ -62,7 +64,8 @@ public class RideRequestEntity extends EntityBase<Field> {
         STATE ("state"),
         FARE_OFFER ("fareOffer"),
         UNPAIRED_REFERENCE ("unpairedReference"),
-        IS_RATED("isRated"),
+        RATING("rating"),
+        IS_RATED("is_rated"),
         TIMESTAMP ("timestamp");
 
         private String stringValue;
@@ -83,7 +86,7 @@ public class RideRequestEntity extends EntityBase<Field> {
      * Required for deserializing
      */
     public RideRequestEntity() {
-        this.isRated = false;
+        this.rating = 0;
     }
 
     public RideRequestEntity(@NonNull Rider rider, Route route, int fareOffer) {
@@ -95,7 +98,7 @@ public class RideRequestEntity extends EntityBase<Field> {
         this.state = 0;
         this.fareOffer = fareOffer;
         this.timestamp = new Timestamp(new Date());
-        this.isRated = false;
+        this.rating = 0;
     }
     // endregion
 
@@ -140,8 +143,8 @@ public class RideRequestEntity extends EntityBase<Field> {
                 case UNPAIRED_REFERENCE:
                     dirtyFieldMap.put(dirtyField.toString(), getUnpairedReference());
                     break;
-                case IS_RATED:
-                    dirtyFieldMap.put(dirtyField.toString(), isRated());
+                case RATING:
+                    dirtyFieldMap.put(dirtyField.toString(), getRating());
                     break;
                 case TIMESTAMP:
                     dirtyFieldMap.put(dirtyField.toString(), getTimestamp());
@@ -251,14 +254,23 @@ public class RideRequestEntity extends EntityBase<Field> {
         this.unpairedReference = unpairedReference;
     }
 
-
     public boolean isRated() {
-        return isRated;
+        return this.isRated;
     }
 
     public void setRated(boolean rated) {
         addDirtyField(Field.IS_RATED);
-        this.isRated = rated;
+        this.isRated = isRated;
+    }
+
+    @Exclude
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        addDirtyField(Field.RATING);
+        this.rating = rating;
     }
     // endregion getters and setters
 }
