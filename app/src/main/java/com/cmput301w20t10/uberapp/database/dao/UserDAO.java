@@ -27,15 +27,15 @@ public class UserDAO extends DAOBase<UserEntity, User> {
     static final String COLLECTION = "users";
     final static String LOC = "Tomate: UserDAO: ";
 
-    public UserDAO() {}
+    public UserDAO() {
+    }
 
     /**
      * Log the user in
      *
      * @param username
      * @param password
-     * @return
-     * Returns a MutableLiveData object. To observe a MutableLiveData object:
+     * @return Returns a MutableLiveData object. To observe a MutableLiveData object:
      *
      * <pre>
      *      DatabaseManager db = DatabaseManager.getInstance();
@@ -45,7 +45,7 @@ public class UserDAO extends DAOBase<UserEntity, User> {
      *          // receive model inside here
      *      });
      * </pre>
-     *
+     * <p>
      * When observed, the object may receive model as the following:
      * <li>
      *     <ul><b>Non-null UserEntity object:</b> Log in was successful.</ul>
@@ -63,7 +63,6 @@ public class UserDAO extends DAOBase<UserEntity, User> {
                 .whereEqualTo(UserEntity.Field.PASSWORD.toString(), password)
                 .get()
                 .addOnCompleteListener(task -> {
-                    System.out.println("Task: " + task.getResult().getDocuments().get(0).get("userReference"));
                     if (task.isSuccessful()) {
                         if (task.getResult().isEmpty()) {
                             Log.d(TAG, LOC + "logIn: No matching data");
@@ -89,19 +88,19 @@ public class UserDAO extends DAOBase<UserEntity, User> {
     /**
      * Checks for how many users have the same given username. Usage:
      * <pre>
-     UserDAO dao = new UserDAO();
-     MutableLiveData<Integer> liveData = dao.checkForUserCount("usernameHere");
-     liveData.observe(this, count -> {
-         if (count == null) {
-            // no internet connection
-         } else if (count == 0) {
-            // not yet made
-         } else if (count == 1) {
-            // one account made with username
-         } else { // count > 1
-            // two or more accounts with the same username
-         }
-     });
+     * UserDAO dao = new UserDAO();
+     * MutableLiveData<Integer> liveData = dao.checkForUserCount("usernameHere");
+     * liveData.observe(this, count -> {
+     * if (count == null) {
+     * // no internet connection
+     * } else if (count == 0) {
+     * // not yet made
+     * } else if (count == 1) {
+     * // one account made with username
+     * } else { // count > 1
+     * // two or more accounts with the same username
+     * }
+     * });
      * </pre>
      *
      * @param username
@@ -135,16 +134,16 @@ public class UserDAO extends DAOBase<UserEntity, User> {
      * @param firstName
      * @param lastName
      * @param phoneNumber
-     * @return  null if user already registered
+     * @return null if user already registered
      */
     // todo: improve
     public LiveData<UserEntity> registerUser(String username,
-                                                    String password,
-                                                    String email,
-                                                    String firstName,
-                                                    String lastName,
-                                                    String phoneNumber,
-                                                    String image) {
+                                             String password,
+                                             String email,
+                                             String firstName,
+                                             String lastName,
+                                             String phoneNumber,
+                                             String image) {
         MutableLiveData<UserEntity> userLiveData = new MutableLiveData<>();
 
         // todo: validate if user was already registered
@@ -180,9 +179,9 @@ public class UserDAO extends DAOBase<UserEntity, User> {
     }
 
     /**
-     * @see DAOBase#saveModel(ModelBase)
-     * @param   model   Model to update
+     * @param model Model to update
      * @return
+     * @see DAOBase#saveModel(ModelBase)
      */
     @Override
     public MutableLiveData<Boolean> saveModel(User model) {
@@ -211,9 +210,9 @@ public class UserDAO extends DAOBase<UserEntity, User> {
     }
 
     /**
-     * @see DAOBase#createModelFromEntity(EntityBase)
      * @param userEntity
      * @return
+     * @see DAOBase#createModelFromEntity(EntityBase)
      */
     @Override
     protected MutableLiveData<User> createModelFromEntity(UserEntity userEntity) {
@@ -242,9 +241,9 @@ public class UserDAO extends DAOBase<UserEntity, User> {
      *     });
      * </pre>
      *
-     * @param userId    Document ID for the User
-     * @return  User    returns a User object if User was successfully found
-     *          null    returns a null object if User was not found or an error has occurred
+     * @param userId Document ID for the User
+     * @return User    returns a User object if User was successfully found
+     * null    returns a null object if User was not found or an error has occurred
      */
     public MutableLiveData<User> getUserByUserID(String userId) {
         return getModelByID(userId);
