@@ -75,6 +75,8 @@ public class SharedPref {
         SharedPreferences.Editor editor = mySharedPref.edit();
         editor.clear();
         editor.putBoolean("NightMode", nightModeState);
+        editor.putBoolean("RememberMe", false);
         editor.apply();
+        System.out.println("ERASED");
     }
 }

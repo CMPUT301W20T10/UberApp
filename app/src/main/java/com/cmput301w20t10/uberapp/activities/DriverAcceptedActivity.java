@@ -1,18 +1,21 @@
 package com.cmput301w20t10.uberapp.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,7 +31,6 @@ import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
 import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
-import com.cmput301w20t10.uberapp.models.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -44,9 +46,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -85,11 +85,10 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         requestLocationPermission();
 
         // Retrieve location and camera direction from savedInstanceState
-        if (savedInstanceState != null) {
-            System.out.println("IS THIS GOING THROUGH?? " + currentLocation);
-            currentLocation = savedInstanceState.getParcelable(LAST_LOCATION_KEY);
-            CameraPosition cameraPosition = savedInstanceState.getParcelable(CAMERA_DIRECTION_KEY);
-        }
+//        if (savedInstanceState != null) {
+//            currentLocation = savedInstanceState.getParcelable(LAST_LOCATION_KEY);
+//            CameraPosition cameraPosition = savedInstanceState.getParcelable(CAMERA_DIRECTION_KEY);
+//        }
 
         sharedPref = new SharedPref(this);
         if (sharedPref.loadNightModeState()) {
@@ -101,12 +100,6 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         setContentView(R.layout.driver_accepted);
 
         db = FirebaseFirestore.getInstance();
-
-        // Retrieve location and camera direction from savedInstanceState
-        if (savedInstanceState != null) {
-            currentLocation = savedInstanceState.getParcelable(LAST_LOCATION_KEY);
-            CameraPosition cameraPosition = savedInstanceState.getParcelable(CAMERA_DIRECTION_KEY);
-        }
 
         // map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -134,44 +127,50 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         DocumentReference rideRequestReference = db.document(activeRideRequest);
 
         rideRequestReference.get().addOnSuccessListener(rideRequestSnapshot -> {
-            if (currentLocation != null) {
-                GeoPoint startGeoPoint = (GeoPoint) rideRequestSnapshot.get("startingPosition");
-                LatLng startLatLng = new LatLng(startGeoPoint.getLatitude(), startGeoPoint.getLongitude());
-                startDest.setText(getAddress(startLatLng));
-                GeoPoint endGeoPoint = (GeoPoint) rideRequestSnapshot.get("destination");
-                LatLng endLatLng = new LatLng(endGeoPoint.getLatitude(), endGeoPoint.getLongitude());
-                endDest.setText(getAddress(endLatLng));
+            System.out.println("LOCATION: " + currentLocation);
+            GeoPoint startGeoPoint = (GeoPoint) rideRequestSnapshot.get("startingPosition");
+            LatLng startLatLng = new LatLng(startGeoPoint.getLatitude(), startGeoPoint.getLongitude());
+            startDest.setText(getAddress(startLatLng));
+            GeoPoint endGeoPoint = (GeoPoint) rideRequestSnapshot.get("destination");
+            LatLng endLatLng = new LatLng(endGeoPoint.getLatitude(), endGeoPoint.getLongitude());
+            endDest.setText(getAddress(endLatLng));
 
-                dropPins("Start Destination", startLatLng, "End Destination",  endLatLng);
-                    new FetchURL(this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
+            float[] currentStartDistance = new float[1];
+            Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(),
+                    startLatLng.latitude, startLatLng.longitude, currentStartDistance);
+            distance.setText(String.format("%.2fkm", currentStartDistance[0] / 1000));
 
-                float[] currentStartDistance = new float[1];
-                Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(),
-                        startLatLng.latitude, startLatLng.longitude, currentStartDistance);
-                distance.setText(String.format("%.2fkm", currentStartDistance[0]/1000));
+            System.out.println("START/END: " + getAddress(startLatLng) + getAddress(endLatLng));
 
-                float[] startEndDist = new float[1];
-                Location.distanceBetween(startLatLng.latitude,startLatLng.longitude,
-                        endLatLng.latitude,endLatLng.longitude, startEndDist);
-                startEndDistance.setText(String.format("%.2fkm", startEndDist[0]/1000));
+            dropPins("Start Destination", startLatLng, "End Destination",  endLatLng);
+            new FetchURL(this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
 
-                float fareOffer = (long) rideRequestSnapshot.get("fareOffer");
-                offer.setText("Offer: $" + String.format("%.2f", fareOffer));
+            float[] startEndDist = new float[1];
+            Location.distanceBetween(startLatLng.latitude,startLatLng.longitude,
+                    endLatLng.latitude,endLatLng.longitude, startEndDist);
+            startEndDistance.setText(String.format("%.2fkm", startEndDist[0]/1000));
 
-                DocumentReference riderReference =  (DocumentReference) rideRequestSnapshot.get("riderReference");
-                riderReference.get().addOnSuccessListener(riderSnapshot -> {
-                    DocumentReference userReference =  (DocumentReference) riderSnapshot.get("userReference");
-                    userReference.get().addOnSuccessListener(userSnapshot -> {
-                        riderUsername = userSnapshot.get("username").toString();
-                        username.setText(riderUsername);
-                        firstName.setText(userSnapshot.get("firstName").toString());
-                        lastName.setText(userSnapshot.get("lastName").toString());
-                        Glide.with(this)
-                                .load(userSnapshot.get("image"))
-                                .into(riderPictureButton);
-                    });
+            System.out.println("FAREOFFER: " + rideRequestSnapshot.get("fareOffer") + rideRequestSnapshot.get("fareOffer").getClass().getName());
+
+            double dFareOffer =  (double) rideRequestSnapshot.get("fareOffer");
+            float fareOffer = (float) dFareOffer;
+            System.out.println("FAREOFFER2: " + fareOffer);
+
+            offer.setText("Offer: $" + String.format("%.2f", fareOffer));
+
+            DocumentReference riderReference =  (DocumentReference) rideRequestSnapshot.get("riderReference");
+            riderReference.get().addOnSuccessListener(riderSnapshot -> {
+                DocumentReference userReference =  (DocumentReference) riderSnapshot.get("userReference");
+                userReference.get().addOnSuccessListener(userSnapshot -> {
+                    riderUsername = userSnapshot.get("username").toString();
+                    username.setText(riderUsername);
+                    firstName.setText(userSnapshot.get("firstName").toString());
+                    lastName.setText(userSnapshot.get("lastName").toString());
+                    Glide.with(this)
+                            .load(userSnapshot.get("image"))
+                            .into(riderPictureButton);
                 });
-            }
+            });
         });
 
         riderPictureButton.setOnClickListener(view -> db.collection("users")
@@ -193,19 +192,25 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
             liveData.observe(this, rideRequest -> {
                 if (rideRequest != null) {
                     dao.cancelRequest(rideRequest, this);
+                    finish();
                 }
             });
         });
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
-        if (mainMap != null) {
-            savedInstanceState.putParcelable(CAMERA_DIRECTION_KEY, mainMap.getCameraPosition());
-            savedInstanceState.putParcelable(LAST_LOCATION_KEY, currentLocation);
-            super.onSaveInstanceState(savedInstanceState);
-        }
+    public void onBackPressed() {
+        return;
     }
+
+//    @Override
+//    protected void onSaveInstanceState(Bundle savedInstanceState) {
+//        if (mainMap != null) {
+//            savedInstanceState.putParcelable(CAMERA_DIRECTION_KEY, mainMap.getCameraPosition());
+//            savedInstanceState.putParcelable(LAST_LOCATION_KEY, currentLocation);
+//            super.onSaveInstanceState(savedInstanceState);
+//        }
+//    }
 
     public String getAddress(LatLng latLng) {
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
@@ -227,7 +232,7 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
     private void requestLocationPermission() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationPermissionGranted = true;
-            getCurrentLocation();
+
         } else {
             Toast.makeText(getApplicationContext(), "Location permission required", Toast.LENGTH_LONG).show();
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
@@ -270,6 +275,7 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
     }
 
+    @SuppressLint("MissingPermission")
     private void getCurrentLocation() {
         /*
          * Used code from YouTube video to ask location permission and get current location
@@ -278,21 +284,35 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
          * URL: https://www.youtube.com/watch?v=boyyLhXAZAQ
          */
         // get last know location of device
-        client.getLastLocation().addOnCompleteListener(this, task -> {
-            if (task.isSuccessful()) {
-                if (mainMap != null) {
-                    currentLocation = task.getResult();
-                    LatLng currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-                    mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 13));
-                    CameraPosition cameraPosition = new CameraPosition.Builder()
-                            .target(currentLatLng)      // Sets the center of the map to location user
-                            .zoom(17)                   // Sets the zoom
-                            .build();                   // Creates a CameraPosition from the builder
-                    mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                }
-            }
-        });
+//        client.getLastLocation().addOnCompleteListener(this, task -> {
+//            if (task.isSuccessful()) {
+//                if (mainMap != null) {
+//                    currentLocation = task.getResult();
+//                    LatLng currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+//                    mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 13));
+//                    CameraPosition cameraPosition = new CameraPosition.Builder()
+//                            .target(currentLatLng)      // Sets the center of the map to location user
+//                            .zoom(17)                   // Sets the zoom
+//                            .build();                   // Creates a CameraPosition from the builder
+//                    mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+//                }
+//            }
+//        });
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+        if (location != null) {
+            currentLocation = location;
+            LatLng currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+            mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 13));
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(currentLatLng)      // Sets the center of the map to location user
+                    .zoom(17)                   // Sets the zoom
+                    .build();                   // Creates a CameraPosition from the builder
+            mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
     }
+
 
     private void moveCamera(Marker startMarker, Marker endMarker){
         LatLngBounds.Builder builder = new LatLngBounds.Builder();

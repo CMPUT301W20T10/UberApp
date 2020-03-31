@@ -8,11 +8,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.models.User;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.DocumentSnapshot;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /*
  * This was created based on information from user Alex Mamo : https://stackoverflow.com/users/5246885/alex-mamo
@@ -34,6 +38,7 @@ public class SearchAdapter extends FirestoreRecyclerAdapter<User, SearchAdapter.
     @Override
     protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull User user) {
         holder.setUsername(user.getUsername());
+        holder.setImage(user.getImage());
     }
 
 
@@ -57,6 +62,7 @@ public class SearchAdapter extends FirestoreRecyclerAdapter<User, SearchAdapter.
     class UserViewHolder extends RecyclerView.ViewHolder {
         private View view;
         private String username;
+        private String image;
 
         UserViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -77,6 +83,17 @@ public class SearchAdapter extends FirestoreRecyclerAdapter<User, SearchAdapter.
             this.username = username;
             TextView userText = view.findViewById(R.id.uName);
             userText.setText(username);
+        }
+        void setImage(String image){
+            this.image = image;
+            CircleImageView profilePicture = view.findViewById(R.id.profile_image);
+            if (image.length() > 5) {
+                Glide.with(view)
+                        .load(image)
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(profilePicture);
+            }
+
         }
 
     }

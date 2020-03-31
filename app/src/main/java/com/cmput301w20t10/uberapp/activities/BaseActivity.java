@@ -8,12 +8,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.MutableLiveData;
 
 import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.LogOut;
 import com.cmput301w20t10.uberapp.R;
-import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 /**
@@ -185,6 +183,13 @@ public class BaseActivity extends AppCompatActivity {
         });
 
         fabExit.setOnClickListener(v -> {
+            sharedPref.eraseContents();
+            Log.d("TestUsername: ", sharedPref.loadUsername());
+            Log.d("TestPassword: ", sharedPref.loadPassword());
+            Log.d("TestRemember: ", String.valueOf(sharedPref.loadRememberMeState()));
+            Log.d("TestNight: ", String.valueOf(sharedPref.loadNightModeState()));
+            Log.d("TestHome: ", sharedPref.loadHomeActivity());
+            Log.d("TestUser: ", sharedPref.loadUserType());
             LogOut.clearRestart(this);
         });
     }

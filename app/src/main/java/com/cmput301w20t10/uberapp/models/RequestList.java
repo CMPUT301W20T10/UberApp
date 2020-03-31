@@ -81,6 +81,7 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
         holder.getTextViewWrap().setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, rideRequest.getCurrentHeight()));
 
         getAddress(rideRequest.getStartDest().latitude, rideRequest.getStartDest().longitude);
+        System.out.println("STARTING: " + addressLine + " == " + addressKnownName);
         if (addressesEqual) {
             holder.getStartDest().setText(addressLine);
         } else {

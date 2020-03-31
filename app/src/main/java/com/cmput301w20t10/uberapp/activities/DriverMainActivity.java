@@ -2,6 +2,7 @@ package com.cmput301w20t10.uberapp.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -95,6 +96,16 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Driver driver = (Driver) Application.getInstance().getCurrentUser();
+        if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0 ) {
+            Intent intent = new Intent(this, DriverAcceptedActivity.class);
+            String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
+            System.out.println("ACTIVE: " + activeRideRequest);
+            intent.putExtra("ACTIVE", activeRideRequest);
+            intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
+            startActivity(intent);
+        }
+
         client = LocationServices.getFusedLocationProviderClient(this);
 
         requestLocationPermission();
@@ -102,10 +113,10 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         db = FirebaseFirestore.getInstance();
 
         // Retrieve location and camera direction from savedInstanceState
-        if (savedInstanceState != null) {
-            currentLocation = savedInstanceState.getParcelable(LAST_LOCATION_KEY);
-            CameraPosition cameraPosition = savedInstanceState.getParcelable(CAMERA_DIRECTION_KEY);
-        }
+//        if (savedInstanceState != null) {
+//            currentLocation = savedInstanceState.getParcelable(LAST_LOCATION_KEY);
+//            CameraPosition cameraPosition = savedInstanceState.getParcelable(CAMERA_DIRECTION_KEY);
+//        }
 
         Display display = this.getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -182,12 +193,15 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
 
             Button acceptButton = view.findViewById(R.id.accept_request_button);
             acceptButton.setOnClickListener(acceptView -> {
-                Driver driver = (Driver) Application.getInstance().getCurrentUser();
                 RideRequestDAO rideRequestDAO = new RideRequestDAO();
                 MutableLiveData<RideRequest> liveData = rideRequestDAO.getModelByReference(rideRequestContent.getRideRequestReference());
                 liveData.observe(this, rideRequest -> {
                     if (rideRequest != null) {
-                        rideRequestDAO.acceptRequest(rideRequest, driver, this);
+//                        rideRequestDAO.acceptRequest(rideRequest, driver, this);
+                        Intent intent = new Intent(this, DriverAcceptedActivity.class);
+                        intent.putExtra("ACTIVE", rideRequest.getRideRequestReference().getPath());
+                        intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
+                        startActivity(intent);
                     }
                 });
             });
@@ -220,13 +234,18 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
-        if (mainMap != null) {
-            savedInstanceState.putParcelable(CAMERA_DIRECTION_KEY, mainMap.getCameraPosition());
-            savedInstanceState.putParcelable(LAST_LOCATION_KEY, currentLocation);
-            super.onSaveInstanceState(savedInstanceState);
-        }
+    public void onBackPressed() {
+        return;
     }
+
+//    @Override
+//    protected void onSaveInstanceState(Bundle savedInstanceState) {
+//        if (mainMap != null) {
+//            savedInstanceState.putParcelable(CAMERA_DIRECTION_KEY, mainMap.getCameraPosition());
+//            savedInstanceState.putParcelable(LAST_LOCATION_KEY, currentLocation);
+//            super.onSaveInstanceState(savedInstanceState);
+//        }
+//    }
 
     /*
      * toggle() is code from Stack overflow used to toggle expansion of listview item

@@ -18,7 +18,9 @@ import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.Database;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
+import com.cmput301w20t10.uberapp.database.dao.RiderDAO;
 import com.cmput301w20t10.uberapp.fragments.RideRatingFragment;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.cmput301w20t10.uberapp.database.viewmodel.RiderViewModel;
@@ -103,10 +105,12 @@ import java.util.Locale;
 
 public class RiderMainActivity extends BaseActivity implements OnMapReadyCallback, TaskLoadedCallback {
     private static final String TAG = "Test" ;
+    private static final int REQUEST_CODE = 101;
     SharedPref sharedPref;
 
     // core objects
     private AppBarConfiguration mAppBarConfiguration;
+    private boolean locationPermissionGranted;
     private GoogleMap mainMap;
 
     // live data
@@ -117,8 +121,11 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
     private Route route;
     private static final float DEFAULT_ZOOM = 15f;
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
     private Location currentLocation;
     private LatLng currentLocLatLng;
+    private LatLng boundNE;
+    private LatLng boundSW;
     Polyline currentPolyline;
 
     // views
@@ -139,6 +146,10 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        client  = LocationServices.getFusedLocationProviderClient(this);
+
+        requestLocationPermission();
 
         sharedPref = new SharedPref(this);
         if (sharedPref.loadNightModeState()) {
@@ -167,22 +178,20 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         // Initialize the AutocompleteSupportFragment.
         autocompleteFragment = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_starting_point);
 
-        autocompleteStartingPoint();
-
         ImageButton currentStartButton = findViewById(R.id.start_current_button);
 
-
-        client  = LocationServices.getFusedLocationProviderClient(this);
         // get last know location of device
-        client.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    currentLocation = location;
-                    currentLocLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-                }
-            }
-        });
+//        client.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+//            @Override
+//            public void onSuccess(Location location) {
+//                if (location != null) {
+//                    currentLocation = location;
+//                    currentLocLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+//                    boundNE = SphericalUtil.computeOffset(currentLocLatLng, 30*1000, 45);
+//                    boundSW = SphericalUtil.computeOffset(currentLocLatLng, 30*1000, 225);
+//                }
+//            }
+//        });
 
         // get reference for the destination and starting point texts
 //        editTextStartingPoint = findViewById(R.id.text_starting_point);
@@ -203,11 +212,11 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         Button buttonNewRide = findViewById(R.id.button_new_ride);
         buttonNewRide.setOnClickListener(view -> onClick_NewRide());
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        RideRatingFragment rideRatingFragment = new RideRatingFragment();
-        fragmentTransaction.add(R.id.fragment_container, rideRatingFragment);
-        fragmentTransaction.commit();
+//        FragmentManager fragmentManager = getSupportFragmentManager();
+//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//        RideRatingFragment rideRatingFragment = new RideRatingFragment();
+//        fragmentTransaction.add(R.id.fragment_container, rideRatingFragment);
+//        fragmentTransaction.commit();
 
         currentStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,6 +225,8 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
                 autocompleteFragment.setText(currentAddress);
             }
         });
+
+        autocompleteStartingPoint();
     }
     private void autocompleteStartingPoint() {
         ImageView ivSearch = autocompleteFragment.getView().findViewById(R.id.places_autocomplete_search_button);
@@ -223,8 +234,6 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         autocompleteFragment.a.setTextSize(20.0f);
         autocompleteFragment.a.setHintTextColor(R.attr.editTextColor);
         autocompleteFragment.setHint("Enter Starting Point");
-        LatLng boundNE = SphericalUtil.computeOffset(currentLocLatLng, 30*1000, 45);
-        LatLng boundSW = SphericalUtil.computeOffset(currentLocLatLng, 30*1000, 45);
         System.out.println("OFFSET: " + boundNE + " " + boundSW);
         RectangularBounds bounds = RectangularBounds.newInstance(
                 new LatLng(53.365394, -113.788809),
@@ -267,6 +276,15 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         return addressLine;
     }
 
+    private void requestLocationPermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationPermissionGranted = true;
+        } else {
+            Toast.makeText(getApplicationContext(), "Location permission required", Toast.LENGTH_LONG).show();
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
+            finish();
+        }
+    }
 
     /**
      * Manipulates the map once available.
@@ -295,26 +313,28 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         });
         */
 
-        googleMap.setMyLocationEnabled(true);
-        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
+        getCurrentLocation();
+        if (locationPermissionGranted) {
+            googleMap.setMyLocationEnabled(true);
         }
-        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+//        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+//        Criteria criteria = new Criteria();
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            return;
+//        }
+//        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
 
-        if (location != null) {
-            mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
-                    .zoom(17)                   // Sets the zoom
-                    .build();                   // Creates a CameraPosition from the builder
-            mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+//        if (location != null) {
+//            mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
+//            CameraPosition cameraPosition = new CameraPosition.Builder()
+//                    .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
+//                    .zoom(17)                   // Sets the zoom
+//                    .build();                   // Creates a CameraPosition from the builder
+//            mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
 //            editTextStartingPoint.setText(" ");
             editTextDestination.setText(" ");
-
-        }
+//        }
     }
 
     private void onClick_NewRide() {
@@ -345,14 +365,47 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
 //        if (user instanceof Rider){
 //            Log.d(TAG, "if condition passed");
 //            Rider rider = (Rider) user;
-//            dao.createRideRequest(rider,route,PriceOffer,this);
+//
+//            MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,route,PriceOffer,this);
+//            createdRequest.observe(this, request -> {
+//                if (request != null) {
+//                    Log.d("Testing", "Request is observed");
+//
+//                    DocumentReference dr = request.getRideRequestReference();
+//                    dr.addSnapshotListener((snapshot, e) -> {
+//                       if (snapshot != null) {
+//                           MutableLiveData<RideRequest> liveRequest = dao.getModelByReference(snapshot.getReference());
+//                           liveRequest.observe(this, checkRequest -> {
+//                               if (checkRequest != null) {
+//                                   Log.d("Testing", "Request is observed");
+//                                   Log.d("Testing", "State: " + String.valueOf(checkRequest.getState()));
+//
+//                                   if (checkRequest.getState() == RideRequest.State.RideCompleted) {
+//                                       Application.getInstance().setCurrentRideDocument(dr);
+//
+//                                       FragmentManager fragManager = getSupportFragmentManager();
+//                                       FragmentTransaction fragTransaction = fragManager.beginTransaction();
+//                                       RideRatingFragment rateFrag = new RideRatingFragment();
+//                                       fragTransaction.add(R.id.fragment_container, rateFrag);
+//                                       fragTransaction.commit();
+//                                   }
+//                               }
+//                           });
+//                       }
+//                    });
+//
+//                } else {
+//                    Log.d("Testing", "Ride Request received as null.");
+//                }
+//            });
+//
+//
 //        }
 //        else{
 //            Log.d(TAG, "if condition did not pass");
 //        }
 
         drawRoute(startingPoint, destination);
-
     }
 
     private void drawRoute(String startingpoint, String destination){
@@ -393,6 +446,30 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         String url = create_URL();
         new FetchURL(RiderMainActivity.this).execute(url, "driving");
     }
+
+    private void getCurrentLocation() {
+        /*
+         * Used code from YouTube video to ask location permission and get current location
+         * YouTube video posted by "Android Coding"
+         * Title: How to Show Current Location On Map in Android Studio | CurrentLocation | Android Coding
+         * URL: https://www.youtube.com/watch?v=boyyLhXAZAQ
+         */
+        // get last know location of device
+        client.getLastLocation().addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                if (mainMap != null) {
+                    currentLocation = task.getResult();
+                    mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 13));
+                    CameraPosition cameraPosition = new CameraPosition.Builder()
+                            .target(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))      // Sets the center of the map to location user
+                            .zoom(17)                   // Sets the zoom
+                            .build();                   // Creates a CameraPosition from the builder
+                    mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                }
+            }
+        });
+    }
+
     private String create_URL(){
         //start of rout
         String origin = "origin=" + route.getStartingPosition().latitude + "," + route.getDestinationPosition().longitude;
