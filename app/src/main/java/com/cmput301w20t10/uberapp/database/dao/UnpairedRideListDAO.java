@@ -244,7 +244,8 @@ class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
             }
             });
         } else {
-            postResult(false);
+            // not in unpaired
+            getRider();
         }
     }
 

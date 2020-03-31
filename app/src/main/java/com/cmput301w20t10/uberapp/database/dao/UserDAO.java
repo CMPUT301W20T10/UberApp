@@ -63,7 +63,6 @@ public class UserDAO extends DAOBase<UserEntity, User> {
                 .whereEqualTo(UserEntity.Field.PASSWORD.toString(), password)
                 .get()
                 .addOnCompleteListener(task -> {
-                    System.out.println("Task: " + task.getResult().getDocuments().get(0).get("userReference"));
                     if (task.isSuccessful()) {
                         if (task.getResult().isEmpty()) {
                             Log.d(TAG, LOC + "logIn: No matching data");
