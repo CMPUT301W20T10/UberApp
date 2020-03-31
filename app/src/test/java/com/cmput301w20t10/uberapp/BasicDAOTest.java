@@ -20,20 +20,25 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(AndroidJUnit4.class)
+/**
+ * Tests for the basic functionalities of all DAOs
+ *
+ * @author Allan Manuba
+ * @version 1.4.1
+ */
+@RunWith(MockitoJUnitRunner.class)
 public class BasicDAOTest extends DatabaseTestBase {
     private static final String TAG = "Tomate: ";
 
@@ -49,7 +54,7 @@ public class BasicDAOTest extends DatabaseTestBase {
 
     @Test
     public void registerAsRiderTest() throws InterruptedException {
-        LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
+        LoginRegisterDAO loginRegisterDAO = new LoginRegisterDAO(mockDb);
 
         // get data
         final Object syncObject = new Object();
@@ -86,7 +91,7 @@ public class BasicDAOTest extends DatabaseTestBase {
     // todo: improve to match current set up
     @Test
     public void registerAsDriverTest() throws InterruptedException {
-        LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
+        LoginRegisterDAO loginRegisterDAO = new LoginRegisterDAO(mockDb);
 
         // get data
         final Object syncObject = new Object();
@@ -141,7 +146,7 @@ public class BasicDAOTest extends DatabaseTestBase {
                     super.onChanged(rider);
                 }
             };
-            LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
+            LoginRegisterDAO loginRegisterDAO = new LoginRegisterDAO(mockDb);
             MutableLiveData<Rider> liveData = loginRegisterDAO
                     .logInAsRider(rider.getUsername(),
                             rider.getPassword(),
@@ -168,6 +173,8 @@ public class BasicDAOTest extends DatabaseTestBase {
         final Object syncObject = new Object();
         AtomicReference<Driver> atomicReference = new AtomicReference<>();
 
+
+
         Runnable runnable = () -> {
             Observer<Driver> observer = new AssertNotNullObserver<Driver>(syncObject) {
                 @Override
@@ -177,7 +184,7 @@ public class BasicDAOTest extends DatabaseTestBase {
                     super.onChanged(driver);
                 }
             };
-            LoginRegisterDAO loginRegisterDAO = databaseManager.getLoginRegisterDAO();
+            LoginRegisterDAO loginRegisterDAO = new LoginRegisterDAO(mockDb);
             MutableLiveData<Driver> liveData = loginRegisterDAO
                     .logInAsDriver("Charlie",
                             "2:00",
@@ -217,7 +224,7 @@ public class BasicDAOTest extends DatabaseTestBase {
                 }
             };
             Route route = new Route(new GeoPoint(0,0), new GeoPoint(10, 10));
-            RideRequestDAO dao = databaseManager.getRideRequestDAO();
+            RideRequestDAO dao = new RideRequestDAO(mockDb);
             MutableLiveData<RideRequest> liveData = dao.createRideRequest(rider, route, 10, mainLifecycleOwner);
             liveData.observe(mainLifecycleOwner, observer);
         };
@@ -243,7 +250,7 @@ public class BasicDAOTest extends DatabaseTestBase {
                 }
             };
             Route route = new Route(new GeoPoint(0,0), new GeoPoint(10, 10));
-            RideRequestDAO dao = databaseManager.getRideRequestDAO();
+            RideRequestDAO dao = new RideRequestDAO(mockDb);
             MutableLiveData<RideRequest> liveData = dao.createRideRequest(rider, route, 10, mainLifecycleOwner);
             liveData.observe(mainLifecycleOwner, observer);
         };
@@ -274,7 +281,7 @@ public class BasicDAOTest extends DatabaseTestBase {
                     }
                 }
             };
-            UnpairedRideListDAO dao = new UnpairedRideListDAO();
+            UnpairedRideListDAO dao = new UnpairedRideListDAO(mockDb);
             MutableLiveData<List<RideRequest>> liveData = dao.getAllUnpairedRideRequest();
             liveData.observe(mainLifecycleOwner, observer);
         };
@@ -302,7 +309,7 @@ public class BasicDAOTest extends DatabaseTestBase {
                     }
                 }
             };
-            RideRequestDAO dao = databaseManager.getRideRequestDAO();
+            RideRequestDAO dao = new RideRequestDAO(mockDb);
             MutableLiveData<List<RideRequest>> liveData = dao.getAllActiveRideRequest(rider);
             liveData.observe(mainLifecycleOwner, observer);
         };
@@ -325,7 +332,7 @@ public class BasicDAOTest extends DatabaseTestBase {
                     assert aBoolean;
                 }
             };
-            RideRequestDAO dao = new RideRequestDAO();
+            RideRequestDAO dao = new RideRequestDAO(mockDb);
             MutableLiveData<Boolean> liveData = dao.cancelRequest(rideRequest, mainLifecycleOwner);
             liveData.observe(mainLifecycleOwner, observer);
         };
@@ -364,7 +371,7 @@ public class BasicDAOTest extends DatabaseTestBase {
 
         Runnable runnable = () -> {
             Observer<Boolean> observer = new AssertNotNullObserver<Boolean>(syncObject);
-            RideRequestDAO dao = databaseManager.getRideRequestDAO();
+            RideRequestDAO dao = new RideRequestDAO(mockDb);
             MutableLiveData<Boolean> liveData = dao.acceptRequest(rideRequest, driver, mainLifecycleOwner);
             liveData.observe(mainLifecycleOwner, observer);
         };
@@ -397,7 +404,7 @@ public class BasicDAOTest extends DatabaseTestBase {
                     }
                 }
             };
-            RideRequestDAO dao = databaseManager.getRideRequestDAO();
+            RideRequestDAO dao = new RideRequestDAO(mockDb);
             MutableLiveData<List<RideRequest>> liveData = dao.getAllActiveRideRequest(driver);
             liveData.observe(mainLifecycleOwner, observer);
         };
@@ -423,7 +430,7 @@ public class BasicDAOTest extends DatabaseTestBase {
 
         Runnable runnable = () -> {
             Observer<Boolean> observer = new AssertNotNullObserver<Boolean>(syncObject);
-            RideRequestDAO dao = databaseManager.getRideRequestDAO();
+            RideRequestDAO dao = new RideRequestDAO(mockDb);
             MutableLiveData<Boolean> liveData = dao.acceptRideFromDriver(rideRequest, rider, mainLifecycleOwner);
             liveData.observe(mainLifecycleOwner, observer);
         };
@@ -453,7 +460,7 @@ public class BasicDAOTest extends DatabaseTestBase {
 
         Runnable runnable = () -> {
             Observer<Boolean> observer = new AssertNotNullObserver<Boolean>(syncObject);
-            RideRequestDAO dao = databaseManager.getRideRequestDAO();
+            RideRequestDAO dao = new RideRequestDAO(mockDb);
             MutableLiveData<Boolean> liveData = dao.confirmRideCompletion(rideRequest, rider, mainLifecycleOwner);
             liveData.observe(mainLifecycleOwner, observer);
         };
@@ -483,7 +490,7 @@ public class BasicDAOTest extends DatabaseTestBase {
                     super.onChanged(transaction);
                 }
             };
-            TransactionDAO dao = databaseManager.getTransactionDAO();
+            TransactionDAO dao = new TransactionDAO(mockDb);
             MutableLiveData<Transaction> liveData = dao.createTransaction(mainLifecycleOwner, rideRequest, 1250);
             liveData.observe(mainLifecycleOwner, observer);
         };
@@ -512,7 +519,7 @@ public class BasicDAOTest extends DatabaseTestBase {
                     super.onChanged(aBoolean);
                 }
             };
-            DriverDAO driverDAO = databaseManager.getInstance().getDriverDAO();
+            DriverDAO driverDAO = new DriverDAO(mockDb);
             int increment = 1;
             MutableLiveData<Boolean> liveData = driverDAO.rateDriver(driver, increment);
             liveData.observe(mainLifecycleOwner, observer);

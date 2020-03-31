@@ -14,6 +14,9 @@ import androidx.lifecycle.Observer;
  * @param <Result>   Object type of the live data to be observed
  *
  * @author Allan Manuba
+ * @version 1.4.3
+ * Add dependency injection
+ *
  * @version 1.1.2
  * Add lifecycle handler
  *
@@ -24,9 +27,9 @@ public abstract class GetTaskSequencer<Result> {
     private MutableLiveData<Result> liveData;
     protected GetTaskSequencerLifecycleOwner lifecycleOwner;
 
-    public GetTaskSequencer() {
+    public GetTaskSequencer(FirebaseFirestore db) {
+        this.db = db;
         lifecycleOwner = new GetTaskSequencerLifecycleOwner();
-        db = FirebaseFirestore.getInstance();
         liveData = new MutableLiveData<>();
     }
 

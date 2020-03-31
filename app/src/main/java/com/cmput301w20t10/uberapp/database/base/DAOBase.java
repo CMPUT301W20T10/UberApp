@@ -6,6 +6,7 @@ import com.cmput301w20t10.uberapp.database.util.DatabaseLogger;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,9 @@ import androidx.lifecycle.MutableLiveData;
  *     Models are application objects that front end programmers get to interact with
  *
  * @author Allan Manuba
+ * @version 1.4.4
+ * Add dependency injection
+ *
  * @version 1.1.3
  * Add way to convert references to Model objects
  *
@@ -31,6 +35,16 @@ import androidx.lifecycle.MutableLiveData;
  * @version 1.1.1
  */
 public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase> {
+    protected final FirebaseFirestore db;
+
+    public DAOBase() {
+        this.db = FirebaseFirestore.getInstance();
+    }
+
+    public DAOBase(FirebaseFirestore db) {
+        this.db = db;
+    }
+
     /**
      * Saves all dirty fields for a given entity. Dirty fields in an entity are unsaved fields.
      * DatabaseObjectBase detects these changes.
@@ -133,7 +147,7 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
      *                      when something went wrong
      */
     public MutableLiveData<Model> getModelByID(String docId) {
-            GetModelByReferenceTask task = new GetModelByReferenceTask(docId);
+            GetModelByReferenceTask task = new GetModelByReferenceTask(docId, db);
         return task.run();
     }
 
@@ -159,7 +173,7 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
      *                      when something went wrong
      */
     public MutableLiveData<Model> getModelByReference(DocumentReference documentReference) {
-        GetModelByReferenceTask task = new GetModelByReferenceTask(documentReference);
+        GetModelByReferenceTask task = new GetModelByReferenceTask(documentReference, db);
         return task.run();
     }
 
@@ -172,7 +186,7 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
      *                      when something went wrong
      */
     public MutableLiveData<Entity> getEntityByID(String docId) {
-        GetEntityByReferenceTask task = new GetEntityByReferenceTask(docId);
+        GetEntityByReferenceTask task = new GetEntityByReferenceTask(docId, db);
         return task.run();
     }
 
@@ -185,7 +199,7 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
      *                      when something went wrong
      */
     public MutableLiveData<Entity> getEntityByReference(DocumentReference documentReference) {
-        GetEntityByReferenceTask task = new GetEntityByReferenceTask(documentReference);
+        GetEntityByReferenceTask task = new GetEntityByReferenceTask(documentReference, db);
         return task.run();
     }
 
@@ -205,6 +219,10 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
      * a given String documentId or DocumentReference.
      * It's in here because it follows the generic pattern.
      *
+     * @author Allan Manuba
+     * @version 1.4.4.2
+     * Add dependency injection
+     *
      * @version 1.1.3.1
      */
     private class GetEntityByReferenceTask extends GetTaskSequencer<Entity> {
@@ -216,7 +234,8 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
          * @param docId
          * @version 1.1.3.1
          */
-        GetEntityByReferenceTask(String docId) {
+        GetEntityByReferenceTask(String docId, FirebaseFirestore db) {
+            super(db);
             this.docId = docId;
             this.documentReference = null;
         }
@@ -226,7 +245,8 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
          * @param documentReference
          * @version 1.1.3.1
          */
-        GetEntityByReferenceTask(DocumentReference documentReference) {
+        GetEntityByReferenceTask(DocumentReference documentReference, FirebaseFirestore db) {
+            super(db);
             this.docId = null;
             this.documentReference = documentReference;
         }
@@ -278,6 +298,10 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
      * a given String documentId or DocumentReference.
      * It's in here because it follows the generic pattern.
      *
+     * @author Allan Manuba
+     * @version 1.4.4.2
+     * Add dependency injection
+     *
      * @version 1.1.3.1
      */
     private class GetModelByReferenceTask extends GetTaskSequencer<Model> {
@@ -291,7 +315,8 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
          *
          * @param docId
          */
-        GetModelByReferenceTask(String docId) {
+        GetModelByReferenceTask(String docId, FirebaseFirestore db) {
+            super(db);
             this.docId = docId;
             this.documentReference = null;
             otherEntitiesLiveData = new MutableLiveData<>();
@@ -302,7 +327,8 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
          *
          * @param documentReference
          */
-        GetModelByReferenceTask(DocumentReference documentReference) {
+        GetModelByReferenceTask(DocumentReference documentReference, FirebaseFirestore db) {
+            super(db);
             this.docId = null;
             this.documentReference = documentReference;
             otherEntitiesLiveData = new MutableLiveData<>();

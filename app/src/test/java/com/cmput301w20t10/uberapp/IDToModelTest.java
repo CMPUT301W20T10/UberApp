@@ -9,14 +9,20 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.concurrent.atomic.AtomicReference;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-@RunWith(AndroidJUnit4.class)
+/**
+ * Tests for ID To Model functions in DAO
+ *
+ * @author Allan Manuba
+ * @version 1.4.1
+ */
+@RunWith(MockitoJUnitRunner.class)
 public class IDToModelTest extends DatabaseTestBase {
     private static final String TAG = "Tomate";
 
@@ -48,7 +54,7 @@ public class IDToModelTest extends DatabaseTestBase {
                     super.onChanged(user);
                 }
             };
-            UserDAO userDAO = new UserDAO();
+            UserDAO userDAO = new UserDAO(mockDb);
             MutableLiveData<User> liveData = userDAO.getModelByID(baseUserId);
             liveData.observe(mainLifecycleOwner, observer);
         };
