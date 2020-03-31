@@ -87,10 +87,9 @@ public class ViewProfileFragment extends DialogFragment {
                 .setNegativeButton("Email The User", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        Uri data = Uri.parse("mailto:"+eMail.getText());
-                        intent.setData(data);
-                        startActivity(intent);
+                        Intent emailIntent = new Intent(Intent.ACTION_VIEW);
+                        emailIntent.setData( Uri.parse("mailto:"+eMail.getText()));
+                        startActivity(emailIntent);
                     }
                 }).create();
         return this.dialog;
