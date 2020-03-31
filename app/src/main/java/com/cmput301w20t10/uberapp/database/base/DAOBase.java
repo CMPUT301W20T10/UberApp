@@ -14,6 +14,8 @@ import java.util.Map;
 
 import androidx.lifecycle.MutableLiveData;
 
+import static com.android.volley.VolleyLog.TAG;
+
 /**
  * Base class for DAO's that handle read and writing for models and entities
  *
@@ -35,6 +37,7 @@ import androidx.lifecycle.MutableLiveData;
  * @version 1.1.1
  */
 public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase> {
+    private static final String LOC = "Tomate: DAOBase: ";
     protected final FirebaseFirestore db;
 
     public DAOBase() {
@@ -228,6 +231,7 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
     private class GetEntityByReferenceTask extends GetTaskSequencer<Entity> {
         private final String docId;
         private final DocumentReference documentReference;
+        private final String LOC = "Tomate: DAOBase: GetEntityByReferenceTask: ";
 
         /**
          * Using a String of the document ID

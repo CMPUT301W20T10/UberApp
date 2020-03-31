@@ -12,11 +12,6 @@ import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +20,6 @@ import androidx.annotation.NonNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DatabaseTestBase {
     // region fake accounts
     protected static final Rider REGISTER_TEST_RIDER1 = new Rider(null,
@@ -103,9 +97,6 @@ public class DatabaseTestBase {
             "ilovejpg.jpg");
     // endregion fake accounts
 
-    @Mock
-    protected Context mainContext;
-
     protected FirebaseFirestore mockDb;
 
     protected LifecycleOwnerMock mainLifecycleOwner;
@@ -115,7 +106,7 @@ public class DatabaseTestBase {
     private List<User> userList;
 
     protected void initialize() {
-        mockDb = Mockito.mock(FirebaseFirestore.class);
+        mockDb = FirebaseFirestore.getInstance();
         mainLifecycleOwner = new LifecycleOwnerMock();
         handler = new Handler(Looper.getMainLooper());
         userList = new ArrayList<>();

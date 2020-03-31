@@ -20,8 +20,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -38,7 +36,6 @@ import static org.junit.Assert.assertTrue;
  * @author Allan Manuba
  * @version 1.4.1
  */
-@RunWith(MockitoJUnitRunner.class)
 public class BasicDAOTest extends DatabaseTestBase {
     private static final String TAG = "Tomate: ";
 
@@ -232,7 +229,7 @@ public class BasicDAOTest extends DatabaseTestBase {
         liveDataObserver(runnable, syncObject);
     }
 
-    private RideRequest createRideRequest() throws InterruptedException {
+    public RideRequest createRideRequest() throws InterruptedException {
         // Initialize
         Rider rider = loginAsDefaultRider();
         assertNotNull(rider);

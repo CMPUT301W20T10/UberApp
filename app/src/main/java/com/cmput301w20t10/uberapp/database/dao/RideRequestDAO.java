@@ -3,8 +3,10 @@ package com.cmput301w20t10.uberapp.database.dao;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
 import com.cmput301w20t10.uberapp.database.base.ModelBase;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
+import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
@@ -127,7 +129,8 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
 
     @Override
     protected RideRequestEntity createObjectFromSnapshot(DocumentSnapshot snapshot) {
-        return snapshot.toObject(RideRequestEntity.class);
+        RideRequestEntity entity = snapshot.toObject(RideRequestEntity.class);
+        return entity;
     }
 
     public MutableLiveData<Boolean> cancelRequest(final RideRequest rideRequest,
@@ -255,13 +258,14 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
 
     public MutableLiveData<Boolean> rateRide(RideRequest rideRequest) {
         rideRequest.setRating(1);
-        rideRequest.setRated(true);
         RideRequestDAO dao = new RideRequestDAO(db);
         return dao.saveModel(rideRequest);
     }
 
     public MutableLiveData<Boolean> rateRide(RideRequest rideRequest, int increment) {
-        return null;
+        rideRequest.setRating(increment);
+        RideRequestDAO dao = new RideRequestDAO(db);
+        return dao.saveModel(rideRequest);
     }
 }
 
@@ -345,6 +349,8 @@ class GetRideRequestHistory extends GetAllRideRequestTask {
     GetRideRequestHistory(Driver driver, FirebaseFirestore db) {
         super(driver.getFinishedRideRequestList(), db);
     }
+
+
 }
 
 /**
@@ -365,7 +371,6 @@ class GetAllRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
 
     GetAllRideRequestTask(List<DocumentReference> referenceList, FirebaseFirestore db) {
         super(db);
-        Log.d(TAG, LOC + "GetAllRideRequestTask: ");
         this.referenceList = referenceList;
         this.finalSize = this.referenceList.size();
         this.rideRequestList = new ArrayList<>();

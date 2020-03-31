@@ -1,5 +1,7 @@
 package com.cmput301w20t10.uberapp.models;
 
+import android.util.Log;
+
 import java.util.Date;
 
 import com.cmput301w20t10.uberapp.database.base.ModelBase;
@@ -9,6 +11,8 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
 
+import static android.net.wifi.rtt.CivicLocationKeys.LOC;
+import static com.android.volley.VolleyLog.TAG;
 import static com.cmput301w20t10.uberapp.models.RideRequest.*;
 
 
@@ -27,7 +31,6 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
     private float fareOffer;
     private Date timestamp;
     private int rating;
-    private boolean isRated;
 
     public enum State {
         Active,
@@ -48,7 +51,6 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
         TIMESTAMP ("timestamp"),
         UNPAIRED_REFERENCE ("unpairedReference"),
         RATING("rating"),
-        IS_RATED("isRated"),
         FARE_OFFER ("fareOffer");
 
         private String stringValue;
@@ -113,10 +115,13 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
                     entity.setUnpairedReference(getUnpairedReference());
                     break;
                 case RATING:
-                    entity.setRated(isRated());
+                    entity.setRating(getRating());
                     break;
                 case FARE_OFFER:
                     entity.setFareOffer(getFareOffer());
+                    break;
+                default:
+                    Log.e(TAG, LOC + "transferChanges: Unknown case: " + dirtyField.toString());
                     break;
             }
         }
@@ -204,15 +209,6 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
     public void setUnpairedReference(DocumentReference unpairedReference) {
         addDirtyField(Field.UNPAIRED_REFERENCE);
         this.unpairedReference = unpairedReference;
-    }
-
-    public boolean isRated() {
-        return this.isRated;
-    }
-
-    public void setRated(boolean isRated) {
-        addDirtyField(Field.IS_RATED);
-        this.isRated = isRated;
     }
 
     public int getRating() {
