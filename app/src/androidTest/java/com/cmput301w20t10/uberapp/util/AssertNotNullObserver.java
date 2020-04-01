@@ -9,6 +9,10 @@ public class AssertNotNullObserver<Result> extends AssertObserverBase<Result> {
         super(syncObject);
     }
 
+    public AssertNotNullObserver() {
+        super();
+    }
+
     @Override
     public void callAssertion(Result result) {
         assertNotNull(result);

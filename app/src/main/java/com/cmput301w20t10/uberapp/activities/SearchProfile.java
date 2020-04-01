@@ -1,5 +1,7 @@
 package com.cmput301w20t10.uberapp.activities;
 
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -7,6 +9,7 @@ import android.os.Bundle;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
 import com.cmput301w20t10.uberapp.models.User;
@@ -39,13 +42,17 @@ public class SearchProfile extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (Application.getInstance().getPrevActivity().equals(this.getLocalClassName())) {
+            finish();
+        }
+
         sharedPref = new SharedPref(this);
         if (sharedPref.loadNightModeState() == true) {
             setTheme(R.style.DarkTheme);
         } else { setTheme(R.style.AppTheme); }
 
         setContentView(R.layout.search_profile);
-        SearchField = (SearchView) findViewById(R.id.searchProfile);
+        SearchField = findViewById(R.id.searchProfile);
         setUpSearchList();
 
         SearchField.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
@@ -60,9 +67,6 @@ public class SearchProfile extends BaseActivity {
                 return true;
             }
         });
-
-
-
     }
 
 
@@ -99,7 +103,7 @@ public class SearchProfile extends BaseActivity {
                 .build();
         recyclerAdapter = new SearchAdapter(options, this);
 
-        SearchList = (RecyclerView) findViewById(R.id.profileList);
+        SearchList = findViewById(R.id.profileList);
         SearchList.setLayoutManager(new LinearLayoutManager(this));
         SearchList.setAdapter(recyclerAdapter);
         recyclerAdapter.setOnItemClickListener(new SearchAdapter.OnItemClickListener() {

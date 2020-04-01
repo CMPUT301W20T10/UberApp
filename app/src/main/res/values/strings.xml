@@ -49,6 +49,12 @@
     <string name="default_notification_channel_id">fcm_default_channel</string>
     <!-- endregion Message passing strings -->
 
+    <!-- region New Ride Strings -->
+    <string name="newRideFrag_title">New Ride</string>
+    <string name="newRideFrag_offer">Price offer: $</string>
+
+    <!-- endregion New Ride String -->
+
     <!-- region Rating Strings -->
     <string name="ratingfrag_title">Rate Your Ride:</string>
     <string name="ratingfrag_driver_subheader">With:</string>

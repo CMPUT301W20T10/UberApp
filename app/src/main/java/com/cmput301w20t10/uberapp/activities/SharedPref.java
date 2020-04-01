@@ -18,7 +18,7 @@ public class SharedPref {
 
     public String loadUsername() {
         return mySharedPref.getString("Username", "");
-    };
+    }
 
     public void setPassword(String password) {
         SharedPreferences.Editor editor = mySharedPref.edit();
@@ -75,6 +75,8 @@ public class SharedPref {
         SharedPreferences.Editor editor = mySharedPref.edit();
         editor.clear();
         editor.putBoolean("NightMode", nightModeState);
+        editor.putBoolean("RememberMe", false);
         editor.apply();
+        System.out.println("ERASED");
     }
 }

@@ -52,7 +52,7 @@ public class RideRequestEntity extends EntityBase<Field> {
     private GeoPoint startingPosition;
     private GeoPoint destination;
     private int state;
-    private float fareOffer;
+    private int fareOffer;
     private Timestamp timestamp;
     private int rating;
 
@@ -227,11 +227,11 @@ public class RideRequestEntity extends EntityBase<Field> {
         this.state = state;
     }
 
-    public float getFareOffer() {
+    public int getFareOffer() {
         return fareOffer;
     }
 
-    public void setFareOffer(float fareOffer) {
+    public void setFareOffer(int fareOffer) {
         addDirtyField(Field.FARE_OFFER);
         this.fareOffer = fareOffer;
     }
