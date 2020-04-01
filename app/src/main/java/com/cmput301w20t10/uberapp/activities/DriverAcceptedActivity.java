@@ -143,10 +143,10 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                     endLatLng.latitude,endLatLng.longitude, startEndDist);
             startEndDistance.setText(String.format("%.2fkm", startEndDist[0]/1000));
 
-            Double fareOffer = (Double) rideRequestSnapshot.get("fareOffer");
-            double offerInt = fareOffer.doubleValue()*100;
+            Long fareOffer = (Long) rideRequestSnapshot.get("fareOffer");
+            double offerDec = fareOffer.doubleValue()/100;
 
-            offer.setText("Offer: $" + String.format("%.2f", offerInt));
+            offer.setText("Offer: $" + String.format("%.2f", offerDec));
 
             DocumentReference riderReference =  (DocumentReference) rideRequestSnapshot.get("riderReference");
             riderReference.get().addOnSuccessListener(riderSnapshot -> {
@@ -160,7 +160,8 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                         Glide.with(this)
                                 .load(userSnapshot.get("image"))
                                 .apply(RequestOptions.circleCropTransform())
-                                .into(riderPictureButton);
+                                .into(riderPictureButton);} else {
+                        riderPictureButton.setImageResource(R.mipmap.user);
                     }
                 });
             });

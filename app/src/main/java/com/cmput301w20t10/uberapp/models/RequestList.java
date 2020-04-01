@@ -97,7 +97,9 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
 
         holder.getUsername().setText(rideRequest.getUsername());
         holder.getDistance().setText(String.format("%.2f", rideRequest.getDistance()) + "km away");
-        holder.getOffer().setText("Offer: $" + String.format("%d", rideRequest.getOffer()));
+
+        double offerDec = rideRequest.getOffer()/100;
+        holder.getOffer().setText("Offer: $" + String.format("%.2f", offerDec));
         holder.getFirstName().setText(rideRequest.getFirstName());
         holder.getLastName().setText(rideRequest.getLastName());
 
@@ -113,6 +115,8 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
                     .load(rideRequest.getImageURL())
                     .apply(RequestOptions.circleCropTransform())
                     .into(holder.getProfilePic());
+        } else {
+            holder.getProfilePic().setImageResource(R.mipmap.user);
         }
 
         view.setTag(holder);

@@ -110,7 +110,7 @@ public class SearchAdapter extends FirestoreRecyclerAdapter<User, SearchAdapter.
             ImageView thmbUpButton = view.findViewById(R.id.sThmbUp);
 
             if (isDriver) {
-                thmbUpButton.setImageResource(R.mipmap.thmbup);
+                thmbUpButton.setImageResource(R.drawable.ic_thumb_up_black_24dp);
                 userRating.setText(String.valueOf(rating));
             } else {
                 // https://stackoverflow.com/questions/2859212/how-to-clear-an-imageview-in-android

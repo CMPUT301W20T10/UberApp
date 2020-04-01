@@ -146,7 +146,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             if (!rideRequests.isEmpty()) {
                 DocumentReference rideRequestReference = rideRequests.get(counter.getAndAdd(0)).getRideRequestReference();
                 DocumentReference unpairedReference = rideRequests.get(counter.getAndAdd(0)).getUnpairedReference();
-                int offer = rideRequests.get(counter.getAndAdd(0)).getFareOffer();
+                int offerCents = rideRequests.get(counter.getAndAdd(0)).getFareOffer();
                 LatLng startDest = rideRequests.get(counter.getAndAdd(0)).getRoute().getStartingPosition();
                 LatLng endDest = rideRequests.get(counter.getAndAdd(0)).getRoute().getDestinationPosition();
                 String riderPath = rideRequests.get(counter.getAndAdd(1)).getRiderReference().getPath();
@@ -162,7 +162,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                                 String lastName = (String) userSnapshot.get(LAST_NAME);
                                 float[] distance = new float[1];
                                 Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), startDest.latitude, startDest.longitude, distance);
-                                RideRequestListContent rideRequest = new RideRequestListContent(username, distance[0] / 1000, offer,
+                                RideRequestListContent rideRequest = new RideRequestListContent(username, distance[0] / 1000, offerCents,
                                         imageURL, firstName, lastName, startDest, endDest,
                                         rideRequestReference, unpairedReference);
                                 rideRequest.setCollapsedHeight(collapsedHeight);
@@ -195,6 +195,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                     if (rideRequest != null) {
                         rideRequestDAO.acceptRequest(rideRequest, driver, this);
                         Intent intent = new Intent(this, DriverAcceptedActivity.class);
+                        Application.getInstance().setActiveRidePath(rideRequest.getRideRequestReference().getPath());
                         Application.getInstance().setPrevActivity(this.getLocalClassName());
                         startActivity(intent);
                     }

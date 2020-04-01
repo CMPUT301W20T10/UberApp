@@ -115,6 +115,7 @@ public class BaseActivity extends AppCompatActivity {
             System.out.println("PREV: " + Application.getInstance().getPrevActivity());
             System.out.println("THIS: " + getClass());
             if (Application.getInstance().getPrevActivity().equals("activities.ProfilePage") ) {
+                closeMenu();
                 return;
             }
             Intent intent = new Intent(BaseActivity.this, ProfilePage.class);
@@ -124,7 +125,9 @@ public class BaseActivity extends AppCompatActivity {
         });
 
         fabSearch.setOnClickListener(v -> {
+            fabSearch.setElevation(0);
             if (Application.getInstance().getPrevActivity().equals("activities.SearchProfile")) {
+                closeMenu();
                 return;
             }
             Intent intent = new Intent(BaseActivity.this, SearchProfile.class);
@@ -135,15 +138,18 @@ public class BaseActivity extends AppCompatActivity {
 
         fabHistory.setOnClickListener(v -> {
             if (Application.getInstance().getPrevActivity().equals("activities.RideHistoryActivity")) {
+                closeMenu();
                 return;
             }
             Intent intent = new Intent(BaseActivity.this, RideHistoryActivity.class);
             Application.getInstance().setPrevActivity(this.getLocalClassName());
             startActivity(intent);
+            closeMenu();
         });
 
         fabHome.setOnClickListener(v -> {
             if (sharedPref.loadHomeActivity().equals(this.getLocalClassName())) {
+                closeMenu();
                 return;
             } else {
                 if (sharedPref.loadUserType().equals("rider")) {

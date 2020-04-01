@@ -1,0 +1,49 @@
+[33me47761f[m[33m ([m[1;36mHEAD -> [m[1;32mRiderChanges[m[33m)[m HEAD@{0}: pull origin RideHistory: Merge made by the 'recursive' strategy.
+[33mfb16128[m HEAD@{1}: commit: Bugs
+[33m3ea514b[m[33m ([m[1;31morigin/RiderChanges[m[33m, [m[1;32mDriverMain[m[33m)[m HEAD@{2}: checkout: moving from DriverMain to RiderChanges
+[33m3ea514b[m[33m ([m[1;31morigin/RiderChanges[m[33m, [m[1;32mDriverMain[m[33m)[m HEAD@{3}: commit (merge): Merge
+[33m61342d5[m HEAD@{4}: commit: More changes to RiderMain. New ride fragment to confirm ride and formula to calculate initial price
+[33m5c43842[m HEAD@{5}: pull origin RideHistory: Merge made by the 'recursive' strategy.
+[33mce4a530[m HEAD@{6}: pull origin database: Merge made by the 'recursive' strategy.
+[33me8756c1[m HEAD@{7}: commit: Changes to RiderMain
+[33m41bf633[m[33m ([m[1;31morigin/DriverMain[m[33m)[m HEAD@{8}: commit: Accepted Fix
+[33m971041e[m HEAD@{9}: pull origin profile: Merge made by the 'recursive' strategy.
+[33mdd11515[m HEAD@{10}: commit (merge): Merge
+[33mc82dd91[m HEAD@{11}: commit (merge): Merge
+[33m3ba9e15[m HEAD@{12}: commit (merge): Big changes
+[33m9815a3d[m HEAD@{13}: pull origin database: Merge made by the 'recursive' strategy.
+[33m4a86a8d[m HEAD@{14}: commit (merge): Fixed some crashes
+[33mee4da1f[m HEAD@{15}: commit (merge): Updates
+[33m348520d[m HEAD@{16}: commit: Merge
+[33m7b3e102[m HEAD@{17}: commit: Updates
+[33me95b59c[m HEAD@{18}: commit (merge): Merge
+[33mac7c14b[m HEAD@{19}: commit: Merge
+[33m2dfbe11[m HEAD@{20}: commit (merge): Updates
+[33m39afe5e[m HEAD@{21}: reset: moving to HEAD
+[33m39afe5e[m HEAD@{22}: commit: Updates
+[33m8aff4ae[m HEAD@{23}: commit (merge): Merge
+[33m0220aee[m HEAD@{24}: commit: Merge
+[33m6fd66f4[m HEAD@{25}: pull origin Ratings: Merge made by the 'recursive' strategy.
+[33m534895f[m HEAD@{26}: commit: Merge
+[33m28daa1e[m HEAD@{27}: pull origin profile: Merge made by the 'recursive' strategy.
+[33medfc50d[m HEAD@{28}: commit (merge): Merge
+[33m0c50212[m HEAD@{29}: commit: Updates
+[33mdf83a31[m[33m ([m[1;31morigin/driver_main_database[m[33m)[m HEAD@{30}: reset: moving to HEAD
+[33mdf83a31[m[33m ([m[1;31morigin/driver_main_database[m[33m)[m HEAD@{31}: pull origin driver_main_database: Fast-forward
+[33mc19e905[m HEAD@{32}: pull origin database: Merge made by the 'recursive' strategy.
+[33m6f39496[m HEAD@{33}: commit: updated
+[33m6720f96[m HEAD@{34}: pull origin track: Merge made by the 'recursive' strategy.
+[33m0769351[m HEAD@{35}: commit (merge): Merge branch 'profile' of https://github.com/CMPUT301W20T10/UberApp into DriverMain
+[33mf4430ca[m HEAD@{36}: commit (merge): Merge branch 'database' of https://github.com/CMPUT301W20T10/UberApp into DriverMain
+[33ma20b0f7[m HEAD@{37}: commit: Lots of work
+[33m3614d70[m HEAD@{38}: checkout: moving from DriverMain to DriverMain
+[33m3614d70[m HEAD@{39}: commit (merge): Added map stuff. Accepting requests WIP; not sure how to handle.
+[33m59b6b69[m HEAD@{40}: commit: More work done. Accepting still WIP; not sure how to handle
+[33mb17ad1f[m HEAD@{41}: commit: Bug Fixes
+[33mf97bcdb[m HEAD@{42}: commit: Expand and map location
+[33ma0fd9e1[m HEAD@{43}: commit: Connected driver main screen to database, clicking on list item does nothing yet
+[33m91cdc3a[m HEAD@{44}: commit: Basic layout implemented. Does not have funtionality yet.
+[33m8402839[m[33m ([m[1;31morigin/FixesAndValidation[m[33m, [m[1;32mFixesAndValidation[m[33m)[m HEAD@{45}: checkout: moving from FixesAndValidation to DriverMain
+[33m8402839[m[33m ([m[1;31morigin/FixesAndValidation[m[33m, [m[1;32mFixesAndValidation[m[33m)[m HEAD@{46}: commit: Fixed bugs and added Regex validation for email and phone registrations
+[33m43b95ff[m[33m ([m[1;32mmaster[m[33m)[m HEAD@{47}: checkout: moving from master to FixesAndValidation
+[33m43b95ff[m[33m ([m[1;32mmaster[m[33m)[m HEAD@{48}: clone: from https://github.com/CMPUT301W20T10/UberApp.git
