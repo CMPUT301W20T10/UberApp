@@ -128,7 +128,13 @@ public class RideRatingFragment extends Fragment {
      * This will remove the fragment from RideHistoryActivity's backstack and close the fragment
      */
     private void close() {
-        // https://stackoverflow.com/questions/5901298/how-to-get-a-fragment-to-remove-itself-i-e-its-equivalent-of-finish
+        /*
+         * Code from Stack Overflow used to close
+         * URL of question: https://stackoverflow.com/questions/5901298/how-to-get-a-fragment-to-remove-itself-i-e-its-equivalent-of-finish
+         * Asked by: PJL, https://stackoverflow.com/users/702191/pjl
+         * Answered by: Manfred Moser, https://stackoverflow.com/users/136445/manfred-moser
+         * URL of answer: https://stackoverflow.com/a/9387251
+         */
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.remove(this);

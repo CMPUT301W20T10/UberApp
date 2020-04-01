@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.ui.AppBarConfiguration;
 
@@ -92,16 +93,14 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
     private LatLng boundSW;
     Polyline currentPolyline;
 
-    // views
-//    TextInputEditText editTextStartingPoint;
-    TextInputEditText editTextDestination;
-    TextInputEditText editTextPriceOffer;
-
+    private String startPos;
     private MarkerOptions startPin;
+    private LatLng startPosLatLng;
     private Marker startMarker;
+    private String destination;
+    private LatLng destinationLatLng;
     private MarkerOptions destinationPin;
     private Marker destinationMarker;
-
 
     private FusedLocationProviderClient client;
 
@@ -146,13 +145,6 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
 
         autocompleteDestinationFragment = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_destination);
 
-
-        // get reference for the destination and starting point texts
-//        editTextStartingPoint = findViewById(R.id.text_starting_point);
-//        editTextDestination = findViewById(R.id.text_destination);
-//        editTextPriceOffer = findViewById(R.id.text_price_offer);
-
-
         // this ensures that the data are saved no matter what
         // shenanigans that the android lifecycle throws at us
         viewModel = RiderViewModel.create(getApplication());
@@ -165,12 +157,6 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         // setting up listener for buttons
         Button buttonNewRide = findViewById(R.id.button_new_ride);
         buttonNewRide.setOnClickListener(view -> onClick_NewRide());
-
-//        FragmentManager fragmentManager = getSupportFragmentManager();
-//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//        RideRatingFragment rideRatingFragment = new RideRatingFragment();
-//        fragmentTransaction.add(R.id.fragment_container, rideRatingFragment);
-//        fragmentTransaction.commit();
 
     }
 
@@ -228,6 +214,8 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         autocompleteStartFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
+                startPos = place.getName();
+                startPosLatLng = place.getLatLng();
                 startPin = new MarkerOptions()
                         .position(place.getLatLng())
                         .title(place.getName())
@@ -243,12 +231,15 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
             }
             @Override
             public void onError(Status status) {
-                // TODO: Handle the error.
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
         View startClearButton = autocompleteStartFragment.getView().findViewById(R.id.places_autocomplete_clear_button);
-        startClearButton.setOnClickListener(view -> startMarker.remove());
+        startClearButton.setOnClickListener(view -> {
+            autocompleteStartFragment.setText("");
+            currentPolyline.remove();
+            startMarker.remove();
+        });
     }
 
 
@@ -262,6 +253,8 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         autocompleteDestinationFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
+                destination = place.getName();
+                destinationLatLng = place.getLatLng();
                 destinationPin = new MarkerOptions()
                         .position(place.getLatLng())
                         .title(place.getName())
@@ -281,35 +274,29 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
             }
         });
         View destClearButton = autocompleteDestinationFragment.getView().findViewById(R.id.places_autocomplete_clear_button);
-        destClearButton.setOnClickListener(view -> destinationMarker.remove());
+        destClearButton.setOnClickListener(view -> {
+            autocompleteDestinationFragment.setText("");
+            currentPolyline.remove();
+            destinationMarker.remove();
+        });
     }
 
 
 
     private void onClick_NewRide() {
         // todo: implement onclick new ride
-
-
-
-//        if(editTextStartingPoint.getText().toString().isEmpty()) {
-//            Toast.makeText(getApplicationContext(), "Starting Point Required", Toast.LENGTH_LONG).show();
-//            return;
-//        }
-
-//        if ()
-
-//        if(editTextDestination.getText().toString().isEmpty()) {
-//            Toast.makeText(getApplicationContext(), "Destination Required", Toast.LENGTH_LONG).show();
-//            return;
-//        }
-//        if(editTextPriceOffer.getText().toString().isEmpty()) {
-//            Toast.makeText(getApplicationContext(), "Price Offer Required", Toast.LENGTH_LONG).show();
-//            return;
-//        }
-//        String startingpoint = editTextStartingPoint.getText().toString();
-//        String destination = editTextDestination.getText().toString();
-//        String priceOffer = editTextPriceOffer.getText().toString();
-//        int PriceOffer = Integer.parseInt(priceOffer);
+        Bundle args = new Bundle();
+        args.putString("StartPosition", startPos);
+        args.putString("Destination", destination);
+        float[] distance = new float[1];
+        Location.distanceBetween(startPosLatLng.latitude, startPosLatLng.longitude, destinationLatLng.latitude, destinationLatLng.longitude, distance);
+        float priceOffer = (float) (10 + distance[0]/1000 * 1.75);
+        args.putFloat("offer", priceOffer);
+        NewRideFragment fragment = new NewRideFragment();
+        fragment.setArguments(args);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.new_ride_container, fragment);
+        transaction.commit();
 
 //        //get user
 //        DatabaseManager db = DatabaseManager.getInstance();
@@ -398,41 +385,6 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         return url;
     }
 
-    public static String requestDirection(String reqURL) throws IOException {
-        String responseString = "";
-        InputStream inputStream = null;
-        HttpURLConnection httpURLConnection = null;
-        try{
-            URL url = new URL(reqURL);
-            httpURLConnection = (HttpURLConnection) url.openConnection();
-            httpURLConnection.connect();
-
-            //get the response result
-            inputStream = httpURLConnection.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-            StringBuffer stringBuffer = new StringBuffer();
-            String line = "";
-            while ((line = bufferedReader.readLine()) !=null){
-                stringBuffer.append(line);
-            }
-
-            responseString = stringBuffer.toString();
-            bufferedReader.close();
-            inputStreamReader.close();
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }finally {
-            if (inputStream !=null){
-                inputStream.close();
-            }
-            httpURLConnection.disconnect();
-        }
-        return  responseString;
-    }
-
     private void moveCamera(MarkerOptions pin){
         //Log.d(TAG, "moveCamers: moving the camera to: lat " + latLng.latitude + ", lng: " + latLng.longitude);
         //mainMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
@@ -445,8 +397,7 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         int height = getResources().getDisplayMetrics().heightPixels;
         int padding = (int) (width * 0.10); // offset from edges of the map 10% of screen
 
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
-
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, 100);
         mainMap.animateCamera(cu);
     }
 

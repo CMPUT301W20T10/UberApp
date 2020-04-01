@@ -195,7 +195,6 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                     if (rideRequest != null) {
                         rideRequestDAO.acceptRequest(rideRequest, driver, this);
                         Intent intent = new Intent(this, DriverAcceptedActivity.class);
-                        intent.putExtra("ACTIVE", rideRequest.getRideRequestReference().getPath());
                         Application.getInstance().setPrevActivity(this.getLocalClassName());
                         startActivity(intent);
                     }
@@ -209,7 +208,6 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             QuerySnapshot userSnapshot = task.getResult();
-                            System.out.println("MACA10: " + userSnapshot.getDocuments().get(0).getId());
                             String userID = userSnapshot.getDocuments().get(0).getId();
                             String username = rideRequestContent.getUsername();
                             ViewProfileFragment.newInstance(userID, username) .show(getSupportFragmentManager(),"User");
