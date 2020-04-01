@@ -158,12 +158,13 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                         username.setText(riderUsername);
                         firstName.setText(userSnapshot.get("firstName").toString());
                         lastName.setText(userSnapshot.get("lastName").toString());
-                        if (userSnapshot.get("image") != "") {
+                        /*if (userSnapshot.get("image") != "") {
                             Glide.with(this)
                                     .load(userSnapshot.get("image"))
                                     .apply(RequestOptions.circleCropTransform())
                                     .into(riderPictureButton);
-                        }
+                        }*/
+                        riderPictureButton.setImageResource(android.R.color.transparent);
                     });
                 });
             });
