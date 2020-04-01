@@ -21,6 +21,9 @@ import static android.content.ContentValues.TAG;
  * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
+ *
  * @version 1.1.1
  */
 public class UserDAO extends DAOBase<UserEntity, User> {
@@ -28,6 +31,11 @@ public class UserDAO extends DAOBase<UserEntity, User> {
     final static String LOC = "Tomate: UserDAO: ";
 
     public UserDAO() {
+        super();
+    }
+
+    public UserDAO(FirebaseFirestore db) {
+        super(db);
     }
 
     /**
@@ -35,7 +43,8 @@ public class UserDAO extends DAOBase<UserEntity, User> {
      *
      * @param username
      * @param password
-     * @return Returns a MutableLiveData object. To observe a MutableLiveData object:
+     * @return
+     * Returns a MutableLiveData object. To observe a MutableLiveData object:
      *
      * <pre>
      *      DatabaseManager db = DatabaseManager.getInstance();
@@ -45,7 +54,7 @@ public class UserDAO extends DAOBase<UserEntity, User> {
      *          // receive model inside here
      *      });
      * </pre>
-     * <p>
+     *
      * When observed, the object may receive model as the following:
      * <li>
      *     <ul><b>Non-null UserEntity object:</b> Log in was successful.</ul>
@@ -88,19 +97,19 @@ public class UserDAO extends DAOBase<UserEntity, User> {
     /**
      * Checks for how many users have the same given username. Usage:
      * <pre>
-     * UserDAO dao = new UserDAO();
-     * MutableLiveData<Integer> liveData = dao.checkForUserCount("usernameHere");
-     * liveData.observe(this, count -> {
-     * if (count == null) {
-     * // no internet connection
-     * } else if (count == 0) {
-     * // not yet made
-     * } else if (count == 1) {
-     * // one account made with username
-     * } else { // count > 1
-     * // two or more accounts with the same username
-     * }
-     * });
+     UserDAO dao = new UserDAO();
+     MutableLiveData<Integer> liveData = dao.checkForUserCount("usernameHere");
+     liveData.observe(this, count -> {
+         if (count == null) {
+            // no internet connection
+         } else if (count == 0) {
+            // not yet made
+         } else if (count == 1) {
+            // one account made with username
+         } else { // count > 1
+            // two or more accounts with the same username
+         }
+     });
      * </pre>
      *
      * @param username
@@ -179,9 +188,9 @@ public class UserDAO extends DAOBase<UserEntity, User> {
     }
 
     /**
-     * @param model Model to update
-     * @return
      * @see DAOBase#saveModel(ModelBase)
+     * @param   model   Model to update
+     * @return
      */
     @Override
     public MutableLiveData<Boolean> saveModel(User model) {
@@ -210,9 +219,9 @@ public class UserDAO extends DAOBase<UserEntity, User> {
     }
 
     /**
+     * @see DAOBase#createModelFromEntity(EntityBase)
      * @param userEntity
      * @return
-     * @see DAOBase#createModelFromEntity(EntityBase)
      */
     @Override
     protected MutableLiveData<User> createModelFromEntity(UserEntity userEntity) {
@@ -241,9 +250,9 @@ public class UserDAO extends DAOBase<UserEntity, User> {
      *     });
      * </pre>
      *
-     * @param userId Document ID for the User
-     * @return User    returns a User object if User was successfully found
-     * null    returns a null object if User was not found or an error has occurred
+     * @param userId    Document ID for the User
+     * @return  User    returns a User object if User was successfully found
+     *          null    returns a null object if User was not found or an error has occurred
      */
     public MutableLiveData<User> getUserByUserID(String userId) {
         return getModelByID(userId);

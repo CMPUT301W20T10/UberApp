@@ -3,8 +3,10 @@ package com.cmput301w20t10.uberapp.database.dao;
 import android.util.Log;
 
 import com.cmput301w20t10.uberapp.database.base.DAOBase;
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
 import com.cmput301w20t10.uberapp.database.base.ModelBase;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
+import com.cmput301w20t10.uberapp.database.entity.RiderEntity;
 import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
@@ -12,6 +14,7 @@ import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +31,9 @@ import static android.content.ContentValues.TAG;
  * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
+ * @version 1.4.3
+ * Add dependency injection
+ *
  * @version 1.1.2
  * Change the update interval for GetAllRideRequest and make a generic Task class to process this
  *
@@ -37,7 +43,13 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
     static final String COLLECTION = "rideRequests";
     static final String LOC = "Tomate: RideRequestDAO: ";
 
-    public RideRequestDAO() {}
+    public RideRequestDAO() {
+        super();
+    }
+
+    public RideRequestDAO(FirebaseFirestore db) {
+        super(db);
+    }
 
     /**
      * Create a ride request
@@ -67,7 +79,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
                                                           Route route,
                                                           int fareOffer,
                                                           LifecycleOwner owner) {
-        CreateRideRequestTask task = new CreateRideRequestTask(rider, route, fareOffer, owner);
+        CreateRideRequestTask task = new CreateRideRequestTask(rider, route, fareOffer, owner, db);
         return task.run();
     }
 
@@ -76,7 +88,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
      * @return
      */
     public MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Rider rider) {
-        GetAllActiveRideRequestTask task = new GetAllActiveRideRequestTask(rider);
+        GetAllActiveRideRequestTask task = new GetAllActiveRideRequestTask(rider, db);
         return task.run();
     }
 
@@ -100,7 +112,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
 
     @Override
     protected DAOBase<RideRequestEntity, RideRequest> create() {
-        return new RideRequestDAO();
+        return new RideRequestDAO(db);
     }
 
     /**
@@ -117,12 +129,13 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
 
     @Override
     protected RideRequestEntity createObjectFromSnapshot(DocumentSnapshot snapshot) {
-        return snapshot.toObject(RideRequestEntity.class);
+        RideRequestEntity entity = snapshot.toObject(RideRequestEntity.class);
+        return entity;
     }
 
     public MutableLiveData<Boolean> cancelRequest(final RideRequest rideRequest,
                                                   final LifecycleOwner owner) {
-        CancelRideRequestTask task = new CancelRideRequestTask(rideRequest, owner);
+        CancelRideRequestTask task = new CancelRideRequestTask(rideRequest, owner, db);
         return task.run();
     }
 
@@ -132,7 +145,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
     }
 
     public MutableLiveData<Boolean> acceptRequest(RideRequest rideRequest, Driver driver, LifecycleOwner owner) {
-        DriverAcceptRequestTask task = new DriverAcceptRequestTask(rideRequest, driver, owner);
+        DriverAcceptRequestTask task = new DriverAcceptRequestTask(rideRequest, driver, owner, db);
         return task.run();
     }
 
@@ -159,7 +172,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
      * @return  MutableLiveData which returns a List<RideRequest> or null when there's an error
      */
     public MutableLiveData<List<RideRequest>> getAllActiveRideRequest(Driver driver) {
-        GetAllActiveRideRequestTask task = new GetAllActiveRideRequestTask(driver);
+        GetAllActiveRideRequestTask task = new GetAllActiveRideRequestTask(driver, db);
         return task.run();
     }
 
@@ -186,7 +199,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
      * @return  MutableLiveData which returns a List<RideRequest> or null when there's an error
      */
     public MutableLiveData<List<RideRequest>> getRideHistory(Driver driver) {
-        GetRideRequestHistory task = new GetRideRequestHistory(driver);
+        GetRideRequestHistory task = new GetRideRequestHistory(driver, db);
         return task.run();
     }
 
@@ -213,7 +226,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
      * @return  MutableLiveData which returns a List<RideRequest> or null when there's an error
      */
     public MutableLiveData<List<RideRequest>> getRideHistory(Rider rider) {
-        GetRideRequestHistory task = new GetRideRequestHistory(rider);
+        GetRideRequestHistory task = new GetRideRequestHistory(rider, db);
         return task.run();
     }
 
@@ -226,7 +239,7 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
      * @return MutableLiveData which returns a Boolean which indicates whether the task was successful
      */
     public MutableLiveData<Boolean> acceptRideFromDriver(RideRequest rideRequest, Rider rider, LifecycleOwner owner) {
-        RiderAcceptsRideFromDriverTask task = new RiderAcceptsRideFromDriverTask(rideRequest, rider, owner);
+        RiderAcceptsRideFromDriverTask task = new RiderAcceptsRideFromDriverTask(rideRequest, rider, owner, db);
         return task.run();
     }
 
@@ -239,29 +252,41 @@ public class RideRequestDAO extends DAOBase<RideRequestEntity, RideRequest> {
      * @return MutableLiveData which returns a Boolean indicating whether the task was successful
      */
     public MutableLiveData<Boolean> confirmRideCompletion(RideRequest rideRequest, Rider rider, LifecycleOwner owner) {
-        RiderConfirmsCompletionTask task = new RiderConfirmsCompletionTask(rider, rideRequest, owner);
+        RiderConfirmsCompletionTask task = new RiderConfirmsCompletionTask(rider, rideRequest, owner, db);
         return task.run();
     }
 
     public MutableLiveData<Boolean> rateRide(RideRequest rideRequest) {
         rideRequest.setRating(1);
-        rideRequest.setRated(true);
-        RideRequestDAO dao = new RideRequestDAO();
+        RideRequestDAO dao = new RideRequestDAO(db);
         return dao.saveModel(rideRequest);
     }
 
     public MutableLiveData<Boolean> rateRide(RideRequest rideRequest, int increment) {
-        return null;
+        rideRequest.setRating(increment);
+        RideRequestDAO dao = new RideRequestDAO(db);
+        return dao.saveModel(rideRequest);
     }
 }
 
+/**
+ * Sequence of functions required to rate a ride
+ * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
+ * @version 1.3.1
+ * Work in progress
+ */
 class RateRideTask extends GetTaskSequencer<Boolean> {
     static final String LOC = "";
 
     private final RideRequest rideRequest;
     private final int increment;
 
-    RateRideTask(RideRequest rideRequest, int increment) {
+    RateRideTask(RideRequest rideRequest, int increment, FirebaseFirestore db) {
+        super(db);
         this.rideRequest = rideRequest;
         this.increment = increment;
     }
@@ -288,21 +313,22 @@ class RateRideTask extends GetTaskSequencer<Boolean> {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.3
+ * Add dependency injection
  * @version 1.2.2
  * Generalized GetAllActiveRideRequestTask to GetAllRideRequest to make it usable with
  * GetRideRequestHistoryTask
- *
  * @version 1.1.1
  */
 class GetAllActiveRideRequestTask extends GetAllRideRequestTask {
     private final static String LOC = RideRequestDAO.LOC + "GetAllActiveRideRequestTask: ";
 
-    GetAllActiveRideRequestTask(Rider rider) {
-        super(rider.getActiveRideRequestList());
+    GetAllActiveRideRequestTask(Rider rider, FirebaseFirestore db) {
+        super(rider.getActiveRideRequestList(), db);
     }
 
-    GetAllActiveRideRequestTask(Driver driver) {
-        super(driver.getActiveRideRequestList());
+    GetAllActiveRideRequestTask(Driver driver, FirebaseFirestore db) {
+        super(driver.getActiveRideRequestList(), db);
     }
 }
 
@@ -311,16 +337,20 @@ class GetAllActiveRideRequestTask extends GetAllRideRequestTask {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
  * @version 1.2.1
  */
 class GetRideRequestHistory extends GetAllRideRequestTask {
-    GetRideRequestHistory(Rider rider) {
-        super(rider.getFinishedRideRequestList());
+    GetRideRequestHistory(Rider rider, FirebaseFirestore db) {
+        super(rider.getFinishedRideRequestList(), db);
     }
 
-    GetRideRequestHistory(Driver driver) {
-        super(driver.getFinishedRideRequestList());
+    GetRideRequestHistory(Driver driver, FirebaseFirestore db) {
+        super(driver.getFinishedRideRequestList(), db);
     }
+
+
 }
 
 /**
@@ -328,6 +358,8 @@ class GetRideRequestHistory extends GetAllRideRequestTask {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
  * @version 1.2.1
  */
 class GetAllRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
@@ -337,8 +369,8 @@ class GetAllRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
     private final List<DocumentReference> referenceList;
     private final List<RideRequest> rideRequestList;
 
-    GetAllRideRequestTask(List<DocumentReference> referenceList) {
-        Log.d(TAG, LOC + "GetAllRideRequestTask: ");
+    GetAllRideRequestTask(List<DocumentReference> referenceList, FirebaseFirestore db) {
+        super(db);
         this.referenceList = referenceList;
         this.finalSize = this.referenceList.size();
         this.rideRequestList = new ArrayList<>();
@@ -380,6 +412,8 @@ class GetAllRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
  * @version 1.1.1
  */
 class CreateRideRequestTask extends GetTaskSequencer<RideRequest> {
@@ -394,7 +428,9 @@ class CreateRideRequestTask extends GetTaskSequencer<RideRequest> {
     CreateRideRequestTask(@NonNull Rider rider,
                           Route route,
                           int fareOffer,
-                          LifecycleOwner owner) {
+                          LifecycleOwner owner,
+                          FirebaseFirestore db) {
+        super(db);
         this.rider = rider;
         this.route = route;
         this.fareOffer = fareOffer;
@@ -469,6 +505,8 @@ class CreateRideRequestTask extends GetTaskSequencer<RideRequest> {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
  * @version 1.1.1
  */
 class CancelRideRequestTask extends GetTaskSequencer<Boolean> {
@@ -476,7 +514,8 @@ class CancelRideRequestTask extends GetTaskSequencer<Boolean> {
     private final RideRequest rideRequest;
     private final LifecycleOwner owner;
 
-    CancelRideRequestTask(RideRequest rideRequest, LifecycleOwner owner) {
+    CancelRideRequestTask(RideRequest rideRequest, LifecycleOwner owner, FirebaseFirestore db) {
+        super(db);
         this.rideRequest = rideRequest;
         this.owner = owner;
     }
@@ -523,6 +562,8 @@ class CancelRideRequestTask extends GetTaskSequencer<Boolean> {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
  * @version 1.1.1
  */
 class DriverAcceptRequestTask extends GetTaskSequencer<Boolean> {
@@ -531,7 +572,8 @@ class DriverAcceptRequestTask extends GetTaskSequencer<Boolean> {
     private final Driver driver;
     private final LifecycleOwner owner;
 
-    DriverAcceptRequestTask(RideRequest rideRequest, Driver driver, LifecycleOwner owner) {
+    DriverAcceptRequestTask(RideRequest rideRequest, Driver driver, LifecycleOwner owner, FirebaseFirestore db) {
+        super(db);
         this.rideRequest = rideRequest;
         this.driver = driver;
         this.owner = owner;
@@ -589,6 +631,8 @@ class DriverAcceptRequestTask extends GetTaskSequencer<Boolean> {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
  * @version 1.1.1
  */
 class RiderAcceptsRideFromDriverTask extends GetTaskSequencer<Boolean> {
@@ -598,7 +642,8 @@ class RiderAcceptsRideFromDriverTask extends GetTaskSequencer<Boolean> {
     private final Rider rider;
     private final LifecycleOwner owner;
 
-    RiderAcceptsRideFromDriverTask(RideRequest rideRequest, Rider rider, LifecycleOwner owner) {
+    RiderAcceptsRideFromDriverTask(RideRequest rideRequest, Rider rider, LifecycleOwner owner, FirebaseFirestore db) {
+        super(db);
         this.rideRequest = rideRequest;
         this.rider = rider;
         this.owner = owner;
@@ -633,6 +678,7 @@ class RiderAcceptsRideFromDriverTask extends GetTaskSequencer<Boolean> {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.2 Add dependency injection
  * @version 1.1.1
  */
 class RiderConfirmsCompletionTask extends GetTaskSequencer<Boolean> {
@@ -641,7 +687,8 @@ class RiderConfirmsCompletionTask extends GetTaskSequencer<Boolean> {
     private final Rider rider;
     private final LifecycleOwner owner;
 
-    RiderConfirmsCompletionTask(Rider rider, RideRequest rideRequest, LifecycleOwner owner) {
+    RiderConfirmsCompletionTask(Rider rider, RideRequest rideRequest, LifecycleOwner owner, FirebaseFirestore db) {
+        super(db);
         this.rider = rider;
         this.rideRequest = rideRequest;
         this.owner = owner;

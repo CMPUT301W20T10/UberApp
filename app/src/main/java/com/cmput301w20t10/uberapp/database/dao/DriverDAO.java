@@ -11,6 +11,7 @@ import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
@@ -25,13 +26,23 @@ import static android.content.ContentValues.TAG;
  * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
+ *
  * @version 1.1.1
  */
 public class DriverDAO extends DAOBase<DriverEntity, Driver> {
     static final String COLLECTION = "drivers";
     final static String LOC = "Tomate: DriverDAO: ";
+    private final FirebaseFirestore db;
 
-    public DriverDAO() {}
+    public DriverDAO() {
+        this.db = FirebaseFirestore.getInstance();
+    }
+
+    public DriverDAO(FirebaseFirestore db) {
+        this.db  = db;
+    }
 
     /**
      * Registers a driver.
@@ -78,7 +89,8 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
                 lastName,
                 phoneNumber,
                 image,
-                owner);
+                owner,
+                db);
         return task.run();
     }
 
@@ -107,7 +119,7 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
      * </li>
      */
     public LiveData<Driver> logInAsDriver(String username, String password, LifecycleOwner owner) {
-        LogInAsDriverTask task = new LogInAsDriverTask(owner, username, password);
+        LogInAsDriverTask task = new LogInAsDriverTask(owner, username, password, db);
         return task.run();
     }
 
@@ -131,7 +143,7 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
 
     @Override
     protected DAOBase<DriverEntity, Driver> create() {
-        return new DriverDAO();
+        return new DriverDAO(db);
     }
 
     // todo: deprecate the below task or make the task shorter and not redundant
@@ -144,7 +156,7 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
      */
     @Override
     protected MutableLiveData<Driver> createModelFromEntity(DriverEntity driverEntity) {
-        GetDriverFromReferenceTask task = new GetDriverFromReferenceTask(driverEntity.getDriverReference());
+        GetDriverFromReferenceTask task = new GetDriverFromReferenceTask(driverEntity.getDriverReference(), db);
         return task.run();
     }
 
@@ -167,7 +179,7 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
      * @return
      */
     public LiveData<Boolean> saveModel(LifecycleOwner owner, Driver driver) {
-        SaveDriverModelTask saveDriverModelTask = new SaveDriverModelTask(owner, driver);
+        SaveDriverModelTask saveDriverModelTask = new SaveDriverModelTask(owner, driver, db);
         return saveDriverModelTask.run();
     }
 
@@ -178,7 +190,7 @@ public class DriverDAO extends DAOBase<DriverEntity, Driver> {
      * @return
      */
     public MutableLiveData<Driver> getDriverFromDriverReference(DocumentReference driverReference) {
-        GetDriverFromReferenceTask task = new GetDriverFromReferenceTask(driverReference);
+        GetDriverFromReferenceTask task = new GetDriverFromReferenceTask(driverReference, db);
         return task.run();
     }
 
@@ -210,7 +222,8 @@ class SaveDriverModelTask extends GetTaskSequencer<Boolean> {
     private final LifecycleOwner owner;
     private final Driver driver;
 
-    SaveDriverModelTask(LifecycleOwner owner, Driver driver) {
+    SaveDriverModelTask(LifecycleOwner owner, Driver driver, FirebaseFirestore db) {
+        super(db);
         this.owner = owner;
         this.driver = driver;
 
@@ -226,7 +239,7 @@ class SaveDriverModelTask extends GetTaskSequencer<Boolean> {
     }
 
     private void updateDriverEntity() {
-        DriverDAO driverDAO = new DriverDAO();
+        DriverDAO driverDAO = new DriverDAO(db);
         driverDAO.saveEntity(driverEntity)
                 .observe(owner, aBoolean -> {
                     if (aBoolean) {
@@ -239,7 +252,7 @@ class SaveDriverModelTask extends GetTaskSequencer<Boolean> {
     }
 
     private void updateUserEntity() {
-        UserDAO userDAO = new UserDAO();
+        UserDAO userDAO = new UserDAO(db);
         userDAO.saveModel(driver)
         .observe(owner, new Observer<Boolean>() {
             @Override
@@ -258,6 +271,9 @@ class SaveDriverModelTask extends GetTaskSequencer<Boolean> {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
+ *
  * @version 1.1.1
  */
 class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
@@ -266,7 +282,8 @@ class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
     private final DocumentReference driverReference;
     private DriverEntity driverEntity;
 
-    GetDriverFromReferenceTask(DocumentReference driverReference) {
+    GetDriverFromReferenceTask(DocumentReference driverReference, FirebaseFirestore db) {
+        super(db);
         this.driverReference = driverReference;
     }
 
@@ -319,6 +336,9 @@ class GetDriverFromReferenceTask extends GetTaskSequencer<Driver> {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
+ *
  * @version 1.1.1
  */
 class RegisterDriverTask extends GetTaskSequencer<Driver> {
@@ -345,7 +365,9 @@ class RegisterDriverTask extends GetTaskSequencer<Driver> {
                               String lastName,
                               String phoneNumber,
                               String image,
-                              LifecycleOwner owner) {
+                              LifecycleOwner owner,
+                              FirebaseFirestore db) {
+        super(db);
         this.username = username;
         this.password = password;
         this.email = email;
@@ -430,6 +452,9 @@ class RegisterDriverTask extends GetTaskSequencer<Driver> {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
+ *
  * @version 1.1.1
  */
 class LogInAsDriverTask extends GetTaskSequencer<Driver> {
@@ -441,7 +466,8 @@ class LogInAsDriverTask extends GetTaskSequencer<Driver> {
     private UserEntity userEntity;
     private DriverEntity driverEntity;
 
-    LogInAsDriverTask(LifecycleOwner owner, String username, String password) {
+    LogInAsDriverTask(LifecycleOwner owner, String username, String password, FirebaseFirestore db) {
+        super(db);
         this.owner = owner;
         this.username = username;
         this.password = password;
