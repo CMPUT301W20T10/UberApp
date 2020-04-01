@@ -42,6 +42,8 @@ import static org.junit.Assert.assertTrue;
  * Tests for the basic functionalities of all DAOs
  *
  * @author Allan Manuba
+ * @version 1.9.4
+ * Update for database changes
  * @version 1.8.3
  * Create new function for creating ride requests
  * @version 1.7.2
@@ -105,6 +107,7 @@ public class BasicDAOTest extends DatabaseTestBase {
         // get data
         final Object syncObject = new Object();
         AtomicReference<Driver> atomicReference = new AtomicReference<>();
+        final Driver driver = BASIC_TEST_DRIVER1;
 
         Runnable runnable = () -> {
             Observer<Driver> observer = new AssertNotNullObserver<Driver>(syncObject){
@@ -115,21 +118,20 @@ public class BasicDAOTest extends DatabaseTestBase {
                 }
             };
             MutableLiveData<Driver> liveData = loginRegisterDAO
-                    .registerDriver("CharlieTest2",
-                            "2:00",
-                            "email",
-                            "Full",
-                            "Pineapple",
-                            "200",
-                            "picture",
+                    .registerDriver(driver.getUsername(),
+                            driver.getPassword(),
+                            driver.getEmail(),
+                            driver.getUsername(),
+                            driver.getLastName(),
+                            driver.getPhoneNumber(),
+                            driver.getImage(),
                             mainLifecycleOwner);
             liveData.observe(mainLifecycleOwner, observer);
         };
 
         liveDataObserver(runnable, syncObject);
-
-        Driver driver = atomicReference.get();
-        addUsersToCleanUp(driver);
+        Driver remoteDriver = atomicReference.get();
+        addUsersToCleanUp(remoteDriver);
     }
 
     /**
@@ -422,7 +424,7 @@ public class BasicDAOTest extends DatabaseTestBase {
             @Override
             protected MutableLiveData<Rider> doInMainLoop() {
                 RiderDAO riderDAO = new RiderDAO(mockDb);
-                return riderDAO.getModelByID("GcTYikUpNd9KkxBTjMY9");
+                return riderDAO.getModelByID("n3h4aqyVFhzU1x6t4fN1");
             }
         };
         getRider.run();
