@@ -422,7 +422,7 @@ public class BasicDAOTest extends DatabaseTestBase {
             @Override
             protected MutableLiveData<Rider> doInMainLoop() {
                 RiderDAO riderDAO = new RiderDAO(mockDb);
-                return riderDAO.getModelByID("GcTYikUpNd9KkxBTjMY9");
+                return riderDAO.getModelByID("u8KKaffjXyyolRrbGdrZ");
             }
         };
         getRider.run();
