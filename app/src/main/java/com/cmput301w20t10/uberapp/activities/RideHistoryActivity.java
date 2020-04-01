@@ -84,9 +84,9 @@ public class RideHistoryActivity extends BaseActivity {
     /**
      * Refreshes the ListView content once the historyList has been populated
      */
-    private void updateView() {
+    private void updateView(boolean active) {
         User user = Application.getInstance().getCurrentUser();
-        HistoryAdapter adapter = new HistoryAdapter(this, Glide.with(this), historyList, user);
+        HistoryAdapter adapter = new HistoryAdapter(this, Glide.with(this), historyList, user, active);
         historyListView.setAdapter(adapter);
 
         if (user instanceof Rider) { // only riders can rate drivers
@@ -114,7 +114,7 @@ public class RideHistoryActivity extends BaseActivity {
     private void populateHistory(boolean active) {
         User user = Application.getInstance().getCurrentUser();
         historyList = new ArrayList<RideRequest>();
-        updateView(); // clear first so if there isn't any rides the screen is clear
+        updateView(active); // clear first so if there isn't any rides the screen is clear
 
         MutableLiveData<List<RideRequest>> liveRides;
         RideRequestDAO rrDAO = DatabaseManager.getInstance().getRideRequestDAO();
@@ -141,7 +141,7 @@ public class RideHistoryActivity extends BaseActivity {
             } else {
                 Log.d("Testing", "Past Rides NULL");
             }
-            updateView();
+            updateView(active);
         });
     }
 }
