@@ -2,6 +2,7 @@ package com.cmput301w20t10.uberapp.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +12,8 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -32,6 +35,7 @@ import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
 import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
+import com.cmput301w20t10.uberapp.models.RideRequestListContent;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -59,8 +63,6 @@ import java.util.Locale;
 
 public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCallback, TaskLoadedCallback {
 
-    private static final String LAST_LOCATION_KEY = "location";
-    private static final String CAMERA_DIRECTION_KEY = "camera_direction";
     private static final int REQUEST_CODE = 101;
 
     SharedPref sharedPref;
@@ -117,78 +119,89 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         TextView tapProfileHint = findViewById(R.id.tap_profile_hint);
         tapProfileHint.setVisibility(View.VISIBLE);
 
+        if (hasNetwork()) {
+            String activeRideRequest = Application.getInstance().getActiveRidePath();
 
-        String activeRideRequest = Application.getInstance().getActiveRidePath();
+            DocumentReference rideRequestReference = db.document(activeRideRequest);
 
-        DocumentReference rideRequestReference = db.document(activeRideRequest);
+            rideRequestReference.get().addOnSuccessListener(rideRequestSnapshot -> {
+                GeoPoint startGeoPoint = (GeoPoint) rideRequestSnapshot.get("startingPosition");
+                LatLng startLatLng = new LatLng(startGeoPoint.getLatitude(), startGeoPoint.getLongitude());
+                startDest.setText(getAddress(startLatLng));
+                GeoPoint endGeoPoint = (GeoPoint) rideRequestSnapshot.get("destination");
+                LatLng endLatLng = new LatLng(endGeoPoint.getLatitude(), endGeoPoint.getLongitude());
+                endDest.setText(getAddress(endLatLng));
 
-        rideRequestReference.get().addOnSuccessListener(rideRequestSnapshot -> {
-            GeoPoint startGeoPoint = (GeoPoint) rideRequestSnapshot.get("startingPosition");
-            LatLng startLatLng = new LatLng(startGeoPoint.getLatitude(), startGeoPoint.getLongitude());
-            startDest.setText(getAddress(startLatLng));
-            GeoPoint endGeoPoint = (GeoPoint) rideRequestSnapshot.get("destination");
-            LatLng endLatLng = new LatLng(endGeoPoint.getLatitude(), endGeoPoint.getLongitude());
-            endDest.setText(getAddress(endLatLng));
+                float[] currentStartDistance = new float[1];
+                Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(),
+                        startLatLng.latitude, startLatLng.longitude, currentStartDistance);
+                distance.setText(String.format("%.2fkm", currentStartDistance[0] / 1000));
 
-            float[] currentStartDistance = new float[1];
-            Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(),
-                    startLatLng.latitude, startLatLng.longitude, currentStartDistance);
-            distance.setText(String.format("%.2fkm", currentStartDistance[0] / 1000));
+                dropPins("Start Destination", startLatLng, "End Destination", endLatLng);
+                new FetchURL(this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
 
-            dropPins("Start Destination", startLatLng, "End Destination",  endLatLng);
-            new FetchURL(this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
+                float[] startEndDist = new float[1];
+                Location.distanceBetween(startLatLng.latitude, startLatLng.longitude,
+                        endLatLng.latitude, endLatLng.longitude, startEndDist);
+                startEndDistance.setText(String.format("%.2fkm", startEndDist[0] / 1000));
 
-            float[] startEndDist = new float[1];
-            Location.distanceBetween(startLatLng.latitude,startLatLng.longitude,
-                    endLatLng.latitude,endLatLng.longitude, startEndDist);
-            startEndDistance.setText(String.format("%.2fkm", startEndDist[0]/1000));
+                long offerLong = (long) rideRequestSnapshot.get("fareOffer");
+                int fareOffer = (int) offerLong;
 
-            Long fareOffer = (Long) rideRequestSnapshot.get("fareOffer");
-            double offerDec = fareOffer.doubleValue()/100;
+                offer.setText("Offer: $" + String.format("%d", fareOffer));
 
-            offer.setText("Offer: $" + String.format("%.2f", offerDec));
+                DocumentReference riderReference = (DocumentReference) rideRequestSnapshot.get("riderReference");
+                riderReference.get().addOnSuccessListener(riderSnapshot -> {
+                    DocumentReference userReference = (DocumentReference) riderSnapshot.get("userReference");
+                    userReference.get().addOnSuccessListener(userSnapshot -> {
+                        riderUsername = userSnapshot.get("username").toString();
+                        username.setText(riderUsername);
+                        firstName.setText(userSnapshot.get("firstName").toString());
+                        lastName.setText(userSnapshot.get("lastName").toString());
+                        if (userSnapshot.get("image") != "") {
+                            Glide.with(this)
+                                    .load(userSnapshot.get("image"))
+                                    .apply(RequestOptions.circleCropTransform())
+                                    .into(riderPictureButton);
+                        }
+                    });
+                });
+            });
 
-            DocumentReference riderReference =  (DocumentReference) rideRequestSnapshot.get("riderReference");
-            riderReference.get().addOnSuccessListener(riderSnapshot -> {
-                DocumentReference userReference =  (DocumentReference) riderSnapshot.get("userReference");
-                userReference.get().addOnSuccessListener(userSnapshot -> {
-                    riderUsername = userSnapshot.get("username").toString();
-                    username.setText(riderUsername);
-                    firstName.setText(userSnapshot.get("firstName").toString());
-                    lastName.setText(userSnapshot.get("lastName").toString());
-                    if (userSnapshot.get("image") != "") {
-                        Glide.with(this)
-                                .load(userSnapshot.get("image"))
-                                .apply(RequestOptions.circleCropTransform())
-                                .into(riderPictureButton);} else {
-                        riderPictureButton.setImageResource(R.mipmap.user);
+            riderPictureButton.setOnClickListener(view -> db.collection("users")
+                    .whereEqualTo("username", riderUsername)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            QuerySnapshot userSnapshot = task.getResult();
+                            String userID = userSnapshot.getDocuments().get(0).getId();
+                            ViewProfileFragment.newInstance(userID, riderUsername).show(getSupportFragmentManager(), "User");
+                        }
+                    })
+            );
+
+            cancelButton.setOnClickListener(view -> {
+                RideRequestDAO dao = new RideRequestDAO();
+                MutableLiveData<RideRequest> liveData = dao.getModelByReference(rideRequestReference);
+                liveData.observe(this, rideRequest -> {
+                    if (rideRequest != null) {
+                        dao.cancelRequest(rideRequest, this);
+                        Intent intent = new Intent(this, DriverMainActivity.class);
+                        startActivity(intent);
+                        finish();
                     }
                 });
             });
-        });
+        } else {
+            RideRequestListContent rideRequest = sharedPref.loadRideRequest();
 
-        riderPictureButton.setOnClickListener(view -> db.collection("users")
-                .whereEqualTo("username", riderUsername)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        QuerySnapshot userSnapshot = task.getResult();
-                        String userID = userSnapshot.getDocuments().get(0).getId();
-                        ViewProfileFragment.newInstance(userID, riderUsername) .show(getSupportFragmentManager(),"User");
-                    }
-                })
-        );
+        }
+    }
 
-        cancelButton.setOnClickListener(view -> {
-            RideRequestDAO dao = new RideRequestDAO();
-            MutableLiveData<RideRequest> liveData = dao.getModelByReference(rideRequestReference);
-            liveData.observe(this, rideRequest -> {
-                if (rideRequest != null) {
-                    dao.cancelRequest(rideRequest, this);
-                    finish();
-                }
-            });
-        });
+    public boolean hasNetwork() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        return connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED;
     }
 
     @Override

@@ -37,6 +37,7 @@
     <string name="request_offer">Offer: $XXX</string>
     <string name="request_accept">Accept</string>
     <string name="request_cancel">Cancel</string>
+    <string name="request_finish">Finish</string>
     <string name="request_first_name">Firstname</string>
     <string name="request_last_name">Lastname</string>
     <string name="request_start_dest">Start Destination</string>
