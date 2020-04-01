@@ -8,9 +8,11 @@ import com.google.gson.Gson;
 
 public class SharedPref {
     SharedPreferences mySharedPref;
+    Gson gson;
 
     public SharedPref(Context context) {
         mySharedPref = context.getSharedPreferences("sharedPreferences",Context.MODE_PRIVATE);
+        gson = new Gson();
     }
 
     public void setUsername(String username) {
@@ -75,14 +77,12 @@ public class SharedPref {
 
     public void setRideRequest(RideRequestListContent rideRequestContent) {
         SharedPreferences.Editor editor = mySharedPref.edit();
-        Gson gson = new Gson();
         String json = gson.toJson(rideRequestContent);
         editor.putString("RideReqeust", json);
         editor.commit();
     }
 
     public RideRequestListContent loadRideRequest() {
-        Gson gson = new Gson();
         String json = mySharedPref.getString("RideRequest", "");
         return gson.fromJson(json, RideRequestListContent.class);
     }

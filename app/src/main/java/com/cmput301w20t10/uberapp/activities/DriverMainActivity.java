@@ -86,7 +86,6 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
     SharedPref sharedPref;
 
     ListView requestList;
-    RideRequestListContent rideRequestListContent;
     ArrayAdapter<RideRequestListContent> requestAdapter;
     ArrayList<RideRequestListContent> requestDataList;
 
@@ -162,10 +161,10 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                                 String lastName = (String) userSnapshot.get(LAST_NAME);
                                 float[] distance = new float[1];
                                 Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), startDest.latitude, startDest.longitude, distance);
-                                rideRequestListContent = new RideRequestListContent(username, distance[0] / 1000, offer,
+                                RideRequestListContent rideRequest = new RideRequestListContent(username, distance[0] / 1000, offer,
                                         imageURL, firstName, lastName, startDest, endDest, rideRequestReference, unpairedReference,
                                         collapsedHeight, collapsedHeight, expandedHeight);
-                                requestDataList.add(rideRequestListContent);
+                                requestDataList.add(rideRequest);
                                 Collections.sort(requestDataList);
                                 requestAdapter = new RequestList(DriverMainActivity.this, requestDataList);
                                 requestList.setAdapter(requestAdapter);
@@ -191,7 +190,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                     MutableLiveData<RideRequest> liveData = rideRequestDAO.getModelByReference(rideRequestContent.getRideRequestReference());
                     liveData.observe(this, rideRequest -> {
                         if (rideRequest != null) {
-//                            sharedPref.setRideRequest(rideRequestListContent);
+//                            sharedPref.setRideRequest(rideRequestContent);
                             rideRequestDAO.acceptRequest(rideRequest, driver, this);
                             Intent intent = new Intent(this, DriverAcceptedActivity.class);
                             Application.getInstance().setActiveRidePath(rideRequest.getRideRequestReference().getPath());

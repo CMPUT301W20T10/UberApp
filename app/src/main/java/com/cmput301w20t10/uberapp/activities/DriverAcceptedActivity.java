@@ -116,6 +116,8 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         ImageView riderPictureButton = findViewById(R.id.profile_button);
         Button cancelButton = findViewById(R.id.cancel_request_button);
         cancelButton.setVisibility(View.VISIBLE);
+        Button confirmButton = findViewById(R.id.new_ride_confirm);
+        confirmButton.setVisibility(View.VISIBLE);
         TextView tapProfileHint = findViewById(R.id.tap_profile_hint);
         tapProfileHint.setVisibility(View.VISIBLE);
 
