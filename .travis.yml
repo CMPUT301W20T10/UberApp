@@ -3,7 +3,7 @@ jdk: oraclejdk8
 
 env:
   global:
-    - ANDROID_TARGET=android-22
+    - ANDROID_TARGET=android-29.0.2
     - ANDROID_ABI=armeabi-v7a
 
 android:
@@ -14,11 +14,11 @@ android:
     - platform-tools
 
     # The BuildTools version used by your project
-    - build-tools-23.0.3
+    - build-tools-29.0.2
 
     # The SDK version used to compile your project
     # TODO: why is this here explicitly in addition to $ANDROID_TARGET below
-    - android-29
+    - android-29.0.2
     
     # Additional components
     - extra-google-google_play_services
@@ -39,7 +39,7 @@ licenses:
 
 before_install:
   # Accept sdk licenses
-  - yes | sdkmanager "platforms;android-29"
+  - yes | sdkmanager "platforms;android-29.0.2"
 
   # Get gradle
   - chmod +x gradlew
