@@ -48,8 +48,8 @@ public class HistoryAdapter extends BaseAdapter {
         this.glide = glide;
         this.rideHistory = rideHistory;
         this.user = user;
-        this.isActive = isActive;
         this.owner = (AppCompatActivity) context;
+        this.isActive = isActive;
 
     }
 
@@ -99,6 +99,7 @@ public class HistoryAdapter extends BaseAdapter {
             if (isActive) {
                 allowCancelRequest(request, position, view);
             } else {
+                Log.d("Testing", "OLDs");
                 deleteButton.setImageResource(android.R.color.transparent);
             }
 
@@ -182,5 +183,9 @@ public class HistoryAdapter extends BaseAdapter {
 
     public void setData(List<RideRequest> data) {
         this.rideHistory = data;
+    }
+
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
     }
 }
