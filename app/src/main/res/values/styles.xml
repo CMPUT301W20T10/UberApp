@@ -14,6 +14,8 @@
         <item name="buttonText">@color/white</item>
         <item name="themePicture">@mipmap/darkmode</item>
         <item name="listViewDivider">@color/colorPrimaryDark</item>
+        <item name="radioButtonPrimaryColor">@color/select_primary</item>
+        <item name="radioButtonSecondaryColor">@color/select_secondary</item>
 
     </style>
 
@@ -30,6 +32,8 @@
         <item name="buttonText">@color/colorPrimaryDark</item>
         <item name="themePicture">@mipmap/lightmode</item>
         <item name="listViewDivider">@color/colorBackground</item>
+        <item name="radioButtonPrimaryColor">@color/select_secondary</item>
+        <item name="radioButtonSecondaryColor">@color/select_primary</item>
 
     </style>
 

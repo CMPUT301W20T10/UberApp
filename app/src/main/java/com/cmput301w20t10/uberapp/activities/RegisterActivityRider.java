@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -72,15 +73,24 @@ public class RegisterActivityRider extends AppCompatActivity {
         String conPassword = confirmPasswordField.getText().toString();
         String email = emailField.getText().toString();
         String phone = phoneField.getText().toString();
+        Button registerbut = findViewById(R.id.register_button);
+        Button cancelbut = findViewById(R.id.cancel_button);
+        registerbut.setVisibility(View.GONE);
+        cancelbut.setVisibility(View.GONE);
+        Toast.makeText(getApplicationContext(), "Attempting to create new account....", Toast.LENGTH_SHORT).show();
 
         // Non-empty fields
         if(!verifyFields()) {
+            registerbut.setVisibility(View.VISIBLE);
+            cancelbut.setVisibility(View.VISIBLE);
             return;
         }
 
         // Check that the passwords match
         if (!password.equals(conPassword)) {
             Toast.makeText(getApplicationContext(), "Passwords do not match", Toast.LENGTH_LONG).show();
+            registerbut.setVisibility(View.VISIBLE);
+            cancelbut.setVisibility(View.VISIBLE);
             return;
         }
 
@@ -91,6 +101,8 @@ public class RegisterActivityRider extends AppCompatActivity {
             TextView textView = toast.getView().findViewById(android.R.id.message);
             textView.setGravity(Gravity.CENTER);
             toast.show();
+            registerbut.setVisibility(View.VISIBLE);
+            cancelbut.setVisibility(View.VISIBLE);
             return;
         }
 
@@ -98,6 +110,8 @@ public class RegisterActivityRider extends AppCompatActivity {
         if (!validateEmail(email)) {
             Toast.makeText(getApplicationContext(), "Email entered is not valid",
                     Toast.LENGTH_LONG).show();
+            registerbut.setVisibility(View.VISIBLE);
+            cancelbut.setVisibility(View.VISIBLE);
             return;
         }
 
@@ -105,6 +119,8 @@ public class RegisterActivityRider extends AppCompatActivity {
         if (!validatePhone(phone)) {
             Toast.makeText(getApplicationContext(), "Phone number entered is not valid",
                     Toast.LENGTH_LONG).show();
+            registerbut.setVisibility(View.VISIBLE);
+            cancelbut.setVisibility(View.VISIBLE);
             return;
         }
 
@@ -130,15 +146,24 @@ public class RegisterActivityRider extends AppCompatActivity {
                 );
                 rider.observe(this, newRider -> {
                     if (newRider != null) {
+                        Toast.makeText(getApplicationContext(), "New account made! You can log in now.", Toast.LENGTH_LONG).show();
                         finish();
+                    }
+                    else{
+                        registerbut.setVisibility(View.VISIBLE);
+                        cancelbut.setVisibility(View.VISIBLE);
                     }
                 });
             } else if (count == 1) {
                 // one account made with username
                 Toast.makeText(getApplicationContext(), "Username taken! try a new one.", Toast.LENGTH_LONG).show();
+                registerbut.setVisibility(View.VISIBLE);
+                cancelbut.setVisibility(View.VISIBLE);
             } else {// count > 1
                 // two or more accounts with the same username
                 Toast.makeText(getApplicationContext(), "Username taken! try a new one.", Toast.LENGTH_LONG).show();
+                registerbut.setVisibility(View.VISIBLE);
+                cancelbut.setVisibility(View.VISIBLE);
             }
         });
 

@@ -10,5 +10,7 @@
         <attr name="requestPictureBorder" format="reference"/>
         <attr name="themePicture" format="reference"/>
         <attr name="listViewDivider" format="color" />
+        <attr name="radioButtonPrimaryColor" format="color" />
+        <attr name="radioButtonSecondaryColor" format="color" />
     </declare-styleable>
 </resources>

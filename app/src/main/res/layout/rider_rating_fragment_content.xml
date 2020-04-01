@@ -47,8 +47,8 @@
 
         <ImageView
             android:id="@+id/rateUpButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:contentDescription="@string/ratingfrag_rateup_description"
@@ -57,18 +57,18 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/include"
-            app:srcCompat="@mipmap/thmbuphidef" />
+            app:srcCompat="@drawable/ic_thumb_up_black_24dp" />
 
         <ImageView
             android:id="@+id/rateDownButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
             android:contentDescription="@string/ratingfrag_ratedown_description"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/rateUpButton"
             app:layout_constraintTop_toTopOf="@+id/rateUpButton"
-            app:srcCompat="@mipmap/thmbdownhidef" />
+            app:srcCompat="@drawable/ic_thumb_down_black_24dp" />
 
         <ImageView
             android:id="@+id/ratingFragmentCloseButton"

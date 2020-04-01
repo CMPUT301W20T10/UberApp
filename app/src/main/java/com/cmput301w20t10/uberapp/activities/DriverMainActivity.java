@@ -65,6 +65,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DriverMainActivity extends BaseActivity implements OnMapReadyCallback, TaskLoadedCallback {
+    private static final String TAG = "DriverTest" ;
 
     private static final String LAST_LOCATION_KEY = "location";
     private static final String CAMERA_DIRECTION_KEY = "camera_direction";
@@ -147,6 +148,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                 DocumentReference rideRequestReference = rideRequests.get(counter.getAndAdd(0)).getRideRequestReference();
                 DocumentReference unpairedReference = rideRequests.get(counter.getAndAdd(0)).getUnpairedReference();
                 int offer = rideRequests.get(counter.getAndAdd(0)).getFareOffer();
+                Log.d(TAG,"Offer: " + offer/100);
                 LatLng startDest = rideRequests.get(counter.getAndAdd(0)).getRoute().getStartingPosition();
                 LatLng endDest = rideRequests.get(counter.getAndAdd(0)).getRoute().getDestinationPosition();
                 String riderPath = rideRequests.get(counter.getAndAdd(1)).getRiderReference().getPath();
@@ -195,6 +197,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                     if (rideRequest != null) {
                         rideRequestDAO.acceptRequest(rideRequest, driver, this);
                         Intent intent = new Intent(this, DriverAcceptedActivity.class);
+                        Application.getInstance().setActiveRidePath(rideRequest.getRideRequestReference().getPath());
                         Application.getInstance().setPrevActivity(this.getLocalClassName());
                         startActivity(intent);
                     }

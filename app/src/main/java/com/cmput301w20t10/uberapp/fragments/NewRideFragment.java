@@ -53,7 +53,7 @@ public class NewRideFragment extends Fragment {
         offerText.setText(String.format("%d", priceOffer));
 
         confirmButton.setOnClickListener(v -> {
-            double newOffer = Double.parseDouble(offerText.getText().toString());
+            int newOffer = Integer.parseInt(offerText.getText().toString());
             if (newOffer < priceOffer) {
                 Toast toast = Toast.makeText(getContext(), String.format("Price offer cannot be lower than %d", priceOffer), Toast.LENGTH_LONG);
                 TextView textView = toast.getView().findViewById(android.R.id.message);
@@ -71,6 +71,7 @@ public class NewRideFragment extends Fragment {
                 Rider rider = (Rider) user;
                 int offerCents = (int) newOffer*100;
                 MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,Application.getInstance().getRoute(),offerCents,this);
+                this.close();
 
             }
             else{
