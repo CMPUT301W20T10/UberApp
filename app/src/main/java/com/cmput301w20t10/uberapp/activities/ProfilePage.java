@@ -23,9 +23,21 @@ public class ProfilePage extends BaseActivity {
     TextView fName,lName,uName,pNumber,eMail;
     CircleImageView profilePicture;
 
+    SharedPref sharedPref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (Application.getInstance().getPrevActivity().equals(this.getLocalClassName())) {
+            finish();
+        }
+
+        sharedPref = new SharedPref(this);
+        if (sharedPref.loadNightModeState()) {
+            setTheme(R.style.DarkTheme);
+        } else { setTheme(R.style.AppTheme); }
+
         setContentView(R.layout.profile_page);
         editProfile = findViewById(R.id.butEditProf);
 

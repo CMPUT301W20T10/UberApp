@@ -2,12 +2,16 @@ package com.cmput301w20t10.uberapp.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.animation.Animation;
@@ -45,6 +49,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -95,17 +100,20 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Driver driver = (Driver) Application.getInstance().getCurrentUser();
+        if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0 ) {
+            Intent intent = new Intent(this, DriverAcceptedActivity.class);
+            String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
+            Application.getInstance().setActiveRidePath(activeRideRequest);
+            Application.getInstance().setPrevActivity(this.getLocalClassName());
+            startActivity(intent);
+        }
+
         client = LocationServices.getFusedLocationProviderClient(this);
 
         requestLocationPermission();
 
         db = FirebaseFirestore.getInstance();
-
-        // Retrieve location and camera direction from savedInstanceState
-        if (savedInstanceState != null) {
-            currentLocation = savedInstanceState.getParcelable(LAST_LOCATION_KEY);
-            CameraPosition cameraPosition = savedInstanceState.getParcelable(CAMERA_DIRECTION_KEY);
-        }
 
         Display display = this.getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -115,10 +123,11 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         final int expandedHeight = height / 2;
 
         sharedPref = new SharedPref(this);
-        System.out.println("SHARED: " + sharedPref);
-        if (sharedPref.loadNightModeState() == true) {
+        if (sharedPref.loadNightModeState()) {
             setTheme(R.style.DarkTheme);
         } else { setTheme(R.style.AppTheme); }
+
+        sharedPref.setHomeActivity(this.getLocalClassName());
 
         setContentView(R.layout.content_driver_main);
 
@@ -126,8 +135,6 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        System.out.println("NAME: " + this.getLocalClassName());
 
         requestList = findViewById(R.id.ride_request_list);
         requestDataList = new ArrayList<>();
@@ -139,7 +146,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             if (!rideRequests.isEmpty()) {
                 DocumentReference rideRequestReference = rideRequests.get(counter.getAndAdd(0)).getRideRequestReference();
                 DocumentReference unpairedReference = rideRequests.get(counter.getAndAdd(0)).getUnpairedReference();
-                float offer = rideRequests.get(counter.getAndAdd(0)).getFareOffer();
+                int offer = rideRequests.get(counter.getAndAdd(0)).getFareOffer();
                 LatLng startDest = rideRequests.get(counter.getAndAdd(0)).getRoute().getStartingPosition();
                 LatLng endDest = rideRequests.get(counter.getAndAdd(0)).getRoute().getDestinationPosition();
                 String riderPath = rideRequests.get(counter.getAndAdd(1)).getRiderReference().getPath();
@@ -179,37 +186,34 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             LatLng endDest = rideRequestContent.getEndDest();
             dropPins("Start Destination", startDest, "End Destination",  endDest);
             new FetchURL(DriverMainActivity.this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
-            Button acceptButton = view.findViewById(R.id.accept_request_button);
 
-            acceptButton.setOnClickListener(view1 -> {
-                Driver driver = (Driver) Application.getInstance().getCurrentUser();
+            Button acceptButton = view.findViewById(R.id.accept_request_button);
+            acceptButton.setOnClickListener(acceptView -> {
                 RideRequestDAO rideRequestDAO = new RideRequestDAO();
                 MutableLiveData<RideRequest> liveData = rideRequestDAO.getModelByReference(rideRequestContent.getRideRequestReference());
                 liveData.observe(this, rideRequest -> {
                     if (rideRequest != null) {
                         rideRequestDAO.acceptRequest(rideRequest, driver, this);
+                        Intent intent = new Intent(this, DriverAcceptedActivity.class);
+                        Application.getInstance().setPrevActivity(this.getLocalClassName());
+                        startActivity(intent);
                     }
                 });
             });
 
-            ImageButton riderPictureButton = view.findViewById(R.id.profile_picture);
-            riderPictureButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    db.collection("users")
-                            .whereEqualTo("username", rideRequestContent.getUsername())
-                            .get()
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    QuerySnapshot userSnapshot = task.getResult();
-                                    System.out.println("MACA10: " + userSnapshot.getDocuments().get(0).getId());
-                                    String userID = userSnapshot.getDocuments().get(0).getId();
-                                    String username = rideRequestContent.getUsername();
-                                    ViewProfileFragment.newInstance(userID, username) .show(getSupportFragmentManager(),"User");
-                                }
-                            });
-                }
-            });
+            ImageButton riderPictureButton = view.findViewById(R.id.profile_button);
+            riderPictureButton.setOnClickListener(pictureView -> db.collection("users")
+                    .whereEqualTo("username", rideRequestContent.getUsername())
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            QuerySnapshot userSnapshot = task.getResult();
+                            String userID = userSnapshot.getDocuments().get(0).getId();
+                            String username = rideRequestContent.getUsername();
+                            ViewProfileFragment.newInstance(userID, username) .show(getSupportFragmentManager(),"User");
+                        }
+                    })
+            );
 
             // For message passing, the driver must subscribe to a topic
             FirebaseMessaging.getInstance().subscribeToTopic(Application.getInstance().getCurrentUser().getUsername())
@@ -221,15 +225,11 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                         }
                     });
         });
-}
+    }
 
     @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
-        if (mainMap != null) {
-            savedInstanceState.putParcelable(CAMERA_DIRECTION_KEY, mainMap.getCameraPosition());
-            savedInstanceState.putParcelable(LAST_LOCATION_KEY, currentLocation);
-            super.onSaveInstanceState(savedInstanceState);
-        }
+    public void onBackPressed() {
+        return;
     }
 
     /*
@@ -354,6 +354,14 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mainMap = googleMap;
+
+        if (sharedPref.loadNightModeState()) {
+            boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources().getString(R.string.NightMap)));
+            if (!success) {
+                Log.e("Bad Style", "Style parsing failed.");
+            }
+        }
+
         getCurrentLocation();
         if (locationPermissionGranted) {
             googleMap.setMyLocationEnabled(true);
@@ -377,27 +385,21 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
     }
 
+    @SuppressLint("MissingPermission")
     private void getCurrentLocation() {
-        /*
-         * Used code from YouTube video to ask location permission and get current location
-         * YouTube video posted by "Android Coding"
-         * Title: How to Show Current Location On Map in Android Studio | CurrentLocation | Android Coding
-         * URL: https://www.youtube.com/watch?v=boyyLhXAZAQ
-         */
-        // get last know location of device
-        client.getLastLocation().addOnCompleteListener(this, task -> {
-            if (task.isSuccessful()) {
-                if (mainMap != null) {
-                    currentLocation = task.getResult();
-                    mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 13));
-                    CameraPosition cameraPosition = new CameraPosition.Builder()
-                            .target(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))      // Sets the center of the map to location user
-                            .zoom(17)                   // Sets the zoom
-                            .build();                   // Creates a CameraPosition from the builder
-                    mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                }
-            }
-        });
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+        if (location != null) {
+            currentLocation = location;
+            LatLng currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+            mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 13));
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(currentLatLng)      // Sets the center of the map to location user
+                    .zoom(17)                   // Sets the zoom
+                    .build();                   // Creates a CameraPosition from the builder
+            mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
     }
 
     private void moveCamera(Marker startMarker, Marker endMarker){
@@ -408,8 +410,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
 
         LatLngBounds bounds = builder.build();
         int padding = 100; // offset from edges of the map in pixels
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds,
-                padding);
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mainMap.moveCamera(cu);
         mainMap.animateCamera(cu);
 

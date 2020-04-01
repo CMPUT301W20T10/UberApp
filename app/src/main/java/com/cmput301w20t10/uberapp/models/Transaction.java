@@ -22,7 +22,7 @@ public class Transaction extends ModelBase<Field, TransactionEntity> {
     private Date timestamp;
     private User recipient;
     private User sender;
-    private float value;
+    private int value;
 
     enum Field {
         VALUE ("value"),
@@ -42,7 +42,7 @@ public class Transaction extends ModelBase<Field, TransactionEntity> {
         }
     }
 
-    public Transaction(User sender, User recipient, float value) {
+    public Transaction(User sender, User recipient, int value) {
         this.value = value;
         this.sender = sender;
         this.recipient = recipient;
@@ -54,7 +54,7 @@ public class Transaction extends ModelBase<Field, TransactionEntity> {
                        Date timestamp,
                        User recipient,
                        User sender,
-                       float  value) {
+                       int  value) {
         this.transactionReference = transactionReference;
         this.timestamp = timestamp;
         this.recipient = recipient;
@@ -132,11 +132,11 @@ public class Transaction extends ModelBase<Field, TransactionEntity> {
         return sender;
     }
 
-    public float getValue() {
+    public int getValue() {
         return value;
     }
 
-    public void setValue(float value) {
+    public void setValue(int value) {
         addDirtyField(Field.VALUE);
         this.value = value;
     }

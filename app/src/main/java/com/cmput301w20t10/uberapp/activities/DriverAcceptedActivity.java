@@ -1,12 +1,16 @@
 package com.cmput301w20t10.uberapp.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,13 +20,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.MutableLiveData;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
-import com.cmput301w20t10.uberapp.database.dao.DriverDAO;
 import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
+import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
+import com.cmput301w20t10.uberapp.models.Driver;
+import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -34,6 +43,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -42,6 +52,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -53,6 +64,8 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
     private static final int REQUEST_CODE = 101;
 
     SharedPref sharedPref;
+
+    String riderUsername;
 
     private FirebaseFirestore db;
 
@@ -72,21 +85,14 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
 
         client = LocationServices.getFusedLocationProviderClient(this);
 
-        RideRequestDAO dao = new RideRequestDAO();
-
         requestLocationPermission();
-
-        // Retrieve location and camera direction from savedInstanceState
-        if (savedInstanceState != null) {
-            System.out.println("IS THIS GOING THROUGH?? " + currentLocation);
-            currentLocation = savedInstanceState.getParcelable(LAST_LOCATION_KEY);
-            CameraPosition cameraPosition = savedInstanceState.getParcelable(CAMERA_DIRECTION_KEY);
-        }
 
         sharedPref = new SharedPref(this);
         if (sharedPref.loadNightModeState()) {
             setTheme(R.style.DarkTheme);
         } else { setTheme(R.style.AppTheme); }
+
+        sharedPref.setHomeActivity(this.getLocalClassName());
 
         setContentView(R.layout.driver_accepted);
 
@@ -105,15 +111,18 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         TextView startDest = findViewById(R.id.request_start_dest);
         TextView endDest = findViewById(R.id.request_end_dest);
         TextView startEndDistance = findViewById(R.id.start_end_distance);
-        ImageView profilePicture = findViewById(R.id.profile_picture);
+        ImageView riderPictureButton = findViewById(R.id.profile_button);
         Button cancelButton = findViewById(R.id.cancel_request_button);
         cancelButton.setVisibility(View.VISIBLE);
+        TextView tapProfileHint = findViewById(R.id.tap_profile_hint);
+        tapProfileHint.setVisibility(View.VISIBLE);
 
-        System.out.println("NAME: " + this.getLocalClassName());
 
-        String activeRideRequest = getIntent().getStringExtra("ACTIVE");
+        String activeRideRequest = Application.getInstance().getActiveRidePath();
 
-        db.document(activeRideRequest).get().addOnSuccessListener(rideRequestSnapshot -> {
+        DocumentReference rideRequestReference = db.document(activeRideRequest);
+
+        rideRequestReference.get().addOnSuccessListener(rideRequestSnapshot -> {
             GeoPoint startGeoPoint = (GeoPoint) rideRequestSnapshot.get("startingPosition");
             LatLng startLatLng = new LatLng(startGeoPoint.getLatitude(), startGeoPoint.getLongitude());
             startDest.setText(getAddress(startLatLng));
@@ -121,39 +130,69 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
             LatLng endLatLng = new LatLng(endGeoPoint.getLatitude(), endGeoPoint.getLongitude());
             endDest.setText(getAddress(endLatLng));
 
-            dropPins("Start Destination", startLatLng, "End Destination",  endLatLng);
-            if (currentLocation != null) {
-                new FetchURL(this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
-            }
-
             float[] currentStartDistance = new float[1];
             Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(),
                     startLatLng.latitude, startLatLng.longitude, currentStartDistance);
-            distance.setText(String.format("%.2fkm", currentStartDistance[0]/1000));
+            distance.setText(String.format("%.2fkm", currentStartDistance[0] / 1000));
+
+            dropPins("Start Destination", startLatLng, "End Destination",  endLatLng);
+            new FetchURL(this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
 
             float[] startEndDist = new float[1];
             Location.distanceBetween(startLatLng.latitude,startLatLng.longitude,
                     endLatLng.latitude,endLatLng.longitude, startEndDist);
             startEndDistance.setText(String.format("%.2fkm", startEndDist[0]/1000));
 
-            float fareOffer = (long) rideRequestSnapshot.get("fareOffer");
-            offer.setText("Offer: $" + String.format("%.2f", fareOffer));
+            Double fareOffer = (Double) rideRequestSnapshot.get("fareOffer");
+            double offerInt = fareOffer.doubleValue()*100;
+
+            offer.setText("Offer: $" + String.format("%.2f", offerInt));
 
             DocumentReference riderReference =  (DocumentReference) rideRequestSnapshot.get("riderReference");
-            System.out.println("PATH: " + riderReference.getPath());
             riderReference.get().addOnSuccessListener(riderSnapshot -> {
                 DocumentReference userReference =  (DocumentReference) riderSnapshot.get("userReference");
                 userReference.get().addOnSuccessListener(userSnapshot -> {
-                    username.setText(userSnapshot.get("username").toString());
+                    riderUsername = userSnapshot.get("username").toString();
+                    username.setText(riderUsername);
                     firstName.setText(userSnapshot.get("firstName").toString());
                     lastName.setText(userSnapshot.get("lastName").toString());
-                    Glide.with(this)
-                            .load(userSnapshot.get("image"))
-                            .into(profilePicture);
+                    if (userSnapshot.get("image") != "") {
+                        Glide.with(this)
+                                .load(userSnapshot.get("image"))
+                                .apply(RequestOptions.circleCropTransform())
+                                .into(riderPictureButton);
+                    }
                 });
             });
-
         });
+
+        riderPictureButton.setOnClickListener(view -> db.collection("users")
+                .whereEqualTo("username", riderUsername)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot userSnapshot = task.getResult();
+                        String userID = userSnapshot.getDocuments().get(0).getId();
+                        ViewProfileFragment.newInstance(userID, riderUsername) .show(getSupportFragmentManager(),"User");
+                    }
+                })
+        );
+
+        cancelButton.setOnClickListener(view -> {
+            RideRequestDAO dao = new RideRequestDAO();
+            MutableLiveData<RideRequest> liveData = dao.getModelByReference(rideRequestReference);
+            liveData.observe(this, rideRequest -> {
+                if (rideRequest != null) {
+                    dao.cancelRequest(rideRequest, this);
+                    finish();
+                }
+            });
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        return;
     }
 
     public String getAddress(LatLng latLng) {
@@ -176,7 +215,7 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
     private void requestLocationPermission() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationPermissionGranted = true;
-            getCurrentLocation();
+
         } else {
             Toast.makeText(getApplicationContext(), "Location permission required", Toast.LENGTH_LONG).show();
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
@@ -196,6 +235,14 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mainMap = googleMap;
+
+        if (sharedPref.loadNightModeState()) {
+            boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources().getString(R.string.NightMap)));
+            if (!success) {
+                Log.e("Bad Style", "Style parsing failed.");
+            }
+        }
+
         getCurrentLocation();
         if (locationPermissionGranted) {
             googleMap.setMyLocationEnabled(true);
@@ -219,29 +266,23 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
     }
 
+    @SuppressLint("MissingPermission")
     private void getCurrentLocation() {
-        /*
-         * Used code from YouTube video to ask location permission and get current location
-         * YouTube video posted by "Android Coding"
-         * Title: How to Show Current Location On Map in Android Studio | CurrentLocation | Android Coding
-         * URL: https://www.youtube.com/watch?v=boyyLhXAZAQ
-         */
-        // get last know location of device
-        client.getLastLocation().addOnCompleteListener(this, task -> {
-            if (task.isSuccessful()) {
-                if (mainMap != null) {
-                    currentLocation = task.getResult();
-                    LatLng currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-                    mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 13));
-                    CameraPosition cameraPosition = new CameraPosition.Builder()
-                            .target(currentLatLng)      // Sets the center of the map to location user
-                            .zoom(17)                   // Sets the zoom
-                            .build();                   // Creates a CameraPosition from the builder
-                    mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                }
-            }
-        });
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+        if (location != null) {
+            currentLocation = location;
+            LatLng currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+            mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 13));
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(currentLatLng)      // Sets the center of the map to location user
+                    .zoom(17)                   // Sets the zoom
+                    .build();                   // Creates a CameraPosition from the builder
+            mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
     }
+
 
     private void moveCamera(Marker startMarker, Marker endMarker){
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -255,7 +296,6 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                 padding);
         mainMap.moveCamera(cu);
         mainMap.animateCamera(cu);
-
     }
 
     private void dropPins(String startTitle, LatLng startDest, String endTitle, LatLng endDest) {

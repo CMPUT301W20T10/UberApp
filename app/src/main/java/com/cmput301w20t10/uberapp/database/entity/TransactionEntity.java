@@ -33,7 +33,7 @@ public class TransactionEntity extends EntityBase<Field> {
     private Timestamp timestamp;
     private DocumentReference recipient;
     private DocumentReference sender;
-    private float value;
+    private int value;
 
     enum Field {
         VALUE ("value"),
@@ -152,11 +152,11 @@ public class TransactionEntity extends EntityBase<Field> {
         this.sender = sender;
     }
 
-    public float getValue() {
+    public int getValue() {
         return value;
     }
 
-    public void setValue(float value) {
+    public void setValue(int value) {
         addDirtyField(Field.VALUE);
         this.value = value;
     }

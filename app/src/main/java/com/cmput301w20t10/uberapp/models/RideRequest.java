@@ -19,7 +19,7 @@ import static com.cmput301w20t10.uberapp.models.RideRequest.*;
 /**
  * WILL LEARN TO USE - Kevin
  */
-public class RideRequest extends ModelBase<Field, RideRequestEntity> {
+public class RideRequest extends ModelBase<Field, RideRequestEntity> implements Comparable<RideRequest> {
     private DocumentReference driverReference;
     private DocumentReference riderReference;
     private DocumentReference transactionReference;
@@ -28,7 +28,7 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
     private DocumentReference rideRequestReference;
     private Route route;
     private State state;
-    private float fareOffer;
+    private int fareOffer;
     private Date timestamp;
     private int rating;
 
@@ -183,7 +183,7 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
         this.state = state;
     }
 
-    public float getFareOffer() {
+    public int getFareOffer() {
         return fareOffer;
     }
 
@@ -218,5 +218,10 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
     public void setRating(int rating) {
         addDirtyField(Field.RATING);
         this.rating = rating;
+    }
+
+    @Override
+    public int compareTo(RideRequest o) {
+        return timestamp.compareTo(o.getTimestamp());
     }
 }
