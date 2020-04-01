@@ -1,4 +1,12 @@
 package com.cmput301w20t10.uberapp.Directions;
+/*
+ * fetchURL is code from GITHUB
+ * URL of master: https://github.com/Vysh01/android-maps-directions
+ * Author: Vysh01, https://github.com/Vysh01
+ * Website: https://github.com/
+ * URL of class:
+ */
+
 import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
