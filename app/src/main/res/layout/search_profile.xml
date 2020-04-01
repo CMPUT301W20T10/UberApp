@@ -19,8 +19,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="0dp"
         app:layout_constraintVertical_bias="0.0"
-        android:divider="?attr/listViewDivider"
-        android:dividerHeight="4px"/>
+        android:divider="?attr/listViewDivider"/>
 
     <SearchView
         android:id="@+id/searchProfile"

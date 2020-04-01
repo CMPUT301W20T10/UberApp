@@ -23,6 +23,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
@@ -42,6 +43,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -84,12 +86,6 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
 
         requestLocationPermission();
 
-        // Retrieve location and camera direction from savedInstanceState
-//        if (savedInstanceState != null) {
-//            currentLocation = savedInstanceState.getParcelable(LAST_LOCATION_KEY);
-//            CameraPosition cameraPosition = savedInstanceState.getParcelable(CAMERA_DIRECTION_KEY);
-//        }
-
         sharedPref = new SharedPref(this);
         if (sharedPref.loadNightModeState()) {
             setTheme(R.style.DarkTheme);
@@ -114,7 +110,7 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         TextView startDest = findViewById(R.id.request_start_dest);
         TextView endDest = findViewById(R.id.request_end_dest);
         TextView startEndDistance = findViewById(R.id.start_end_distance);
-        ImageView riderPictureButton = findViewById(R.id.profile_picture);
+        ImageView riderPictureButton = findViewById(R.id.profile_button);
         Button cancelButton = findViewById(R.id.cancel_request_button);
         cancelButton.setVisibility(View.VISIBLE);
         TextView tapProfileHint = findViewById(R.id.tap_profile_hint);
@@ -122,12 +118,10 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
 
 
         String activeRideRequest = getIntent().getStringExtra("ACTIVE");
-        System.out.println("ACTIVE: " + activeRideRequest);
 
         DocumentReference rideRequestReference = db.document(activeRideRequest);
 
         rideRequestReference.get().addOnSuccessListener(rideRequestSnapshot -> {
-            System.out.println("LOCATION: " + currentLocation);
             GeoPoint startGeoPoint = (GeoPoint) rideRequestSnapshot.get("startingPosition");
             LatLng startLatLng = new LatLng(startGeoPoint.getLatitude(), startGeoPoint.getLongitude());
             startDest.setText(getAddress(startLatLng));
@@ -140,8 +134,6 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                     startLatLng.latitude, startLatLng.longitude, currentStartDistance);
             distance.setText(String.format("%.2fkm", currentStartDistance[0] / 1000));
 
-            System.out.println("START/END: " + getAddress(startLatLng) + getAddress(endLatLng));
-
             dropPins("Start Destination", startLatLng, "End Destination",  endLatLng);
             new FetchURL(this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
 
@@ -150,11 +142,8 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                     endLatLng.latitude,endLatLng.longitude, startEndDist);
             startEndDistance.setText(String.format("%.2fkm", startEndDist[0]/1000));
 
-            System.out.println("FAREOFFER: " + rideRequestSnapshot.get("fareOffer") + rideRequestSnapshot.get("fareOffer").getClass().getName());
-
             double dFareOffer =  (double) rideRequestSnapshot.get("fareOffer");
             float fareOffer = (float) dFareOffer;
-            System.out.println("FAREOFFER2: " + fareOffer);
 
             offer.setText("Offer: $" + String.format("%.2f", fareOffer));
 
@@ -166,9 +155,12 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                     username.setText(riderUsername);
                     firstName.setText(userSnapshot.get("firstName").toString());
                     lastName.setText(userSnapshot.get("lastName").toString());
-                    Glide.with(this)
-                            .load(userSnapshot.get("image"))
-                            .into(riderPictureButton);
+                    if (userSnapshot.get("image") != "") {
+                        Glide.with(this)
+                                .load(userSnapshot.get("image"))
+                                .apply(RequestOptions.circleCropTransform())
+                                .into(riderPictureButton);
+                    }
                 });
             });
         });
@@ -186,7 +178,6 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         );
 
         cancelButton.setOnClickListener(view -> {
-            Driver driver = (Driver) Application.getInstance().getCurrentUser();
             RideRequestDAO dao = new RideRequestDAO();
             MutableLiveData<RideRequest> liveData = dao.getModelByReference(rideRequestReference);
             liveData.observe(this, rideRequest -> {
@@ -202,15 +193,6 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
     public void onBackPressed() {
         return;
     }
-
-//    @Override
-//    protected void onSaveInstanceState(Bundle savedInstanceState) {
-//        if (mainMap != null) {
-//            savedInstanceState.putParcelable(CAMERA_DIRECTION_KEY, mainMap.getCameraPosition());
-//            savedInstanceState.putParcelable(LAST_LOCATION_KEY, currentLocation);
-//            super.onSaveInstanceState(savedInstanceState);
-//        }
-//    }
 
     public String getAddress(LatLng latLng) {
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
@@ -252,6 +234,14 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mainMap = googleMap;
+
+        if (sharedPref.loadNightModeState()) {
+            boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources().getString(R.string.NightMap)));
+            if (!success) {
+                Log.e("Bad Style", "Style parsing failed.");
+            }
+        }
+
         getCurrentLocation();
         if (locationPermissionGranted) {
             googleMap.setMyLocationEnabled(true);
@@ -277,27 +267,6 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
 
     @SuppressLint("MissingPermission")
     private void getCurrentLocation() {
-        /*
-         * Used code from YouTube video to ask location permission and get current location
-         * YouTube video posted by "Android Coding"
-         * Title: How to Show Current Location On Map in Android Studio | CurrentLocation | Android Coding
-         * URL: https://www.youtube.com/watch?v=boyyLhXAZAQ
-         */
-        // get last know location of device
-//        client.getLastLocation().addOnCompleteListener(this, task -> {
-//            if (task.isSuccessful()) {
-//                if (mainMap != null) {
-//                    currentLocation = task.getResult();
-//                    LatLng currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-//                    mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 13));
-//                    CameraPosition cameraPosition = new CameraPosition.Builder()
-//                            .target(currentLatLng)      // Sets the center of the map to location user
-//                            .zoom(17)                   // Sets the zoom
-//                            .build();                   // Creates a CameraPosition from the builder
-//                    mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-//                }
-//            }
-//        });
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
@@ -326,7 +295,6 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                 padding);
         mainMap.moveCamera(cu);
         mainMap.animateCamera(cu);
-
     }
 
     private void dropPins(String startTitle, LatLng startDest, String endTitle, LatLng endDest) {

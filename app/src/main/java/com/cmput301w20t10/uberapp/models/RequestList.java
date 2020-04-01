@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.cmput301w20t10.uberapp.R;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -81,7 +82,6 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
         holder.getTextViewWrap().setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, rideRequest.getCurrentHeight()));
 
         getAddress(rideRequest.getStartDest().latitude, rideRequest.getStartDest().longitude);
-        System.out.println("STARTING: " + addressLine + " == " + addressKnownName);
         if (addressesEqual) {
             holder.getStartDest().setText(addressLine);
         } else {
@@ -108,9 +108,12 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
                 endDest.latitude,endDest.longitude, startEndDist);
         holder.getStartEndDist().setText(String.format("%.2fkm", startEndDist[0]/1000));
 
-        Glide.with(view)
-                .load(rideRequest.getImageURL())
-                .into(holder.getProfilePic());
+        if (rideRequest.getImageURL() != "") {
+            Glide.with(view)
+                    .load(rideRequest.getImageURL())
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(holder.getProfilePic());
+        }
 
         view.setTag(holder);
 

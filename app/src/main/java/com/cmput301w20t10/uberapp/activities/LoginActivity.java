@@ -85,7 +85,6 @@ public class LoginActivity extends OptionsMenu {
         this.passwordField = findViewById(R.id.password_field);
         this.loginTypeField = findViewById(R.id.rider_driver_toggle);
 
-        System.out.println("REMEMBER? " + sharedPref.loadRememberMeState());
         if (sharedPref.loadRememberMeState()) {
             usernameField.setText(sharedPref.loadUsername());
             passwordField.setText(sharedPref.loadPassword());
@@ -147,6 +146,7 @@ public class LoginActivity extends OptionsMenu {
                         updateFCMToken();
                         saveUserInfo("rider");
                         Intent intent = new Intent(this, RiderMainActivity.class);
+                        Application.getInstance().setPrevActivity(this.getLocalClassName());
                         startActivity(intent);
                     } else {
                         Toast.makeText(getApplicationContext(), "Invalid Username/Password", Toast.LENGTH_LONG).show();
@@ -163,16 +163,8 @@ public class LoginActivity extends OptionsMenu {
                         Application.getInstance().setUser(driver);
                         updateFCMToken();
                         saveUserInfo("driver");
-//                        if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0 ) {
-//                            Intent intent = new Intent(this, DriverAcceptedActivity.class);
-//                            String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
-//                            System.out.println("ACTIVE: " + activeRideRequest);
-//                            intent.putExtra("ACTIVE", activeRideRequest);
-//                            intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
-//                            startActivity(intent);
-//                        } else {
                             Intent intent = new Intent(this, DriverMainActivity.class);
-                            intent.putExtra("PREV_ACTIVITY", "LoginActivity");
+                            Application.getInstance().setPrevActivity(this.getLocalClassName());
                             startActivity(intent);
 //                        }
                     } else {

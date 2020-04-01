@@ -17,13 +17,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
-            <ImageButton
+<!--            <ImageButton-->
+<!--                android:id="@+id/profile_picture"-->
+<!--                android:layout_width="320px"-->
+<!--                android:layout_height="320px"-->
+<!--                android:background="@null"-->
+<!--                android:scaleType="fitCenter"-->
+<!--                android:src="@drawable/ic_person_black_24dp"></ImageButton>-->
+
+            <!--
+            StackOverflow post by BOUTERBIAT Oualid:
+            https://stackoverflow.com/users/6255927/bouterbiat-oualid
+            Answer:
+            https://stackoverflow.com/a/38011904
+            for information regarding CircleImageView dependencies.
+            -->
+            <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/profile_picture"
                 android:layout_width="320px"
                 android:layout_height="320px"
-                android:background="@null"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_person_black_24dp"></ImageButton>
+                android:src="@mipmap/user"
+                app:civ_border_color="?attr/textColor"
+                app:civ_border_width="10px" />
+
+            <ImageButton
+                android:id="@+id/profile_button"
+                android:layout_width="320px"
+                android:layout_height="320px"
+                android:background="@null">
+            </ImageButton>
 
             <TextView
                 android:id="@+id/tap_profile_hint"
@@ -37,10 +59,10 @@
                 android:textColor="#83FF0000">
             </TextView>
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:srcCompat="?attr/requestPictureBorder"></ImageView>
+            <!--            <ImageView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                app:srcCompat="?attr/requestPictureBorder"></ImageView>-->
 
         </FrameLayout>
 

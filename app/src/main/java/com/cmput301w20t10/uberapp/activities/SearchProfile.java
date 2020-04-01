@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
 import com.cmput301w20t10.uberapp.models.User;
@@ -40,6 +41,10 @@ public class SearchProfile extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (Application.getInstance().getPrevActivity().equals(this.getLocalClassName())) {
+            finish();
+        }
 
         sharedPref = new SharedPref(this);
         if (sharedPref.loadNightModeState() == true) {

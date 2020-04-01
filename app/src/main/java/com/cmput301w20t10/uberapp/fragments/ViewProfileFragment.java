@@ -3,7 +3,9 @@ package com.cmput301w20t10.uberapp.fragments;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -14,6 +16,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.MutableLiveData;
 
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.activities.SharedPref;
 import com.cmput301w20t10.uberapp.database.dao.UserDAO;
 import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -28,6 +31,8 @@ public class ViewProfileFragment extends DialogFragment {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private User fetchedUser;
     private Dialog dialog;
+
+    SharedPref sharedPref;
 
     /**
      * Empty constructor needed for fragments.
@@ -61,12 +66,19 @@ public class ViewProfileFragment extends DialogFragment {
         eMail = view.findViewById(R.id.view_email);
         phoneNumber = view.findViewById(R.id.view_phonenumber);
 
+        sharedPref = new SharedPref(getContext());
+
         String username = getArguments().getString("username");
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext()); //copied format from previous code written in lab.
+        AlertDialog.Builder builder;
+        if (sharedPref.loadNightModeState()) {
+            builder = new AlertDialog.Builder(getContext(), R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog_Background); //copied format from previous code written in lab.
+        } else {
+            builder = new AlertDialog.Builder(getContext()); //copied format from previous code written in lab.
+        }
         this.dialog = builder
                 .setView(view)
-                .setTitle(username)
+                .setTitle(Html.fromHtml("<b>"+username+"</b>"))
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int i) {

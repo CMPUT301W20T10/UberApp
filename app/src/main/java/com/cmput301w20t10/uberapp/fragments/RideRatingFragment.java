@@ -26,7 +26,6 @@ import java.util.List;
  * @author Alexander Laevens
  */
 public class RideRatingFragment extends Fragment {
-    int counter = 0;
     boolean hasVoted = false;
 
     @Override
@@ -43,44 +42,52 @@ public class RideRatingFragment extends Fragment {
 
         Log.d("Testing", "Fragment view created");
 
-        DocumentReference dr = Application.getInstance().getCurrentRideDocument();
-        dr.addSnapshotListener(((documentSnapshot, e) -> {
-            if (documentSnapshot != null) {
-                RideRequestDAO requestDao = new RideRequestDAO();
-                MutableLiveData<RideRequest> liveRequest = requestDao.getModelByReference(documentSnapshot.getReference());
-                liveRequest.observe(this, request -> {
-                    if (request != null) {
-                        DatabaseManager db = DatabaseManager.getInstance();
-                        DriverDAO driverDAO = db.getDriverDAO();
-                        MutableLiveData<Driver> liveDriver = driverDAO.getModelByReference(request.getDriverReference());
-                        liveDriver.observe(this, driver -> {
-                            TextView driverRatingView = view.findViewById(R.id.sPosRate);
-                            TextView driverUnameView = view.findViewById(R.id.uName);
-                            driverUnameView.setText(driver.getUsername());
-                            driverRatingView.setText(String.valueOf(driver.getRating()));
+        //DocumentReference dr = Application.getInstance().getCurrentRideDocument();
 
-                            upButton.setOnClickListener(v -> {
-                                if (!hasVoted) {
-                                    hasVoted = true;
-                                    driverDAO.rateDriver(driver, 1);
-                                    close();
-                                }
-                            });
+        RideRequest request = Application.getInstance().getSelectedHistoryRequest();
+        Log.d("Testing", "Request with fare: " + String.valueOf(request.getFareOffer()));
 
-                            downButton.setOnClickListener(v -> {
-                                if (!hasVoted) {
-                                    hasVoted = true;
-                                    driverDAO.rateDriver(driver, -1);
-                                    close();
-                                }
-                            });
+        if (request != null) {
+            DriverDAO driverDAO = DatabaseManager.getInstance().getDriverDAO();
+            RideRequestDAO rideRequestDAO = DatabaseManager.getInstance().getRideRequestDAO();
+            MutableLiveData<Driver> liveDriver = driverDAO.getDriverFromDriverReference(request.getDriverReference());
+
+            liveDriver.observe(this, driver -> {
+                if (driver != null) {
+                    Log.d("Testing", "Driver: " + driver.getUsername());
+
+                    TextView driverRatingView = view.findViewById(R.id.sPosRate);
+                    TextView driverUnameView = view.findViewById(R.id.uName);
+                    driverUnameView.setText(driver.getUsername());
+                    driverRatingView.setText(String.valueOf(driver.getRating()));
+
+                    Log.d("Testing", "Rated Yet?: " + String.valueOf(request.isRated()));
+
+                    if (!hasVoted) {
+                        upButton.setOnClickListener(v -> {
+                            if (!hasVoted) {
+                                hasVoted = true;
+                                driverDAO.rateDriver(driver, 1);
+                                rideRequestDAO.rateRide(request);
+                                close();
+                            }
+                        });
+
+                        downButton.setOnClickListener(v -> {
+                            if (!hasVoted) {
+                                hasVoted = true;
+                                driverDAO.rateDriver(driver, -1);
+                                rideRequestDAO.rateRide(request);
+                                close();
+                            }
                         });
                     }
-                });
-            }
-        }));
-
-
+                } else {
+                    Log.d("Testing", "No driver found on this request");
+                    close();
+                }
+            });
+        }
 
         closeButton.setOnClickListener(v -> {
             this.close();

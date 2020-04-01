@@ -7,8 +7,11 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.animation.Animation;
@@ -46,6 +49,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -100,9 +104,8 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0 ) {
             Intent intent = new Intent(this, DriverAcceptedActivity.class);
             String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
-            System.out.println("ACTIVE: " + activeRideRequest);
-            intent.putExtra("ACTIVE", activeRideRequest);
-            intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
+            Application.getInstance().setActiveRidePath(activeRideRequest);
+            Application.getInstance().setPrevActivity(this.getLocalClassName());
             startActivity(intent);
         }
 
@@ -112,12 +115,6 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
 
         db = FirebaseFirestore.getInstance();
 
-        // Retrieve location and camera direction from savedInstanceState
-//        if (savedInstanceState != null) {
-//            currentLocation = savedInstanceState.getParcelable(LAST_LOCATION_KEY);
-//            CameraPosition cameraPosition = savedInstanceState.getParcelable(CAMERA_DIRECTION_KEY);
-//        }
-
         Display display = this.getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -126,8 +123,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         final int expandedHeight = height / 2;
 
         sharedPref = new SharedPref(this);
-        System.out.println("SHARED: " + sharedPref);
-        if (sharedPref.loadNightModeState() == true) {
+        if (sharedPref.loadNightModeState()) {
             setTheme(R.style.DarkTheme);
         } else { setTheme(R.style.AppTheme); }
 
@@ -197,16 +193,16 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                 MutableLiveData<RideRequest> liveData = rideRequestDAO.getModelByReference(rideRequestContent.getRideRequestReference());
                 liveData.observe(this, rideRequest -> {
                     if (rideRequest != null) {
-//                        rideRequestDAO.acceptRequest(rideRequest, driver, this);
+                        rideRequestDAO.acceptRequest(rideRequest, driver, this);
                         Intent intent = new Intent(this, DriverAcceptedActivity.class);
                         intent.putExtra("ACTIVE", rideRequest.getRideRequestReference().getPath());
-                        intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
+                        Application.getInstance().setPrevActivity(this.getLocalClassName());
                         startActivity(intent);
                     }
                 });
             });
 
-            ImageButton riderPictureButton = view.findViewById(R.id.profile_picture);
+            ImageButton riderPictureButton = view.findViewById(R.id.profile_button);
             riderPictureButton.setOnClickListener(pictureView -> db.collection("users")
                     .whereEqualTo("username", rideRequestContent.getUsername())
                     .get()
@@ -237,15 +233,6 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
     public void onBackPressed() {
         return;
     }
-
-//    @Override
-//    protected void onSaveInstanceState(Bundle savedInstanceState) {
-//        if (mainMap != null) {
-//            savedInstanceState.putParcelable(CAMERA_DIRECTION_KEY, mainMap.getCameraPosition());
-//            savedInstanceState.putParcelable(LAST_LOCATION_KEY, currentLocation);
-//            super.onSaveInstanceState(savedInstanceState);
-//        }
-//    }
 
     /*
      * toggle() is code from Stack overflow used to toggle expansion of listview item
@@ -369,6 +356,14 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mainMap = googleMap;
+
+        if (sharedPref.loadNightModeState()) {
+            boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources().getString(R.string.NightMap)));
+            if (!success) {
+                Log.e("Bad Style", "Style parsing failed.");
+            }
+        }
+
         getCurrentLocation();
         if (locationPermissionGranted) {
             googleMap.setMyLocationEnabled(true);
@@ -392,27 +387,21 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
     }
 
+    @SuppressLint("MissingPermission")
     private void getCurrentLocation() {
-        /*
-         * Used code from YouTube video to ask location permission and get current location
-         * YouTube video posted by "Android Coding"
-         * Title: How to Show Current Location On Map in Android Studio | CurrentLocation | Android Coding
-         * URL: https://www.youtube.com/watch?v=boyyLhXAZAQ
-         */
-        // get last know location of device
-        client.getLastLocation().addOnCompleteListener(this, task -> {
-            if (task.isSuccessful()) {
-                if (mainMap != null) {
-                    currentLocation = task.getResult();
-                    mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 13));
-                    CameraPosition cameraPosition = new CameraPosition.Builder()
-                            .target(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()))      // Sets the center of the map to location user
-                            .zoom(17)                   // Sets the zoom
-                            .build();                   // Creates a CameraPosition from the builder
-                    mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                }
-            }
-        });
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+        if (location != null) {
+            currentLocation = location;
+            LatLng currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+            mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 13));
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(currentLatLng)      // Sets the center of the map to location user
+                    .zoom(17)                   // Sets the zoom
+                    .build();                   // Creates a CameraPosition from the builder
+            mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
     }
 
     private void moveCamera(Marker startMarker, Marker endMarker){
@@ -423,8 +412,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
 
         LatLngBounds bounds = builder.build();
         int padding = 100; // offset from edges of the map in pixels
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds,
-                padding);
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mainMap.moveCamera(cu);
         mainMap.animateCamera(cu);
 
