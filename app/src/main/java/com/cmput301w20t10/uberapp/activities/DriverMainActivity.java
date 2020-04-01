@@ -65,6 +65,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DriverMainActivity extends BaseActivity implements OnMapReadyCallback, TaskLoadedCallback {
+    private static final String TAG = "DriverTest" ;
 
     private static final String LAST_LOCATION_KEY = "location";
     private static final String CAMERA_DIRECTION_KEY = "camera_direction";
@@ -146,7 +147,8 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             if (!rideRequests.isEmpty()) {
                 DocumentReference rideRequestReference = rideRequests.get(counter.getAndAdd(0)).getRideRequestReference();
                 DocumentReference unpairedReference = rideRequests.get(counter.getAndAdd(0)).getUnpairedReference();
-                int offerCents = rideRequests.get(counter.getAndAdd(0)).getFareOffer();
+                int offer = rideRequests.get(counter.getAndAdd(0)).getFareOffer();
+                Log.d(TAG,"Offer: " + offer/100);
                 LatLng startDest = rideRequests.get(counter.getAndAdd(0)).getRoute().getStartingPosition();
                 LatLng endDest = rideRequests.get(counter.getAndAdd(0)).getRoute().getDestinationPosition();
                 String riderPath = rideRequests.get(counter.getAndAdd(1)).getRiderReference().getPath();
@@ -162,7 +164,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                                 String lastName = (String) userSnapshot.get(LAST_NAME);
                                 float[] distance = new float[1];
                                 Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), startDest.latitude, startDest.longitude, distance);
-                                RideRequestListContent rideRequest = new RideRequestListContent(username, distance[0] / 1000, offerCents,
+                                RideRequestListContent rideRequest = new RideRequestListContent(username, distance[0] / 1000, offer,
                                         imageURL, firstName, lastName, startDest, endDest,
                                         rideRequestReference, unpairedReference, collapsedHeight, 0,expandedHeight);
                                 rideRequest.setCollapsedHeight(collapsedHeight);
