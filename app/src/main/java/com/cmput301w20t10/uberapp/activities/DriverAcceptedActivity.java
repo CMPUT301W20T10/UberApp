@@ -29,7 +29,10 @@ import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
+import com.cmput301w20t10.uberapp.database.dao.RiderDAO;
 import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
+import com.cmput301w20t10.uberapp.messaging.FCMSender;
+import com.cmput301w20t10.uberapp.messaging.NotificationService;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -61,9 +64,9 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
     private static final String CAMERA_DIRECTION_KEY = "camera_direction";
     private static final int REQUEST_CODE = 101;
 
-    SharedPref sharedPref;
+    private SharedPref sharedPref;
 
-    String riderUsername;
+    private String riderUsername;
 
     private FirebaseFirestore db;
 
@@ -199,6 +202,27 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
      * @param view
      */
     public void onDonePressed(View view) {
+        // Todo(Joshua): Send notification to Rider
+
+        RideRequestDAO dao = new RideRequestDAO();
+        dao.getModelByID(Application.getInstance().getActiveRidePath()).observe(this, rideRequest -> {
+            if(rideRequest != null) {
+                RiderDAO riderDao = new RiderDAO();
+                riderDao.getModelByReference(rideRequest.getRiderReference()).observe(this, rider-> {
+                    if(rider != null) {
+                        String token = rider.getFCMToken();
+                        FCMSender.composeMessage(getApplicationContext(), token);
+                    } else {
+                        // Failed to get the rider info
+                        Toast.makeText(getApplicationContext(), "Failed to find rider", Toast.LENGTH_LONG).show();
+                    }
+                });
+            } else {
+                // Failed to get the ride request info
+                Toast.makeText(getApplicationContext(), "Failed to find ride info", Toast.LENGTH_LONG).show();
+            }
+        });
+
         Intent intent = new Intent(getApplicationContext(), QRScanActivity.class);
         startActivity(intent);
     }
