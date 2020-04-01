@@ -222,7 +222,8 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
 
         RideRequestDAO dao = new RideRequestDAO();
         String[] tokens = Application.getInstance().getActiveRidePath().split("/");
-        dao.getModelByID(tokens[tokens.length - 1]).observe(this, rideRequest -> {
+        String newToken = tokens[1] + tokens[2];
+        dao.getModelByID(newToken).observe(this, rideRequest -> {
             if(rideRequest != null) {
                 RiderDAO riderDao = new RiderDAO();
                 riderDao.getModelByReference(rideRequest.getRiderReference()).observe(this, rider-> {
