@@ -75,7 +75,7 @@ public class IDToModelTest extends BasicDAOTest {
     }
 
     private void rideRequestIDToModelTestHelper(final int value) throws InterruptedException {
-        RideRequest rideRequest = createRideRequest();
+        RideRequest rideRequest = createRideRequest(loginAsDefaultRider());
 
         final Object syncObject1 = new Object();
 
