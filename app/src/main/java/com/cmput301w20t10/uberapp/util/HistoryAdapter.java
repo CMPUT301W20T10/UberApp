@@ -86,9 +86,7 @@ public class HistoryAdapter extends BaseAdapter {
         TextView fareView = view.findViewById(R.id.rideFare);
         TextView dateView = view.findViewById(R.id.rideDate);
         TextView statusText = view.findViewById(R.id.statusText);
-
-
-
+        ImageView deleteButton = view.findViewById(R.id.delete_icon);
 
         // write the easily accessible information
         DateFormat dateFormat = new SimpleDateFormat("yy-MM-dd hh:mm a");
@@ -98,9 +96,13 @@ public class HistoryAdapter extends BaseAdapter {
 
         if (user instanceof Rider) {
             drawWhenRider(request, view);
-            allowCancelRequest(request, position, view);
+            if (isActive) {
+                allowCancelRequest(request, position, view);
+            } else {
+                deleteButton.setImageResource(android.R.color.transparent);
+            }
+
         } else {
-            ImageView deleteButton = view.findViewById(R.id.delete_icon);
             drawWhenDriver(request, view);
             deleteButton.setImageResource(android.R.color.transparent);
         }
