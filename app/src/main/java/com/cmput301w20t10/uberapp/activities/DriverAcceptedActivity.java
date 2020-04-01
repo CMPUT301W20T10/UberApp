@@ -160,7 +160,8 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                         Glide.with(this)
                                 .load(userSnapshot.get("image"))
                                 .apply(RequestOptions.circleCropTransform())
-                                .into(riderPictureButton);
+                                .into(riderPictureButton);} else {
+                        riderPictureButton.setImageResource(R.mipmap.user);
                     }
                 });
             });
