@@ -5,29 +5,27 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/driverImage"
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/driver_profile_picture"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="4dp"
         android:layout_marginTop="4dp"
+        android:src="@mipmap/user"
         app:layout_constraintBottom_toBottomOf="@+id/rideFare"
         app:layout_constraintDimensionRatio="1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@mipmap/user" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/rideDate"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
-        android:layout_marginEnd="4dp"
         android:text="Date goes here"
         app:layout_constraintBottom_toTopOf="@+id/driverUsername"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/driverImage"
+        app:layout_constraintStart_toEndOf="@+id/driver_profile_picture"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -40,7 +38,7 @@
         android:text="driver's username goes here"
         app:layout_constraintBottom_toTopOf="@+id/rideFare"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/driverImage"
+        app:layout_constraintStart_toEndOf="@+id/driver_profile_picture"
         app:layout_constraintTop_toBottomOf="@+id/rideDate" />
 
     <TextView
@@ -54,6 +52,16 @@
         android:text="ride fare goes here"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/driverImage"
+        app:layout_constraintStart_toEndOf="@+id/driver_profile_picture"
         app:layout_constraintTop_toBottomOf="@+id/driverUsername" />
+
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

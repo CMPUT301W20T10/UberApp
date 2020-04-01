@@ -20,17 +20,6 @@
         android:id="@+id/floatingButton"
         layout="@layout/float_main" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="60dp"
-        android:text="Ride history may not update until after an app restart"
-        app:layout_constraintBottom_toTopOf="@+id/historyList"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/floatingButton" />
-
     <FrameLayout
         android:id="@+id/rating_container"
         android:layout_width="match_parent"
@@ -43,5 +32,50 @@
         app:layout_constraintTop_toTopOf="parent">
 
     </FrameLayout>
+
+    <Button
+        android:id="@+id/history_update_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="60dp"
+        android:text="@string/common_google_play_services_update_button"
+        app:layout_constraintBottom_toTopOf="@+id/historyList"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/floatingButton" />
+
+    <RadioGroup
+        android:id="@+id/active_old_toggle"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/pink_out_line"
+        android:checkedButton="@id/active_button"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/historyList"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/history_update_button"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RadioButton
+            android:id="@+id/active_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/toggle_widget_background"
+            android:button="@null"
+            android:gravity="center"
+            android:text="Active" />
+
+        <RadioButton
+            android:id="@+id/old_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/toggle_widget_background"
+            android:button="@null"
+            android:gravity="center"
+            android:text="Old" />
+    </RadioGroup>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

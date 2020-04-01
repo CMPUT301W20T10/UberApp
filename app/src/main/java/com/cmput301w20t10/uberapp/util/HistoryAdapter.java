@@ -11,25 +11,32 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.MutableLiveData;
 
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.RequestOptions;
 import com.cmput301w20t10.uberapp.R;
-import com.cmput301w20t10.uberapp.activities.RideHistoryActivity;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.dao.DriverDAO;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
-import com.google.firebase.firestore.DocumentReference;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
+/**
+ * @author Alexander Laevens
+ */
 public class HistoryAdapter extends BaseAdapter {
     Context context;
     private List<RideRequest> rideHistory;
+    private final RequestManager glide;
 
-    public HistoryAdapter(Context context, List<RideRequest> rideHistory) {
+    public HistoryAdapter(Context context, RequestManager glide, List<RideRequest> rideHistory) {
         this.context = context;
+        this.glide = glide;
         this.rideHistory = rideHistory;
     }
 
@@ -57,25 +64,40 @@ public class HistoryAdapter extends BaseAdapter {
             view = LayoutInflater.from(context).inflate(R.layout.ride_history_content, parent, false);
         }
 
+        // get the easily accessable ride request information
         RideRequest request = rideHistory.get(position);
         Date time = request.getTimestamp();
         float offer = request.getFareOffer();
 
+        // get reference to the UI elements
         TextView fareView = view.findViewById(R.id.rideFare);
         TextView uNameView = view.findViewById(R.id.driverUsername);
         TextView dateView = view.findViewById(R.id.rideDate);
+        TextView statusText = view.findViewById(R.id.statusText);
+        CircleImageView profilePicture = view.findViewById(R.id.driver_profile_picture);
 
+        // write the easily accessible information
         DateFormat dateFormat = new SimpleDateFormat("yy-MM-dd hh:mm a");
         dateView.setText(dateFormat.format(time));
         fareView.setText("$"+String.format("%.2f", offer));
+        statusText.setText(String.valueOf(request.getState()));
 
+        // Get the driver's information
         DriverDAO driverDAO = DatabaseManager.getInstance().getDriverDAO();
         MutableLiveData<Driver> liveDriver = driverDAO.getDriverFromDriverReference(request.getDriverReference());
-
         liveDriver.observe((AppCompatActivity) context, driver -> {
             if (driver != null) {
+                // retrieve and set the username display
                 uNameView.setText(driver.getUsername());
+
+                // draw the driver's profile picture
+                if (driver.getImage() != "") {
+                    glide.load(driver.getImage())
+                            .apply(RequestOptions.circleCropTransform())
+                            .into(profilePicture);
+                }
             } else {
+                // in the event a driver hasn't been assigned yet
                 uNameView.setText("No Driver Assigned");
             }
         });

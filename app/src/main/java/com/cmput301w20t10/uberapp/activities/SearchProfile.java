@@ -80,9 +80,8 @@ public class SearchProfile extends BaseActivity {
         FirestoreRecyclerOptions<User> options = new FirestoreRecyclerOptions.Builder<User>()
                 .setQuery(query, User.class)
                 .build();
-        recyclerAdapter = new SearchAdapter(options);
-        SearchList = findViewById(R.id.profileList);
-
+        recyclerAdapter = new SearchAdapter(options, this);
+        SearchList = (RecyclerView) findViewById(R.id.profileList);
         SearchList.setLayoutManager(new LinearLayoutManager(this));
         SearchList.setAdapter(recyclerAdapter);
         onStart();
@@ -102,7 +101,7 @@ public class SearchProfile extends BaseActivity {
         FirestoreRecyclerOptions<User> options = new FirestoreRecyclerOptions.Builder<User>()
                 .setQuery(query, User.class)
                 .build();
-        recyclerAdapter = new SearchAdapter(options);
+        recyclerAdapter = new SearchAdapter(options, this);
 
         SearchList = findViewById(R.id.profileList);
         SearchList.setLayoutManager(new LinearLayoutManager(this));

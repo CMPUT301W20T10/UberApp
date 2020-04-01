@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -29,7 +31,7 @@ public class ViewProfileFragment extends DialogFragment {
     private TextView phoneNumber;
     private Query query;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private User fetchedUser;
+    private User user;
     private Dialog dialog;
 
     SharedPref sharedPref;
@@ -79,10 +81,26 @@ public class ViewProfileFragment extends DialogFragment {
         this.dialog = builder
                 .setView(view)
                 .setTitle(Html.fromHtml("<b>"+username+"</b>"))
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int i) {
                         dialog.dismiss();
+                    }
+                })
+                .setPositiveButton("Phone The User", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent callIntent = new Intent(Intent.ACTION_DIAL);
+                        callIntent.setData(Uri.parse("tel:"+phoneNumber.getText().toString()));
+                        startActivity(callIntent);
+                    }
+                })
+                .setNegativeButton("Email The User", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent emailIntent = new Intent(Intent.ACTION_VIEW);
+                        emailIntent.setData( Uri.parse("mailto:"+eMail.getText()));
+                        startActivity(emailIntent);
                     }
                 }).create();
         return this.dialog;
@@ -91,6 +109,20 @@ public class ViewProfileFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
+        String userID = getArguments().getString("userID");
+
+        UserDAO dao = new UserDAO();
+        MutableLiveData<User> liveData = dao.getUserByUserID(userID);
+        liveData.observe(this, user -> {
+            if (user != null) {
+                firstName.setText(user.getFirstName());
+                lastName.setText(user.getLastName());
+                eMail.setText(user.getEmail());
+                phoneNumber.setText(user.getPhoneNumber());
+            } else {
+                // no internet connection
+            }
+        });
     }
 
     /**
