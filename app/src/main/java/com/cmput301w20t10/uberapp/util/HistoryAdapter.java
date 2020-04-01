@@ -16,8 +16,11 @@ import com.bumptech.glide.request.RequestOptions;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.dao.DriverDAO;
+import com.cmput301w20t10.uberapp.database.dao.RiderDAO;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
+import com.cmput301w20t10.uberapp.models.Rider;
+import com.cmput301w20t10.uberapp.models.User;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -33,11 +36,13 @@ public class HistoryAdapter extends BaseAdapter {
     Context context;
     private List<RideRequest> rideHistory;
     private final RequestManager glide;
+    private User user;
 
-    public HistoryAdapter(Context context, RequestManager glide, List<RideRequest> rideHistory) {
+    public HistoryAdapter(Context context, RequestManager glide, List<RideRequest> rideHistory, User user) {
         this.context = context;
         this.glide = glide;
         this.rideHistory = rideHistory;
+        this.user = user;
     }
 
     @Override
@@ -82,25 +87,48 @@ public class HistoryAdapter extends BaseAdapter {
         fareView.setText("$"+String.format("%.2f", offer));
         statusText.setText(String.valueOf(request.getState()));
 
-        // Get the driver's information
-        DriverDAO driverDAO = DatabaseManager.getInstance().getDriverDAO();
-        MutableLiveData<Driver> liveDriver = driverDAO.getDriverFromDriverReference(request.getDriverReference());
-        liveDriver.observe((AppCompatActivity) context, driver -> {
-            if (driver != null) {
-                // retrieve and set the username display
-                uNameView.setText(driver.getUsername());
+        if (user instanceof Rider) {
+            // Get the driver's information
+            DriverDAO driverDAO = DatabaseManager.getInstance().getDriverDAO();
+            MutableLiveData<Driver> liveDriver = driverDAO.getDriverFromDriverReference(request.getDriverReference());
+            liveDriver.observe((AppCompatActivity) context, driver -> {
+                if (driver != null) {
+                    // retrieve and set the username display
+                    uNameView.setText(driver.getUsername());
 
-                // draw the driver's profile picture
-                if (driver.getImage() != "") {
-                    glide.load(driver.getImage())
-                            .apply(RequestOptions.circleCropTransform())
-                            .into(profilePicture);
+                    // draw the driver's profile picture
+                    if (driver.getImage() != "") {
+                        glide.load(driver.getImage())
+                                .apply(RequestOptions.circleCropTransform())
+                                .into(profilePicture);
+                    }
+                } else {
+                    // in the event a driver hasn't been assigned yet
+                    uNameView.setText("No Driver Assigned");
                 }
-            } else {
-                // in the event a driver hasn't been assigned yet
-                uNameView.setText("No Driver Assigned");
-            }
-        });
+            });
+        } else {
+            // Get the driver's information
+            RiderDAO riderDAO = DatabaseManager.getInstance().getRiderDAO();
+            MutableLiveData<Rider> liveRider = riderDAO.getModelByReference(request.getRiderReference());
+            liveRider.observe((AppCompatActivity) context, rider -> {
+                if (rider != null) {
+                    // retrieve and set the username display
+                    uNameView.setText(rider.getUsername());
+
+                    // draw the driver's profile picture
+                    if (rider.getImage() != "") {
+                        glide.load(rider.getImage())
+                                .apply(RequestOptions.circleCropTransform())
+                                .into(profilePicture);
+                    }
+                } else {
+                    // in the event a driver hasn't been assigned yet
+                    uNameView.setText("No rider assigned? This shouldnt be possible");
+                }
+            });
+        }
+
 
         return view;
     }
