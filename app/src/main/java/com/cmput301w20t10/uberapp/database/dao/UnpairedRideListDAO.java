@@ -198,6 +198,8 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.6.3
+ * Fix null exception when cancelling after driver and rider matched
  * @version 1.4.2
  * Add dependency injection
  * @version 1.1.1
@@ -340,6 +342,11 @@ class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
     // endregion cancel
 
     private void deleteRequest() {
+        if (documentReference == null) {
+            postResult(true);
+            return;
+        }
+
         documentReference.delete()
         .addOnSuccessListener(aVoid -> postResult(true)).addOnFailureListener(e -> {
             postResult(true);

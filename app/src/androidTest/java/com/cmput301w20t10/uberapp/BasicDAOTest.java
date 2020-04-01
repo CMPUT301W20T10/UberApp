@@ -13,6 +13,7 @@ import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.cmput301w20t10.uberapp.models.Transaction;
 import com.cmput301w20t10.uberapp.util.AssertNotNullObserver;
+import com.cmput301w20t10.uberapp.util.AssertTrueObserver;
 import com.cmput301w20t10.uberapp.util.DatabaseTestBase;
 import com.google.firebase.firestore.GeoPoint;
 
@@ -322,13 +323,7 @@ public class BasicDAOTest extends DatabaseTestBase {
         final Object syncObject = new Object();
 
         Runnable runnable = () -> {
-            Observer<Boolean> observer = new AssertNotNullObserver<Boolean>(syncObject) {
-                @Override
-                public void onChanged(Boolean aBoolean) {
-                    super.onChanged(aBoolean);
-                    assert aBoolean;
-                }
-            };
+            Observer<Boolean> observer = new AssertTrueObserver(syncObject);
             RideRequestDAO dao = new RideRequestDAO(mockDb);
             MutableLiveData<Boolean> liveData = dao.cancelRequest(rideRequest, mainLifecycleOwner);
             liveData.observe(mainLifecycleOwner, observer);
@@ -381,6 +376,22 @@ public class BasicDAOTest extends DatabaseTestBase {
 
         // todo: check if references self
         return rideRequest;
+    }
+
+    @Test
+    public void cancelRequestAfterDriverAcceptTest()  throws InterruptedException {
+        RideRequest rideRequest = driverAcceptsRequest();
+
+        final Object syncObject = new Object();
+
+        Runnable runnable = () -> {
+            Observer<Boolean> observer = new AssertTrueObserver(syncObject);
+            RideRequestDAO dao = new RideRequestDAO(mockDb);
+            MutableLiveData<Boolean> liveData = dao.cancelRequest(rideRequest, mainLifecycleOwner);
+            liveData.observe(mainLifecycleOwner, observer);
+        };
+
+        liveDataObserver(runnable, syncObject);
     }
 
     @Test
