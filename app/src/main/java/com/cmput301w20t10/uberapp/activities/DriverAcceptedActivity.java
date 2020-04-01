@@ -143,10 +143,9 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                     endLatLng.latitude,endLatLng.longitude, startEndDist);
             startEndDistance.setText(String.format("%.2fkm", startEndDist[0]/1000));
 
-            double dFareOffer =  (double) rideRequestSnapshot.get("fareOffer");
-            float fareOffer = (float) dFareOffer;
+            int fareOffer = (int) rideRequestSnapshot.get("fareOffer");
 
-            offer.setText("Offer: $" + String.format("%.2f", fareOffer));
+            offer.setText("Offer: $" + String.format("%d", fareOffer));
 
             DocumentReference riderReference =  (DocumentReference) rideRequestSnapshot.get("riderReference");
             riderReference.get().addOnSuccessListener(riderSnapshot -> {

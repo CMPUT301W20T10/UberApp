@@ -68,8 +68,8 @@
 
 
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/_6sdp"
+                android:layout_height="@dimen/_20sdp"
                 android:layout_marginLeft="30px"
                 app:srcCompat="@mipmap/ellipses"></ImageView>
 
@@ -112,6 +112,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/_3sdp"
                 android:text="@string/newRideFrag_offer"
                 android:textColor="?attr/textColor"
                 android:textSize="@dimen/_20sdp">
@@ -124,8 +125,9 @@
                 android:layout_height="wrap_content"
                 android:singleLine="true"
                 app:backgroundTint="?attr/textColor"
-                android:ems="3"
-                android:text="XX.XX"
+                android:inputType="numberDecimal"
+                android:maxLength="6"
+                android:text="XXXX"
                 android:textColor="?attr/textColor"
                 android:textSize="@dimen/_20sdp">
 
@@ -138,10 +140,10 @@
             android:id="@+id/new_ride_confirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/_5sdp"
             android:text="Confirm"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/layout_offer"
             app:layout_constraintTop_toBottomOf="@+id/destination_layout">
 
         </Button>

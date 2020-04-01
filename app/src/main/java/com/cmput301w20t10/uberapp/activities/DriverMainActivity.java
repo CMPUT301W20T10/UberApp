@@ -146,7 +146,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             if (!rideRequests.isEmpty()) {
                 DocumentReference rideRequestReference = rideRequests.get(counter.getAndAdd(0)).getRideRequestReference();
                 DocumentReference unpairedReference = rideRequests.get(counter.getAndAdd(0)).getUnpairedReference();
-                float offer = rideRequests.get(counter.getAndAdd(0)).getFareOffer();
+                int offer = rideRequests.get(counter.getAndAdd(0)).getFareOffer();
                 LatLng startDest = rideRequests.get(counter.getAndAdd(0)).getRoute().getStartingPosition();
                 LatLng endDest = rideRequests.get(counter.getAndAdd(0)).getRoute().getDestinationPosition();
                 String riderPath = rideRequests.get(counter.getAndAdd(1)).getRiderReference().getPath();

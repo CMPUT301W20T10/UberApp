@@ -24,7 +24,7 @@ public class QRGenerator {
      * @param value - The value of the payment
      * @return - The QR code for the transaction in the form of a bitmap
      */
-    public static Bitmap generateTransactionQR(User sender, User recipient, float value) {
+    public static Bitmap generateTransactionQR(User sender, User recipient, int value) {
         JSONObject data = new JSONObject();
         try {
             data.put("sender", sender.getUsername());

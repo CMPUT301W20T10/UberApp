@@ -7,6 +7,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.cmput301w20t10.uberapp.models.RideRequest;
+import com.cmput301w20t10.uberapp.models.Route;
 import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.firestore.DocumentReference;
 
@@ -22,6 +23,7 @@ public final class Application {
     private volatile String messagingToken;
     private volatile String prevActivity;
     private volatile String activeRidePath;
+    private volatile Route route;
 
     private volatile RideRequest selectedHistoryRequest;
 
@@ -69,6 +71,14 @@ public final class Application {
 
     public void setActiveRidePath(String activeRidePath) {
         this.activeRidePath = activeRidePath;
+    }
+
+    public Route getRoute() {
+        return route;
+    }
+
+    public void setRoute(Route route) {
+        this.route = route;
     }
 
     public void setSelectedHistoryRequest(RideRequest request) {

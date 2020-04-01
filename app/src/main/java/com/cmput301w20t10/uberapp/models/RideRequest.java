@@ -28,7 +28,7 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
     private DocumentReference rideRequestReference;
     private Route route;
     private State state;
-    private float fareOffer;
+    private int fareOffer;
     private Date timestamp;
     private int rating;
 
@@ -183,7 +183,7 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
         this.state = state;
     }
 
-    public float getFareOffer() {
+    public int getFareOffer() {
         return fareOffer;
     }
 

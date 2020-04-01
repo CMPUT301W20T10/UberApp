@@ -14,7 +14,7 @@ public class Rider extends User {
     private List<DocumentReference> transactionList;
     private List<DocumentReference> finishedRideRequestList;
     private List<DocumentReference> activeRideRequestList;
-    private float balance;
+    private int balance;
 
     public Rider(DocumentReference userReference,
                  DocumentReference riderReference,
@@ -28,7 +28,7 @@ public class Rider extends User {
                  String lastName,
                  String phoneNumber,
                  String image,
-                 float balance) {
+                 int balance) {
         super(userReference, username, password, email, firstName, lastName, phoneNumber, image);
         this.riderReference = riderReference;
         this.transactionList = transactionList;
@@ -149,7 +149,7 @@ public class Rider extends User {
         this.activeRideRequestList = activeRideRequestList;
     }
 
-    public float getBalance() {
+    public int getBalance() {
         return balance;
     }
 

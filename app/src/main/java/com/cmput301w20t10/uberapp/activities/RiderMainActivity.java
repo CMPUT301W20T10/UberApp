@@ -10,6 +10,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,6 +21,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.ui.AppBarConfiguration;
 
+import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
@@ -84,7 +86,6 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
     // local data
     private Route route;
     private static final float DEFAULT_ZOOM = 15f;
-    LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
     private Location currentLocation;
     private LatLng currentLocLatLng;
@@ -223,7 +224,11 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
                 mainMap.setOnMapLoadedCallback(() -> {
                     startMarker = mainMap.addMarker(startPin);
                     addRoute(startMarker);
-                    moveCamera(startPin);
+                    if (destinationPin != null && startPin != null) {
+                        moveCamera(startMarker, destinationMarker);
+                    }else {
+                        moveCameraToPoint(startMarker);
+                    }
                     if (route.getDestinationPosition() != null && route.getStartingPosition() != null) {
                         new FetchURL(RiderMainActivity.this).execute(create_URL(), "driving");
                     }
@@ -262,7 +267,11 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
                 mainMap.setOnMapLoadedCallback(() -> {
                     destinationMarker = mainMap.addMarker(destinationPin);
                     addRoute(destinationMarker);
-                    moveCamera(destinationPin);
+                    if (destinationPin != null && startPin != null) {
+                        moveCamera(startMarker, destinationMarker);
+                    } else {
+                        moveCameraToPoint(destinationMarker);
+                    }
                     if (route.getDestinationPosition() != null && route.getStartingPosition() != null) {
                         new FetchURL(RiderMainActivity.this).execute(create_URL(), "driving");
                     }
@@ -288,64 +297,17 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         Bundle args = new Bundle();
         args.putString("StartPosition", startPos);
         args.putString("Destination", destination);
+        Application.getInstance().setRoute(route);
         float[] distance = new float[1];
         Location.distanceBetween(startPosLatLng.latitude, startPosLatLng.longitude, destinationLatLng.latitude, destinationLatLng.longitude, distance);
-        float priceOffer = (float) (10 + distance[0]/1000 * 1.75);
-        args.putFloat("offer", priceOffer);
+        int priceOffer = (int) Math.round(10 + distance[0]/1000 * 1.75);
+        System.out.println("ADMIRAL: " + priceOffer);
+        args.putInt("offer", priceOffer);
         NewRideFragment fragment = new NewRideFragment();
         fragment.setArguments(args);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.new_ride_container, fragment);
         transaction.commit();
-
-//        //get user
-//        DatabaseManager db = DatabaseManager.getInstance();
-//        RideRequestDAO dao = db.getRideRequestDAO();
-//        User user = Application.getInstance().getCurrentUser();
-//        //pass data
-//        if (user instanceof Rider){
-//            Log.d(TAG, "if condition passed");
-//            Rider rider = (Rider) user;
-//
-//            MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,route,PriceOffer,this);
-//            createdRequest.observe(this, request -> {
-//                if (request != null) {
-//                    Log.d("Testing", "Request is observed");
-//
-//                    DocumentReference dr = request.getRideRequestReference();
-//                    dr.addSnapshotListener((snapshot, e) -> {
-//                       if (snapshot != null) {
-//                           MutableLiveData<RideRequest> liveRequest = dao.getModelByReference(snapshot.getReference());
-//                           liveRequest.observe(this, checkRequest -> {
-//                               if (checkRequest != null) {
-//                                   Log.d("Testing", "Request is observed");
-//                                   Log.d("Testing", "State: " + String.valueOf(checkRequest.getState()));
-//
-//                                   if (checkRequest.getState() == RideRequest.State.RideCompleted) {
-//                                       Application.getInstance().setCurrentRideDocument(dr);
-//
-//                                       FragmentManager fragManager = getSupportFragmentManager();
-//                                       FragmentTransaction fragTransaction = fragManager.beginTransaction();
-//                                       RideRatingFragment rateFrag = new RideRatingFragment();
-//                                       fragTransaction.add(R.id.fragment_container, rateFrag);
-//                                       fragTransaction.commit();
-//                                   }
-//                               }
-//                           });
-//                       }
-//                    });
-//
-//                } else {
-//                    Log.d("Testing", "Ride Request received as null.");
-//                }
-//            });
-//
-//
-//        }
-//        else{
-//            Log.d(TAG, "if condition did not pass");
-//        }
-
     }
 
     @SuppressLint("MissingPermission")
@@ -385,11 +347,11 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         return url;
     }
 
-    private void moveCamera(MarkerOptions pin){
-        //Log.d(TAG, "moveCamers: moving the camera to: lat " + latLng.latitude + ", lng: " + latLng.longitude);
-        //mainMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+    private void moveCamera(Marker startMarker, Marker endMarker){
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-        builder.include(pin.getPosition());
+        builder.include(startMarker.getPosition());
+        builder.include(endMarker.getPosition());
 
         LatLngBounds bounds = builder.build();
 
@@ -397,7 +359,22 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         int height = getResources().getDisplayMetrics().heightPixels;
         int padding = (int) (width * 0.10); // offset from edges of the map 10% of screen
 
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, 100);
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+        mainMap.animateCamera(cu);
+    }
+
+    private void moveCameraToPoint(Marker Marker){
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+        builder.include(Marker.getPosition());
+
+        LatLngBounds bounds = builder.build();
+
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+        int padding = (int) (width * 0.10); // offset from edges of the map 10% of screen
+
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
         mainMap.animateCamera(cu);
     }
 
