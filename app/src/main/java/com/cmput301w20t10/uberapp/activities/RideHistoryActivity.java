@@ -2,6 +2,7 @@ package com.cmput301w20t10.uberapp.activities;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RadioGroup;
@@ -17,6 +18,7 @@ import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.dao.DriverDAO;
 import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
+import com.cmput301w20t10.uberapp.database.dao.RiderDAO;
 import com.cmput301w20t10.uberapp.fragments.RideRatingFragment;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
@@ -27,15 +29,19 @@ import com.cmput301w20t10.uberapp.util.HistoryAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.net.wifi.rtt.CivicLocationKeys.LOC;
+
 /**
  * @author Alexander Laevens
  */
 public class RideHistoryActivity extends BaseActivity {
+    private final static String LOC = "Tomate: RideHistoryActivity: ";
+
     private ListView historyListView;
     private RadioGroup toggle;
     private boolean displayActives = true;
     private volatile List<RideRequest> historyList;
-
+    private HistoryAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,13 +54,21 @@ public class RideHistoryActivity extends BaseActivity {
 
         setContentView(R.layout.activity_ride_history);
 
+        // setting up the list view and its adapter
         historyListView = findViewById(R.id.historyList);
-
-        populateHistory(displayActives); // pull the inital list
+        historyList = new ArrayList<>();
+        adapter = new HistoryAdapter(this,
+                Glide.with(this),
+                historyList,
+                Application.getInstance().getCurrentUser(),
+                displayActives);
+        historyListView.setAdapter(adapter);
+        populateHistory(displayActives); // pull the initial list
 
         // set up update button listener to refresh list
         Button updateButton = findViewById(R.id.history_update_button);
         updateButton.setOnClickListener(v -> {
+            Log.d("Tomate", LOC + "onCreate: ");
             populateHistory(displayActives);
         });
 
@@ -79,6 +93,7 @@ public class RideHistoryActivity extends BaseActivity {
             }
         });
 
+
     }
 
     /**
@@ -86,8 +101,6 @@ public class RideHistoryActivity extends BaseActivity {
      */
     private void updateView(boolean active) {
         User user = Application.getInstance().getCurrentUser();
-        HistoryAdapter adapter = new HistoryAdapter(this, Glide.with(this), historyList, user, active);
-        historyListView.setAdapter(adapter);
 
         if (user instanceof Rider) { // only riders can rate drivers
             historyListView.setOnItemClickListener((adapterView, view, i, l) -> {
@@ -112,9 +125,41 @@ public class RideHistoryActivity extends BaseActivity {
      *      If true: lists active requests, If false: lists finished requests
      */
     private void populateHistory(boolean active) {
-        User user = Application.getInstance().getCurrentUser();
-        historyList = new ArrayList<RideRequest>();
-        updateView(active); // clear first so if there isn't any rides the screen is clear
+        /*
+         * Fix for list not updating:
+         * This is where things got wonky. History list and the list in the adapter are pointing
+         * to the same reference but invoking historyList = new ArrayList<>() creates a new object.
+         * The list in the adapter remains to be referring to the thing which historyList lost.
+         * You have to set the data into the adapter. adapter.notifyDataSetChanged() would
+         * update the list view.
+         * @author Allan Manuba
+         */
+        historyList.clear();
+        adapter.setData(historyList);
+        adapter.notifyDataSetChanged(); // clear first so if there isn't any rides the screen is clear
+
+        Application application = Application.getInstance();
+        application.getLatestUserData()
+                .observe(this, user -> {
+                    if (user != null) {
+                        populateHistoryHelper(user, active);
+                    } else {
+                        Log.e("Tomate", LOC + "populateHistory: User is null");
+                    }
+                });
+    }
+
+    /**
+     * Reduce nesting in populateHistory
+     * @param user
+     * @param active
+     */
+    private void populateHistoryHelper(User user, boolean active) {
+        // you have to fetch the latest updates, the user object is outdated here
+        if (user == null) {
+            Log.e("Tomate", LOC + "populateHistoryHelper: User is null");
+            return;
+        }
 
         MutableLiveData<List<RideRequest>> liveRides;
         RideRequestDAO rrDAO = DatabaseManager.getInstance().getRideRequestDAO();
@@ -137,7 +182,10 @@ public class RideHistoryActivity extends BaseActivity {
 
         liveRides.observe(this, list -> {
             if (list != null) {
+                historyList.clear();
                 historyList.addAll(list);
+                adapter.setData(list);
+                adapter.notifyDataSetChanged();
             } else {
                 Log.d("Testing", "Past Rides NULL");
             }

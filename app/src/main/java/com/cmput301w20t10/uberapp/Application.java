@@ -2,14 +2,29 @@ package com.cmput301w20t10.uberapp;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.icu.text.UnicodeSet;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.cmput301w20t10.uberapp.database.base.EntityBase;
+import com.cmput301w20t10.uberapp.database.dao.DriverDAO;
+import com.cmput301w20t10.uberapp.database.dao.RiderDAO;
+import com.cmput301w20t10.uberapp.database.util.GetTaskSequencerLifecycleOwner;
+import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Route;
+import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.firestore.DocumentReference;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleRegistry;
+import androidx.lifecycle.MutableLiveData;
 
 /**
  * This singleton was made to hold the information of the current user logged into the application.
@@ -108,4 +123,78 @@ public final class Application {
         getRequestQueue(context).add(req);
     }
 
+    /**
+     * If you're unsure whether Application holds the latest data,
+     * use this function to fetch the latest data and update the User object in Application.
+     * <p>
+     * We're mocking a lifecycle owner inside because we want to get this update even if the activity
+     * or other view that called it was already destroyed.
+     *
+     * @return      MutableLiveData<User> that may update once with either:
+     * <ul>
+     *     <li>User object that you may upcast to Rider or Driver</li>
+     *     <li>null which would mean a connection loss, no Firestore cache, or some other error</li>
+     * </ul>
+     */
+    public MutableLiveData<User> getLatestUserData() {
+        MutableLiveData<User> userData = new MutableLiveData<>();
+        GetTaskSequencerLifecycleOwner owner = new GetTaskSequencerLifecycleOwner();
+
+        if (user instanceof Rider) {
+            MutableLiveData<Rider> riderData = getLatestRiderData(owner);
+            assert riderData != null; // We know it's a rider anyway
+            riderData.observe(owner, rider -> {
+                setUser(rider);
+                userData.setValue(rider);
+                owner.callEvent(Lifecycle.Event.ON_DESTROY);
+            });
+        } else if (user instanceof Driver) {
+            MutableLiveData<Driver> driverData = getLatestDriverData(owner);
+            assert driverData != null; // We know it's a driver anyway
+            driverData.observe(owner, driver -> {
+                setUser(driver);
+                userData.setValue(driver);
+                owner.callEvent(Lifecycle.Event.ON_DESTROY);
+            });
+        } else {
+            Log.e("Tomate", "Application: getLatestUserData: Invalid subclass of user: " + user.getClass().toString());
+            userData.setValue(null);
+            owner.callEvent(Lifecycle.Event.ON_DESTROY);
+        }
+
+        return userData;
+    }
+
+
+    @Nullable
+    private MutableLiveData<Driver> getLatestDriverData(LifecycleOwner owner) {
+        MutableLiveData<Driver> liveData = null;
+
+        if (this.user instanceof Driver) {
+            Driver driver = (Driver) user;
+            DriverDAO riderDAO = new DriverDAO();
+            liveData = riderDAO.getModelByReference(driver.getDriverReference());
+            liveData.observe(owner, latestRider -> this.user = latestRider);
+        } else {
+            Log.e("Tomate", "Application: getLatestDriverData: Cannot upcast user to Driver: ID: " + user.getUserReference().getPath());
+        }
+
+        return liveData;
+    }
+
+    @Nullable
+    private MutableLiveData<Rider> getLatestRiderData(LifecycleOwner owner) {
+         MutableLiveData<Rider> liveData = null;
+
+         if (this.user instanceof Rider) {
+             Rider rider = (Rider) user;
+             RiderDAO riderDAO = new RiderDAO();
+             liveData = riderDAO.getModelByReference(rider.getRiderReference());
+             liveData.observe(owner, latestRider -> this.user = latestRider);
+         } else {
+             Log.e("Tomate", "Application: getLatestRiderData: Cannot upcast user to Rider: ID: " + user.getUserReference().getPath());
+         }
+
+         return liveData;
+    }
 }
