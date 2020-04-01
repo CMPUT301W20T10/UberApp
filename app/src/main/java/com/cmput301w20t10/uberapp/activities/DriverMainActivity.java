@@ -66,8 +66,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DriverMainActivity extends BaseActivity implements OnMapReadyCallback, TaskLoadedCallback {
 
-    private static final String LAST_LOCATION_KEY = "location";
-    private static final String CAMERA_DIRECTION_KEY = "camera_direction";
     private static final String USER_REFERENCE = "userReference";
     private static final String USERNAME = "username";
     private static final String IMAGE = "image";
@@ -88,11 +86,13 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
     SharedPref sharedPref;
 
     ListView requestList;
+    RideRequestListContent rideRequestListContent;
     ArrayAdapter<RideRequestListContent> requestAdapter;
     ArrayList<RideRequestListContent> requestDataList;
 
     private FirebaseFirestore db;
 
+    private boolean isOpen = true;
     private boolean accordion = true;
 
     @SuppressLint("ClickableViewAccessibility")
@@ -162,13 +162,10 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                                 String lastName = (String) userSnapshot.get(LAST_NAME);
                                 float[] distance = new float[1];
                                 Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), startDest.latitude, startDest.longitude, distance);
-                                RideRequestListContent rideRequest = new RideRequestListContent(username, distance[0] / 1000, offer,
-                                        imageURL, firstName, lastName, startDest, endDest,
-                                        rideRequestReference, unpairedReference);
-                                rideRequest.setCollapsedHeight(collapsedHeight);
-                                rideRequest.setCurrentHeight(collapsedHeight);
-                                rideRequest.setExpandedHeight(expandedHeight);
-                                requestDataList.add(rideRequest);
+                                rideRequestListContent = new RideRequestListContent(username, distance[0] / 1000, offer,
+                                        imageURL, firstName, lastName, startDest, endDest, rideRequestReference, unpairedReference,
+                                        collapsedHeight, collapsedHeight, expandedHeight);
+                                requestDataList.add(rideRequestListContent);
                                 Collections.sort(requestDataList);
                                 requestAdapter = new RequestList(DriverMainActivity.this, requestDataList);
                                 requestList.setAdapter(requestAdapter);
@@ -180,51 +177,56 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         });
 
         requestList.setOnItemClickListener((adapterView, view, i, l) -> {
-            toggle(view, i);
-            final RideRequestListContent rideRequestContent = (RideRequestListContent) adapterView.getItemAtPosition(i);
-            LatLng startDest = rideRequestContent.getStartDest();
-            LatLng endDest = rideRequestContent.getEndDest();
-            dropPins("Start Destination", startDest, "End Destination",  endDest);
-            new FetchURL(DriverMainActivity.this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
+            if (isOpen) {
+                toggle(view, i);
+                final RideRequestListContent rideRequestContent = (RideRequestListContent) adapterView.getItemAtPosition(i);
+                LatLng startDest = rideRequestContent.getStartDest();
+                LatLng endDest = rideRequestContent.getEndDest();
+                dropPins("Start Destination", startDest, "End Destination",  endDest);
+                new FetchURL(DriverMainActivity.this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
 
-            Button acceptButton = view.findViewById(R.id.accept_request_button);
-            acceptButton.setOnClickListener(acceptView -> {
-                RideRequestDAO rideRequestDAO = new RideRequestDAO();
-                MutableLiveData<RideRequest> liveData = rideRequestDAO.getModelByReference(rideRequestContent.getRideRequestReference());
-                liveData.observe(this, rideRequest -> {
-                    if (rideRequest != null) {
-                        rideRequestDAO.acceptRequest(rideRequest, driver, this);
-                        Intent intent = new Intent(this, DriverAcceptedActivity.class);
-                        Application.getInstance().setActiveRidePath(rideRequest.getRideRequestReference().getPath());
-                        Application.getInstance().setPrevActivity(this.getLocalClassName());
-                        startActivity(intent);
-                    }
-                });
-            });
-
-            ImageButton riderPictureButton = view.findViewById(R.id.profile_button);
-            riderPictureButton.setOnClickListener(pictureView -> db.collection("users")
-                    .whereEqualTo("username", rideRequestContent.getUsername())
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            QuerySnapshot userSnapshot = task.getResult();
-                            String userID = userSnapshot.getDocuments().get(0).getId();
-                            String username = rideRequestContent.getUsername();
-                            ViewProfileFragment.newInstance(userID, username) .show(getSupportFragmentManager(),"User");
-                        }
-                    })
-            );
-
-            // For message passing, the driver must subscribe to a topic
-            FirebaseMessaging.getInstance().subscribeToTopic(Application.getInstance().getCurrentUser().getUsername())
-                    .addOnCompleteListener((task) -> {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(DriverMainActivity.this, "Successfully subscribed", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(DriverMainActivity.this, "Failed to subscribe", Toast.LENGTH_SHORT).show();
+                Button acceptButton = view.findViewById(R.id.accept_request_button);
+                acceptButton.setOnClickListener(acceptView -> {
+                    RideRequestDAO rideRequestDAO = new RideRequestDAO();
+                    MutableLiveData<RideRequest> liveData = rideRequestDAO.getModelByReference(rideRequestContent.getRideRequestReference());
+                    liveData.observe(this, rideRequest -> {
+                        if (rideRequest != null) {
+//                            sharedPref.setRideRequest(rideRequestListContent);
+                            rideRequestDAO.acceptRequest(rideRequest, driver, this);
+                            Intent intent = new Intent(this, DriverAcceptedActivity.class);
+                            Application.getInstance().setActiveRidePath(rideRequest.getRideRequestReference().getPath());
+                            Application.getInstance().setPrevActivity(this.getLocalClassName());
+                            startActivity(intent);
                         }
                     });
+                });
+
+                ImageButton riderPictureButton = view.findViewById(R.id.profile_button);
+                riderPictureButton.setOnClickListener(pictureView -> db.collection("users")
+                        .whereEqualTo("username", rideRequestContent.getUsername())
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                QuerySnapshot userSnapshot = task.getResult();
+                                String userID = userSnapshot.getDocuments().get(0).getId();
+                                String username = rideRequestContent.getUsername();
+                                ViewProfileFragment.newInstance(userID, username) .show(getSupportFragmentManager(),"User");
+                            }
+                        })
+                );
+
+                // For message passing, the driver must subscribe to a topic
+                FirebaseMessaging.getInstance().subscribeToTopic(Application.getInstance().getCurrentUser().getUsername())
+                        .addOnCompleteListener((task) -> {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(DriverMainActivity.this, "Successfully subscribed", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(DriverMainActivity.this, "Failed to subscribe", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            } else {
+                toggle(view, i);
+            }
         });
     }
 
@@ -244,11 +246,13 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         RideRequestListContent rideRequest = requestDataList.get(position);
         rideRequest.getHolder().setTextViewWrap((LinearLayout) view);
         TextView tapProfileHint = view.findViewById(R.id.tap_profile_hint);
+        isOpen = rideRequest.isOpen();
 
         int fromHeight = 0;
         int toHeight = 0;
 
         if (rideRequest.isOpen()) {
+            mainMap.clear();
             fromHeight = rideRequest.getExpandedHeight();
             toHeight = rideRequest.getCollapsedHeight();
             tapProfileHint.setVisibility(View.INVISIBLE);

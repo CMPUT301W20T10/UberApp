@@ -112,8 +112,6 @@ public class BaseActivity extends AppCompatActivity {
 
         //Begin onclickListeners for each fab button, each sends to new activity. This activity should extend baseactivity so it can also have Menu.
         fabProfile.setOnClickListener(v -> {
-            System.out.println("PREV: " + Application.getInstance().getPrevActivity());
-            System.out.println("THIS: " + getClass());
             if (Application.getInstance().getPrevActivity().equals("activities.ProfilePage") ) {
                 closeMenu();
                 return;
@@ -125,7 +123,6 @@ public class BaseActivity extends AppCompatActivity {
         });
 
         fabSearch.setOnClickListener(v -> {
-            fabSearch.setElevation(0);
             if (Application.getInstance().getPrevActivity().equals("activities.SearchProfile")) {
                 closeMenu();
                 return;
