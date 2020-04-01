@@ -116,12 +116,12 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         ImageView riderPictureButton = findViewById(R.id.profile_button);
         Button cancelButton = findViewById(R.id.cancel_request_button);
         cancelButton.setVisibility(View.VISIBLE);
-        Button confirmButton = findViewById(R.id.new_ride_confirm);
+        Button confirmButton = findViewById(R.id.finish_request_button);
         confirmButton.setVisibility(View.VISIBLE);
         TextView tapProfileHint = findViewById(R.id.tap_profile_hint);
         tapProfileHint.setVisibility(View.VISIBLE);
 
-        if (hasNetwork()) {
+//        if (hasNetwork()) {
             String activeRideRequest = Application.getInstance().getActiveRidePath();
 
             DocumentReference rideRequestReference = db.document(activeRideRequest);
@@ -188,16 +188,17 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                 liveData.observe(this, rideRequest -> {
                     if (rideRequest != null) {
                         dao.cancelRequest(rideRequest, this);
+                        Application.getInstance().setPrevActivity(this.getLocalClassName());
                         Intent intent = new Intent(this, DriverMainActivity.class);
                         startActivity(intent);
                         finish();
                     }
                 });
             });
-        } else {
-            RideRequestListContent rideRequest = sharedPref.loadRideRequest();
-
-        }
+//        } else {
+//            RideRequestListContent rideRequest = sharedPref.loadRideRequest();
+//
+//        }
     }
 
     public boolean hasNetwork() {

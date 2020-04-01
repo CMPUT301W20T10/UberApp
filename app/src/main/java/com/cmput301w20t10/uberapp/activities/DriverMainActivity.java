@@ -100,12 +100,14 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         super.onCreate(savedInstanceState);
 
         Driver driver = (Driver) Application.getInstance().getCurrentUser();
-        if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0 ) {
-            Intent intent = new Intent(this, DriverAcceptedActivity.class);
-            String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
-            Application.getInstance().setActiveRidePath(activeRideRequest);
-            Application.getInstance().setPrevActivity(this.getLocalClassName());
-            startActivity(intent);
+        if (!Application.getInstance().getPrevActivity().equals("activities.DriverAcceptedActivity")) {
+            if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0) {
+                Intent intent = new Intent(this, DriverAcceptedActivity.class);
+                String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
+                Application.getInstance().setActiveRidePath(activeRideRequest);
+                Application.getInstance().setPrevActivity(this.getLocalClassName());
+                startActivity(intent);
+            }
         }
 
         client = LocationServices.getFusedLocationProviderClient(this);
