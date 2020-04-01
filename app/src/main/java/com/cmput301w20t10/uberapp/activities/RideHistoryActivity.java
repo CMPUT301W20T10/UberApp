@@ -130,15 +130,16 @@ public class RideHistoryActivity extends BaseActivity {
          * This is where things got wonky. History list and the list in the adapter are pointing
          * to the same reference but invoking historyList = new ArrayList<>() creates a new object.
          * The list in the adapter remains to be referring to the thing which historyList lost.
-         * clear() would remove the items in place. adapter.notifyDataSetChanged() would update the list.
-         * Later in the code, I would set history list in adapter even if they were still referring to the
-         * same object because we don't know where bugs may sprung up.
+         * You have to set the data into the adapter. adapter.notifyDataSetChanged() would
+         * update the list view.
+         * @author Allan Manuba
          */
         historyList.clear();
+        adapter.setData(historyList);
         adapter.notifyDataSetChanged(); // clear first so if there isn't any rides the screen is clear
 
         Application application = Application.getInstance();
-        application.getLatestUserData(this)
+        application.getLatestUserData()
                 .observe(this, user -> {
                     if (user != null) {
                         populateHistoryHelper(user, active);

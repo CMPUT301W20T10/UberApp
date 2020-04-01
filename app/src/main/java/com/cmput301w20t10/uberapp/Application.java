@@ -11,14 +11,18 @@ import com.android.volley.toolbox.Volley;
 import com.cmput301w20t10.uberapp.database.base.EntityBase;
 import com.cmput301w20t10.uberapp.database.dao.DriverDAO;
 import com.cmput301w20t10.uberapp.database.dao.RiderDAO;
+import com.cmput301w20t10.uberapp.database.util.GetTaskSequencerLifecycleOwner;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.firestore.DocumentReference;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.MutableLiveData;
 
 /**
@@ -112,17 +116,19 @@ public final class Application {
     /**
      * If you're unsure whether Application holds the latest data,
      * use this function to fetch the latest data and update the User object in Application.
+     * <p>
+     * We're mocking a lifecycle owner inside because we want to get this update even if the activity
+     * or other view that called it was already destroyed.
      *
-     * @param owner LifecycleOwner would be the current view, UI element, activity, or fragment
-     *              you're calling the code in so putting <pre>this</pre> is sufficient
      * @return      MutableLiveData<User> that may update once with either:
      * <ul>
      *     <li>User object that you may upcast to Rider or Driver</li>
      *     <li>null which would mean a connection loss, no Firestore cache, or some other error</li>
      * </ul>
      */
-    public MutableLiveData<User> getLatestUserData(LifecycleOwner owner) {
+    public MutableLiveData<User> getLatestUserData() {
         MutableLiveData<User> userData = new MutableLiveData<>();
+        GetTaskSequencerLifecycleOwner owner = new GetTaskSequencerLifecycleOwner();
 
         if (user instanceof Rider) {
             MutableLiveData<Rider> riderData = getLatestRiderData(owner);
@@ -130,6 +136,7 @@ public final class Application {
             riderData.observe(owner, rider -> {
                 setUser(rider);
                 userData.setValue(rider);
+                owner.callEvent(Lifecycle.Event.ON_DESTROY);
             });
         } else if (user instanceof Driver) {
             MutableLiveData<Driver> driverData = getLatestDriverData(owner);
@@ -137,10 +144,12 @@ public final class Application {
             driverData.observe(owner, driver -> {
                 setUser(driver);
                 userData.setValue(driver);
+                owner.callEvent(Lifecycle.Event.ON_DESTROY);
             });
         } else {
             Log.e("Tomate", "Application: getLatestUserData: Invalid subclass of user: " + user.getClass().toString());
             userData.setValue(null);
+            owner.callEvent(Lifecycle.Event.ON_DESTROY);
         }
 
         return userData;
