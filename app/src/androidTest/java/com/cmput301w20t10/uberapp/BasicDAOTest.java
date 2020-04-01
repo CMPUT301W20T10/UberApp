@@ -68,7 +68,7 @@ public class BasicDAOTest extends DatabaseTestBase {
         // get data
         final Object syncObject = new Object();
         final AtomicReference<Rider> riderAtomicReference = new AtomicReference<>();
-        final Rider rider = REGISTER_TEST_RIDER1;
+        final Rider rider = BASIC_TEST_RIDER2;
 
         Runnable runnable = () -> {
             Observer<Rider> observer = new AssertNotNullObserver<Rider>(syncObject) {
@@ -105,6 +105,7 @@ public class BasicDAOTest extends DatabaseTestBase {
         // get data
         final Object syncObject = new Object();
         AtomicReference<Driver> atomicReference = new AtomicReference<>();
+        final Driver driver = REGISTER_TEST_DRIVER1;
 
         Runnable runnable = () -> {
             Observer<Driver> observer = new AssertNotNullObserver<Driver>(syncObject){
@@ -115,21 +116,20 @@ public class BasicDAOTest extends DatabaseTestBase {
                 }
             };
             MutableLiveData<Driver> liveData = loginRegisterDAO
-                    .registerDriver("CharlieTest2",
-                            "2:00",
-                            "email",
-                            "Full",
-                            "Pineapple",
-                            "200",
-                            "picture",
+                    .registerDriver(driver.getUsername(),
+                            driver.getPassword(),
+                            driver.getEmail(),
+                            driver.getUsername(),
+                            driver.getLastName(),
+                            driver.getPhoneNumber(),
+                            driver.getImage(),
                             mainLifecycleOwner);
             liveData.observe(mainLifecycleOwner, observer);
         };
 
         liveDataObserver(runnable, syncObject);
-
-        Driver driver = atomicReference.get();
-        addUsersToCleanUp(driver);
+        Driver remoteDriver = atomicReference.get();
+        addUsersToCleanUp(remoteDriver);
     }
 
     /**
