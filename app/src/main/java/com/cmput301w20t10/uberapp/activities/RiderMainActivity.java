@@ -23,6 +23,8 @@ import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.viewmodel.RiderViewModel;
+import com.cmput301w20t10.uberapp.fragments.NewRideFragment;
+import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
 import com.cmput301w20t10.uberapp.models.Route;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -286,6 +288,8 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
 
     private void onClick_NewRide() {
         // todo: implement onclick new ride
+
+
 
 //        if(editTextStartingPoint.getText().toString().isEmpty()) {
 //            Toast.makeText(getApplicationContext(), "Starting Point Required", Toast.LENGTH_LONG).show();

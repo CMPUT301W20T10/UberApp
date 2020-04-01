@@ -118,7 +118,7 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         tapProfileHint.setVisibility(View.VISIBLE);
 
 
-        String activeRideRequest = getIntent().getStringExtra("ACTIVE");
+        String activeRideRequest = Application.getInstance().getActiveRidePath();
 
         DocumentReference rideRequestReference = db.document(activeRideRequest);
 

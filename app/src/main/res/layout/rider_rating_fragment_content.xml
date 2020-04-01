@@ -16,6 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/ratingfrag_title"
+            android:textColor="?attr/listViewDivider"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -39,6 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/ratingfrag_driver_subheader"
+            android:textColor="?attr/listViewDivider"
             app:layout_constraintStart_toStartOf="@+id/include"
             app:layout_constraintTop_toBottomOf="@+id/ratingFragmentHeader" />
 
@@ -48,6 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/ratingfrag_tripsummary_subheader"
+            android:textColor="?attr/listViewDivider"
             app:layout_constraintStart_toStartOf="@+id/ratingFragmentRideDescription"
             app:layout_constraintTop_toBottomOf="@+id/include" />
 
@@ -59,6 +62,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="32dp"
             android:text="@string/ratingfrag_tripsummary_template"
+            android:textColor="?attr/listViewDivider"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ratingFragmentRouteSubheader" />
