@@ -166,7 +166,7 @@ public final class Application {
                 owner.callEvent(Lifecycle.Event.ON_DESTROY);
             });
         } else {
-            Log.e("Tomate", "Application: getLatestUserData: Invalid subclass of user: " + user.getClass().toString());
+            Log.e("Tomate", "Application: getLatestUserData: Invalid subclass of user or null: ");
             userData.setValue(null);
             owner.callEvent(Lifecycle.Event.ON_DESTROY);
         }

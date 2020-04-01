@@ -20,6 +20,12 @@ import androidx.annotation.NonNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+/**
+ * Base class for all database testing classes
+ *
+ * @author Allan Manuba
+ * @version 1.9.1
+ */
 public class DatabaseTestBase {
     // region fake accounts
     protected static final Rider REGISTER_TEST_RIDER1 = new Rider(null,
@@ -33,7 +39,7 @@ public class DatabaseTestBase {
             "Duck",
             "Beak",
             "123456789",
-            "man1.png",
+            "None.jpeg",
             0);
 
     protected static final Driver REGISTER_TEST_DRIVER1 = new Driver(null,
@@ -48,7 +54,7 @@ public class DatabaseTestBase {
             "Highway",
             "126290876",
             0,
-            "man1.png");
+            "ilovejpg.jpg");
 
     // reserved for Alex's debugging
     protected static final String BASIC_TEST_RIDER1_ID = "DnD1XshbWPj6szVlzdqG";
@@ -63,10 +69,10 @@ public class DatabaseTestBase {
             "Hepburn",
             "Catastrophy",
             "232323232",
-            "man1.png",
+            "great.png",
             0);
 
-    protected static final String BASIC_TEST_RIDER2_ID = "iyILZHG3OQEjuP17VCWj";
+    protected static final String BASIC_TEST_RIDER2_ID = "VdiHZjofV3ilOkt8qPqz";
     protected static final Rider BASIC_TEST_RIDER2 = new Rider(null,
             null,
             null,
@@ -78,10 +84,10 @@ public class DatabaseTestBase {
             "Hepburn",
             "Catastrophy",
             "232323232",
-            "man1.png",
+            "great.png",
             0);
 
-    protected static final String BASIC_TEST_DRIVER1_ID = "3QvWubCZRMsBl0xHGy9U";
+    protected static final String BASIC_TEST_DRIVER1_ID = "HFDqU1A9t4CHtGaY234f";
     protected static final Driver BASIC_TEST_DRIVER1 = new Driver(null,
             null,
             null,
@@ -94,7 +100,7 @@ public class DatabaseTestBase {
             "Sport",
             "126290876",
             0,
-            "female1.png");
+            "ilovejpg.jpg");
     // endregion fake accounts
 
     protected FirebaseFirestore mockDb;
@@ -160,7 +166,7 @@ public class DatabaseTestBase {
         assertNotNull(real.getFinishedRideRequestList());
         assertNotNull(real.getActiveRideRequestList());
 
-        assertEquals(Float.compare(real.getBalance(), fake.getBalance()), 0);
+        assertEquals(real.getBalance(), fake.getBalance());
         assertUserEquals(real, fake);
     }
 

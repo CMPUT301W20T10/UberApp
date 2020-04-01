@@ -17,7 +17,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
+/*
+ * FetchURL is code from GITHUB  used to grab URL for route drawing
+ * URL of master: https://github.com/Vysh01/android-maps-directions
+ * Author: Vysh01, https://github.com/Vysh01
+ * Website: https://github.com/
+ * URL of class: https://github.com/Vysh01/android-maps-directions/blob/master/app/src/main/java/com/thecodecity/mapsdirection/directionhelpers/FetchURL.java
+ */
 
 public class FetchURL extends AsyncTask<String, Void, String> {
     Context mContext;
