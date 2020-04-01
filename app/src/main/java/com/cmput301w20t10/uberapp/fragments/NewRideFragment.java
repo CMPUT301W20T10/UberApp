@@ -53,7 +53,7 @@ public class NewRideFragment extends Fragment {
         offerText.setText(String.format("%d", priceOffer));
 
         confirmButton.setOnClickListener(v -> {
-            int newOffer = Integer.parseInt(offerText.getText().toString());
+            double newOffer = Double.parseDouble(offerText.getText().toString());
             if (newOffer < priceOffer) {
                 Toast toast = Toast.makeText(getContext(), String.format("Price offer cannot be lower than %d", priceOffer), Toast.LENGTH_LONG);
                 TextView textView = toast.getView().findViewById(android.R.id.message);
@@ -66,48 +66,16 @@ public class NewRideFragment extends Fragment {
             RideRequestDAO dao = db.getRideRequestDAO();
             User user = Application.getInstance().getCurrentUser();
             //pass data
-//            if (user instanceof Rider){
-//                Log.d("Test", "if condition passed");
-//                Rider rider = (Rider) user;
-//
-//                MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,Application.getInstance().getRoute(),newOffer,this);
-//                createdRequest.observe(this, request -> {
-//                    if (request != null) {
-//                        Log.d("Testing", "Request is observed");
-//
-//                        DocumentReference dr = request.getRideRequestReference();
-//                        dr.addSnapshotListener((snapshot, e) -> {
-//                           if (snapshot != null) {
-//                               MutableLiveData<RideRequest> liveRequest = dao.getModelByReference(snapshot.getReference());
-//                               liveRequest.observe(this, checkRequest -> {
-//                                   if (checkRequest != null) {
-//                                       Log.d("Testing", "Request is observed");
-//                                       Log.d("Testing", "State: " + String.valueOf(checkRequest.getState()));
-//
-//                                       if (checkRequest.getState() == RideRequest.State.RideCompleted) {
-//                                           Application.getInstance().setCurrentRideDocument(dr);
-//
-//                                           FragmentManager fragManager = getSupportFragmentManager();
-//                                           FragmentTransaction fragTransaction = fragManager.beginTransaction();
-//                                           RideRatingFragment rateFrag = new RideRatingFragment();
-//                                           fragTransaction.add(R.id.fragment_container, rateFrag);
-//                                           fragTransaction.commit();
-//                                       }
-//                                   }
-//                               });
-//                           }
-//                        });
-//
-//                    } else {
-//                        Log.d("Testing", "Ride Request received as null.");
-//                    }
-//                });
-//
-//
-//            }
-//            else{
-//                Log.d("Test", "if condition did not pass");
-//            }
+            if (user instanceof Rider){
+                Log.d("Test", "if condition passed");
+                Rider rider = (Rider) user;
+                int offerCents = (int) newOffer*100;
+                MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,Application.getInstance().getRoute(),offerCents,this);
+
+            }
+            else{
+                Log.d("Test", "if condition did not pass");
+            }
         });
 
         cancelButton.setOnClickListener(v -> {
