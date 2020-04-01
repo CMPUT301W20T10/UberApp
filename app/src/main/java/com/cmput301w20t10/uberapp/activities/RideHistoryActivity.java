@@ -107,6 +107,8 @@ public class RideHistoryActivity extends BaseActivity {
     private void populateHistory(boolean active) {
         User user = Application.getInstance().getCurrentUser();
         historyList = new ArrayList<RideRequest>();
+        updateView(); // clear first so if there isn't any rides the screen is clear
+
         RideRequestDAO rrDAO = DatabaseManager.getInstance().getRideRequestDAO();
 
         if (user instanceof Rider) {
