@@ -2,11 +2,13 @@ package com.cmput301w20t10.uberapp.fragments;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -17,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.activities.RideHistoryActivity;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.dao.DriverDAO;
 import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
@@ -33,6 +36,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class RideRatingFragment extends Fragment {
     boolean hasVoted = false;
+    boolean modifiedRequest = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -50,7 +54,6 @@ public class RideRatingFragment extends Fragment {
         ImageView upButton = view.findViewById(R.id.rateUpButton);
         ImageView downButton = view.findViewById(R.id.rateDownButton);
         ImageView closeButton = view.findViewById(R.id.ratingFragmentCloseButton);
-        TextView rideDesc = view.findViewById(R.id.ratingFragmentRideDescription);
 
         // retrieve the passed in request
         RideRequest request = Application.getInstance().getSelectedHistoryRequest();
@@ -78,9 +81,6 @@ public class RideRatingFragment extends Fragment {
                                 .into(profilePicture);
                     }
 
-                    Log.d("Testing", "Rated Yet?: " + request.getRating());
-                    Log.d("Testing", "State: " + request.getState());
-
                     // prevent the user from rating multiple times on different instances of the fragment
                     if (request.getRating() != 0) {
                         hasVoted = true;
@@ -91,11 +91,14 @@ public class RideRatingFragment extends Fragment {
                         upButton.setOnClickListener(v -> {
                             if (!hasVoted) {
                                 hasVoted = true; // prevent the user from re-tapping the rate button
+                                modifiedRequest = true;
 
                                 // update the rating on the request and the driver
                                 driverDAO.rateDriver(driver, 1);
                                 rideRequestDAO.rateRide(request, 1);
-                                close();
+                                driverRatingView.setText(String.valueOf(driver.getRating())); // allow user to see their changes
+                            } else {
+                                warnCantVote();
                             }
                         });
 
@@ -103,13 +106,18 @@ public class RideRatingFragment extends Fragment {
                         downButton.setOnClickListener(v -> {
                             if (!hasVoted) {
                                 hasVoted = true; // prevent the user from re-tapping the rate button
+                                modifiedRequest = true;
 
                                 // update the rating on the request and the driver
                                 driverDAO.rateDriver(driver, -1);
                                 rideRequestDAO.rateRide(request, -1);
-                                close();
+                                driverRatingView.setText(String.valueOf(driver.getRating()));  // allow user to see their changes
+                            } else {
+                                warnCantVote();
                             }
                         });
+                    } else {
+                        warnCantVote();
                     }
                 } else {
                     Log.d("Testing", "No driver found on this request");
@@ -124,11 +132,30 @@ public class RideRatingFragment extends Fragment {
         });
     }
 
+    private void warnCantVote() {
+        Toast toast = Toast.makeText(getContext(), "You can't vote on this request again", Toast.LENGTH_LONG);
+        TextView textView = toast.getView().findViewById(android.R.id.message);
+        textView.setGravity(Gravity.CENTER);
+        toast.show();
+    }
+
     /**
      * This will remove the fragment from RideHistoryActivity's backstack and close the fragment
      */
     private void close() {
-        // https://stackoverflow.com/questions/5901298/how-to-get-a-fragment-to-remove-itself-i-e-its-equivalent-of-finish
+        /*
+         * Code from Stack Overflow used to close
+         * URL of question: https://stackoverflow.com/questions/5901298/how-to-get-a-fragment-to-remove-itself-i-e-its-equivalent-of-finish
+         * Asked by: PJL, https://stackoverflow.com/users/702191/pjl
+         * Answered by: Manfred Moser, https://stackoverflow.com/users/136445/manfred-moser
+         * URL of answer: https://stackoverflow.com/a/9387251
+         */
+
+        if (modifiedRequest) {
+            RideHistoryActivity activity = ((RideHistoryActivity)getActivity());
+            activity.populateHistory();
+        }
+
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.remove(this);

@@ -8,13 +8,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.MutableLiveData;
 
 import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.LogOut;
 import com.cmput301w20t10.uberapp.R;
-import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.models.Driver;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 /**
  * Based on Youtube Video By: AnionCode - https://www.youtube.com/channel/UCseP9k1DwSAqzZ-iyeAlTvg
@@ -52,11 +51,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (!isOpen) {
-            if (getIntent().getExtras().getString("PREV_ACTIVITY").equals("LoginActivity")) {
-                return;
-            } else {
-                super.onBackPressed();
-            }
+            super.onBackPressed();
         } else {
             closeMenu();
         }
@@ -117,42 +112,61 @@ public class BaseActivity extends AppCompatActivity {
 
         //Begin onclickListeners for each fab button, each sends to new activity. This activity should extend baseactivity so it can also have Menu.
         fabProfile.setOnClickListener(v -> {
-//            if (getIntent().getStringExtra("PREV_ACTIVITY").equals(this.getLocalClassName()))
+            System.out.println("PREV: " + Application.getInstance().getPrevActivity());
+            System.out.println("THIS: " + getClass());
+            if (Application.getInstance().getPrevActivity().equals("activities.ProfilePage") ) {
+                return;
+            }
             Intent intent = new Intent(BaseActivity.this, ProfilePage.class);
-//            intent.putExtra("PREV_ACTIVITY", "")
+            Application.getInstance().setPrevActivity(this.getLocalClassName());
             startActivity(intent);
+            closeMenu();
         });
 
         fabSearch.setOnClickListener(v -> {
+            if (Application.getInstance().getPrevActivity().equals("activities.SearchProfile")) {
+                return;
+            }
             Intent intent = new Intent(BaseActivity.this, SearchProfile.class);
-            intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
+            Application.getInstance().setPrevActivity(this.getLocalClassName());
             startActivity(intent);
+            closeMenu();
         });
 
         fabHistory.setOnClickListener(v -> {
+            if (Application.getInstance().getPrevActivity().equals("activities.RideHistoryActivity")) {
+                return;
+            }
             Intent intent = new Intent(BaseActivity.this, RideHistoryActivity.class);
-            intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
+            Application.getInstance().setPrevActivity(this.getLocalClassName());
             startActivity(intent);
         });
 
         fabHome.setOnClickListener(v -> {
-            if (sharedPref.loadUserType().equals("rider")) {
-                Intent intent = new Intent(BaseActivity.this, RiderMainActivity.class);
-                intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
-                startActivity(intent);
+            if (sharedPref.loadHomeActivity().equals(this.getLocalClassName())) {
+                return;
             } else {
-                Driver driver = (Driver) Application.getInstance().getCurrentUser();
-                if (driver != null) {
-                    if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0) {
-                        Intent intent = new Intent(BaseActivity.this, DriverAcceptedActivity.class);
-                        String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
-                        intent.putExtra("ACTIVE", activeRideRequest);
-                        intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
-                        startActivity(intent);
-                    } else {
-                        Intent intent = new Intent(BaseActivity.this, DriverMainActivity.class);
-                        intent.putExtra("PREV_ACTIVITY", this.getLocalClassName());
-                        startActivity(intent);
+                if (sharedPref.loadUserType().equals("rider")) {
+                    Intent intent = new Intent(BaseActivity.this, RiderMainActivity.class);
+                    Application.getInstance().setPrevActivity(this.getLocalClassName());
+                    startActivity(intent);
+                    closeMenu();
+                } else {
+                    Driver driver = (Driver) Application.getInstance().getCurrentUser();
+                    if (driver != null) {
+                        if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0) {
+                            Intent intent = new Intent(BaseActivity.this, DriverAcceptedActivity.class);
+                            String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
+                            Application.getInstance().setActiveRidePath(activeRideRequest);
+                            Application.getInstance().setPrevActivity(this.getLocalClassName());
+                            startActivity(intent);
+                            closeMenu();
+                        } else {
+                            Intent intent = new Intent(BaseActivity.this, DriverMainActivity.class);
+                            Application.getInstance().setPrevActivity(this.getLocalClassName());
+                            startActivity(intent);
+                            closeMenu();
+                        }
                     }
                 }
             }
@@ -172,15 +186,17 @@ public class BaseActivity extends AppCompatActivity {
                 textView.setGravity(Gravity.CENTER);
                 toast.show();
             }
+            closeMenu();
         });
 
         fabExit.setOnClickListener(v -> {
-//            sharedPref.eraseContents();
-//            Intent intent = getBaseContext().getPackageManager()
-//                    .getLaunchIntentForPackage( getBaseContext().getPackageName() );
-//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//            startActivity(intent);
-//            finish();
+            sharedPref.eraseContents();
+            Log.d("TestUsername: ", sharedPref.loadUsername());
+            Log.d("TestPassword: ", sharedPref.loadPassword());
+            Log.d("TestRemember: ", String.valueOf(sharedPref.loadRememberMeState()));
+            Log.d("TestNight: ", String.valueOf(sharedPref.loadNightModeState()));
+            Log.d("TestHome: ", sharedPref.loadHomeActivity());
+            Log.d("TestUser: ", sharedPref.loadUserType());
             LogOut.clearRestart(this);
         });
     }

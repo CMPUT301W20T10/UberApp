@@ -5,10 +5,16 @@ import java.util.concurrent.atomic.AtomicReference;
 import androidx.lifecycle.Observer;
 
 public abstract class AssertObserverBase<Result> implements Observer<Result> {
-    private final Object syncObject;
+    private Object syncObject;
     private AtomicReference<Result> atomicReference;
 
     public AssertObserverBase(Object syncObject) {
+        this.syncObject = syncObject;
+    }
+
+    public AssertObserverBase() {}
+
+    public void setSyncObject(Object syncObject) {
         this.syncObject = syncObject;
     }
 

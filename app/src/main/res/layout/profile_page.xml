@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/linearLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/backgroundColor">
 
     <include layout="@layout/float_main"></include>
 
@@ -35,6 +36,7 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
         android:text="first name"
+        android:textColor="?attr/textColor"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintHorizontal_bias="0.992"
         app:layout_constraintStart_toStartOf="parent"
@@ -47,6 +49,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
         android:text="last name"
+        android:textColor="?attr/textColor"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/profile_image" />
 
@@ -56,6 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Username"
+        android:textColor="?attr/textColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Fname" />
@@ -66,6 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:text="Email"
+        android:textColor="?attr/textColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Uname" />
@@ -83,6 +88,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Phone Number"
+        android:textColor="?attr/textColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Email" />
@@ -114,6 +120,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="48dp"
         android:text="XXXXX"
+        android:textColor="?attr/textColor"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/imageView2"
@@ -125,6 +132,7 @@
         android:layout_height="17dp"
         android:layout_marginTop="48dp"
         android:text="XXXXX"
+        android:textColor="?attr/textColor"
         app:layout_constraintEnd_toStartOf="@+id/imageView3"
         app:layout_constraintHorizontal_bias="0.47"
         app:layout_constraintStart_toStartOf="@+id/guideline"

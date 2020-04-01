@@ -458,7 +458,7 @@ class RegisterDriverTask extends GetTaskSequencer<Driver> {
  * @version 1.1.1
  */
 class LogInAsDriverTask extends GetTaskSequencer<Driver> {
-    static final String LOC = DriverDAO.LOC + "LogInAsDriverTask";
+    static final String LOC = DriverDAO.LOC + "LogInAsDriverTask: ";
 
     private final String password;
     private final String username;
@@ -483,7 +483,7 @@ class LogInAsDriverTask extends GetTaskSequencer<Driver> {
         userDAO.logIn(username, password)
                 .observe(owner, userEntity -> {
                     if (userEntity == null || userEntity.getDriverReference() == null) {
-                        Log.e(TAG, LOC + ": userLogin: Failing with username: " + username);
+                        Log.e(TAG, LOC + "userLogin: Failing with username: " + username);
                         postResult(null);
                     } else {
                         this.userEntity = userEntity;

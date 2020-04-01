@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.cmput301w20t10.uberapp.R;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -96,7 +97,7 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
 
         holder.getUsername().setText(rideRequest.getUsername());
         holder.getDistance().setText(String.format("%.2f", rideRequest.getDistance()) + "km away");
-        holder.getOffer().setText("Offer: $" + String.format("%.2f", rideRequest.getOffer()));
+        holder.getOffer().setText("Offer: $" + String.format("%d", rideRequest.getOffer()));
         holder.getFirstName().setText(rideRequest.getFirstName());
         holder.getLastName().setText(rideRequest.getLastName());
 
@@ -107,9 +108,12 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
                 endDest.latitude,endDest.longitude, startEndDist);
         holder.getStartEndDist().setText(String.format("%.2fkm", startEndDist[0]/1000));
 
-        Glide.with(view)
-                .load(rideRequest.getImageURL())
-                .into(holder.getProfilePic());
+        if (rideRequest.getImageURL() != "") {
+            Glide.with(view)
+                    .load(rideRequest.getImageURL())
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(holder.getProfilePic());
+        }
 
         view.setTag(holder);
 

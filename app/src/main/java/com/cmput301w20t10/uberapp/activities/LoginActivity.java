@@ -46,12 +46,14 @@ public class LoginActivity extends OptionsMenu {
 
     private static final int REQUEST_CODE = 101;
 
+    private boolean isChecked;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         sharedPref = new SharedPref(this);
-        if (sharedPref.loadNightModeState() == true) {
+        if (sharedPref.loadNightModeState()) {
             setTheme(R.style.DarkTheme);
         } else { setTheme(R.style.AppTheme); }
 
@@ -97,12 +99,8 @@ public class LoginActivity extends OptionsMenu {
         // Set the selector to select Rider by default
         this.loginTypeField.check(R.id.rider_radio_button);
 
-        rememberBox.setOnCheckedChangeListener((compoundButton, b) -> {
-            if (compoundButton.isChecked()) {
-                sharedPref.setRememberMe(true);
-            } else {
-                sharedPref.setRememberMe(false);
-            }
+        rememberBox.setOnCheckedChangeListener((compoundButton, checked) -> {
+            isChecked = checked;
         });
     }
 
@@ -122,7 +120,11 @@ public class LoginActivity extends OptionsMenu {
             Toast.makeText(getApplicationContext(), "Password Required", Toast.LENGTH_LONG).show();
             return;
         }
-
+        if (isChecked) {
+            sharedPref.setRememberMe(true);
+        } else {
+            sharedPref.setRememberMe(false);
+        }
         verifyLogin();
     }
 
@@ -144,6 +146,7 @@ public class LoginActivity extends OptionsMenu {
                         updateFCMToken();
                         saveUserInfo("rider");
                         Intent intent = new Intent(this, RiderMainActivity.class);
+                        Application.getInstance().setPrevActivity(this.getLocalClassName());
                         startActivity(intent);
                     } else {
                         Toast.makeText(getApplicationContext(), "Invalid Username/Password", Toast.LENGTH_LONG).show();
@@ -160,18 +163,10 @@ public class LoginActivity extends OptionsMenu {
                         Application.getInstance().setUser(driver);
                         updateFCMToken();
                         saveUserInfo("driver");
-                        if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0 ) {
-                            System.out.println("NAME: " + this.getLocalClassName());
-                            Intent intent = new Intent(this, DriverAcceptedActivity.class);
-                            String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
-                            intent.putExtra("ACTIVE", activeRideRequest);
-                            intent.putExtra("PREV_ACTIVITY", "LoginActivity");
-                            startActivity(intent);
-                        } else {
                             Intent intent = new Intent(this, DriverMainActivity.class);
-                            intent.putExtra("PREV_ACTIVITY", "LoginActivity");
+                            Application.getInstance().setPrevActivity(this.getLocalClassName());
                             startActivity(intent);
-                        }
+//                        }
                     } else {
                         Toast.makeText(getApplicationContext(), "Invalid Username/Password", Toast.LENGTH_LONG).show();
                     }
@@ -230,4 +225,10 @@ public class LoginActivity extends OptionsMenu {
                 connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED;
     }
 
+    @Override
+    public void onBackPressed() {
+        return;
+    }
+
 }
+
