@@ -42,6 +42,8 @@ import static org.junit.Assert.assertTrue;
  * Tests for the basic functionalities of all DAOs
  *
  * @author Allan Manuba
+ * @version 1.9.4
+ * Update for database changes
  * @version 1.8.3
  * Create new function for creating ride requests
  * @version 1.7.2
@@ -68,7 +70,7 @@ public class BasicDAOTest extends DatabaseTestBase {
         // get data
         final Object syncObject = new Object();
         final AtomicReference<Rider> riderAtomicReference = new AtomicReference<>();
-        final Rider rider = BASIC_TEST_RIDER2;
+        final Rider rider = REGISTER_TEST_RIDER1;
 
         Runnable runnable = () -> {
             Observer<Rider> observer = new AssertNotNullObserver<Rider>(syncObject) {
@@ -105,7 +107,7 @@ public class BasicDAOTest extends DatabaseTestBase {
         // get data
         final Object syncObject = new Object();
         AtomicReference<Driver> atomicReference = new AtomicReference<>();
-        final Driver driver = REGISTER_TEST_DRIVER1;
+        final Driver driver = BASIC_TEST_DRIVER1;
 
         Runnable runnable = () -> {
             Observer<Driver> observer = new AssertNotNullObserver<Driver>(syncObject){
@@ -422,7 +424,7 @@ public class BasicDAOTest extends DatabaseTestBase {
             @Override
             protected MutableLiveData<Rider> doInMainLoop() {
                 RiderDAO riderDAO = new RiderDAO(mockDb);
-                return riderDAO.getModelByID("u8KKaffjXyyolRrbGdrZ");
+                return riderDAO.getModelByID("n3h4aqyVFhzU1x6t4fN1");
             }
         };
         getRider.run();
