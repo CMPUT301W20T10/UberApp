@@ -61,7 +61,7 @@ public class RideRatingFragment extends Fragment {
                     driverUnameView.setText(driver.getUsername());
                     driverRatingView.setText(String.valueOf(driver.getRating()));
 
-                    Log.d("Testing", "Rated Yet?: " + String.valueOf(request.isRated()));
+//                    Log.d("Testing", "Rated Yet?: " + String.valueOf(request.isRated()));
 
                     if (!hasVoted) {
                         upButton.setOnClickListener(v -> {

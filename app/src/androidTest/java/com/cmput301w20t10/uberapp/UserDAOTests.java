@@ -10,11 +10,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import androidx.lifecycle.MutableLiveData;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static org.junit.Assert.assertEquals;
 
-@RunWith(AndroidJUnit4.class)
+/**
+ * Tests for UserDAO specific functionalities
+ *
+ * @author Allan Manuba
+ * @version 1.4.1
+ */
 public class UserDAOTests extends BasicDAOTest {
     private static final String TAG = "Tomate";
 
@@ -37,7 +41,7 @@ public class UserDAOTests extends BasicDAOTest {
 
         Runnable runnable = () -> {
             AssertTrueObserver observer = new AssertTrueObserver(syncObject);
-            UserDAO userDao = new UserDAO();
+            UserDAO userDao = new UserDAO(mockDb);
             user.setFCMToken(newFCMToken);
             MutableLiveData<Boolean> liveData = userDao.saveModel(user);
             liveData.observe(mainLifecycleOwner, observer);

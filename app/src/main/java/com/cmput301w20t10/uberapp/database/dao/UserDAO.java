@@ -21,13 +21,22 @@ import static android.content.ContentValues.TAG;
  * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
+ *
  * @version 1.1.1
  */
 public class UserDAO extends DAOBase<UserEntity, User> {
     static final String COLLECTION = "users";
     final static String LOC = "Tomate: UserDAO: ";
 
-    public UserDAO() {}
+    public UserDAO() {
+        super();
+    }
+
+    public UserDAO(FirebaseFirestore db) {
+        super(db);
+    }
 
     /**
      * Log the user in
@@ -134,16 +143,16 @@ public class UserDAO extends DAOBase<UserEntity, User> {
      * @param firstName
      * @param lastName
      * @param phoneNumber
-     * @return  null if user already registered
+     * @return null if user already registered
      */
     // todo: improve
     public LiveData<UserEntity> registerUser(String username,
-                                                    String password,
-                                                    String email,
-                                                    String firstName,
-                                                    String lastName,
-                                                    String phoneNumber,
-                                                    String image) {
+                                             String password,
+                                             String email,
+                                             String firstName,
+                                             String lastName,
+                                             String phoneNumber,
+                                             String image) {
         MutableLiveData<UserEntity> userLiveData = new MutableLiveData<>();
 
         // todo: validate if user was already registered

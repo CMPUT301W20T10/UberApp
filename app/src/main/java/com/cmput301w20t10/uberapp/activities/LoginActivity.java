@@ -214,6 +214,9 @@ public class LoginActivity extends OptionsMenu {
             sharedPref.setPassword(passwordField.getText().toString());
             sharedPref.setUserType(userType);
         }
+        else {
+            sharedPref.setUserType(userType);//need this for the home button to work on Rider
+        }
     }
 
     public boolean hasNetwork() {

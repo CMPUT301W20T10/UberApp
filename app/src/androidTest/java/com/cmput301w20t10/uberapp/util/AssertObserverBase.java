@@ -4,8 +4,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import androidx.lifecycle.Observer;
 
-import static org.junit.Assert.assertNotNull;
-
 public abstract class AssertObserverBase<Result> implements Observer<Result> {
     private final Object syncObject;
     private AtomicReference<Result> atomicReference;

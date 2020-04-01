@@ -31,7 +31,7 @@ public class TransactionHelper {
 
         result.senderUsername = obj.getString("sender");
         result.recipientUsername = obj.getString("recipient");
-        result.transactionAmount = obj.getInt("value");
+        result.transactionAmount = obj.getDouble("value");
 
         return result;
     }
@@ -56,7 +56,7 @@ public class TransactionHelper {
     public static class Transaction {
         public String senderUsername;
         public String recipientUsername;
-        public int transactionAmount;
+        public double transactionAmount;
         public String path;
         public long timestamp;
     }
