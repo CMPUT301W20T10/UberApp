@@ -66,7 +66,7 @@ public class DatabaseTestBase {
             "great.png",
             0f);
 
-    protected static final String BASIC_TEST_RIDER2_ID = "iyILZHG3OQEjuP17VCWj";
+    protected static final String BASIC_TEST_RIDER2_ID = "G6dUOsKR942BntuDZ1Fa";
     protected static final Rider BASIC_TEST_RIDER2 = new Rider(null,
             null,
             null,
@@ -81,7 +81,7 @@ public class DatabaseTestBase {
             "great.png",
             0f);
 
-    protected static final String BASIC_TEST_DRIVER1_ID = "3QvWubCZRMsBl0xHGy9U";
+    protected static final String BASIC_TEST_DRIVER1_ID = "iIYHjQnnnIyjIQOpHemP";
     protected static final Driver BASIC_TEST_DRIVER1 = new Driver(null,
             null,
             null,
