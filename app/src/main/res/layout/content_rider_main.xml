@@ -136,7 +136,7 @@
     </androidx.cardview.widget.CardView>
 
     <FrameLayout
-        android:id="@+id/fragment_container"
+        android:id="@+id/rating_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"

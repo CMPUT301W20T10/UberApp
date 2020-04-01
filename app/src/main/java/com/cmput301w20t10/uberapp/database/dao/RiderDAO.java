@@ -16,6 +16,7 @@ import com.cmput301w20t10.uberapp.database.util.GetTaskSequencer;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,13 +28,22 @@ import static android.content.ContentValues.TAG;
  * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
+ *
  * @version 1.1.1
  */
 public class RiderDAO extends DAOBase<RiderEntity, Rider> {
     static final String LOC = "Tomate: RiderDAO: ";
     static final String COLLECTION = "riders";
 
-    public RiderDAO() {}
+    public RiderDAO() {
+        super();
+    }
+
+    public RiderDAO(FirebaseFirestore db) {
+        super(db);
+    }
 
     /**
      * Registers a rider
@@ -80,7 +90,8 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
                 lastName,
                 phoneNumber,
                 image,
-                owner);
+                owner,
+                db);
         return task.run();
     }
 
@@ -109,7 +120,7 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
      * </li>
      */
     public MutableLiveData<Rider> logInAsRider(String username, String password, LifecycleOwner owner) {
-        LogInAsRiderTask task = new LogInAsRiderTask(username, password, owner);
+        LogInAsRiderTask task = new LogInAsRiderTask(username, password, owner, db);
         return task.run();
     }
 
@@ -145,7 +156,7 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
     // todo: deprecate class or make task shorter
     @Override
     protected MutableLiveData<Rider> createModelFromEntity(RiderEntity riderEntity) {
-        GetRiderFromReferenceTask task = new GetRiderFromReferenceTask(riderEntity.getRiderReference());
+        GetRiderFromReferenceTask task = new GetRiderFromReferenceTask(riderEntity.getRiderReference(), db);
         return task.run();
     }
 
@@ -165,12 +176,15 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
     @Override
     protected void getOtherEntities(MutableLiveData<List<EntityBase>> liveData,
                                     RiderEntity mainEntity) {
-        GetUserEntity task = new GetUserEntity(liveData, mainEntity);
+        GetUserEntity task = new GetUserEntity(liveData, mainEntity, db);
         task.run();
     }
 
     /**
      * Using this for it's lifecycle owner so that I won't have to make my own above
+     *
+     * @version 1.4.2.2
+     * Add dependency injection
      *
      * @version 1.1.1.1
      */
@@ -178,7 +192,8 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
         private final DocumentReference reference;
         private final MutableLiveData<List<EntityBase>> liveData;
 
-        public GetUserEntity(MutableLiveData<List<EntityBase>> liveData, RiderEntity riderEntity) {
+        public GetUserEntity(MutableLiveData<List<EntityBase>> liveData, RiderEntity riderEntity, FirebaseFirestore db) {
+            super(db);
             this.reference = riderEntity.getUserReference();
             this.liveData = liveData;
         }
@@ -207,7 +222,7 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
      * @return
      */
     MutableLiveData<Rider> getRiderFromRiderReference(DocumentReference riderReference) {
-        GetRiderFromReferenceTask task = new GetRiderFromReferenceTask(riderReference);
+        GetRiderFromReferenceTask task = new GetRiderFromReferenceTask(riderReference, db);
         return task.run();
     }
 }
@@ -215,6 +230,11 @@ public class RiderDAO extends DAOBase<RiderEntity, Rider> {
 /**
  * Sequence of functions to register rider
  * @see GetTaskSequencer
+ *
+ * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
+ *
  * @vesrion 1.1.1
  */
 class RegisterRiderTask extends GetTaskSequencer<Rider> {
@@ -239,8 +259,9 @@ class RegisterRiderTask extends GetTaskSequencer<Rider> {
                       String lastName,
                       String phoneNumber,
                       String image,
-                      @NonNull LifecycleOwner owner) {
-        super();
+                      @NonNull LifecycleOwner owner,
+                      FirebaseFirestore db) {
+        super(db);
         this.username = username;
         this.password = password;
         this.email = email;
@@ -340,6 +361,9 @@ class RegisterRiderTask extends GetTaskSequencer<Rider> {
 /**
  * Sequence of functions to log in as rider
  * @see GetTaskSequencer
+ * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
  * @vesrion 1.1.1
  */
 class LogInAsRiderTask extends GetTaskSequencer<Rider> {
@@ -351,7 +375,8 @@ class LogInAsRiderTask extends GetTaskSequencer<Rider> {
     private UserEntity userEntity;
     private RiderEntity riderEntity;
 
-    LogInAsRiderTask(String username, String password, LifecycleOwner owner) {
+    LogInAsRiderTask(String username, String password, LifecycleOwner owner, FirebaseFirestore db) {
+        super(db);
         this.owner = owner;
         this.username = username;
         this.password = password;
@@ -403,6 +428,9 @@ class LogInAsRiderTask extends GetTaskSequencer<Rider> {
 /**
  * Sequence of functions to get Rider model based on a DocumentReference
  * @see GetTaskSequencer
+ * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
  * @vesrion 1.1.1
  */
 class GetRiderFromReferenceTask extends GetTaskSequencer<Rider> {
@@ -410,7 +438,8 @@ class GetRiderFromReferenceTask extends GetTaskSequencer<Rider> {
     private final DocumentReference riderReference;
     private RiderEntity riderEntity;
 
-    GetRiderFromReferenceTask(DocumentReference riderReference) {
+    GetRiderFromReferenceTask(DocumentReference riderReference, FirebaseFirestore db) {
+        super(db);
         this.riderReference = riderReference;
     }
 

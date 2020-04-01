@@ -1,11 +1,9 @@
 package com.cmput301w20t10.uberapp.models;
 
-import android.location.Location;
 import android.util.Log;
 
 import java.util.Date;
 
-import com.cmput301w20t10.uberapp.database.base.EntityBase;
 import com.cmput301w20t10.uberapp.database.base.ModelBase;
 import com.cmput301w20t10.uberapp.database.entity.RideRequestEntity;
 import com.google.android.gms.maps.model.LatLng;
@@ -13,6 +11,8 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
 
+import static android.net.wifi.rtt.CivicLocationKeys.LOC;
+import static com.android.volley.VolleyLog.TAG;
 import static com.cmput301w20t10.uberapp.models.RideRequest.*;
 
 
@@ -30,7 +30,7 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
     private State state;
     private float fareOffer;
     private Date timestamp;
-    private boolean isRated;
+    private int rating;
 
     public enum State {
         Active,
@@ -50,7 +50,7 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
         STATE ("state"),
         TIMESTAMP ("timestamp"),
         UNPAIRED_REFERENCE ("unpairedReference"),
-        IS_RATED("isRated"),
+        RATING("rating"),
         FARE_OFFER ("fareOffer");
 
         private String stringValue;
@@ -74,7 +74,7 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
         this.timestamp = entity.getTimestamp().toDate();
         this.fareOffer = entity.getFareOffer();
         this.unpairedReference = entity.getUnpairedReference();
-        this.isRated = entity.isRated();
+        this.rating = entity.getRating();
     }
 
     @Override
@@ -114,11 +114,14 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
                 case UNPAIRED_REFERENCE:
                     entity.setUnpairedReference(getUnpairedReference());
                     break;
-                case IS_RATED:
-                    entity.setRated(isRated());
+                case RATING:
+                    entity.setRating(getRating());
                     break;
                 case FARE_OFFER:
                     entity.setFareOffer(getFareOffer());
+                    break;
+                default:
+                    Log.e(TAG, LOC + "transferChanges: Unknown case: " + dirtyField.toString());
                     break;
             }
         }
@@ -208,12 +211,12 @@ public class RideRequest extends ModelBase<Field, RideRequestEntity> {
         this.unpairedReference = unpairedReference;
     }
 
-    public boolean isRated() {
-        return isRated;
+    public int getRating() {
+        return this.rating;
     }
 
-    public void setRated(boolean rated) {
-        addDirtyField(Field.IS_RATED);
-        isRated = rated;
+    public void setRating(int rating) {
+        addDirtyField(Field.RATING);
+        this.rating = rating;
     }
 }
