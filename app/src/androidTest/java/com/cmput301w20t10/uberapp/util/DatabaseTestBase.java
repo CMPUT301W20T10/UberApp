@@ -33,8 +33,8 @@ public class DatabaseTestBase {
             "Duck",
             "Beak",
             "123456789",
-            "None.jpeg",
-            0f);
+            "man1.png",
+            0);
 
     protected static final Driver REGISTER_TEST_DRIVER1 = new Driver(null,
             null,
@@ -48,7 +48,7 @@ public class DatabaseTestBase {
             "Highway",
             "126290876",
             0,
-            "ilovejpg.jpg");
+            "man1.png");
 
     // reserved for Alex's debugging
     protected static final String BASIC_TEST_RIDER1_ID = "DnD1XshbWPj6szVlzdqG";
@@ -63,8 +63,8 @@ public class DatabaseTestBase {
             "Hepburn",
             "Catastrophy",
             "232323232",
-            "great.png",
-            0f);
+            "man1.png",
+            0);
 
     protected static final String BASIC_TEST_RIDER2_ID = "iyILZHG3OQEjuP17VCWj";
     protected static final Rider BASIC_TEST_RIDER2 = new Rider(null,
@@ -78,8 +78,8 @@ public class DatabaseTestBase {
             "Hepburn",
             "Catastrophy",
             "232323232",
-            "great.png",
-            0f);
+            "man1.png",
+            0);
 
     protected static final String BASIC_TEST_DRIVER1_ID = "3QvWubCZRMsBl0xHGy9U";
     protected static final Driver BASIC_TEST_DRIVER1 = new Driver(null,
@@ -94,7 +94,7 @@ public class DatabaseTestBase {
             "Sport",
             "126290876",
             0,
-            "ilovejpg.jpg");
+            "female1.png");
     // endregion fake accounts
 
     protected FirebaseFirestore mockDb;
