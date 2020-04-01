@@ -94,24 +94,14 @@
         app:layout_constraintTop_toBottomOf="@+id/Email" />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/thumbsupicon"
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:layout_marginTop="40dp"
-        android:layout_marginEnd="64dp"
+        android:layout_marginEnd="12dp"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/Pnumber"
         app:srcCompat="@mipmap/thmbup" />
-
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_marginStart="56dp"
-        android:layout_marginTop="40dp"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/Pnumber"
-        app:srcCompat="@mipmap/thmbdown" />
 
     <TextView
         android:id="@+id/Grating"
@@ -119,23 +109,10 @@
         android:layout_height="17dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="48dp"
-        android:text="XXXXX"
         android:textColor="?attr/textColor"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageView2"
-        app:layout_constraintTop_toBottomOf="@+id/Pnumber" />
-
-    <TextView
-        android:id="@+id/Nrating"
-        android:layout_width="47dp"
-        android:layout_height="17dp"
-        android:layout_marginTop="48dp"
-        android:text="XXXXX"
-        android:textColor="?attr/textColor"
-        app:layout_constraintEnd_toStartOf="@+id/imageView3"
-        app:layout_constraintHorizontal_bias="0.47"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintStart_toEndOf="@+id/thumbsupicon"
         app:layout_constraintTop_toBottomOf="@+id/Pnumber" />
 
     <Button
