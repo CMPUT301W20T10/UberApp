@@ -1,5 +1,11 @@
 package com.cmput301w20t10.uberapp.Directions;
 
+  /*
+     * fetchURL is code from GITHUB used to grab URL for route drawing
+     * URL of master: https://github.com/Vysh01/android-maps-directions
+     * Author: Vysh01, https://github.com/Vysh01
+     * Website: https://github.com/
+     */
 
 import android.content.Context;
 import android.os.AsyncTask;
