@@ -18,6 +18,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
@@ -30,20 +31,28 @@ import static android.content.ContentValues.TAG;
  * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
  * @version 1.1.1
  */
 public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
     static final String COLLECTION = "transactions";
     private final static String LOC = "TransactionDAO: ";
 
-    public TransactionDAO() {}
+    public TransactionDAO() {
+        super();
+    }
+
+    public TransactionDAO(FirebaseFirestore db) {
+        super(db);
+    }
 
     @Deprecated
     public MutableLiveData<Transaction> createTransaction(LifecycleOwner owner,
                                                           Rider sender,
                                                           Driver recipient,
                                                           int value) {
-        CreateTransactionTask task = new CreateTransactionTask(owner, sender, recipient, value);
+        CreateTransactionTask task = new CreateTransactionTask(owner, sender, recipient, value, db);
         return task.run();
     }
 
@@ -59,7 +68,7 @@ public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
     public MutableLiveData<Transaction> createTransaction(LifecycleOwner owner,
                                                           RideRequest rideRequest,
                                                           int value) {
-        CreateTransactionForRideTask task = new CreateTransactionForRideTask(owner, rideRequest, value);
+        CreateTransactionForRideTask task = new CreateTransactionForRideTask(owner, rideRequest, value, db);
         return task.run();
     }
 
@@ -82,7 +91,7 @@ public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
 
     @Override
     protected DAOBase<TransactionEntity, Transaction> create() {
-        return new TransactionDAO();
+        return new TransactionDAO(db);
     }
 
     /**
@@ -92,7 +101,7 @@ public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
      */
     @Override
     protected MutableLiveData<Transaction> createModelFromEntity(TransactionEntity entity) {
-        TransactionEntityToModelTask task = new TransactionEntityToModelTask(entity);
+        TransactionEntityToModelTask task = new TransactionEntityToModelTask(entity, db);
         return task.run();
     }
 
@@ -107,7 +116,7 @@ public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
      * @return
      */
     public MutableLiveData<Transaction> transactionEntityToModel(TransactionEntity entity) {
-        TransactionEntityToModelTask task = new TransactionEntityToModelTask(entity);
+        TransactionEntityToModelTask task = new TransactionEntityToModelTask(entity, db);
         return task.run();
     }
 }
@@ -117,6 +126,8 @@ public class TransactionDAO extends DAOBase<TransactionEntity, Transaction> {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
  * @version 1.1.1
  */
 class TransactionEntityToModelTask extends GetTaskSequencer<Transaction> {
@@ -125,7 +136,8 @@ class TransactionEntityToModelTask extends GetTaskSequencer<Transaction> {
     private final TransactionEntity transactionEntity;
     private User sender;
 
-    TransactionEntityToModelTask(TransactionEntity transactionEntity) {
+    TransactionEntityToModelTask(TransactionEntity transactionEntity, FirebaseFirestore db) {
+        super(db);
         this.transactionEntity = transactionEntity;
     }
 
@@ -176,6 +188,8 @@ class TransactionEntityToModelTask extends GetTaskSequencer<Transaction> {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
  * @version 1.1.1
  */
 class CreateTransactionTask extends GetTaskSequencer<Transaction> {
@@ -189,7 +203,8 @@ class CreateTransactionTask extends GetTaskSequencer<Transaction> {
     private TransactionEntity transactionEntity;
     private TransactionDAO transactionDAO;
 
-    CreateTransactionTask(LifecycleOwner owner, Rider sender, Driver recipient, int value) {
+    CreateTransactionTask(LifecycleOwner owner, Rider sender, Driver recipient, int value, FirebaseFirestore db) {
+        super(db);
         this.owner = owner;
         this.sender = sender;
         this.recipient = recipient;
@@ -247,6 +262,8 @@ class CreateTransactionTask extends GetTaskSequencer<Transaction> {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
  * @version 1.1.1
  */
 class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
@@ -262,7 +279,8 @@ class CreateTransactionForRideTask extends GetTaskSequencer<Transaction> {
     RiderDAO riderDAO;
     DriverDAO driverDAO;
 
-    CreateTransactionForRideTask(LifecycleOwner owner, RideRequest rideRequest, int value) {
+    CreateTransactionForRideTask(LifecycleOwner owner, RideRequest rideRequest, int value, FirebaseFirestore db) {
+        super(db);
         this.value = value;
         this.owner = owner;
         this.rideRequest = rideRequest;

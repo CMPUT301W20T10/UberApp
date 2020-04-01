@@ -30,12 +30,22 @@ import static android.content.ContentValues.TAG;
  * DAO contains specific operations that are concerned with the model they are associated with.
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
+ * @version 1.1.1
  */
 public class UnpairedRideListDAO {
     static final String COLLECTION = "unpairedRideList";
     static final String LOC = "Tomate: UnpairedRideListDAO: ";
+    private final FirebaseFirestore db;
 
-    public UnpairedRideListDAO() {}
+    public UnpairedRideListDAO() {
+        db = FirebaseFirestore.getInstance();
+    }
+
+    public UnpairedRideListDAO(FirebaseFirestore db) {
+        this.db = db;
+    }
 
     /**
      * Adds a ride request allowing searchable ride requests for drivers
@@ -45,7 +55,6 @@ public class UnpairedRideListDAO {
      * Returns a Task object that can be observed whether it is successful or not.
      */
     public Task<DocumentReference> addRideRequest(RideRequestEntity requestEntity) {
-        final FirebaseFirestore db = FirebaseFirestore.getInstance();
         final UnpairedRideEntity unpairedRide = new UnpairedRideEntity(requestEntity.getRideRequestReference());
         MutableLiveData<DocumentReference> liveData = new MutableLiveData<>();
         return db.collection(COLLECTION)
@@ -82,17 +91,17 @@ public class UnpairedRideListDAO {
      * </li>
      */
     public MutableLiveData<List<RideRequest>> getAllUnpairedRideRequest() {
-        final GetAllUnpairedRideRequestTask task = new GetAllUnpairedRideRequestTask();
+        final GetAllUnpairedRideRequestTask task = new GetAllUnpairedRideRequestTask(db);
         return task.run();
     }
 
     public MutableLiveData<Boolean> cancelRideRequest(RideRequest rideRequest, LifecycleOwner owner) {
-        RemoveUnpairedRideRequestTask task = RemoveUnpairedRideRequestTask.cancel(rideRequest, owner);
+        RemoveUnpairedRideRequestTask task = RemoveUnpairedRideRequestTask.cancel(rideRequest, owner, db);
         return task.run();
     }
 
     public MutableLiveData<Boolean> removeRideRequest(RideRequest rideRequest, LifecycleOwner owner) {
-        RemoveUnpairedRideRequestTask task = RemoveUnpairedRideRequestTask.remove(rideRequest, owner);
+        RemoveUnpairedRideRequestTask task = RemoveUnpairedRideRequestTask.remove(rideRequest, owner, db);
         return task.run();
     }
 }
@@ -102,15 +111,20 @@ public class UnpairedRideListDAO {
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.3
+ * Add dependency injection
  * @version 1.1.2
  * Put additional postResults to prevent an infinite wait
- *
  * @version 1.1.1
  */
 class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> {
     final static String LOC = UnpairedRideListDAO.LOC + "GetAllUnpairedRideRequestTask: ";
 
     private List<DocumentSnapshot> snapshotList;
+
+    GetAllUnpairedRideRequestTask(FirebaseFirestore db) {
+        super(db);
+    }
 
     @Override
     public void doFirstTask() {
@@ -184,6 +198,8 @@ class GetAllUnpairedRideRequestTask extends GetTaskSequencer<List<RideRequest>> 
  * @see GetTaskSequencer
  *
  * @author Allan Manuba
+ * @version 1.4.2
+ * Add dependency injection
  * @version 1.1.1
  */
 class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
@@ -199,18 +215,19 @@ class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
         Remove // only remove unpaired reference
     }
 
-    private RemoveUnpairedRideRequestTask(RideRequest rideRequest, Type type, LifecycleOwner owner) {
+    private RemoveUnpairedRideRequestTask(RideRequest rideRequest, Type type, LifecycleOwner owner, FirebaseFirestore db) {
+        super(db);
         this.rideRequest = rideRequest;
         this.type = type;
         this.owner = owner;
     }
 
-    static RemoveUnpairedRideRequestTask cancel(RideRequest rideRequest, LifecycleOwner owner) {
-        return new RemoveUnpairedRideRequestTask(rideRequest, Type.Cancel, owner);
+    static RemoveUnpairedRideRequestTask cancel(RideRequest rideRequest, LifecycleOwner owner, FirebaseFirestore db) {
+        return new RemoveUnpairedRideRequestTask(rideRequest, Type.Cancel, owner, db);
     }
 
-    static RemoveUnpairedRideRequestTask remove(RideRequest rideRequest, LifecycleOwner owner) {
-        return new RemoveUnpairedRideRequestTask(rideRequest, Type.Remove, owner);
+    static RemoveUnpairedRideRequestTask remove(RideRequest rideRequest, LifecycleOwner owner, FirebaseFirestore db) {
+        return new RemoveUnpairedRideRequestTask(rideRequest, Type.Remove, owner, db);
     }
 
     @Override
@@ -244,7 +261,8 @@ class RemoveUnpairedRideRequestTask extends GetTaskSequencer<Boolean> {
             }
             });
         } else {
-            postResult(false);
+            // not in unpaired
+            getRider();
         }
     }
 

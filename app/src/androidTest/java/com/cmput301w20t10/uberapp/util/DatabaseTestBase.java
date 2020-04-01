@@ -10,12 +10,12 @@ import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.User;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -97,7 +97,8 @@ public class DatabaseTestBase {
             "ilovejpg.jpg");
     // endregion fake accounts
 
-    protected Context mainContext;
+    protected FirebaseFirestore mockDb;
+
     protected LifecycleOwnerMock mainLifecycleOwner;
     protected DatabaseManager databaseManager;
     protected Handler handler;
@@ -105,9 +106,8 @@ public class DatabaseTestBase {
     private List<User> userList;
 
     protected void initialize() {
-        mainContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        mockDb = FirebaseFirestore.getInstance();
         mainLifecycleOwner = new LifecycleOwnerMock();
-        databaseManager = DatabaseManager.getInstance();
         handler = new Handler(Looper.getMainLooper());
         userList = new ArrayList<>();
     }

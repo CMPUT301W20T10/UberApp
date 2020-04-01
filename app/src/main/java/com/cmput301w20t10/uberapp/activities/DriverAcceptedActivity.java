@@ -21,6 +21,8 @@ import com.bumptech.glide.Glide;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.database.dao.DriverDAO;
+import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -37,6 +39,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
@@ -68,6 +71,8 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         super.onCreate(savedInstanceState);
 
         client = LocationServices.getFusedLocationProviderClient(this);
+
+        RideRequestDAO dao = new RideRequestDAO();
 
         requestLocationPermission();
 
