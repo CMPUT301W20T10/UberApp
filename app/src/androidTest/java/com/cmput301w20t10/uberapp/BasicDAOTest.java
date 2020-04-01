@@ -42,6 +42,8 @@ import static org.junit.Assert.assertTrue;
  * Tests for the basic functionalities of all DAOs
  *
  * @author Allan Manuba
+ * @version 1.8.3
+ * Create new function for creating ride requests
  * @version 1.7.2
  * Add testing for cancelling rides
  * @version 1.4.1
@@ -210,6 +212,26 @@ public class BasicDAOTest extends DatabaseTestBase {
     @Test
     public void createRideRequestTest() throws InterruptedException {
         createRideRequest(loginAsDefaultRider());
+    }
+
+    //@Test
+    public void createRideRequestForCharlie() throws InterruptedException {
+        AtomicReference<Rider> riderAtomicReference = new AtomicReference<>();
+
+        LiveDataTester<Rider> getRider = new LiveDataTester<Rider>(handler,
+                riderAtomicReference,
+                new AssertNotNullObserver<>(),
+                mainLifecycleOwner) {
+            @Override
+            protected MutableLiveData<Rider> doInMainLoop() {
+                RiderDAO riderDAO = new RiderDAO(mockDb);
+                return riderDAO.getModelByID("GcTYikUpNd9KkxBTjMY9");
+            }
+        };
+        getRider.run();
+
+        Rider rider = riderAtomicReference.get();
+        createRideRequest(rider);
     }
 
     //@Test
