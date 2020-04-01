@@ -2,6 +2,7 @@ package com.cmput301w20t10.uberapp.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,7 +10,6 @@ import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,7 +30,6 @@ import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
 import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
-import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -49,7 +48,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -90,7 +88,9 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         sharedPref = new SharedPref(this);
         if (sharedPref.loadNightModeState()) {
             setTheme(R.style.DarkTheme);
-        } else { setTheme(R.style.AppTheme); }
+        } else {
+            setTheme(R.style.AppTheme);
+        }
 
         sharedPref.setHomeActivity(this.getLocalClassName());
 
@@ -135,22 +135,22 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                     startLatLng.latitude, startLatLng.longitude, currentStartDistance);
             distance.setText(String.format("%.2fkm", currentStartDistance[0] / 1000));
 
-            dropPins("Start Destination", startLatLng, "End Destination",  endLatLng);
+            dropPins("Start Destination", startLatLng, "End Destination", endLatLng);
             new FetchURL(this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
 
             float[] startEndDist = new float[1];
-            Location.distanceBetween(startLatLng.latitude,startLatLng.longitude,
-                    endLatLng.latitude,endLatLng.longitude, startEndDist);
-            startEndDistance.setText(String.format("%.2fkm", startEndDist[0]/1000));
+            Location.distanceBetween(startLatLng.latitude, startLatLng.longitude,
+                    endLatLng.latitude, endLatLng.longitude, startEndDist);
+            startEndDistance.setText(String.format("%.2fkm", startEndDist[0] / 1000));
 
             Long fareOffer = (Long) rideRequestSnapshot.get("fareOffer");
-            double offerDec = fareOffer.doubleValue()/100;
+            double offerDec = fareOffer.doubleValue() / 100;
 
             offer.setText("Offer: $" + String.format("%.2f", offerDec));
 
-            DocumentReference riderReference =  (DocumentReference) rideRequestSnapshot.get("riderReference");
+            DocumentReference riderReference = (DocumentReference) rideRequestSnapshot.get("riderReference");
             riderReference.get().addOnSuccessListener(riderSnapshot -> {
-                DocumentReference userReference =  (DocumentReference) riderSnapshot.get("userReference");
+                DocumentReference userReference = (DocumentReference) riderSnapshot.get("userReference");
                 userReference.get().addOnSuccessListener(userSnapshot -> {
                     riderUsername = userSnapshot.get("username").toString();
                     username.setText(riderUsername);
@@ -160,7 +160,8 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                         Glide.with(this)
                                 .load(userSnapshot.get("image"))
                                 .apply(RequestOptions.circleCropTransform())
-                                .into(riderPictureButton);} else {
+                                .into(riderPictureButton);
+                    } else {
                         riderPictureButton.setImageResource(R.mipmap.user);
                     }
                 });
@@ -174,7 +175,7 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                     if (task.isSuccessful()) {
                         QuerySnapshot userSnapshot = task.getResult();
                         String userID = userSnapshot.getDocuments().get(0).getId();
-                        ViewProfileFragment.newInstance(userID, riderUsername) .show(getSupportFragmentManager(),"User");
+                        ViewProfileFragment.newInstance(userID, riderUsername).show(getSupportFragmentManager(), "User");
                     }
                 })
         );
@@ -189,6 +190,17 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                 }
             });
         });
+    }
+
+    /**
+     * Called when the driver presses the "Ride complete" button and transition the driver to the
+     * QR scan activity
+     *
+     * @param view
+     */
+    public void onDonePressed(View view) {
+        Intent intent = new Intent(getApplicationContext(), QRScanActivity.class);
+        startActivity(intent);
     }
 
     @Override
@@ -219,7 +231,7 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
 
         } else {
             Toast.makeText(getApplicationContext(), "Location permission required", Toast.LENGTH_LONG).show();
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
             finish();
         }
     }
@@ -285,7 +297,7 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
     }
 
 
-    private void moveCamera(Marker startMarker, Marker endMarker){
+    private void moveCamera(Marker startMarker, Marker endMarker) {
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
         builder.include(startMarker.getPosition());
@@ -323,7 +335,7 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
 
     @Override
     public void onTaskDone(Object... values) {
-        if (currentPolyline !=null){
+        if (currentPolyline != null) {
             currentPolyline.remove();
         }
         currentPolyline = mainMap.addPolyline((PolylineOptions) values[0]);
