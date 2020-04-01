@@ -173,6 +173,12 @@ public class LoginActivity extends OptionsMenu {
                 });
             }
         } else {
+            if (sharedPref.loadUserType().equals("rider")) {
+                System.out.println("RIDER: " + sharedPref.loadUsername() + ", " + sharedPref.loadPassword() + ", " + sharedPref.loadUserType());
+
+            } else {
+                System.out.println("DRIVER: " + sharedPref.loadUsername() + ", " + sharedPref.loadPassword() + ", " + sharedPref.loadUserType());
+            }
             Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_LONG).show();
 
         }
@@ -192,19 +198,22 @@ public class LoginActivity extends OptionsMenu {
      * @param view - current view.
      */
     public void onRegisterPressed(View view) {
-
-        // NotificationService.sendNotification("Register Pressed", "You pressed the register button!", getApplicationContext(), RegisterActivity.class);
-        if (radioButtonRider.isChecked()) {
-            Intent intent = new Intent(getApplicationContext(), RegisterActivityRider.class);
-            String username = usernameField.getText().toString();
-            intent.putExtra("USERNAME", username);
-            startActivity(intent);
+        if (hasNetwork()) {
+            // NotificationService.sendNotification("Register Pressed", "You pressed the register button!", getApplicationContext(), RegisterActivity.class);
+            if (radioButtonRider.isChecked()) {
+                Intent intent = new Intent(getApplicationContext(), RegisterActivityRider.class);
+                String username = usernameField.getText().toString();
+                intent.putExtra("USERNAME", username);
+                startActivity(intent);
+            } else {
+                //driver register
+                Intent intent = new Intent(getApplicationContext(), RegisterActivityDriver.class);
+                String username = usernameField.getText().toString();
+                intent.putExtra("USERNAME", username);
+                startActivity(intent);
+            }
         } else {
-            //driver register
-            Intent intent = new Intent(getApplicationContext(), RegisterActivityDriver.class);
-            String username = usernameField.getText().toString();
-            intent.putExtra("USERNAME", username);
-            startActivity(intent);
+            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_LONG).show();
         }
     }
 
