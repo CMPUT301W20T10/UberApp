@@ -20,6 +20,12 @@ import androidx.annotation.NonNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+/**
+ * Base class for all database testing classes
+ *
+ * @author Allan Manuba
+ * @version 1.9.1
+ */
 public class DatabaseTestBase {
     // region fake accounts
     protected static final Rider REGISTER_TEST_RIDER1 = new Rider(null,
@@ -34,7 +40,7 @@ public class DatabaseTestBase {
             "Beak",
             "123456789",
             "None.jpeg",
-            0f);
+            0);
 
     protected static final Driver REGISTER_TEST_DRIVER1 = new Driver(null,
             null,
@@ -64,9 +70,9 @@ public class DatabaseTestBase {
             "Catastrophy",
             "232323232",
             "great.png",
-            0f);
+            0);
 
-    protected static final String BASIC_TEST_RIDER2_ID = "iyILZHG3OQEjuP17VCWj";
+    protected static final String BASIC_TEST_RIDER2_ID = "VdiHZjofV3ilOkt8qPqz";
     protected static final Rider BASIC_TEST_RIDER2 = new Rider(null,
             null,
             null,
@@ -79,9 +85,9 @@ public class DatabaseTestBase {
             "Catastrophy",
             "232323232",
             "great.png",
-            0f);
+            0);
 
-    protected static final String BASIC_TEST_DRIVER1_ID = "3QvWubCZRMsBl0xHGy9U";
+    protected static final String BASIC_TEST_DRIVER1_ID = "HFDqU1A9t4CHtGaY234f";
     protected static final Driver BASIC_TEST_DRIVER1 = new Driver(null,
             null,
             null,
@@ -160,7 +166,7 @@ public class DatabaseTestBase {
         assertNotNull(real.getFinishedRideRequestList());
         assertNotNull(real.getActiveRideRequestList());
 
-        assertEquals(Float.compare(real.getBalance(), fake.getBalance()), 0);
+        assertEquals(real.getBalance(), fake.getBalance());
         assertUserEquals(real, fake);
     }
 

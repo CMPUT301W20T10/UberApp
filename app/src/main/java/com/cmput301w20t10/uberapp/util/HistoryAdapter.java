@@ -48,8 +48,8 @@ public class HistoryAdapter extends BaseAdapter {
         this.glide = glide;
         this.rideHistory = rideHistory;
         this.user = user;
-        this.isActive = isActive;
         this.owner = (AppCompatActivity) context;
+        this.isActive = isActive;
 
     }
 
@@ -80,7 +80,8 @@ public class HistoryAdapter extends BaseAdapter {
         // get the easily accessable ride request information
         RideRequest request = rideHistory.get(position);
         Date time = request.getTimestamp();
-        int offer = request.getFareOffer();
+        int cents = request.getFareOffer();
+        Double offer = Double.valueOf(cents)/100;
 
         // get reference to the UI elements
         TextView fareView = view.findViewById(R.id.rideFare);
@@ -91,7 +92,7 @@ public class HistoryAdapter extends BaseAdapter {
         // write the easily accessible information
         DateFormat dateFormat = new SimpleDateFormat("yy-MM-dd hh:mm a");
         dateView.setText(dateFormat.format(time));
-        fareView.setText("$"+String.format("%d", offer));
+        fareView.setText("$"+String.format("%.2f", offer));
         statusText.setText(String.valueOf(request.getState()));
 
         if (user instanceof Rider) {
@@ -106,8 +107,6 @@ public class HistoryAdapter extends BaseAdapter {
             drawWhenDriver(request, view);
             deleteButton.setImageResource(android.R.color.transparent);
         }
-
-
         return view;
     }
 
@@ -140,12 +139,10 @@ public class HistoryAdapter extends BaseAdapter {
         ImageView deleteButton = view.findViewById(R.id.delete_icon);
 
         deleteButton.setOnClickListener(v -> {
-            Log.d("Testing", "You hit delete");
             RideRequestDAO rrDAO = new RideRequestDAO();
             MutableLiveData<Boolean> liveBool = rrDAO.cancelRequest(request, (AppCompatActivity) context);
             liveBool.observe(owner, status -> {
                 if (status != null && status) {
-                    Log.d("Testing", "Ride Request Cancelled Success");
                     rideHistory.remove(position);
                     notifyDataSetChanged();
                 } else {
@@ -182,5 +179,9 @@ public class HistoryAdapter extends BaseAdapter {
 
     public void setData(List<RideRequest> data) {
         this.rideHistory = data;
+    }
+
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
     }
 }

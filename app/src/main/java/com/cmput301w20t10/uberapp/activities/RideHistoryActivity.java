@@ -27,6 +27,7 @@ import com.cmput301w20t10.uberapp.models.User;
 import com.cmput301w20t10.uberapp.util.HistoryAdapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static android.net.wifi.rtt.CivicLocationKeys.LOC;
@@ -40,6 +41,7 @@ public class RideHistoryActivity extends BaseActivity {
     private ListView historyListView;
     private RadioGroup toggle;
     private boolean displayActives = true;
+    private boolean ratingInProgress = false;
     private volatile List<RideRequest> historyList;
     private HistoryAdapter adapter;
 
@@ -60,16 +62,15 @@ public class RideHistoryActivity extends BaseActivity {
         adapter = new HistoryAdapter(this,
                 Glide.with(this),
                 historyList,
-                Application.getInstance().getCurrentUser(),
-                displayActives);
+                Application.getInstance().getCurrentUser(), displayActives);
         historyListView.setAdapter(adapter);
-        populateHistory(displayActives); // pull the initial list
+        populateHistory(); // pull the initial list
 
         // set up update button listener to refresh list
         Button updateButton = findViewById(R.id.history_update_button);
         updateButton.setOnClickListener(v -> {
             Log.d("Tomate", LOC + "onCreate: ");
-            populateHistory(displayActives);
+            populateHistory();
         });
 
         // set up toggle listener to update list
@@ -81,15 +82,22 @@ public class RideHistoryActivity extends BaseActivity {
                 displayActives = false;
             }
 
-            populateHistory(displayActives);
+            populateHistory();
         }));
 
-        // https://stackoverflow.com/questions/31555545/android-which-method-is-called-when-fragment-is-pop-out-from-backstack
+        /*
+         * Code from Stack Overflow used to detect when rating fragment closes
+         * URL of question: https://stackoverflow.com/questions/31555545/android-which-method-is-called-when-fragment-is-pop-out-from-backstack
+         * Asked by: Ravi, https://stackoverflow.com/users/3294390/ravi
+         * Answered by: MarkySmarky, https://stackoverflow.com/users/1269429/markysmarky
+         * URL of answer: https://stackoverflow.com/a/31555756
+         */
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             Fragment frag = getSupportFragmentManager().findFragmentById(R.id.rating_container);
             if (frag == null) {
-                Log.d("Testing", "Repopulate");
-                populateHistory(displayActives);
+                ratingInProgress = false;
+            } else {
+                ratingInProgress = true;
             }
         });
 
@@ -99,32 +107,34 @@ public class RideHistoryActivity extends BaseActivity {
     /**
      * Refreshes the ListView content once the historyList has been populated
      */
-    private void updateView(boolean active) {
+    private void updateView() {
         User user = Application.getInstance().getCurrentUser();
 
         if (user instanceof Rider) { // only riders can rate drivers
             historyListView.setOnItemClickListener((adapterView, view, i, l) -> {
-                // store selected ride request to pass to fragment
-                Application.getInstance().setSelectedHistoryRequest(historyList.get(i));
+                if (!ratingInProgress) {
+                    // store selected ride request to pass to fragment
+                    Application.getInstance().setSelectedHistoryRequest(historyList.get(i));
 
-                // start rating fragment
-                FragmentManager fragManager = getSupportFragmentManager();
-                FragmentTransaction fragTransaction = fragManager.beginTransaction();
-                RideRatingFragment rateFrag = new RideRatingFragment();
-                fragTransaction.add(R.id.rating_container, rateFrag);
-                fragTransaction.addToBackStack(null);
-                fragTransaction.commit();
+                    // start rating fragment
+                    FragmentManager fragManager = getSupportFragmentManager();
+                    FragmentTransaction fragTransaction = fragManager.beginTransaction();
+                    RideRatingFragment rateFrag = new RideRatingFragment();
+                    fragTransaction.add(R.id.rating_container, rateFrag);
+                    fragTransaction.addToBackStack(null);
+                    fragTransaction.commit();
+                } else {
+                    Log.d("Testing", "NOPE");
+                }
+
             });
         }
     }
 
     /**
      * Populates historyList with ride requests
-     *
-     * @param active
-     *      If true: lists active requests, If false: lists finished requests
      */
-    private void populateHistory(boolean active) {
+    public void populateHistory() {
         /*
          * Fix for list not updating:
          * This is where things got wonky. History list and the list in the adapter are pointing
@@ -136,13 +146,14 @@ public class RideHistoryActivity extends BaseActivity {
          */
         historyList.clear();
         adapter.setData(historyList);
+        adapter.setActive(displayActives);
         adapter.notifyDataSetChanged(); // clear first so if there isn't any rides the screen is clear
 
         Application application = Application.getInstance();
         application.getLatestUserData()
                 .observe(this, user -> {
                     if (user != null) {
-                        populateHistoryHelper(user, active);
+                        populateHistoryHelper(user);
                     } else {
                         Log.e("Tomate", LOC + "populateHistory: User is null");
                     }
@@ -152,9 +163,8 @@ public class RideHistoryActivity extends BaseActivity {
     /**
      * Reduce nesting in populateHistory
      * @param user
-     * @param active
      */
-    private void populateHistoryHelper(User user, boolean active) {
+    private void populateHistoryHelper(User user) {
         // you have to fetch the latest updates, the user object is outdated here
         if (user == null) {
             Log.e("Tomate", LOC + "populateHistoryHelper: User is null");
@@ -166,14 +176,14 @@ public class RideHistoryActivity extends BaseActivity {
 
         if (user instanceof Rider) {
             Rider rider = (Rider) user;
-            if (active) {
+            if (displayActives) {
                 liveRides = rrDAO.getAllActiveRideRequest(rider);
             } else {
                 liveRides = rrDAO.getRideHistory(rider);
             }
         } else {
             Driver driver = (Driver) user;
-            if (active) {
+            if (displayActives) {
                 liveRides = rrDAO.getAllActiveRideRequest(driver);
             } else {
                 liveRides = rrDAO.getRideHistory(driver);
@@ -184,12 +194,15 @@ public class RideHistoryActivity extends BaseActivity {
             if (list != null) {
                 historyList.clear();
                 historyList.addAll(list);
-                adapter.setData(list);
+                Collections.sort(historyList); // sort requests (sorts by date)
+                Collections.reverse(historyList); // newest at the top
+                adapter.setData(historyList);
+                adapter.setActive(displayActives);
                 adapter.notifyDataSetChanged();
             } else {
                 Log.d("Testing", "Past Rides NULL");
             }
-            updateView(active);
+            updateView();
         });
     }
 }

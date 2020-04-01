@@ -69,40 +69,11 @@ public class NewRideFragment extends Fragment {
             if (user instanceof Rider){
                 Log.d("Test", "if condition passed");
                 Rider rider = (Rider) user;
-
-                MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,Application.getInstance().getRoute(), newOffer,this);
+                int offerCents = (int) newOffer*100;
+                MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,Application.getInstance().getRoute(),offerCents,this);
                 createdRequest.observe(this, request -> {
-                    if (request != null) {
-                        Log.d("Testing", "Request is observed");
-
-                        DocumentReference dr = request.getRideRequestReference();
-                        dr.addSnapshotListener((snapshot, e) -> {
-                           if (snapshot != null) {
-                               MutableLiveData<RideRequest> liveRequest = dao.getModelByReference(snapshot.getReference());
-                               liveRequest.observe(this, checkRequest -> {
-                                   if (checkRequest != null) {
-                                       Log.d("Testing", "Request is observed");
-                                       Log.d("Testing", "State: " + String.valueOf(checkRequest.getState()));
-
-                                       if (checkRequest.getState() == RideRequest.State.RideCompleted) {
-                                           Application.getInstance().setRideDocument(dr);
-
-//                                           FragmentManager fragManager = getSupportFragmentManager();
-//                                           FragmentTransaction fragTransaction = fragManager.beginTransaction();
-//                                           RideRatingFragment rateFrag = new RideRatingFragment();
-//                                           fragTransaction.add(R.id.fragment_container, rateFrag);
-//                                           fragTransaction.commit();
-                                       }
-                                   }
-                               });
-                           }
-                        });
-
-                    } else {
-                        Log.d("Testing", "Ride Request received as null.");
-                    }
+                    this.close();
                 });
-
 
             }
             else{

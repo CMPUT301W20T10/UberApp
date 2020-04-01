@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -14,13 +15,15 @@ import com.bumptech.glide.load.resource.bitmap.Rotate;
 import com.bumptech.glide.request.RequestOptions;
 import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.User;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfilePage extends BaseActivity {
     Button editProfile;
-    TextView fName,lName,uName,pNumber,eMail;
+    TextView fName,lName,uName,pNumber,eMail, ratingField;
+    ImageView thumbsUp;
     CircleImageView profilePicture;
 
     SharedPref sharedPref;
@@ -59,6 +62,9 @@ public class ProfilePage extends BaseActivity {
         uName = findViewById(R.id.Uname);
         pNumber = findViewById(R.id.Pnumber);
         eMail = findViewById(R.id.Email);
+        ratingField = findViewById(R.id.Grating);
+        thumbsUp = findViewById(R.id.thumbsupicon);
+
         profilePicture = findViewById(R.id.profile_image);
 
         User user = Application.getInstance().getCurrentUser();
@@ -71,6 +77,15 @@ public class ProfilePage extends BaseActivity {
                     .into(profilePicture);
 
 
+        }
+
+        if (user instanceof Driver) {
+            Driver driver = (Driver) user;
+            int rating = driver.getRating();
+            ratingField.setText(String.valueOf(rating));
+
+        } else {
+            thumbsUp.setImageResource(android.R.color.transparent);
         }
 
         fName.setText(user.getFirstName());

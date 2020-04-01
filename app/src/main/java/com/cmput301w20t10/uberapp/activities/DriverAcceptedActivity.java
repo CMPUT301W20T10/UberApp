@@ -127,48 +127,48 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
             DocumentReference rideRequestReference = db.document(activeRideRequest);
 
             rideRequestReference.get().addOnSuccessListener(rideRequestSnapshot -> {
-                GeoPoint startGeoPoint = (GeoPoint) rideRequestSnapshot.get("startingPosition");
-                LatLng startLatLng = new LatLng(startGeoPoint.getLatitude(), startGeoPoint.getLongitude());
-                startDest.setText(getAddress(startLatLng));
-                GeoPoint endGeoPoint = (GeoPoint) rideRequestSnapshot.get("destination");
-                LatLng endLatLng = new LatLng(endGeoPoint.getLatitude(), endGeoPoint.getLongitude());
-                endDest.setText(getAddress(endLatLng));
+                        GeoPoint startGeoPoint = (GeoPoint) rideRequestSnapshot.get("startingPosition");
+                        LatLng startLatLng = new LatLng(startGeoPoint.getLatitude(), startGeoPoint.getLongitude());
+                        startDest.setText(getAddress(startLatLng));
+                        GeoPoint endGeoPoint = (GeoPoint) rideRequestSnapshot.get("destination");
+                        LatLng endLatLng = new LatLng(endGeoPoint.getLatitude(), endGeoPoint.getLongitude());
+                        endDest.setText(getAddress(endLatLng));
 
-                float[] currentStartDistance = new float[1];
-                Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(),
-                        startLatLng.latitude, startLatLng.longitude, currentStartDistance);
-                distance.setText(String.format("%.2fkm", currentStartDistance[0] / 1000));
+                        float[] currentStartDistance = new float[1];
+                        Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(),
+                                startLatLng.latitude, startLatLng.longitude, currentStartDistance);
+                        distance.setText(String.format("%.2fkm", currentStartDistance[0] / 1000));
 
-                dropPins("Start Destination", startLatLng, "End Destination", endLatLng);
-                new FetchURL(this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
+                        dropPins("Start Destination", startLatLng, "End Destination", endLatLng);
+                        new FetchURL(this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
 
-                float[] startEndDist = new float[1];
-                Location.distanceBetween(startLatLng.latitude, startLatLng.longitude,
-                        endLatLng.latitude, endLatLng.longitude, startEndDist);
-                startEndDistance.setText(String.format("%.2fkm", startEndDist[0] / 1000));
+                        float[] startEndDist = new float[1];
+                        Location.distanceBetween(startLatLng.latitude, startLatLng.longitude,
+                                endLatLng.latitude, endLatLng.longitude, startEndDist);
+                        startEndDistance.setText(String.format("%.2fkm", startEndDist[0] / 1000));
 
-                long offerLong = (long) rideRequestSnapshot.get("fareOffer");
-                int fareOffer = (int) offerLong;
+                        long offerLong = (long) rideRequestSnapshot.get("fareOffer");
+                        int fareOffer = (int) offerLong;
 
-                offer.setText("Offer: $" + String.format("%d", fareOffer));
+                        offer.setText("Offer: $" + String.format("%d", fareOffer));
 
-                DocumentReference riderReference = (DocumentReference) rideRequestSnapshot.get("riderReference");
-                riderReference.get().addOnSuccessListener(riderSnapshot -> {
-                    DocumentReference userReference = (DocumentReference) riderSnapshot.get("userReference");
-                    userReference.get().addOnSuccessListener(userSnapshot -> {
-                        riderUsername = userSnapshot.get("username").toString();
-                        username.setText(riderUsername);
-                        firstName.setText(userSnapshot.get("firstName").toString());
-                        lastName.setText(userSnapshot.get("lastName").toString());
-                        if (userSnapshot.get("image") != "") {
-                            Glide.with(this)
-                                    .load(userSnapshot.get("image"))
-                                    .apply(RequestOptions.circleCropTransform())
-                                    .into(riderPictureButton);
-                        }
+                        DocumentReference riderReference = (DocumentReference) rideRequestSnapshot.get("riderReference");
+                        riderReference.get().addOnSuccessListener(riderSnapshot -> {
+                            DocumentReference userReference = (DocumentReference) riderSnapshot.get("userReference");
+                            userReference.get().addOnSuccessListener(userSnapshot -> {
+                                riderUsername = userSnapshot.get("username").toString();
+                                username.setText(riderUsername);
+                                firstName.setText(userSnapshot.get("firstName").toString());
+                                lastName.setText(userSnapshot.get("lastName").toString());
+                                if (userSnapshot.get("image") != "") {
+                                    Glide.with(this)
+                                            .load(userSnapshot.get("image"))
+                                            .apply(RequestOptions.circleCropTransform())
+                                            .into(riderPictureButton);
+                                }
+                            });
+                        });
                     });
-                });
-            });
 
             riderPictureButton.setOnClickListener(view -> db.collection("users")
                     .whereEqualTo("username", riderUsername)
