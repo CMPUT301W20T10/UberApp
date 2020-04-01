@@ -33,13 +33,11 @@
         android:id="@+id/Fname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="8dp"
         android:text="first name"
-        android:textSize="@dimen/_15sdp"
         android:textColor="?attr/textColor"
+        android:textSize="@dimen/_15sdp"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
-        app:layout_constraintHorizontal_bias="0.992"
+        app:layout_constraintHorizontal_bias="0.939"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_image" />
 
@@ -47,11 +45,11 @@
         android:id="@+id/Lname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
         android:text="last name"
-        android:textSize="@dimen/_15sdp"
         android:textColor="?attr/textColor"
+        android:textSize="@dimen/_15sdp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.066"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/profile_image" />
 
@@ -59,11 +57,12 @@
         android:id="@+id/Uname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="64dp"
         android:text="Username"
-        android:textSize="@dimen/_15sdp"
         android:textColor="?attr/textColor"
+        android:textSize="@dimen/_15sdp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Fname" />
 
@@ -103,8 +102,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        android:layout_marginEnd="12dp"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Pnumber"
         app:srcCompat="@drawable/ic_thumb_up_black_24dp" />
 
@@ -112,12 +112,11 @@
         android:id="@+id/Grating"
         android:layout_width="47dp"
         android:layout_height="17dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="48dp"
         android:textColor="?attr/textColor"
-        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/thumbsupicon"
+        app:layout_constraintStart_toEndOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/Pnumber" />
 
     <Button

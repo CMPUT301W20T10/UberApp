@@ -77,7 +77,6 @@ public class NewRideFragment extends Fragment {
             else{
                 Log.d("Test", "if condition did not pass");
             }
-
         });
 
         cancelButton.setOnClickListener(v -> {
