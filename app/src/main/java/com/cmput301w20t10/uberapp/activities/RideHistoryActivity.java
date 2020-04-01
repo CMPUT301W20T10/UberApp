@@ -41,6 +41,7 @@ public class RideHistoryActivity extends BaseActivity {
     private ListView historyListView;
     private RadioGroup toggle;
     private boolean displayActives = true;
+    private boolean ratingInProgress = false;
     private volatile List<RideRequest> historyList;
     private HistoryAdapter adapter;
 
@@ -84,12 +85,19 @@ public class RideHistoryActivity extends BaseActivity {
             populateHistory();
         }));
 
-        // https://stackoverflow.com/questions/31555545/android-which-method-is-called-when-fragment-is-pop-out-from-backstack
+        /*
+         * Code from Stack Overflow used to detect when rating fragment closes
+         * URL of question: https://stackoverflow.com/questions/31555545/android-which-method-is-called-when-fragment-is-pop-out-from-backstack
+         * Asked by: Ravi, https://stackoverflow.com/users/3294390/ravi
+         * Answered by: MarkySmarky, https://stackoverflow.com/users/1269429/markysmarky
+         * URL of answer: https://stackoverflow.com/a/31555756
+         */
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             Fragment frag = getSupportFragmentManager().findFragmentById(R.id.rating_container);
             if (frag == null) {
-                Log.d("Testing", "Repopulate");
-                populateHistory();
+                ratingInProgress = false;
+            } else {
+                ratingInProgress = true;
             }
         });
 
@@ -104,16 +112,21 @@ public class RideHistoryActivity extends BaseActivity {
 
         if (user instanceof Rider) { // only riders can rate drivers
             historyListView.setOnItemClickListener((adapterView, view, i, l) -> {
-                // store selected ride request to pass to fragment
-                Application.getInstance().setSelectedHistoryRequest(historyList.get(i));
+                if (!ratingInProgress) {
+                    // store selected ride request to pass to fragment
+                    Application.getInstance().setSelectedHistoryRequest(historyList.get(i));
 
-                // start rating fragment
-                FragmentManager fragManager = getSupportFragmentManager();
-                FragmentTransaction fragTransaction = fragManager.beginTransaction();
-                RideRatingFragment rateFrag = new RideRatingFragment();
-                fragTransaction.add(R.id.rating_container, rateFrag);
-                fragTransaction.addToBackStack(null);
-                fragTransaction.commit();
+                    // start rating fragment
+                    FragmentManager fragManager = getSupportFragmentManager();
+                    FragmentTransaction fragTransaction = fragManager.beginTransaction();
+                    RideRatingFragment rateFrag = new RideRatingFragment();
+                    fragTransaction.add(R.id.rating_container, rateFrag);
+                    fragTransaction.addToBackStack(null);
+                    fragTransaction.commit();
+                } else {
+                    Log.d("Testing", "NOPE");
+                }
+
             });
         }
     }
@@ -121,7 +134,7 @@ public class RideHistoryActivity extends BaseActivity {
     /**
      * Populates historyList with ride requests
      */
-    private void populateHistory() {
+    public void populateHistory() {
         /*
          * Fix for list not updating:
          * This is where things got wonky. History list and the list in the adapter are pointing

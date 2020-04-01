@@ -99,7 +99,6 @@ public class HistoryAdapter extends BaseAdapter {
             if (isActive) {
                 allowCancelRequest(request, position, view);
             } else {
-                Log.d("Testing", "OLDs");
                 deleteButton.setImageResource(android.R.color.transparent);
             }
 
@@ -141,12 +140,10 @@ public class HistoryAdapter extends BaseAdapter {
         ImageView deleteButton = view.findViewById(R.id.delete_icon);
 
         deleteButton.setOnClickListener(v -> {
-            Log.d("Testing", "You hit delete");
             RideRequestDAO rrDAO = new RideRequestDAO();
             MutableLiveData<Boolean> liveBool = rrDAO.cancelRequest(request, (AppCompatActivity) context);
             liveBool.observe(owner, status -> {
                 if (status != null && status) {
-                    Log.d("Testing", "Ride Request Cancelled Success");
                     rideHistory.remove(position);
                     notifyDataSetChanged();
                 } else {
