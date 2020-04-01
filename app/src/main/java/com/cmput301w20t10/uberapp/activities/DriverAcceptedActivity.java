@@ -221,7 +221,8 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         // Todo(Joshua): Send notification to Rider
 
         RideRequestDAO dao = new RideRequestDAO();
-        dao.getModelByID(Application.getInstance().getActiveRidePath()).observe(this, rideRequest -> {
+        String[] tokens = Application.getInstance().getActiveRidePath().split("/");
+        dao.getModelByID(tokens[tokens.length - 1]).observe(this, rideRequest -> {
             if(rideRequest != null) {
                 RiderDAO riderDao = new RiderDAO();
                 riderDao.getModelByReference(rideRequest.getRiderReference()).observe(this, rider-> {
