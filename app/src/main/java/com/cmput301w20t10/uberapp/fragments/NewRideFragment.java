@@ -66,48 +66,48 @@ public class NewRideFragment extends Fragment {
             RideRequestDAO dao = db.getRideRequestDAO();
             User user = Application.getInstance().getCurrentUser();
             //pass data
-//            if (user instanceof Rider){
-//                Log.d("Test", "if condition passed");
-//                Rider rider = (Rider) user;
-//
-//                MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,Application.getInstance().getRoute(),newOffer,this);
-//                createdRequest.observe(this, request -> {
-//                    if (request != null) {
-//                        Log.d("Testing", "Request is observed");
-//
-//                        DocumentReference dr = request.getRideRequestReference();
-//                        dr.addSnapshotListener((snapshot, e) -> {
-//                           if (snapshot != null) {
-//                               MutableLiveData<RideRequest> liveRequest = dao.getModelByReference(snapshot.getReference());
-//                               liveRequest.observe(this, checkRequest -> {
-//                                   if (checkRequest != null) {
-//                                       Log.d("Testing", "Request is observed");
-//                                       Log.d("Testing", "State: " + String.valueOf(checkRequest.getState()));
-//
-//                                       if (checkRequest.getState() == RideRequest.State.RideCompleted) {
-//                                           Application.getInstance().setCurrentRideDocument(dr);
-//
+            if (user instanceof Rider){
+                Log.d("Test", "if condition passed");
+                Rider rider = (Rider) user;
+
+                MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,Application.getInstance().getRoute(), newOffer,this);
+                createdRequest.observe(this, request -> {
+                    if (request != null) {
+                        Log.d("Testing", "Request is observed");
+
+                        DocumentReference dr = request.getRideRequestReference();
+                        dr.addSnapshotListener((snapshot, e) -> {
+                           if (snapshot != null) {
+                               MutableLiveData<RideRequest> liveRequest = dao.getModelByReference(snapshot.getReference());
+                               liveRequest.observe(this, checkRequest -> {
+                                   if (checkRequest != null) {
+                                       Log.d("Testing", "Request is observed");
+                                       Log.d("Testing", "State: " + String.valueOf(checkRequest.getState()));
+
+                                       if (checkRequest.getState() == RideRequest.State.RideCompleted) {
+                                           Application.getInstance().setRideDocument(dr);
+
 //                                           FragmentManager fragManager = getSupportFragmentManager();
 //                                           FragmentTransaction fragTransaction = fragManager.beginTransaction();
 //                                           RideRatingFragment rateFrag = new RideRatingFragment();
 //                                           fragTransaction.add(R.id.fragment_container, rateFrag);
 //                                           fragTransaction.commit();
-//                                       }
-//                                   }
-//                               });
-//                           }
-//                        });
-//
-//                    } else {
-//                        Log.d("Testing", "Ride Request received as null.");
-//                    }
-//                });
-//
-//
-//            }
-//            else{
-//                Log.d("Test", "if condition did not pass");
-//            }
+                                       }
+                                   }
+                               });
+                           }
+                        });
+
+                    } else {
+                        Log.d("Testing", "Ride Request received as null.");
+                    }
+                });
+
+
+            }
+            else{
+                Log.d("Test", "if condition did not pass");
+            }
         });
 
         cancelButton.setOnClickListener(v -> {
