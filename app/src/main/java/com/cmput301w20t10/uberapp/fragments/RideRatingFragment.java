@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bumptech.glide.Glide;
@@ -37,6 +39,12 @@ public class RideRatingFragment extends Fragment {
         return inflater.inflate(R.layout.rider_rating_fragment_content, container, false);
     }
 
+    /**
+     * Once the view has been created, grab the relevant data from the Database and
+     * populate the UI elements.
+     * @param view
+     * @param savedInstanceState
+     */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         ImageView upButton = view.findViewById(R.id.rateUpButton);
@@ -44,24 +52,24 @@ public class RideRatingFragment extends Fragment {
         ImageView closeButton = view.findViewById(R.id.ratingFragmentCloseButton);
         TextView rideDesc = view.findViewById(R.id.ratingFragmentRideDescription);
 
-        Log.d("Testing", "Fragment view created");
-
+        // retrieve the passed in request
         RideRequest request = Application.getInstance().getSelectedHistoryRequest();
-        Log.d("Testing", "Request with fare: " + request.getFareOffer());
 
         if (request != null) {
             DriverDAO driverDAO = DatabaseManager.getInstance().getDriverDAO();
             RideRequestDAO rideRequestDAO = DatabaseManager.getInstance().getRideRequestDAO();
-            MutableLiveData<Driver> liveDriver = driverDAO.getDriverFromDriverReference(request.getDriverReference());
 
+            // retrieve the driver from the request
+            MutableLiveData<Driver> liveDriver = driverDAO.getDriverFromDriverReference(request.getDriverReference());
             liveDriver.observe(this, driver -> {
                 if (driver != null) {
-                    Log.d("Testing", "Driver: " + driver.getUsername());
-
+                    // Set the drivers username and rating fields
                     TextView driverRatingView = view.findViewById(R.id.sPosRate);
                     TextView driverUnameView = view.findViewById(R.id.uName);
                     driverUnameView.setText(driver.getUsername());
                     driverRatingView.setText(String.valueOf(driver.getRating()));
+
+                    // set the drivers profile picture
                     if (driver.getImage() != "") {
                         CircleImageView profilePicture = view.findViewById(R.id.profile_image);
                         Glide.with(this)
@@ -70,26 +78,33 @@ public class RideRatingFragment extends Fragment {
                                 .into(profilePicture);
                     }
 
-                    Log.d("Testing", "Rated Yet?: " + request.isRated());
+                    Log.d("Testing", "Rated Yet?: " + request.getRating());
                     Log.d("Testing", "State: " + request.getState());
 
-                    if (request.isRated()) {
+                    // prevent the user from rating multiple times on different instances of the fragment
+                    if (request.getRating() != 0) {
                         hasVoted = true;
                     }
 
                     if (!hasVoted) {
+                        // Listener waiting for thumbs up press
                         upButton.setOnClickListener(v -> {
                             if (!hasVoted) {
-                                hasVoted = true;
+                                hasVoted = true; // prevent the user from re-tapping the rate button
+
+                                // update the rating on the request and the driver
                                 driverDAO.rateDriver(driver, 1);
                                 rideRequestDAO.rateRide(request, 1);
                                 close();
                             }
                         });
 
+                        // Listener waiting for thumbs down press
                         downButton.setOnClickListener(v -> {
                             if (!hasVoted) {
-                                hasVoted = true;
+                                hasVoted = true; // prevent the user from re-tapping the rate button
+
+                                // update the rating on the request and the driver
                                 driverDAO.rateDriver(driver, -1);
                                 rideRequestDAO.rateRide(request, -1);
                                 close();
@@ -102,13 +117,22 @@ public class RideRatingFragment extends Fragment {
                 }
             });
         }
+
+        // Listener waiting for the close button to be pressed
         closeButton.setOnClickListener(v -> {
             this.close();
         });
     }
 
+    /**
+     * This will remove the fragment from RideHistoryActivity's backstack and close the fragment
+     */
     private void close() {
         // https://stackoverflow.com/questions/5901298/how-to-get-a-fragment-to-remove-itself-i-e-its-equivalent-of-finish
-        getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.remove(this);
+        fragmentTransaction.commit();
+        fragmentManager.popBackStack();
     }
 }

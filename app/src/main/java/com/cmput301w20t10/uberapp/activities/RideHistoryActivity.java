@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RadioGroup;
 
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
@@ -24,6 +25,9 @@ import com.cmput301w20t10.uberapp.util.HistoryAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Alexander Laevens
+ */
 public class RideHistoryActivity extends BaseActivity {
     private ListView historyListView;
     private RadioGroup toggle;
@@ -63,8 +67,21 @@ public class RideHistoryActivity extends BaseActivity {
 
             populateHistory(displayActives);
         }));
+
+        // https://stackoverflow.com/questions/31555545/android-which-method-is-called-when-fragment-is-pop-out-from-backstack
+        getSupportFragmentManager().addOnBackStackChangedListener(() -> {
+            Fragment frag = getSupportFragmentManager().findFragmentById(R.id.rating_container);
+            if (frag == null) {
+                Log.d("Testing", "Repopulate");
+                populateHistory(displayActives);
+            }
+        });
+
     }
 
+    /**
+     * Refreshes the ListView content once the historyList has been populated
+     */
     private void updateView() {
         HistoryAdapter adapter = new HistoryAdapter(this, Glide.with(this), historyList);
         historyListView.setAdapter(adapter);
@@ -72,15 +89,21 @@ public class RideHistoryActivity extends BaseActivity {
             Application.getInstance().setSelectedHistoryRequest(historyList.get(i));
 
             FragmentManager fragManager = getSupportFragmentManager();
+
             FragmentTransaction fragTransaction = fragManager.beginTransaction();
             RideRatingFragment rateFrag = new RideRatingFragment();
             fragTransaction.add(R.id.rating_container, rateFrag);
+            fragTransaction.addToBackStack(null);
             fragTransaction.commit();
-
-            populateHistory(displayActives); // refresh list
         });
     }
 
+    /**
+     * Populates historyList with ride requests
+     *
+     * @param active
+     *      If true: lists active requests, If false: lists finished requests
+     */
     private void populateHistory(boolean active) {
         User user = Application.getInstance().getCurrentUser();
         historyList = new ArrayList<RideRequest>();
@@ -88,21 +111,17 @@ public class RideHistoryActivity extends BaseActivity {
 
         if (user instanceof Rider) {
             Rider rider = (Rider) user;
-            Log.d("Testing", "Get ride history of rider: " + rider.getUsername());
 
             MutableLiveData<List<RideRequest>> liveRides;
             if (active) {
-                Log.d("Testing", "Retrieving active rides");
                 liveRides = rrDAO.getAllActiveRideRequest(rider);
             } else {
-                Log.d("Testing", "Retrieving historic rides");
                 liveRides = rrDAO.getRideHistory(rider);
             }
 
             liveRides.observe(this, list -> {
                 if (list != null) {
-                    Log.d("Testing", "Ride history length: " + list.size());
-                    historyList.addAll(list); // Append to end
+                    historyList.addAll(list);
                 } else {
                     Log.d("Testing", "Past Rides NULL");
                 }

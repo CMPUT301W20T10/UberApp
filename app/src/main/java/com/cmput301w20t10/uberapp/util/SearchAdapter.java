@@ -48,8 +48,6 @@ public class SearchAdapter extends FirestoreRecyclerAdapter<User, SearchAdapter.
         holder.setUsername(user.getUsername());
         holder.setImage(user.getImage());
 
-        Log.d("Profile Testing", String.valueOf(user.getClass()));
-
         LoginRegisterDAO dao = new LoginRegisterDAO();
         MutableLiveData<Driver> liveData = dao.logInAsDriver(user.getUsername(), user.getPassword(), owner);
         liveData.observe(owner, driver -> {
