@@ -23,7 +23,8 @@ public class RideRequestListContent implements Comparable<RideRequestListContent
 
     public RideRequestListContent(String username, Float distance, int offer, String imageURL,
                                   String firstName, String lastName, LatLng startDest, LatLng endDest,
-                                  DocumentReference rideRequestReference, DocumentReference unpairedReference) {
+                                  DocumentReference rideRequestReference, DocumentReference unpairedReference,
+                                  int collapsedHeight, int currentHeight, int expandedHeight) {
         this.username = username;
         this.distance = distance;
         this.offer = offer;
@@ -34,6 +35,9 @@ public class RideRequestListContent implements Comparable<RideRequestListContent
         this.imageURL = imageURL;
         this.rideRequestReference = rideRequestReference;
         this.unpairedReference = unpairedReference;
+        this.collapsedHeight = collapsedHeight;
+        this.currentHeight = currentHeight;
+        this.expandedHeight = expandedHeight;
         this.isOpen = false;
     }
 

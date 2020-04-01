@@ -166,7 +166,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                                 Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), startDest.latitude, startDest.longitude, distance);
                                 RideRequestListContent rideRequest = new RideRequestListContent(username, distance[0] / 1000, offer,
                                         imageURL, firstName, lastName, startDest, endDest,
-                                        rideRequestReference, unpairedReference);
+                                        rideRequestReference, unpairedReference, collapsedHeight, 0,expandedHeight);
                                 rideRequest.setCollapsedHeight(collapsedHeight);
                                 rideRequest.setCurrentHeight(collapsedHeight);
                                 rideRequest.setExpandedHeight(expandedHeight);
