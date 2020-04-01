@@ -12,8 +12,10 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
@@ -242,6 +244,7 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         View startClearButton = autocompleteStartFragment.getView().findViewById(R.id.places_autocomplete_clear_button);
         startClearButton.setOnClickListener(view -> {
             autocompleteStartFragment.setText("");
+            startPos= null;
             currentPolyline.remove();
             startMarker.remove();
         });
@@ -251,6 +254,7 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
     private void autocompleteDestination() {
         autocompleteDestinationFragment.a.setTextSize(20.0f);
         autocompleteDestinationFragment.a.setHintTextColor(R.attr.editTextColor);
+        autocompleteDestinationFragment.a.getText();
         autocompleteDestinationFragment.setHint("Enter Destination");
         autocompleteDestinationFragment.setLocationBias(bounds);
         autocompleteDestinationFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME));
@@ -285,6 +289,7 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         View destClearButton = autocompleteDestinationFragment.getView().findViewById(R.id.places_autocomplete_clear_button);
         destClearButton.setOnClickListener(view -> {
             autocompleteDestinationFragment.setText("");
+            destination = null;
             currentPolyline.remove();
             destinationMarker.remove();
         });
@@ -293,7 +298,11 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
 
 
     private void onClick_NewRide() {
-        // todo: implement onclick new ride
+        if (startPos == null || destination == null) {
+            Toast.makeText(this, "Fields cannot be empty!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         Bundle args = new Bundle();
         args.putString("StartPosition", startPos);
         args.putString("Destination", destination);
@@ -301,7 +310,6 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
         float[] distance = new float[1];
         Location.distanceBetween(startPosLatLng.latitude, startPosLatLng.longitude, destinationLatLng.latitude, destinationLatLng.longitude, distance);
         int priceOffer = (int) Math.round(10 + distance[0]/1000 * 1.75);
-        System.out.println("ADMIRAL: " + priceOffer);
         args.putInt("offer", priceOffer);
         NewRideFragment fragment = new NewRideFragment();
         fragment.setArguments(args);

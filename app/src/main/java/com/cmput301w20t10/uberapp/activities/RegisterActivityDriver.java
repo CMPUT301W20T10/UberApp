@@ -62,8 +62,7 @@ public class RegisterActivityDriver extends AppCompatActivity {
      * @param view - current view
      */
     public void onCancelPress(View view) {
-        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-        startActivity(intent);
+        finish();
     }
 
     /**

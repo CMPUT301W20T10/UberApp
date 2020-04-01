@@ -68,7 +68,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/rateUpButton"
             app:layout_constraintTop_toTopOf="@+id/rateUpButton"
-            app:srcCompat="@mipmap/thmbdownhidef" />
+            app:srcCompat="@drawable/ic_thumb_down_black_24dp" />
 
         <ImageView
             android:id="@+id/ratingFragmentCloseButton"

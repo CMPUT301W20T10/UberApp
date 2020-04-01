@@ -39,6 +39,7 @@ public final class Application {
     private volatile String prevActivity;
     private volatile String activeRidePath;
     private volatile Route route;
+    private volatile DocumentReference rideDocument;
 
     private volatile RideRequest selectedHistoryRequest;
 
@@ -94,6 +95,14 @@ public final class Application {
 
     public void setRoute(Route route) {
         this.route = route;
+    }
+
+    public DocumentReference getRideDocument() {
+        return rideDocument;
+    }
+
+    public void setRideDocument(DocumentReference rideDocument) {
+        this.rideDocument = rideDocument;
     }
 
     public void setSelectedHistoryRequest(RideRequest request) {
@@ -197,4 +206,5 @@ public final class Application {
 
          return liveData;
     }
+
 }
