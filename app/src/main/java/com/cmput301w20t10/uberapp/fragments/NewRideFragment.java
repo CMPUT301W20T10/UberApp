@@ -71,11 +71,13 @@ public class NewRideFragment extends Fragment {
                 Rider rider = (Rider) user;
                 int offerCents = (int) newOffer*100;
                 MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,Application.getInstance().getRoute(),offerCents,this);
+                this.close();
 
             }
             else{
                 Log.d("Test", "if condition did not pass");
             }
+
         });
 
         cancelButton.setOnClickListener(v -> {
