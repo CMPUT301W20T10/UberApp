@@ -36,7 +36,7 @@
                 android:id="@+id/profile_button"
                 android:layout_width="320px"
                 android:layout_height="320px"
-                android:background="@null">
+                android:background="@mipmap/user">
             </ImageButton>
 
             <TextView

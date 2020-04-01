@@ -195,6 +195,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                     if (rideRequest != null) {
                         rideRequestDAO.acceptRequest(rideRequest, driver, this);
                         Intent intent = new Intent(this, DriverAcceptedActivity.class);
+                        Application.getInstance().setActiveRidePath(rideRequest.getRideRequestReference().getPath());
                         Application.getInstance().setPrevActivity(this.getLocalClassName());
                         startActivity(intent);
                     }

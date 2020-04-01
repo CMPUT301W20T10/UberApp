@@ -45,7 +45,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginStart="85dp"
         android:layout_marginTop="48dp"
-        app:srcCompat="@mipmap/thmbup" />
+        app:srcCompat="@drawable/ic_thumb_up_black_24dp" />
 
     <TextView
         android:id="@+id/sPosRate"
