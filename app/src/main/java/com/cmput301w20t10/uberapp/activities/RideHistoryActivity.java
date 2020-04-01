@@ -15,8 +15,10 @@ import com.bumptech.glide.Glide;
 import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.DatabaseManager;
+import com.cmput301w20t10.uberapp.database.dao.DriverDAO;
 import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
 import com.cmput301w20t10.uberapp.fragments.RideRatingFragment;
+import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.Rider;
 import com.cmput301w20t10.uberapp.models.User;
@@ -82,20 +84,25 @@ public class RideHistoryActivity extends BaseActivity {
     /**
      * Refreshes the ListView content once the historyList has been populated
      */
-    private void updateView() {
-        HistoryAdapter adapter = new HistoryAdapter(this, Glide.with(this), historyList);
+    private void updateView(boolean active) {
+        User user = Application.getInstance().getCurrentUser();
+        HistoryAdapter adapter = new HistoryAdapter(this, Glide.with(this), historyList, user, active);
         historyListView.setAdapter(adapter);
-        historyListView.setOnItemClickListener((adapterView, view, i, l) -> {
-            Application.getInstance().setSelectedHistoryRequest(historyList.get(i));
 
-            FragmentManager fragManager = getSupportFragmentManager();
+        if (user instanceof Rider) { // only riders can rate drivers
+            historyListView.setOnItemClickListener((adapterView, view, i, l) -> {
+                // store selected ride request to pass to fragment
+                Application.getInstance().setSelectedHistoryRequest(historyList.get(i));
 
-            FragmentTransaction fragTransaction = fragManager.beginTransaction();
-            RideRatingFragment rateFrag = new RideRatingFragment();
-            fragTransaction.add(R.id.rating_container, rateFrag);
-            fragTransaction.addToBackStack(null);
-            fragTransaction.commit();
-        });
+                // start rating fragment
+                FragmentManager fragManager = getSupportFragmentManager();
+                FragmentTransaction fragTransaction = fragManager.beginTransaction();
+                RideRatingFragment rateFrag = new RideRatingFragment();
+                fragTransaction.add(R.id.rating_container, rateFrag);
+                fragTransaction.addToBackStack(null);
+                fragTransaction.commit();
+            });
+        }
     }
 
     /**
@@ -107,31 +114,34 @@ public class RideHistoryActivity extends BaseActivity {
     private void populateHistory(boolean active) {
         User user = Application.getInstance().getCurrentUser();
         historyList = new ArrayList<RideRequest>();
-        updateView(); // clear first so if there isn't any rides the screen is clear
+        updateView(active); // clear first so if there isn't any rides the screen is clear
 
+        MutableLiveData<List<RideRequest>> liveRides;
         RideRequestDAO rrDAO = DatabaseManager.getInstance().getRideRequestDAO();
 
         if (user instanceof Rider) {
             Rider rider = (Rider) user;
-
-            MutableLiveData<List<RideRequest>> liveRides;
             if (active) {
                 liveRides = rrDAO.getAllActiveRideRequest(rider);
             } else {
                 liveRides = rrDAO.getRideHistory(rider);
             }
-
-            liveRides.observe(this, list -> {
-                if (list != null) {
-                    historyList.addAll(list);
-                } else {
-                    Log.d("Testing", "Past Rides NULL");
-                }
-                updateView();
-            });
-
         } else {
-            // TODO: Handle driver
+            Driver driver = (Driver) user;
+            if (active) {
+                liveRides = rrDAO.getAllActiveRideRequest(driver);
+            } else {
+                liveRides = rrDAO.getRideHistory(driver);
+            }
         }
+
+        liveRides.observe(this, list -> {
+            if (list != null) {
+                historyList.addAll(list);
+            } else {
+                Log.d("Testing", "Past Rides NULL");
+            }
+            updateView(active);
+        });
     }
 }
