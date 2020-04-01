@@ -32,7 +32,9 @@ import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
 import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
+import com.cmput301w20t10.uberapp.database.dao.RiderDAO;
 import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
+import com.cmput301w20t10.uberapp.messaging.FCMSender;
 import com.cmput301w20t10.uberapp.models.Driver;
 import com.cmput301w20t10.uberapp.models.RideRequest;
 import com.cmput301w20t10.uberapp.models.RideRequestListContent;
@@ -209,7 +211,37 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
     public void onBackPressed() {
         return;
     }
+    /**
+     * Called when the driver presses the "Ride complete" button and transition the driver to the
+     * QR scan activity
+     *
+     * @param view
+     */
+    public void onDonePressed(View view) {
+        // Todo(Joshua): Send notification to Rider
 
+        RideRequestDAO dao = new RideRequestDAO();
+        dao.getModelByID(Application.getInstance().getActiveRidePath()).observe(this, rideRequest -> {
+            if(rideRequest != null) {
+                RiderDAO riderDao = new RiderDAO();
+                riderDao.getModelByReference(rideRequest.getRiderReference()).observe(this, rider-> {
+                    if(rider != null) {
+                        String token = rider.getFCMToken();
+                        FCMSender.composeMessage(getApplicationContext(), token);
+                    } else {
+                        // Failed to get the rider info
+                        Toast.makeText(getApplicationContext(), "Failed to find rider", Toast.LENGTH_LONG).show();
+                    }
+                });
+            } else {
+                // Failed to get the ride request info
+                Toast.makeText(getApplicationContext(), "Failed to find ride info", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        Intent intent = new Intent(getApplicationContext(), QRScanActivity.class);
+        startActivity(intent);
+    }
     public String getAddress(LatLng latLng) {
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         String addressLine = "";
