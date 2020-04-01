@@ -177,4 +177,8 @@ public class HistoryAdapter extends BaseAdapter {
             }
         });
     }
+
+    public void setData(List<RideRequest> data) {
+        this.rideHistory = data;
+    }
 }
