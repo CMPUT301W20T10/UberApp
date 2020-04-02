@@ -125,7 +125,7 @@
                 android:layout_height="wrap_content"
                 android:singleLine="true"
                 app:backgroundTint="?attr/textColor"
-                android:inputType="numberDecimal"
+                android:inputType="number"
                 android:maxLength="6"
                 android:text="XXXX"
                 android:textColor="?attr/textColor"

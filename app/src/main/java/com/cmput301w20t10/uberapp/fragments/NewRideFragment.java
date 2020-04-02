@@ -69,8 +69,7 @@ public class NewRideFragment extends Fragment {
             if (user instanceof Rider){
                 Log.d("Test", "if condition passed");
                 Rider rider = (Rider) user;
-                int offerCents = (int) newOffer*100;
-                MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,Application.getInstance().getRoute(),offerCents,this);
+                MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,Application.getInstance().getRoute(),newOffer,this);
                 createdRequest.observe(this, request -> {
                     this.close();
                 });

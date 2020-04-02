@@ -36,10 +36,8 @@ public class OptionsMenu extends AppCompatActivity {
         public void onClick(View view) {
             sharedPref = new SharedPref(getBaseContext());
             if (sharedPref.loadNightModeState() == true) {
-                themeButton.setBackgroundResource(R.mipmap.darkmode);
                 sharedPref.setNightModeState(false);
             } else {
-                themeButton.setBackgroundResource(R.mipmap.lightmode);
                 sharedPref.setNightModeState(true);
             }
             notifyRestart();

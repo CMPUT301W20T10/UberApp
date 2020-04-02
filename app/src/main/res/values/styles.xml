@@ -12,7 +12,6 @@
         <item name="editTextBackgroundColor">@color/colorBackground</item>
         <item name="buttonColor">@color/colorPrimaryDark</item>
         <item name="buttonText">@color/white</item>
-        <item name="themePicture">@mipmap/darkmode</item>
         <item name="listViewDivider">@color/colorPrimaryDark</item>
         <item name="radioButtonPrimaryColor">@color/select_primary</item>
         <item name="radioButtonSecondaryColor">@color/select_secondary</item>
@@ -30,7 +29,6 @@
         <item name="editTextBackgroundColor">@color/colorPrimary</item>
         <item name="buttonColor">@color/colorBackground</item>
         <item name="buttonText">@color/colorPrimaryDark</item>
-        <item name="themePicture">@mipmap/lightmode</item>
         <item name="listViewDivider">@color/colorBackground</item>
         <item name="radioButtonPrimaryColor">@color/select_secondary</item>
         <item name="radioButtonSecondaryColor">@color/select_primary</item>

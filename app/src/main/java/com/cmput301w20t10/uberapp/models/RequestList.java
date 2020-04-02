@@ -98,8 +98,8 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
         holder.getUsername().setText(rideRequest.getUsername());
         holder.getDistance().setText(String.format("%.2f", rideRequest.getDistance()) + "km away");
 
-        double offerDec = rideRequest.getOffer()/100;
-        holder.getOffer().setText("Offer: $" + String.format("%.2f", offerDec));
+        int offerDec = rideRequest.getOffer();
+        holder.getOffer().setText("Offer: $" + String.format("%d", offerDec));
         holder.getFirstName().setText(rideRequest.getFirstName());
         holder.getLastName().setText(rideRequest.getLastName());
 
@@ -113,10 +113,11 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
         if (rideRequest.getImageURL() != "") {
             Glide.with(view)
                     .load(rideRequest.getImageURL())
-                    .apply(RequestOptions.circleCropTransform())
+//                    .placeholder(imageView.getDrawable())
+//                    .apply(RequestOptions.circleCropTransform())
                     .into(holder.getProfilePic());
         } else {
-            holder.getProfilePic().setImageResource(R.mipmap.user);
+            holder.getProfilePic().setImageResource(R.drawable.ic_user_24dp);
         }
 
         view.setTag(holder);

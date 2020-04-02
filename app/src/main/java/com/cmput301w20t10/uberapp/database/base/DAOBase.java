@@ -267,6 +267,7 @@ public abstract class DAOBase<Entity extends EntityBase, Model extends ModelBase
         }
 
         private void findDocumentReference() {
+            System.out.println("COLLECTION: " + create().getCollectionName());
             DocumentReference documentReference = db.collection(create().getCollectionName()).document(docId);
             getDocumentSnapshot(documentReference);
         }

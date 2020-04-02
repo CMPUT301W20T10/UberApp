@@ -27,6 +27,7 @@ public class QRScanActivity extends AppCompatActivity implements ZXingScannerVie
         super.onCreate(savedInstanceState);
 
         scannerView = new ZXingScannerView(this);
+//        scannerView.setBackground();
         setContentView(scannerView);
     }
 

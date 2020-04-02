@@ -38,6 +38,7 @@ public final class Application {
     private volatile String messagingToken;
     private volatile String prevActivity;
     private volatile String activeRidePath;
+    private volatile String activeRideID;
     private volatile Route route;
     private volatile DocumentReference rideDocument;
 
@@ -87,6 +88,14 @@ public final class Application {
 
     public void setActiveRidePath(String activeRidePath) {
         this.activeRidePath = activeRidePath;
+    }
+
+    public String getActiveRideID() {
+        return activeRideID;
+    }
+
+    public void setActiveRideID(String activeRideID) {
+        this.activeRideID = activeRideID;
     }
 
     public Route getRoute() {

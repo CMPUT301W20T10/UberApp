@@ -61,7 +61,7 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatButtonSettings"
-        android:src="@mipmap/darkmode"
+        android:src="@drawable/ic_moon"
         app:fabSize="mini"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"

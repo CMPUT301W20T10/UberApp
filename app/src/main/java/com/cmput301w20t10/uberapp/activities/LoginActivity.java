@@ -175,6 +175,7 @@ public class LoginActivity extends OptionsMenu {
         } else {
             if (sharedPref.loadUserType().equals("rider")) {
                 System.out.println("RIDER: " + sharedPref.loadUsername() + ", " + sharedPref.loadPassword() + ", " + sharedPref.loadUserType());
+
             } else {
                 System.out.println("DRIVER: " + sharedPref.loadUsername() + ", " + sharedPref.loadPassword() + ", " + sharedPref.loadUserType());
             }
