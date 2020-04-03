@@ -18,6 +18,7 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -35,6 +36,7 @@ import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
 import com.cmput301w20t10.uberapp.database.dao.RiderDAO;
 import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
@@ -66,6 +68,7 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 
 public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCallback, TaskLoadedCallback {
@@ -128,6 +131,8 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         cancelButton.setVisibility(View.VISIBLE);
         TextView tapProfileHint = findViewById(R.id.tap_profile_hint);
         tapProfileHint.setVisibility(View.VISIBLE);
+
+
 
         if (hasNetwork()) {
             String activeRideID = Application.getInstance().getActiveRideID();
@@ -192,9 +197,9 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                 dao.getModelByID(activeRideID).observe(this, rideRequest -> {
                     if (rideRequest != null) {
                         dao.cancelRequest(rideRequest, this);
-                        Intent intent = new Intent(this, DriverMainActivity.class);
-                        startActivity(intent);
-                        finish();
+                        Runnable r = () -> goBack();
+                        Handler myHandler = new Handler();
+                        myHandler.postDelayed(r, 1500);
                     }
                 });
             });
@@ -214,6 +219,7 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
     public void onBackPressed() {
         return;
     }
+
     /**
      * Called when the driver presses the "Ride complete" button and transition the driver to the
      * QR scan activity
@@ -224,8 +230,7 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         // Todo(Joshua): Send notification to Rider
 
         RideRequestDAO dao = new RideRequestDAO();
-        String id = Application.getInstance().getActiveRidePath().split("/")[1];
-        dao.getModelByID(id).observe(this, rideRequest -> {
+        dao.getModelByID(Application.getInstance().getActiveRideID()).observe(this, rideRequest -> {
             if(rideRequest != null) {
                 RiderDAO riderDao = new RiderDAO();
                 riderDao.getModelByReference(rideRequest.getRiderReference()).observe(this, rider-> {
@@ -247,6 +252,14 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         startActivity(intent);
         finish();
     }
+
+    private void goBack() {
+        Intent intent = new Intent(this, DriverMainActivity.class);
+        Application.getInstance().setPrevActivity(this.getLocalClassName());
+        startActivity(intent);
+        finish();
+    }
+
     public String getAddress(LatLng latLng) {
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         String addressLine = "";
