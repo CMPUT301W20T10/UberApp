@@ -1,5 +1,7 @@
 package com.cmput301w20t10.uberapp.activities;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Adapter;
@@ -153,18 +155,36 @@ public class RideHistoryActivity extends BaseActivity {
         application.getLatestUserData()
                 .observe(this, user -> {
                     if (user != null) {
-                        populateHistoryHelper(user);
+                        if (hasNetwork()) {
+                            populateHistoryNetwork(user);
+                        } else {
+                            populateHistoryOffline(user);
+                        }
+
                     } else {
                         Log.e("Tomate", LOC + "populateHistory: User is null");
                     }
                 });
     }
 
+    private void populateHistoryOffline(User user) {
+        if (user instanceof Rider && displayActives) {
+            RideRequest mostRecent = Application.getInstance().getNewestRequest();
+            if (mostRecent != null) {
+                historyList.clear();
+                historyList.add(mostRecent);
+                adapter.setData(historyList);
+                adapter.setActive(false);   // act as historic so cancel button doesn't appear
+                adapter.notifyDataSetChanged();
+            }
+        }
+    }
+
     /**
      * Reduce nesting in populateHistory
      * @param user
      */
-    private void populateHistoryHelper(User user) {
+    private void populateHistoryNetwork(User user) {
         // you have to fetch the latest updates, the user object is outdated here
         if (user == null) {
             Log.e("Tomate", LOC + "populateHistoryHelper: User is null");
@@ -191,6 +211,7 @@ public class RideHistoryActivity extends BaseActivity {
         }
 
         liveRides.observe(this, list -> {
+            System.out.println("LIST: " +list.size());
             if (list != null) {
                 historyList.clear();
                 historyList.addAll(list);
@@ -204,5 +225,11 @@ public class RideHistoryActivity extends BaseActivity {
             }
             updateView();
         });
+    }
+
+    public boolean hasNetwork() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        return connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED;
     }
 }

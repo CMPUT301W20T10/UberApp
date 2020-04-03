@@ -2,11 +2,14 @@ package com.cmput301w20t10.uberapp.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -24,12 +27,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
 
 import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
 import com.cmput301w20t10.uberapp.database.dao.UnpairedRideListDAO;
 import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
@@ -45,6 +50,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -54,11 +60,13 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -67,13 +75,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DriverMainActivity extends BaseActivity implements OnMapReadyCallback, TaskLoadedCallback {
     private static final String TAG = "DriverTest" ;
 
-    private static final String LAST_LOCATION_KEY = "location";
-    private static final String CAMERA_DIRECTION_KEY = "camera_direction";
+    // Strings
     private static final String USER_REFERENCE = "userReference";
     private static final String USERNAME = "username";
     private static final String IMAGE = "image";
     private static final String FIRST_NAME = "firstName";
     private static final String LAST_NAME = "lastName";
+
+    Driver driver;
 
     private static final int REQUEST_CODE = 101;
     private GoogleMap mainMap;
@@ -96,19 +105,34 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
 
     private boolean accordion = true;
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Driver driver = (Driver) Application.getInstance().getCurrentUser();
-        if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0 ) {
-            Intent intent = new Intent(this, DriverAcceptedActivity.class);
-            String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
-            Application.getInstance().setActiveRidePath(activeRideRequest);
-            Application.getInstance().setPrevActivity(this.getLocalClassName());
-            startActivity(intent);
-        }
+        // Kevin's todo list
+        // TODO: TRY TO IMPLEMENT OFFLINE BEHAVIOUR
+
+        /*
+         * This section checks whether the driver already has an active ride request.
+         * If yes, then changes to DriverAcceptedActivity
+         */
+        Application.getInstance().getLatestUserData().observe(this, user -> {
+            if (user != null) {
+                RideRequestDAO rrDAO = DatabaseManager.getInstance().getRideRequestDAO();
+                driver = (Driver) user;
+                MutableLiveData<List<RideRequest>> liveRides = rrDAO.getAllActiveRideRequest(driver);
+                liveRides.observe(this, list -> {
+                    if (list != null) {
+                        System.out.println("RIDE: " + driver.getActiveRideRequestList().get(0).getPath());
+                        Intent intent = new Intent(this, DriverAcceptedActivity.class);
+                        Application.getInstance().setActiveRideID(list.get(0).getRideRequestReference().getId());
+                        Application.getInstance().setPrevActivity(this.getLocalClassName());
+                        startActivity(intent);
+                    }
+                });
+            }
+        });
+//        }
 
         client = LocationServices.getFusedLocationProviderClient(this);
 
@@ -116,6 +140,9 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
 
         db = FirebaseFirestore.getInstance();
 
+        /*
+         * This section finds the heights used to expand and collapse the listview items
+         */
         Display display = this.getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -123,6 +150,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         final int collapsedHeight = 320;
         final int expandedHeight = height / 2;
 
+        // Sets the activity to dark theme if true saved in shared pref
         sharedPref = new SharedPref(this);
         if (sharedPref.loadNightModeState()) {
             setTheme(R.style.DarkTheme);
@@ -140,6 +168,11 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         requestList = findViewById(R.id.ride_request_list);
         requestDataList = new ArrayList<>();
 
+        /*
+         * This section finds all ride requests that have been requested by riders but not yet accepted
+         * Uses RideRequestListContent to store the necessary information
+         *
+         */
         UnpairedRideListDAO dao = new UnpairedRideListDAO();
         MutableLiveData<List<RideRequest>> liveRideRequest = dao.getAllUnpairedRideRequest();
         AtomicInteger counter = new AtomicInteger(0);
@@ -147,8 +180,8 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             if (!rideRequests.isEmpty()) {
                 DocumentReference rideRequestReference = rideRequests.get(counter.getAndAdd(0)).getRideRequestReference();
                 DocumentReference unpairedReference = rideRequests.get(counter.getAndAdd(0)).getUnpairedReference();
-                int offer = rideRequests.get(counter.getAndAdd(0)).getFareOffer();
-                Log.d(TAG,"Offer: " + offer/100);
+                int offerInCents = rideRequests.get(counter.getAndAdd(0)).getFareOffer();
+                Log.d(TAG,"Offer: " + offerInCents/100);
                 LatLng startDest = rideRequests.get(counter.getAndAdd(0)).getRoute().getStartingPosition();
                 LatLng endDest = rideRequests.get(counter.getAndAdd(0)).getRoute().getDestinationPosition();
                 String riderPath = rideRequests.get(counter.getAndAdd(1)).getRiderReference().getPath();
@@ -164,12 +197,9 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                                 String lastName = (String) userSnapshot.get(LAST_NAME);
                                 float[] distance = new float[1];
                                 Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), startDest.latitude, startDest.longitude, distance);
-                                RideRequestListContent rideRequest = new RideRequestListContent(username, distance[0] / 1000, offer,
-                                        imageURL, firstName, lastName, startDest, endDest,
-                                        rideRequestReference, unpairedReference, collapsedHeight, 0,expandedHeight);
-                                rideRequest.setCollapsedHeight(collapsedHeight);
-                                rideRequest.setCurrentHeight(collapsedHeight);
-                                rideRequest.setExpandedHeight(expandedHeight);
+                                RideRequestListContent rideRequest = new RideRequestListContent(username, distance[0] / 1000, offerInCents,
+                                        imageURL, firstName, lastName, startDest, endDest, rideRequestReference,
+                                        unpairedReference, collapsedHeight, collapsedHeight,expandedHeight);
                                 requestDataList.add(rideRequest);
                                 Collections.sort(requestDataList);
                                 requestAdapter = new RequestList(DriverMainActivity.this, requestDataList);
@@ -181,6 +211,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             }
         });
 
+        // OnClickListener for listview items
         requestList.setOnItemClickListener((adapterView, view, i, l) -> {
             toggle(view, i);
             final RideRequestListContent rideRequestContent = (RideRequestListContent) adapterView.getItemAtPosition(i);
@@ -189,6 +220,10 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             dropPins("Start Destination", startDest, "End Destination",  endDest);
             new FetchURL(DriverMainActivity.this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
 
+            /*
+             * Accept button that is revealed after clicking list item
+             * Transitions to DriverAcceptedActivity
+             */
             Button acceptButton = view.findViewById(R.id.accept_request_button);
             acceptButton.setOnClickListener(acceptView -> {
                 RideRequestDAO rideRequestDAO = new RideRequestDAO();
@@ -196,14 +231,20 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                 liveData.observe(this, rideRequest -> {
                     if (rideRequest != null) {
                         rideRequestDAO.acceptRequest(rideRequest, driver, this);
+                        sharedPref.setRideRequest(rideRequestContent);
                         Intent intent = new Intent(this, DriverAcceptedActivity.class);
-                        Application.getInstance().setActiveRidePath(rideRequest.getRideRequestReference().getPath());
+                        Application.getInstance().setActiveRideID(rideRequest.getRideRequestReference().getId());
                         Application.getInstance().setPrevActivity(this.getLocalClassName());
                         startActivity(intent);
+                        finish();
                     }
                 });
             });
 
+            /*
+             * Image button for the profile picture.
+             * On click shows a fragment displaying the corresponding rider's contact information
+             */
             ImageButton riderPictureButton = view.findViewById(R.id.profile_button);
             riderPictureButton.setOnClickListener(pictureView -> db.collection("users")
                     .whereEqualTo("username", rideRequestContent.getUsername())
@@ -365,9 +406,16 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             }
         }
 
-        getCurrentLocation();
         if (locationPermissionGranted) {
+            getCurrentLocation();
             googleMap.setMyLocationEnabled(true);
+            googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+                @Override
+                public boolean onMyLocationButtonClick() {
+                    mainMap.moveCamera(CameraUpdateFactory.zoomTo(18f));
+                    return false;
+                }
+            });
         }
     }
 
@@ -405,11 +453,15 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         }
     }
 
+    /*
+     * Move camera and zoom level to fit start and end pin as well as current location
+     */
     private void moveCamera(Marker startMarker, Marker endMarker){
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
         builder.include(startMarker.getPosition());
         builder.include(endMarker.getPosition());
+        builder.include(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
 
         LatLngBounds bounds = builder.build();
         int padding = 100; // offset from edges of the map in pixels
@@ -419,19 +471,19 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
 
     }
 
+    /*
+     * Drop custom pins on the map
+     * Pins for start and end destinations
+     */
     private void dropPins(String startTitle, LatLng startDest, String endTitle, LatLng endDest) {
         startPin = new MarkerOptions()
                 .position(startDest)
                 .title(startTitle)
-                .icon(BitmapDescriptorFactory.fromBitmap(
-                        Bitmap.createScaledBitmap(
-                                BitmapFactory.decodeResource(getResources(), R.mipmap.startpos), 30, 30, false)));
+                .icon(bitmapDescriptorFromVector(this, R.drawable.ic_marker_start_48dp));
         endPin = new MarkerOptions()
                 .position(endDest)
                 .title(endTitle)
-                .icon(BitmapDescriptorFactory.fromBitmap(
-                        Bitmap.createScaledBitmap(
-                                BitmapFactory.decodeResource(getResources(), R.mipmap.destination), 30, 30, false)));
+                .icon(bitmapDescriptorFromVector(this, R.drawable.ic_marker_destination_48dp));
 
         mainMap.clear();
 
@@ -439,6 +491,22 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         Marker endMarker = mainMap.addMarker(endPin);
 
         moveCamera(startMarker, endMarker);
+    }
+
+    /*
+     * Code from Stack Overflow to convert Vector to Bitmap
+     * URL to question: https://stackoverflow.com/questions/42365658/custom-marker-in-google-maps-in-android-with-vector-asset-icon
+     * Asked by: Shuddh, https://stackoverflow.com/users/3345454/shuddh
+     * Answered by: Leo Droidcoder, https://stackoverflow.com/users/5730321/leo-droidcoder
+     * URL to answer: https://stackoverflow.com/a/45564994
+     */
+    private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+        vectorDrawable.setBounds(0, 0, 80, 80);
+        Bitmap bitmap = Bitmap.createBitmap(80, 80, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
     @Override

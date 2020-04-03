@@ -198,8 +198,8 @@ public class RiderMainActivity extends BaseActivity implements OnMapReadyCallbac
             }
         }
 
-        getCurrentLocation();
         if (locationPermissionGranted) {
+            getCurrentLocation();
             googleMap.setMyLocationEnabled(true);
         }
 

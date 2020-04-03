@@ -172,15 +172,18 @@ public class LoginActivity extends OptionsMenu {
                     }
                 });
             }
-        } else {
+        } else if (sharedPref.loadRememberMeState()) {
             if (sharedPref.loadUserType().equals("rider")) {
                 System.out.println("RIDER: " + sharedPref.loadUsername() + ", " + sharedPref.loadPassword() + ", " + sharedPref.loadUserType());
-
             } else {
                 System.out.println("DRIVER: " + sharedPref.loadUsername() + ", " + sharedPref.loadPassword() + ", " + sharedPref.loadUserType());
+                if (sharedPref.loadRideRequest() != null) {
+                    Intent intent = new Intent(this, DriverAcceptedActivity.class);
+                    Application.getInstance().setPrevActivity(this.getLocalClassName());
+                    startActivity(intent);
+                }
             }
             Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_LONG).show();
-
         }
     }
 

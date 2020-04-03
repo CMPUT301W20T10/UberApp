@@ -1,6 +1,8 @@
 package com.cmput301w20t10.uberapp.fragments;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -52,9 +54,38 @@ public class NewRideFragment extends Fragment {
         endEditText.setText(destination);
         offerText.setText(String.format("%d", priceOffer));
 
+        offerText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String text = s.toString();
+                double enteredNum = Double.parseDouble(text);
+                int decPos = text.indexOf(".");
+                if (decPos < 0) { // dont prevent the user from entering an integer
+                    return;
+                }
+
+                int decPlaces = text.length() - text.indexOf(".") - 1;
+                if (decPlaces > 2) { // clip text to be two decimal places
+                    offerText.setText(String.format("%.2f", enteredNum));
+                    offerText.setSelection(offerText.getText().length());
+                }
+            }
+        });
+
         confirmButton.setOnClickListener(v -> {
-            int newOffer = Integer.parseInt(offerText.getText().toString());
-            if (newOffer < priceOffer) {
+            double newOfferDouble = Double.parseDouble(offerText.getText().toString());
+            int newOfferCents = (int) (newOfferDouble * 100);
+            if (newOfferDouble < priceOffer) {
                 Toast toast = Toast.makeText(getContext(), String.format("Price offer cannot be lower than %d", priceOffer), Toast.LENGTH_LONG);
                 TextView textView = toast.getView().findViewById(android.R.id.message);
                 textView.setGravity(Gravity.CENTER);
@@ -69,9 +100,13 @@ public class NewRideFragment extends Fragment {
             if (user instanceof Rider){
                 Log.d("Test", "if condition passed");
                 Rider rider = (Rider) user;
-                int offerCents = (int) newOffer*100;
-                MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,Application.getInstance().getRoute(),offerCents,this);
+                MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,Application.getInstance().getRoute(),newOfferCents,this);
+
                 createdRequest.observe(this, request -> {
+                    if (request != null) {
+                        Application.getInstance().setNewestRequest(request);
+                    }
+
                     this.close();
                 });
 

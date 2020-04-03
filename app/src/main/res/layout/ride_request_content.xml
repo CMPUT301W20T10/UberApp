@@ -13,115 +13,135 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <FrameLayout
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
             <!--
             StackOverflow post by BOUTERBIAT Oualid:
             https://stackoverflow.com/users/6255927/bouterbiat-oualid
-            Answer:
-            https://stackoverflow.com/a/38011904
+            Answer: https://stackoverflow.com/a/38011904
             for information regarding CircleImageView dependencies.
             -->
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/profile_picture"
                 android:layout_width="320px"
                 android:layout_height="320px"
-                android:src="@mipmap/user"
+                android:src="@drawable/ic_user_24dp"
                 app:civ_border_color="?attr/textColor"
-                app:civ_border_width="10px" />
+                app:civ_border_width="10px"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageButton
-                android:id="@+id/profile_button"
+            <FrameLayout
                 android:layout_width="320px"
                 android:layout_height="320px"
-                android:background="@mipmap/user">
-            </ImageButton>
+                android:layout_marginBottom="36dp"
+                app:layout_constraintBottom_toBottomOf="@+id/profile_layout"
+                app:layout_constraintEnd_toEndOf="@+id/profile_layout"
+                app:layout_constraintStart_toStartOf="@+id/profile_layout"
+                app:layout_constraintTop_toTopOf="@+id/profile_layout">
 
-            <TextView
-                android:id="@+id/tap_profile_hint"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:clickable="false"
-                android:gravity="center"
-                android:visibility="invisible"
-                android:text="Tap to view\nprofile"
-                android:textColor="#83FF0000">
-            </TextView>
+                <TextView
+                    android:id="@+id/tap_profile_hint"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:clickable="false"
+                    android:gravity="center"
+                    android:text="Tap to view\nprofile"
+                    android:textColor="#83FF0000"
+                    android:visibility="invisible">
+                </TextView>
 
-            <!--            <ImageView-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                app:srcCompat="?attr/requestPictureBorder"></ImageView>-->
-
-        </FrameLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            </FrameLayout>
 
             <LinearLayout
+                android:id="@+id/profile_layout"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageButton
+                    android:id="@+id/profile_button"
+                    android:layout_width="320px"
+                    android:layout_height="320px"
+                    android:background="@color/transparent"></ImageButton>
 
                 <TextView
-                    android:id="@+id/request_first_name"
+                    android:id="@+id/request_username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="80px"
-                    android:paddingRight="20px"
-                    android:text="@string/request_first_name"
-                    android:textColor="?attr/textColor">
-                </TextView>
-
-                <TextView
-                    android:id="@+id/request_last_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="80px"
+                    android:layout_gravity="center_horizontal"
+                    android:text="User"
                     android:textColor="?attr/textColor"
-                    android:text="@string/request_last_name">
+                    android:textSize="70px">
+
                 </TextView>
+
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/request_distance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/request_distance"
-                android:textColor="?attr/textColor"
-                android:textSize="80px"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/request_username">
-            </TextView>
+            <LinearLayout
+                android:id="@+id/info_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintStart_toEndOf="@+id/profile_picture"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/request_offer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/request_offer"
-                android:textColor="?attr/textColor"
-                android:textSize="80px"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/request_distance">
-            </TextView>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-        </LinearLayout>
+                    <TextView
+                        android:id="@+id/request_first_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="20px"
+                        android:text="@string/request_first_name"
+                        android:textColor="?attr/textColor"
+                        android:textSize="80px"></TextView>
+
+                    <TextView
+                        android:id="@+id/request_last_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/request_last_name"
+                        android:textColor="?attr/textColor"
+                        android:textSize="80px"></TextView>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/request_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/request_distance"
+                    android:textColor="?attr/textColor"
+                    android:textSize="80px"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/request_username"></TextView>
+
+                <TextView
+                    android:id="@+id/request_offer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/request_offer"
+                    android:textColor="?attr/textColor"
+                    android:textSize="80px"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/request_distance"></TextView>
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/request_username"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/request_username"
-        android:textColor="?attr/textColor"
-        android:textSize="70px">
-
-    </TextView>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -204,11 +224,13 @@
             android:id="@+id/cancel_request_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="92dp"
+            android:layout_marginEnd="51dp"
             android:text="@string/request_cancel"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/finish_request_button"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@+id/finish_request_button"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/start_end_distance">
 
         </Button>
 
@@ -216,12 +238,14 @@
             android:id="@+id/finish_request_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="92dp"
             android:onClick="onDonePressed"
             android:text="@string/request_finish"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/cancel_request_button"
-            app:layout_constraintTop_toTopOf="parent"></Button>
+            app:layout_constraintTop_toBottomOf="@+id/start_end_distance">
+
+        </Button>
 
         <TextView
             android:id="@+id/start_end_distance"
@@ -245,7 +269,6 @@
             android:text="@string/request_accept"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/start_end_distance"></Button>
 

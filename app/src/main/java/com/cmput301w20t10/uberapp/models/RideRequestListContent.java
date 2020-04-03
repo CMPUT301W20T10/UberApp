@@ -3,31 +3,48 @@ package com.cmput301w20t10.uberapp.models;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.gson.annotations.SerializedName;
 
 public class RideRequestListContent implements Comparable<RideRequestListContent> {
+//    @SerializedName("1")
     private String username;
+//    @SerializedName("2")
     private Float distance;
-    private int offer;
+//    @SerializedName("3")
+    private int offerInCents;
+//    @SerializedName("4")
     private String firstName;
+//    @SerializedName("5")
     private String lastName;
+//    @SerializedName("6")
     private LatLng startDest;
+//    @SerializedName("7")
     private LatLng endDest;
+//    @SerializedName("8")
     private String imageURL;
+//    @SerializedName("9")
     private DocumentReference rideRequestReference;
+//    @SerializedName("10")
     private DocumentReference unpairedReference;
-
-    private int collapsedHeight, currentHeight, expandedHeight;
+//    @SerializedName("11")
+    private int collapsedHeight;
+//    @SerializedName("12")
+    private int currentHeight;
+//    @SerializedName("13")
+    private int expandedHeight;
+//    @SerializedName("14")
     private boolean isOpen;
+//    @SerializedName("15")
     private rideRequestHolder holder;
 
 
-    public RideRequestListContent(String username, Float distance, int offer, String imageURL,
+    public RideRequestListContent(String username, Float distance, int offerInCents, String imageURL,
                                   String firstName, String lastName, LatLng startDest, LatLng endDest,
                                   DocumentReference rideRequestReference, DocumentReference unpairedReference,
                                   int collapsedHeight, int currentHeight, int expandedHeight) {
         this.username = username;
         this.distance = distance;
-        this.offer = offer;
+        this.offerInCents = offerInCents;
         this.firstName = firstName;
         this.lastName = lastName;
         this.startDest = startDest;
@@ -41,7 +58,17 @@ public class RideRequestListContent implements Comparable<RideRequestListContent
         this.isOpen = false;
     }
 
-
+    public RideRequestListContent(String username, Float distance, int offer, String imageURL,
+                                  String firstName, String lastName, LatLng startDest, LatLng endDest) {
+        this.username = username;
+        this.distance = distance;
+        this.offerInCents = offerInCents;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.startDest = startDest;
+        this.endDest = endDest;
+        this.imageURL = imageURL;
+    }
 
     public String getUsername() {
         return username;
@@ -60,11 +87,11 @@ public class RideRequestListContent implements Comparable<RideRequestListContent
     }
 
     public int getOffer() {
-        return offer;
+        return offerInCents;
     }
 
     public void setOffer(int offer) {
-        this.offer = offer;
+        this.offerInCents = offer;
     }
 
     public String getFirstName() {
@@ -164,4 +191,6 @@ public class RideRequestListContent implements Comparable<RideRequestListContent
     public int compareTo(RideRequestListContent rideRequest) {
         return distance.compareTo(rideRequest.distance);
     }
+
+
 }

@@ -7,7 +7,7 @@
         android:id="@+id/switch_id"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:background="?attr/themePicture"
+        android:background="@drawable/ic_moon"
         android:scaleType="fitCenter"
         android:layout_marginTop="12dp"
         android:layout_marginEnd="12dp"/>

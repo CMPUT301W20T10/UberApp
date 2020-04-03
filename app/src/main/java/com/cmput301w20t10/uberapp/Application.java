@@ -38,10 +38,12 @@ public final class Application {
     private volatile String messagingToken;
     private volatile String prevActivity;
     private volatile String activeRidePath;
+    private volatile String activeRideID;
     private volatile Route route;
     private volatile DocumentReference rideDocument;
 
     private volatile RideRequest selectedHistoryRequest;
+    private volatile RideRequest newestRequest;
 
     private Application() {
         this.user = null;
@@ -89,6 +91,14 @@ public final class Application {
         this.activeRidePath = activeRidePath;
     }
 
+    public String getActiveRideID() {
+        return activeRideID;
+    }
+
+    public void setActiveRideID(String activeRideID) {
+        this.activeRideID = activeRideID;
+    }
+
     public Route getRoute() {
         return route;
     }
@@ -112,6 +122,9 @@ public final class Application {
     public RideRequest getSelectedHistoryRequest() {
         return selectedHistoryRequest;
     }
+
+    public void setNewestRequest(RideRequest request) {newestRequest = request;}
+    public RideRequest getNewestRequest() {return newestRequest;}
 
     public synchronized boolean isInBackground() {
         ActivityManager.RunningAppProcessInfo process = new ActivityManager.RunningAppProcessInfo();
