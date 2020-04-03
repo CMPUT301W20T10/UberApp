@@ -205,6 +205,30 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
             });
         } else {
             RideRequestListContent rideRequest = sharedPref.loadRideRequest();
+            username.setText(rideRequest.getUsername());
+            distance.setText(String.format("%.2fkm", rideRequest.getDistance()));
+            offer.setText(String.format("Offer: $%d", rideRequest.getOffer()));
+            firstName.setText(rideRequest.getFirstName());
+            lastName.setText(rideRequest.getLastName());
+            LatLng startLatLng = rideRequest.getStartDest();
+            startDest.setText(getAddress(startLatLng));
+            LatLng endLatLng = rideRequest.getEndDest();
+            endDest.setText(getAddress(endLatLng));
+            float[] startEndDist = new float[1];
+            Location.distanceBetween(startLatLng.latitude, startLatLng.longitude,
+                    endLatLng.latitude, endLatLng.longitude, startEndDist);
+            startEndDistance.setText(String.format("%.2fkm", startEndDist[0] / 1000));
+
+//            dropPins("Start Destination", startLatLng, "End Destination", endLatLng);
+//            new FetchURL(this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
+
+            cancelButton.setOnClickListener(view -> {
+                Toast.makeText(getApplicationContext(), "Internet required to cancel", Toast.LENGTH_LONG).show();
+            });
+
+            finishButton.setOnClickListener(view -> {
+                Toast.makeText(getApplicationContext(), "Internet required to finish", Toast.LENGTH_LONG).show();
+            });
 
         }
     }
@@ -309,7 +333,7 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         }
 
         getCurrentLocation();
-        if (locationPermissionGranted) {
+        if (locationPermissionGranted && hasNetwork()) {
             googleMap.setMyLocationEnabled(true);
             googleMap.setOnMyLocationButtonClickListener(() -> {
                 mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 18f));

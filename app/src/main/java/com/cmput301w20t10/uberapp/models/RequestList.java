@@ -51,7 +51,7 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
      */
 
     public View getView(int position, @Nullable View view, @NonNull ViewGroup parent) {
-        rideRequestHolder holder = null;
+        rideRequestHolder holder;
 
         RideRequestListContent rideRequest = rideRequests.get(position);
 

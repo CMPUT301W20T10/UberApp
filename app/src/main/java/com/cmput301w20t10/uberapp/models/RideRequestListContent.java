@@ -3,21 +3,38 @@ package com.cmput301w20t10.uberapp.models;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.gson.annotations.SerializedName;
 
 public class RideRequestListContent implements Comparable<RideRequestListContent> {
+//    @SerializedName("1")
     private String username;
+//    @SerializedName("2")
     private Float distance;
+//    @SerializedName("3")
     private int offer;
+//    @SerializedName("4")
     private String firstName;
+//    @SerializedName("5")
     private String lastName;
+//    @SerializedName("6")
     private LatLng startDest;
+//    @SerializedName("7")
     private LatLng endDest;
+//    @SerializedName("8")
     private String imageURL;
+//    @SerializedName("9")
     private DocumentReference rideRequestReference;
+//    @SerializedName("10")
     private DocumentReference unpairedReference;
-
-    private int collapsedHeight, currentHeight, expandedHeight;
+//    @SerializedName("11")
+    private int collapsedHeight;
+//    @SerializedName("12")
+    private int currentHeight;
+//    @SerializedName("13")
+    private int expandedHeight;
+//    @SerializedName("14")
     private boolean isOpen;
+//    @SerializedName("15")
     private rideRequestHolder holder;
 
 
@@ -41,7 +58,17 @@ public class RideRequestListContent implements Comparable<RideRequestListContent
         this.isOpen = false;
     }
 
-
+    public RideRequestListContent(String username, Float distance, int offer, String imageURL,
+                                  String firstName, String lastName, LatLng startDest, LatLng endDest) {
+        this.username = username;
+        this.distance = distance;
+        this.offer = offer;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.startDest = startDest;
+        this.endDest = endDest;
+        this.imageURL = imageURL;
+    }
 
     public String getUsername() {
         return username;
@@ -164,4 +191,6 @@ public class RideRequestListContent implements Comparable<RideRequestListContent
     public int compareTo(RideRequestListContent rideRequest) {
         return distance.compareTo(rideRequest.distance);
     }
+
+
 }
