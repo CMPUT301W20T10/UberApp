@@ -13,104 +13,104 @@ import android.widget.TextView;
  */
 public class rideRequestHolder {
     private LinearLayout textViewWrap;
-    private TextView username;
-    private TextView distance;
-    private TextView offer;
-    private TextView firstName;
-    private TextView lastName;
-    private TextView startDest;
-    private TextView endDest;
-    private TextView startEndDist;
-    private ImageView profilePic;
+    private TextView usernameText;
+    private TextView distanceText;
+    private TextView offerText;
+    private TextView firstNameText;
+    private TextView lastNameText;
+    private TextView startDestText;
+    private TextView endDestText;
+    private TextView startEndDistText;
+    private ImageView profilePicImage;
     private Button acceptButton;
 
-    public rideRequestHolder(LinearLayout textViewWrap, TextView username, TextView distance, TextView offer,
-                             TextView firstName, TextView lastName, TextView startDest, TextView endDest, TextView startEndDist,
-                             ImageView profilePic, Button acceptButton) {
+    public rideRequestHolder(LinearLayout textViewWrap, TextView usernameText, TextView distanceText, TextView offerText,
+                             TextView firstNameText, TextView lastNameText, TextView startDestText, TextView endDestText, TextView startEndDistText,
+                             ImageView profilePicImage, Button acceptButton) {
         super();
         this.textViewWrap = textViewWrap;
-        this.username = username;
-        this.distance = distance;
-        this.offer = offer;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.startDest = startDest;
-        this.endDest = endDest;
-        this.startEndDist = startEndDist;
-        this.profilePic = profilePic;
+        this.usernameText = usernameText;
+        this.distanceText = distanceText;
+        this.offerText = offerText;
+        this.firstNameText = firstNameText;
+        this.lastNameText = lastNameText;
+        this.startDestText = startDestText;
+        this.endDestText = endDestText;
+        this.startEndDistText = startEndDistText;
+        this.profilePicImage = profilePicImage;
         this.acceptButton = acceptButton;
     }
 
     public TextView getUsername() {
-        return username;
+        return usernameText;
     }
 
-    public void setUsername(TextView username) {
-        this.username = username;
+    public void setUsername(TextView usernameText) {
+        this.usernameText = usernameText;
     }
 
     public TextView getDistance() {
-        return distance;
+        return distanceText;
     }
 
-    public void setDistance(TextView distance) {
-        this.distance = distance;
+    public void setDistance(TextView distanceText) {
+        this.distanceText = distanceText;
     }
 
     public TextView getOffer() {
-        return offer;
+        return offerText;
     }
 
-    public void setOffer(TextView offer) {
-        this.offer = offer;
+    public void setOffer(TextView offerText) {
+        this.offerText = offerText;
     }
 
     public TextView getFirstName() {
-        return firstName;
+        return firstNameText;
     }
 
-    public void setFirstName(TextView firstName) {
-        this.firstName = firstName;
+    public void setFirstName(TextView firstNameText) {
+        this.firstNameText = firstNameText;
     }
 
     public TextView getLastName() {
-        return lastName;
+        return lastNameText;
     }
 
-    public void setLastName(TextView lastName) {
-        this.lastName = lastName;
+    public void setLastName(TextView lastNameText) {
+        this.lastNameText = lastNameText;
     }
 
     public TextView getStartDest() {
-        return startDest;
+        return startDestText;
     }
 
-    public void setStartDest(TextView startDest) {
-        this.startDest = startDest;
+    public void setStartDest(TextView startDestText) {
+        this.startDestText = startDestText;
     }
 
     public TextView getEndDest() {
-        return endDest;
+        return endDestText;
     }
 
-    public void setEndDest(TextView endDest) {
-        this.endDest = endDest;
+    public void setEndDest(TextView endDestText) {
+        this.endDestText = endDestText;
     }
 
     public TextView getStartEndDist() {
-        return startEndDist;
+        return startEndDistText;
     }
 
-    public void setStartEndDist(TextView startEndDist) {
-        this.startEndDist = startEndDist;
+    public void setStartEndDist(TextView startEndDistText) {
+        this.startEndDistText = startEndDistText;
     }
 
     public ImageView getProfilePic() {
-        return profilePic;
+        return profilePicImage;
     }
 
-    public void setProfilePic(ImageView profilePic) {
-        this.profilePic = profilePic;
+    public void setProfilePic(ImageView profilePicImage) {
+        this.profilePicImage = profilePicImage;
     }
 
     public Button getAcceptButton() {

@@ -1,6 +1,8 @@
 package com.cmput301w20t10.uberapp.activities;
 
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -110,71 +112,85 @@ public class BaseActivity extends AppCompatActivity {
         fabDarkMode.animate().translationY(800);
         fabExit.animate().translationY(950);
 
-        //Begin onclickListeners for each fab button, each sends to new activity. This activity should extend baseactivity so it can also have Menu.
-        fabProfile.setOnClickListener(v -> {
-            if (Application.getInstance().getPrevActivity().equals("activities.ProfilePage") ) {
-                closeMenu();
-                return;
-            }
-            Intent intent = new Intent(BaseActivity.this, ProfilePage.class);
-            Application.getInstance().setPrevActivity(this.getLocalClassName());
-            startActivity(intent);
-            closeMenu();
-        });
-
-        fabSearch.setOnClickListener(v -> {
-            if (Application.getInstance().getPrevActivity().equals("activities.SearchProfile")) {
-                closeMenu();
-                return;
-            }
-            Intent intent = new Intent(BaseActivity.this, SearchProfile.class);
-            Application.getInstance().setPrevActivity(this.getLocalClassName());
-            startActivity(intent);
-            closeMenu();
-        });
-
-        fabHistory.setOnClickListener(v -> {
-            if (Application.getInstance().getPrevActivity().equals("activities.RideHistoryActivity")) {
-                closeMenu();
-                return;
-            }
-            Intent intent = new Intent(BaseActivity.this, RideHistoryActivity.class);
-            Application.getInstance().setPrevActivity(this.getLocalClassName());
-            startActivity(intent);
-            closeMenu();
-        });
-
-        fabHome.setOnClickListener(v -> {
-            if (sharedPref.loadHomeActivity().equals(this.getLocalClassName())) {
-                closeMenu();
-                return;
-            } else {
-                if (sharedPref.loadUserType().equals("rider")) {
-                    Intent intent = new Intent(BaseActivity.this, RiderMainActivity.class);
-                    Application.getInstance().setPrevActivity(this.getLocalClassName());
-                    startActivity(intent);
+        if (hasNetwork()) {
+            //Begin onclickListeners for each fab button, each sends to new activity. This activity should extend baseactivity so it can also have Menu.
+            fabProfile.setOnClickListener(v -> {
+                if (Application.getInstance().getPrevActivity().equals("activities.ProfilePage")) {
                     closeMenu();
+                    return;
+                }
+                Intent intent = new Intent(BaseActivity.this, ProfilePage.class);
+                Application.getInstance().setPrevActivity(this.getLocalClassName());
+                startActivity(intent);
+                closeMenu();
+            });
+
+            fabSearch.setOnClickListener(v -> {
+                if (Application.getInstance().getPrevActivity().equals("activities.SearchProfile")) {
+                    closeMenu();
+                    return;
+                }
+                Intent intent = new Intent(BaseActivity.this, SearchProfile.class);
+                Application.getInstance().setPrevActivity(this.getLocalClassName());
+                startActivity(intent);
+                closeMenu();
+            });
+
+            fabHistory.setOnClickListener(v -> {
+                if (Application.getInstance().getPrevActivity().equals("activities.RideHistoryActivity")) {
+                    closeMenu();
+                    return;
+                }
+                Intent intent = new Intent(BaseActivity.this, RideHistoryActivity.class);
+                Application.getInstance().setPrevActivity(this.getLocalClassName());
+                startActivity(intent);
+                closeMenu();
+            });
+
+            fabHome.setOnClickListener(v -> {
+                if (sharedPref.loadHomeActivity().equals(this.getLocalClassName())) {
+                    closeMenu();
+                    return;
                 } else {
-                    Driver driver = (Driver) Application.getInstance().getCurrentUser();
-                    if (driver != null) {
-                        if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0) {
-                            Intent intent = new Intent(BaseActivity.this, DriverAcceptedActivity.class);
-                            String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
-                            Application.getInstance().setActiveRidePath(activeRideRequest);
-                            Application.getInstance().setPrevActivity(this.getLocalClassName());
-                            startActivity(intent);
-                            closeMenu();
-                        } else {
-                            Intent intent = new Intent(BaseActivity.this, DriverMainActivity.class);
-                            Application.getInstance().setPrevActivity(this.getLocalClassName());
-                            startActivity(intent);
-                            closeMenu();
+                    if (sharedPref.loadUserType().equals("rider")) {
+                        Intent intent = new Intent(BaseActivity.this, RiderMainActivity.class);
+                        Application.getInstance().setPrevActivity(this.getLocalClassName());
+                        startActivity(intent);
+                        closeMenu();
+                    } else {
+                        Driver driver = (Driver) Application.getInstance().getCurrentUser();
+                        if (driver != null) {
+                            if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0) {
+                                Intent intent = new Intent(BaseActivity.this, DriverAcceptedActivity.class);
+                                String activeRideRequest = driver.getActiveRideRequestList().get(0).getPath();
+                                Application.getInstance().setActiveRidePath(activeRideRequest);
+                                Application.getInstance().setPrevActivity(this.getLocalClassName());
+                                startActivity(intent);
+                                closeMenu();
+                            } else {
+                                Intent intent = new Intent(BaseActivity.this, DriverMainActivity.class);
+                                Application.getInstance().setPrevActivity(this.getLocalClassName());
+                                startActivity(intent);
+                                closeMenu();
+                            }
                         }
                     }
                 }
-            }
-        });
-
+            });
+        } else {
+            fabProfile.setOnClickListener(v -> {
+                Toast.makeText(this, "Internet required to view profile", Toast.LENGTH_SHORT).show();
+            });
+            fabHome.setOnClickListener(v -> {
+                Toast.makeText(this, "Internet required to go to home page", Toast.LENGTH_SHORT).show();
+            });
+            fabHistory.setOnClickListener(v -> {
+                Toast.makeText(this, "Internet required to view history", Toast.LENGTH_SHORT).show();
+            });
+            fabSearch.setOnClickListener(v -> {
+                Toast.makeText(this, "Internet required to search for profiles", Toast.LENGTH_SHORT).show();
+            });
+        }
         fabDarkMode.setOnClickListener(v -> {
             if (sharedPref.loadNightModeState() == true) {
                 sharedPref.setNightModeState(false);
@@ -202,5 +218,11 @@ public class BaseActivity extends AppCompatActivity {
             Log.d("TestUser: ", sharedPref.loadUserType());
             LogOut.clearRestart(this);
         });
+    }
+
+    public boolean hasNetwork() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        return connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED;
     }
 }

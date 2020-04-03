@@ -66,6 +66,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -74,6 +75,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DriverMainActivity extends BaseActivity implements OnMapReadyCallback, TaskLoadedCallback {
     private static final String TAG = "DriverTest" ;
 
+    // Strings
     private static final String USER_REFERENCE = "userReference";
     private static final String USERNAME = "username";
     private static final String IMAGE = "image";
@@ -103,17 +105,17 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
 
     private boolean accordion = true;
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Kevin's todo list
         // TODO: TRY TO IMPLEMENT OFFLINE BEHAVIOUR
-        // TODO: CANCEL BUTTON DOESN'T BRING YOU BACK TO DRIVER MAIN. RIDE IS REMOVED FROM DATABASE BUT STILL SHOWS AS 1
 
-
-
+        /*
+         * This section checks whether the driver already has an active ride request.
+         * If yes, then changes to DriverAcceptedActivity
+         */
         Application.getInstance().getLatestUserData().observe(this, user -> {
             if (user != null) {
                 RideRequestDAO rrDAO = DatabaseManager.getInstance().getRideRequestDAO();
@@ -138,6 +140,9 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
 
         db = FirebaseFirestore.getInstance();
 
+        /*
+         * This section finds the heights used to expand and collapse the listview items
+         */
         Display display = this.getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -145,6 +150,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         final int collapsedHeight = 320;
         final int expandedHeight = height / 2;
 
+        // Sets the activity to dark theme if true saved in shared pref
         sharedPref = new SharedPref(this);
         if (sharedPref.loadNightModeState()) {
             setTheme(R.style.DarkTheme);
@@ -162,6 +168,11 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         requestList = findViewById(R.id.ride_request_list);
         requestDataList = new ArrayList<>();
 
+        /*
+         * This section finds all ride requests that have been requested by riders but not yet accepted
+         * Uses RideRequestListContent to store the necessary information
+         *
+         */
         UnpairedRideListDAO dao = new UnpairedRideListDAO();
         MutableLiveData<List<RideRequest>> liveRideRequest = dao.getAllUnpairedRideRequest();
         AtomicInteger counter = new AtomicInteger(0);
@@ -187,11 +198,8 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                                 float[] distance = new float[1];
                                 Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), startDest.latitude, startDest.longitude, distance);
                                 RideRequestListContent rideRequest = new RideRequestListContent(username, distance[0] / 1000, offerInCents,
-                                        imageURL, firstName, lastName, startDest, endDest,
-                                        rideRequestReference, unpairedReference, collapsedHeight, 0,expandedHeight);
-                                rideRequest.setCollapsedHeight(collapsedHeight);
-                                rideRequest.setCurrentHeight(collapsedHeight);
-                                rideRequest.setExpandedHeight(expandedHeight);
+                                        imageURL, firstName, lastName, startDest, endDest, rideRequestReference,
+                                        unpairedReference, collapsedHeight, collapsedHeight,expandedHeight);
                                 requestDataList.add(rideRequest);
                                 Collections.sort(requestDataList);
                                 requestAdapter = new RequestList(DriverMainActivity.this, requestDataList);
@@ -203,6 +211,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             }
         });
 
+        // OnClickListener for listview items
         requestList.setOnItemClickListener((adapterView, view, i, l) -> {
             toggle(view, i);
             final RideRequestListContent rideRequestContent = (RideRequestListContent) adapterView.getItemAtPosition(i);
@@ -211,6 +220,10 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             dropPins("Start Destination", startDest, "End Destination",  endDest);
             new FetchURL(DriverMainActivity.this).execute(createUrl(startPin.getPosition(), endPin.getPosition()), "driving");
 
+            /*
+             * Accept button that is revealed after clicking list item
+             * Transitions to DriverAcceptedActivity
+             */
             Button acceptButton = view.findViewById(R.id.accept_request_button);
             acceptButton.setOnClickListener(acceptView -> {
                 RideRequestDAO rideRequestDAO = new RideRequestDAO();
@@ -218,6 +231,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                 liveData.observe(this, rideRequest -> {
                     if (rideRequest != null) {
                         rideRequestDAO.acceptRequest(rideRequest, driver, this);
+                        sharedPref.setRideRequest(rideRequestContent);
                         Intent intent = new Intent(this, DriverAcceptedActivity.class);
                         Application.getInstance().setActiveRideID(rideRequest.getRideRequestReference().getId());
                         Application.getInstance().setPrevActivity(this.getLocalClassName());
@@ -227,6 +241,10 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                 });
             });
 
+            /*
+             * Image button for the profile picture.
+             * On click shows a fragment displaying the corresponding rider's contact information
+             */
             ImageButton riderPictureButton = view.findViewById(R.id.profile_button);
             riderPictureButton.setOnClickListener(pictureView -> db.collection("users")
                     .whereEqualTo("username", rideRequestContent.getUsername())
@@ -435,6 +453,9 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         }
     }
 
+    /*
+     * Move camera and zoom level to fit start and end pin as well as current location
+     */
     private void moveCamera(Marker startMarker, Marker endMarker){
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
@@ -450,6 +471,10 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
 
     }
 
+    /*
+     * Drop custom pins on the map
+     * Pins for start and end destinations
+     */
     private void dropPins(String startTitle, LatLng startDest, String endTitle, LatLng endDest) {
         startPin = new MarkerOptions()
                 .position(startDest)

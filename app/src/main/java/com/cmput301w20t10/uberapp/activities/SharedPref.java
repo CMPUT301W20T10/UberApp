@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.cmput301w20t10.uberapp.models.RideRequestListContent;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 
 public class SharedPref {
@@ -73,11 +74,20 @@ public class SharedPref {
         return mySharedPref.getBoolean("RememberMe", false);
     }
 
-    public void setRideRequest(RideRequestListContent rideRequestContent) {
+    public void setRideRequest(RideRequestListContent oldRideRequestContent) {
         SharedPreferences.Editor editor = mySharedPref.edit();
         Gson gson = new Gson();
+        RideRequestListContent rideRequestContent = new RideRequestListContent(
+                oldRideRequestContent.getUsername(),
+                oldRideRequestContent.getDistance(),
+                oldRideRequestContent.getOffer(),
+                oldRideRequestContent.getImageURL(),
+                oldRideRequestContent.getFirstName(),
+                oldRideRequestContent.getLastName(),
+                oldRideRequestContent.getStartDest(),
+                oldRideRequestContent.getEndDest());
         String json = gson.toJson(rideRequestContent);
-        editor.putString("RideReqeust", json);
+        editor.putString("RideRequest", json);
         editor.commit();
     }
 
