@@ -1,5 +1,8 @@
 # UberApp
 
+Note:
+Master doesn't seem to be merging in my changes and I am running out of time. Please run the version of the app in the branch FixCurrency. This should combine everyone's work in a way that it works best together. - Alexander
+
 App usage:
 
 Login:
@@ -36,7 +39,3 @@ Both rider and driver get access to a similar menu.
   
     *Logout:
     This logs out the user.
-
-Note:
-  
-If there is any weirdness with running the application in master, please try running the version in the branch 'FixCurrency' Everything seems to be working there, but merging into master doesnt seem to have any effect.
