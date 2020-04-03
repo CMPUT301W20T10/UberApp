@@ -3,6 +3,7 @@ com.cmput301w20t10.uberapp.Directions
 com.cmput301w20t10.uberapp.activities
 com.cmput301w20t10.uberapp.database
 com.cmput301w20t10.uberapp.database.base
+com.cmput301w20t10.uberapp.database.dao
 com.cmput301w20t10.uberapp.database.entity
 com.cmput301w20t10.uberapp.database.util
 com.cmput301w20t10.uberapp.database.viewmodel
