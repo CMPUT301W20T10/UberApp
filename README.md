@@ -36,3 +36,7 @@ Both rider and driver get access to a similar menu.
   
     *Logout:
     This logs out the user.
+
+Note:
+  
+If there is any weirdness with running the application in master, please try running the version in the branch 'FixCurrency' Everything seems to be working there, but merging into master doesnt seem to have any effect.
