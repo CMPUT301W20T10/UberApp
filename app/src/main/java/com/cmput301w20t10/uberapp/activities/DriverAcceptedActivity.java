@@ -225,8 +225,9 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         // Todo(Joshua): Send notification to Rider
 
         RideRequestDAO dao = new RideRequestDAO();
-        String id = Application.getInstance().getActiveRidePath().split("/")[1];
-        dao.getModelByID(id).observe(this, rideRequest -> {
+        String[] tokens = Application.getInstance().getActiveRidePath().split("/");
+        String newToken = tokens[1] + tokens[2];
+        dao.getModelByID(newToken).observe(this, rideRequest -> {
             if(rideRequest != null) {
                 RiderDAO riderDao = new RiderDAO();
                 riderDao.getModelByReference(rideRequest.getRiderReference()).observe(this, rider-> {
@@ -330,6 +331,13 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
         Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
         if (location != null) {
             currentLocation = location;
+            LatLng currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+            mainMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 13));
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(currentLatLng)      // Sets the center of the map to location user
+                    .zoom(17)                   // Sets the zoom
+                    .build();                   // Creates a CameraPosition from the builder
+            mainMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
     }
 
