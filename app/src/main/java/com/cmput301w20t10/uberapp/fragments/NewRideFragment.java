@@ -101,7 +101,12 @@ public class NewRideFragment extends Fragment {
                 Log.d("Test", "if condition passed");
                 Rider rider = (Rider) user;
                 MutableLiveData<RideRequest> createdRequest = dao.createRideRequest(rider,Application.getInstance().getRoute(),newOfferCents,this);
+
                 createdRequest.observe(this, request -> {
+                    if (request != null) {
+                        Application.getInstance().setNewestRequest(request);
+                    }
+
                     this.close();
                 });
 

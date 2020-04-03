@@ -43,6 +43,7 @@ public final class Application {
     private volatile DocumentReference rideDocument;
 
     private volatile RideRequest selectedHistoryRequest;
+    private volatile RideRequest newestRequest;
 
     private Application() {
         this.user = null;
@@ -121,6 +122,9 @@ public final class Application {
     public RideRequest getSelectedHistoryRequest() {
         return selectedHistoryRequest;
     }
+
+    public void setNewestRequest(RideRequest request) {newestRequest = request;}
+    public RideRequest getNewestRequest() {return newestRequest;}
 
     public synchronized boolean isInBackground() {
         ActivityManager.RunningAppProcessInfo process = new ActivityManager.RunningAppProcessInfo();
