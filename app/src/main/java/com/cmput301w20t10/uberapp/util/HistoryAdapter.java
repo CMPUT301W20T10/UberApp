@@ -91,7 +91,7 @@ public class HistoryAdapter extends BaseAdapter {
         // write the easily accessible information
         DateFormat dateFormat = new SimpleDateFormat("yy-MM-dd hh:mm a");
         dateView.setText(dateFormat.format(time));
-        fareView.setText("$"+String.format("%d", cents));
+        fareView.setText("$"+String.format("%.2f", ((double)cents)/100));
         statusText.setText(String.valueOf(request.getState()));
 
         if (user instanceof Rider) {
