@@ -459,6 +459,8 @@ public class BasicDAOTest extends DatabaseTestBase {
 
         liveDataObserver(runnable2, syncObject2);
 
+        // remove streams
+        /*
         Rider remoteRider = atomicReference.get();
         String path = rideRequest.getRideRequestReference().getPath();
         try {
@@ -472,6 +474,7 @@ public class BasicDAOTest extends DatabaseTestBase {
             Log.e(TAG, "cancelRequestAfterDriverAcceptTest: " + path);
             throw e;
         }
+         */
     }
 
     @Test
