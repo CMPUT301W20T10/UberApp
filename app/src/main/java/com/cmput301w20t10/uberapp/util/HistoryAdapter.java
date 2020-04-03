@@ -81,7 +81,6 @@ public class HistoryAdapter extends BaseAdapter {
         RideRequest request = rideHistory.get(position);
         Date time = request.getTimestamp();
         int cents = request.getFareOffer();
-        Double offer = Double.valueOf(cents)/100;
 
         // get reference to the UI elements
         TextView fareView = view.findViewById(R.id.rideFare);
@@ -92,7 +91,7 @@ public class HistoryAdapter extends BaseAdapter {
         // write the easily accessible information
         DateFormat dateFormat = new SimpleDateFormat("yy-MM-dd hh:mm a");
         dateView.setText(dateFormat.format(time));
-        fareView.setText("$"+String.format("%.2f", offer));
+        fareView.setText("$"+String.format("%d", cents));
         statusText.setText(String.valueOf(request.getState()));
 
         if (user instanceof Rider) {

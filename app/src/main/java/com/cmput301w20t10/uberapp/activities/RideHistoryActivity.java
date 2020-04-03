@@ -191,6 +191,7 @@ public class RideHistoryActivity extends BaseActivity {
         }
 
         liveRides.observe(this, list -> {
+            System.out.println("LIST: " +list.size());
             if (list != null) {
                 historyList.clear();
                 historyList.addAll(list);

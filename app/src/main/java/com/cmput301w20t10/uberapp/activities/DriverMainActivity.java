@@ -34,6 +34,7 @@ import com.cmput301w20t10.uberapp.Application;
 import com.cmput301w20t10.uberapp.Directions.FetchURL;
 import com.cmput301w20t10.uberapp.Directions.TaskLoadedCallback;
 import com.cmput301w20t10.uberapp.R;
+import com.cmput301w20t10.uberapp.database.DatabaseManager;
 import com.cmput301w20t10.uberapp.database.dao.RideRequestDAO;
 import com.cmput301w20t10.uberapp.database.dao.UnpairedRideListDAO;
 import com.cmput301w20t10.uberapp.fragments.ViewProfileFragment;
@@ -59,6 +60,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -77,6 +79,8 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
     private static final String IMAGE = "image";
     private static final String FIRST_NAME = "firstName";
     private static final String LAST_NAME = "lastName";
+
+    Driver driver;
 
     private static final int REQUEST_CODE = 101;
     private GoogleMap mainMap;
@@ -108,18 +112,25 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
         // TODO: TRY TO IMPLEMENT OFFLINE BEHAVIOUR
         // TODO: CANCEL BUTTON DOESN'T BRING YOU BACK TO DRIVER MAIN. RIDE IS REMOVED FROM DATABASE BUT STILL SHOWS AS 1
 
-        System.out.println("DRIVER");
-        Driver driver = (Driver) Application.getInstance().getCurrentUser();
-        System.out.println("PREV: " + Application.getInstance().getPrevActivity());
-        if (!Application.getInstance().getPrevActivity().equals("activities.DriverAcceptedActivity")) {
-            if (driver.getActiveRideRequestList() != null && driver.getActiveRideRequestList().size() > 0) {
-                Intent intent = new Intent(this, DriverAcceptedActivity.class);
-                Application.getInstance().setActiveRidePath(driver.getActiveRideRequestList().get(0).getPath());
-                Application.getInstance().setActiveRideID(driver.getActiveRideRequestList().get(0).getId());
-                Application.getInstance().setPrevActivity(this.getLocalClassName());
-                startActivity(intent);
+
+
+        Application.getInstance().getLatestUserData().observe(this, user -> {
+            if (user != null) {
+                RideRequestDAO rrDAO = DatabaseManager.getInstance().getRideRequestDAO();
+                driver = (Driver) user;
+                MutableLiveData<List<RideRequest>> liveRides = rrDAO.getAllActiveRideRequest(driver);
+                liveRides.observe(this, list -> {
+                    if (list != null) {
+                        System.out.println("RIDE: " + driver.getActiveRideRequestList().get(0).getPath());
+                        Intent intent = new Intent(this, DriverAcceptedActivity.class);
+                        Application.getInstance().setActiveRideID(list.get(0).getRideRequestReference().getId());
+                        Application.getInstance().setPrevActivity(this.getLocalClassName());
+                        startActivity(intent);
+                    }
+                });
             }
-        }
+        });
+//        }
 
         client = LocationServices.getFusedLocationProviderClient(this);
 
@@ -211,6 +222,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                         Application.getInstance().setActiveRideID(rideRequest.getRideRequestReference().getId());
                         Application.getInstance().setPrevActivity(this.getLocalClassName());
                         startActivity(intent);
+                        finish();
                     }
                 });
             });
