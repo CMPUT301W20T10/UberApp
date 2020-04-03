@@ -132,6 +132,9 @@ public class RideRatingFragment extends Fragment {
         });
     }
 
+    /**
+     * Display a popup message warning the user that they are unable to vote on a request
+     */
     private void warnCantVote() {
         Toast toast = Toast.makeText(getContext(), "You can't vote on this request again", Toast.LENGTH_LONG);
         TextView textView = toast.getView().findViewById(android.R.id.message);
