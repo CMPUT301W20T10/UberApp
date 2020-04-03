@@ -158,8 +158,8 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
             if (!rideRequests.isEmpty()) {
                 DocumentReference rideRequestReference = rideRequests.get(counter.getAndAdd(0)).getRideRequestReference();
                 DocumentReference unpairedReference = rideRequests.get(counter.getAndAdd(0)).getUnpairedReference();
-                int offer = rideRequests.get(counter.getAndAdd(0)).getFareOffer();
-                Log.d(TAG,"Offer: " + offer/100);
+                int offerInCents = rideRequests.get(counter.getAndAdd(0)).getFareOffer();
+                Log.d(TAG,"Offer: " + offerInCents/100);
                 LatLng startDest = rideRequests.get(counter.getAndAdd(0)).getRoute().getStartingPosition();
                 LatLng endDest = rideRequests.get(counter.getAndAdd(0)).getRoute().getDestinationPosition();
                 String riderPath = rideRequests.get(counter.getAndAdd(1)).getRiderReference().getPath();
@@ -175,7 +175,7 @@ public class DriverMainActivity extends BaseActivity implements OnMapReadyCallba
                                 String lastName = (String) userSnapshot.get(LAST_NAME);
                                 float[] distance = new float[1];
                                 Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), startDest.latitude, startDest.longitude, distance);
-                                RideRequestListContent rideRequest = new RideRequestListContent(username, distance[0] / 1000, offer,
+                                RideRequestListContent rideRequest = new RideRequestListContent(username, distance[0] / 1000, offerInCents,
                                         imageURL, firstName, lastName, startDest, endDest,
                                         rideRequestReference, unpairedReference, collapsedHeight, 0,expandedHeight);
                                 rideRequest.setCollapsedHeight(collapsedHeight);

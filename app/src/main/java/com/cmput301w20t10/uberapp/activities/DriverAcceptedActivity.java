@@ -155,7 +155,8 @@ public class DriverAcceptedActivity extends BaseActivity implements OnMapReadyCa
                             endLatLng.latitude, endLatLng.longitude, startEndDist);
                     startEndDistance.setText(String.format("%.2fkm", startEndDist[0] / 1000));
 
-                    offer.setText("Offer: $" + String.format("%d", rideRequest.getFareOffer()));
+                    double offerDec = ((double) rideRequest.getFareOffer()) /100;
+                    offer.setText("Offer: $" + String.format("%.2f", offerDec));
 
                     riderDao.getModelByReference(rideRequest.getRiderReference()).observe(this, rider -> {
                         if (rider != null) {

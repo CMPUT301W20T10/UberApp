@@ -7,7 +7,7 @@ import com.google.firebase.firestore.DocumentReference;
 public class RideRequestListContent implements Comparable<RideRequestListContent> {
     private String username;
     private Float distance;
-    private int offer;
+    private int offerInCents;
     private String firstName;
     private String lastName;
     private LatLng startDest;
@@ -21,13 +21,13 @@ public class RideRequestListContent implements Comparable<RideRequestListContent
     private rideRequestHolder holder;
 
 
-    public RideRequestListContent(String username, Float distance, int offer, String imageURL,
+    public RideRequestListContent(String username, Float distance, int offerInCents, String imageURL,
                                   String firstName, String lastName, LatLng startDest, LatLng endDest,
                                   DocumentReference rideRequestReference, DocumentReference unpairedReference,
                                   int collapsedHeight, int currentHeight, int expandedHeight) {
         this.username = username;
         this.distance = distance;
-        this.offer = offer;
+        this.offerInCents = offerInCents;
         this.firstName = firstName;
         this.lastName = lastName;
         this.startDest = startDest;
@@ -60,11 +60,11 @@ public class RideRequestListContent implements Comparable<RideRequestListContent
     }
 
     public int getOffer() {
-        return offer;
+        return offerInCents;
     }
 
     public void setOffer(int offer) {
-        this.offer = offer;
+        this.offerInCents = offer;
     }
 
     public String getFirstName() {

@@ -98,8 +98,8 @@ public class RequestList extends ArrayAdapter<RideRequestListContent> {
         holder.getUsername().setText(rideRequest.getUsername());
         holder.getDistance().setText(String.format("%.2f", rideRequest.getDistance()) + "km away");
 
-        int offerDec = rideRequest.getOffer();
-        holder.getOffer().setText("Offer: $" + String.format("%d", offerDec));
+        double offerDec = ((double)rideRequest.getOffer()) / 100;
+        holder.getOffer().setText("Offer: $" + String.format("%.2f", offerDec));
         holder.getFirstName().setText(rideRequest.getFirstName());
         holder.getLastName().setText(rideRequest.getLastName());
 
